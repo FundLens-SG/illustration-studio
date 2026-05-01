@@ -221,6 +221,14 @@ input.invalid-input {
   background: var(--red-soft);
 }
 
+.field-status {
+  color: var(--red);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 input:focus,
 select:focus,
 button:focus,
@@ -1864,9 +1872,11 @@ body.presentation-mode .strategy-table input:disabled {
             </select>
           </label>
           <label>
-            From year
+            <span id="bulkFromLabel">From year</span>
             <input id="bulkFromYear" type="number" min="1" max="99" step="1" value="1" />
+            <small id="bulkFromStatus" class="field-status" hidden>Invalid</small>
           </label>
+          <label class="toggle"><input id="bulkFromAge" type="checkbox" /> From age</label>
           <button id="applyBulkBelow" type="button">Apply to rows below</button>
           <button id="autofillPremiums" type="button">Reset required premiums</button>
         </div>
@@ -2817,7 +2827,7 @@ body.presentation-mode .strategy-table input:disabled {
     "compareCustom", "compareVariantKey", "compareAnnualizedPremium",
     "compareReinvest", "compareFd", "fdRate", "fdFundingMode", "fdAmount", "fdCompound",
     "deductPiFundMgmt", "showAdvisorDetails", "loadScenarioFile",
-    "bulkNavReturn", "bulkDividendYield", "bulkDividendMode", "bulkFromYear",
+    "bulkNavReturn", "bulkDividendYield", "bulkDividendMode", "bulkFromYear", "bulkFromAge", "bulkFromLabel", "bulkFromStatus",
     "compareBulkNavReturn", "compareBulkDividendYield", "compareBulkDividendMode", "compareBulkFromYear",
     "inflationAdjust", "inflationRate", "scenarioNotes",
     "historicalStartYear", "historicalDividendBoost",
@@ -3274,7 +3284,7 @@ body.presentation-mode .strategy-table input:disabled {
         row.dividendMode = fields.fundApplyDividendMode.value;
       }
     });
-    fields.bulkFromYear.value = fromYear;
+    setBulkFromYearValue(fromYear);
     if (!dividendOnly) fields.bulkNavReturn.value = roundInput(stats.navGrowth * 100, 2);
     fields.bulkDividendYield.value = roundInput(stats.dividendYield * 100, 2);
     fields.bulkDividendMode.value = fields.fundApplyDividendMode.value;
@@ -3713,8 +3723,63 @@ body.presentation-mode .strategy-table input:disabled {
   }
 
   // ===== BULK / SLIDER TOOLS =====
+  function currentStartAge() {
+    return Math.max(0, Math.round(numberValue(fields.startAge) || 0));
+  }
+
+  function setBulkFromYearValue(fromYear) {
+    const policyYear = Math.max(1, Math.round(Number(fromYear) || 1));
+    fields.bulkFromYear.value = fields.bulkFromAge.checked ? currentStartAge() + policyYear : policyYear;
+    syncBulkFromAgeControl();
+  }
+
+  function bulkFromYearResolution(bulkFields) {
+    const ageMode = Boolean(bulkFields.fromAge && bulkFields.fromAge.checked);
+    const rawValue = Math.round(numberValue(bulkFields.fromYear) || 0);
+    if (!ageMode) return { valid: true, fromYear: Math.max(1, rawValue || 1) };
+    const startAge = currentStartAge();
+    if (rawValue < startAge) return { valid: false, fromYear: 1 };
+    return { valid: true, fromYear: Math.max(1, rawValue - startAge) };
+  }
+
+  function setBulkFromValidity(bulkFields, valid) {
+    if (!bulkFields.fromAge) return;
+    bulkFields.fromYear.classList.toggle("invalid-input", !valid);
+    bulkFields.fromYear.setCustomValidity(valid ? "" : "Invalid");
+    if (bulkFields.fromStatus) bulkFields.fromStatus.hidden = valid;
+  }
+
+  function syncBulkFromAgeControl(convertValue = false) {
+    if (!fields.bulkFromAge || !fields.bulkFromYear) return true;
+    const startAge = currentStartAge();
+    const ageMode = fields.bulkFromAge.checked;
+    if (convertValue) {
+      const rawValue = Math.round(numberValue(fields.bulkFromYear) || 1);
+      fields.bulkFromYear.value = ageMode
+        ? startAge + Math.max(1, rawValue)
+        : Math.max(1, rawValue - startAge);
+    }
+    if (fields.bulkFromLabel) fields.bulkFromLabel.textContent = ageMode ? "From age" : "From year";
+    fields.bulkFromYear.min = ageMode ? startAge : 1;
+    fields.bulkFromYear.max = ageMode ? 99 : Math.max(1, projectionYearsFromAge(startAge));
+    const resolution = bulkFromYearResolution({
+      fromYear: fields.bulkFromYear,
+      fromAge: fields.bulkFromAge,
+      fromStatus: fields.bulkFromStatus,
+    });
+    setBulkFromValidity({
+      fromYear: fields.bulkFromYear,
+      fromAge: fields.bulkFromAge,
+      fromStatus: fields.bulkFromStatus,
+    }, resolution.valid);
+    return resolution.valid;
+  }
+
   function applyBulkToRows(rows, bulkFields) {
-    const fromYear = Math.max(1, Math.round(numberValue(bulkFields.fromYear) || 1));
+    const resolution = bulkFromYearResolution(bulkFields);
+    setBulkFromValidity(bulkFields, resolution.valid);
+    if (!resolution.valid) return false;
+    const fromYear = resolution.fromYear;
     const navReturn = pctInput(bulkFields.navReturn);
     const dividendYield = pctInput(bulkFields.dividendYield);
     const dividendMode = bulkFields.dividendMode.value;
@@ -3725,16 +3790,20 @@ body.presentation-mode .strategy-table input:disabled {
         row.dividendMode = dividendMode;
       }
     });
+    return true;
   }
 
   function applyBulkBelow() {
     state.strategy = readStrategyTable("strategyTable");
-    applyBulkToRows(state.strategy, {
+    const applied = applyBulkToRows(state.strategy, {
       navReturn: fields.bulkNavReturn,
       dividendYield: fields.bulkDividendYield,
       dividendMode: fields.bulkDividendMode,
       fromYear: fields.bulkFromYear,
+      fromAge: fields.bulkFromAge,
+      fromStatus: fields.bulkFromStatus,
     });
+    if (!applied) return;
     renderStrategyTable();
     recalc();
   }
@@ -4918,6 +4987,7 @@ body.presentation-mode .strategy-table input:disabled {
       renderStrategyTable();
       renderCompareStrategyTable();
       populateHistoricalStartYears();
+      syncBulkFromAgeControl();
       recalc();
     });
     ["adminAfterOverride", "fdRate", "fdAmount"].forEach((id) => fields[id].addEventListener("input", recalc));
@@ -4965,6 +5035,8 @@ body.presentation-mode .strategy-table input:disabled {
     [fields.bulkNavReturn, fields.bulkDividendYield].forEach((el) => {
       el.addEventListener("input", syncSliderReadouts);
     });
+    fields.bulkFromAge.addEventListener("change", () => syncBulkFromAgeControl(true));
+    fields.bulkFromYear.addEventListener("input", () => syncBulkFromAgeControl());
     [fields.compareBulkNavReturn, fields.compareBulkDividendYield].forEach((el) => {
       el.addEventListener("input", syncSliderReadouts);
     });
@@ -5077,6 +5149,7 @@ body.presentation-mode .strategy-table input:disabled {
     populateHistoricalStartYears();
     initFundBuilder();
     syncSliderReadouts();
+    syncBulkFromAgeControl();
     if (loadScenarioFromHash()) {
       recalc();
     } else if (loadEmbeddedScenario()) {
