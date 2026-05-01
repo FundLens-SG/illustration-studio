@@ -876,6 +876,18 @@ dd {
   line-height: 1.25;
 }
 
+.fund-builder-section.dividend-only .fund-nav-projection {
+  display: none;
+}
+
+.fund-builder-section.dividend-only .fund-preview {
+  grid-template-columns: minmax(220px, 1fr) repeat(2, minmax(110px, auto));
+}
+
+.fund-builder-section.dividend-only .fund-summary-grid {
+  grid-template-columns: repeat(3, minmax(140px, 1fr));
+}
+
 .fund-builder-actions {
   display: flex;
   align-items: end;
@@ -1697,7 +1709,7 @@ body.presentation-mode .strategy-table input:disabled {
         <div id="assumptions" class="assumptions"></div>
       </section>
 
-      <section class="fund-builder-section" aria-label="Fund portfolio builder">
+      <section id="fundBuilderSection" class="fund-builder-section" aria-label="Fund portfolio builder">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Fund Builder</p>
@@ -1741,6 +1753,7 @@ body.presentation-mode .strategy-table input:disabled {
               <option value="payout">Payout</option>
             </select>
           </label>
+          <label class="toggle"><input id="fundDividendOnly" type="checkbox" /> Dividend only</label>
           <button id="applyPortfolioAssumptions" type="button">Apply portfolio return</button>
           <button id="clearPortfolioFunds" type="button">Clear portfolio</button>
         </div>
@@ -1754,7 +1767,7 @@ body.presentation-mode .strategy-table input:disabled {
             <small>Satellite allocation</small>
             <strong id="fundSatelliteAllocation">0.0%</strong>
           </div>
-          <div class="fund-summary-card">
+          <div class="fund-summary-card fund-nav-projection">
             <small>Total return</small>
             <strong id="fundWeightedReturn">0.0%</strong>
           </div>
@@ -1762,7 +1775,7 @@ body.presentation-mode .strategy-table input:disabled {
             <small>Dividend yield</small>
             <strong id="fundWeightedDividend">0.0%</strong>
           </div>
-          <div class="fund-summary-card">
+          <div class="fund-summary-card fund-nav-projection">
             <small>Derived NAV growth</small>
             <strong id="fundDerivedNav">0.0%</strong>
           </div>
@@ -2759,7 +2772,7 @@ body.presentation-mode .strategy-table input:disabled {
     "historicalStartYear", "historicalDividendBoost",
     "fundSearch", "fundSuggestions", "fundCategory", "fundAllocation",
     "addFundSelection", "fundApplyFromYear", "fundApplyDividendMode",
-    "applyPortfolioAssumptions", "clearPortfolioFunds",
+    "fundDividendOnly", "applyPortfolioAssumptions", "clearPortfolioFunds",
   ];
 
   function $(id) { return document.getElementById(id); }
@@ -2963,7 +2976,23 @@ body.presentation-mode .strategy-table input:disabled {
   function renderFundDataStatus(message = "") {
     const el = $("fundDataStatus");
     if (!el) return;
-    el.textContent = message || `${state.fundLibrary.length} AFL iFAST funds loaded.`;
+    const addedFunds = state.fundLibrary.filter((fund) => !String(fund.source || "").includes("AFL")).length;
+    el.textContent = message || (addedFunds
+      ? `${state.fundLibrary.length} iFAST funds loaded (${state.fundLibrary.length - addedFunds} AFL, ${addedFunds} added).`
+      : `${state.fundLibrary.length} AFL iFAST funds loaded.`);
+  }
+
+  function fundDividendOnlyActive() {
+    return Boolean(fields.fundDividendOnly && fields.fundDividendOnly.checked);
+  }
+
+  function renderFundProjectionMode() {
+    const dividendOnly = fundDividendOnlyActive();
+    const section = $("fundBuilderSection");
+    if (section) section.classList.toggle("dividend-only", dividendOnly);
+    if (fields.applyPortfolioAssumptions) {
+      fields.applyPortfolioAssumptions.textContent = dividendOnly ? "Apply dividend only" : "Apply portfolio return";
+    }
   }
 
   function setSelectedFund(fund) {
@@ -2976,6 +3005,8 @@ body.presentation-mode .strategy-table input:disabled {
   function renderSelectedFundPreview() {
     const el = $("selectedFundPreview");
     if (!el) return;
+    renderFundProjectionMode();
+    const dividendOnly = fundDividendOnlyActive();
     const fund = state.selectedFund;
     if (!fund) {
       el.innerHTML = `
@@ -2983,9 +3014,9 @@ body.presentation-mode .strategy-table input:disabled {
           <small>Selected fund</small>
           <strong>No fund selected</strong>
         </div>
-        <div class="fund-preview-item"><small>Total return</small><strong>0.0%</strong></div>
+        ${dividendOnly ? "" : `<div class="fund-preview-item fund-nav-projection"><small>Total return</small><strong>0.0%</strong></div>`}
         <div class="fund-preview-item"><small>Dividend yield</small><strong>0.0%</strong></div>
-        <div class="fund-preview-item"><small>Derived NAV growth</small><strong>0.0%</strong></div>
+        ${dividendOnly ? "" : `<div class="fund-preview-item fund-nav-projection"><small>Derived NAV growth</small><strong>0.0%</strong></div>`}
         <div class="fund-preview-item"><small>Current NAV</small><strong>-</strong></div>
       `;
       return;
@@ -2995,9 +3026,9 @@ body.presentation-mode .strategy-table input:disabled {
         <small>${htmlEscape([fund.code, fund.currency].filter(Boolean).join(" / "))}</small>
         <strong>${htmlEscape(fund.name)}</strong>
       </div>
-      <div class="fund-preview-item"><small>${htmlEscape(fund.returnPeriod)} return</small><strong>${percent(fund.totalReturn)}</strong></div>
+      ${dividendOnly ? "" : `<div class="fund-preview-item fund-nav-projection"><small>${htmlEscape(fund.returnPeriod)} return</small><strong>${percent(fund.totalReturn)}</strong></div>`}
       <div class="fund-preview-item"><small>Dividend yield</small><strong>${percent(fund.dividendYield)}</strong></div>
-      <div class="fund-preview-item"><small>Derived NAV growth</small><strong>${percent(fund.navGrowth)}</strong></div>
+      ${dividendOnly ? "" : `<div class="fund-preview-item fund-nav-projection"><small>Derived NAV growth</small><strong>${percent(fund.navGrowth)}</strong></div>`}
       <div class="fund-preview-item"><small>${htmlEscape(fund.navDate || "Current NAV")}</small><strong>${fund.currentNav ? fund.currentNav.toFixed(4) : "-"}</strong></div>
     `;
   }
@@ -3046,6 +3077,7 @@ body.presentation-mode .strategy-table input:disabled {
   }
 
   function renderFundSummary() {
+    renderFundProjectionMode();
     const stats = portfolioStats();
     const setText = (id, value) => { const el = $(id); if (el) el.textContent = value; };
     setText("fundCoreAllocation", `${stats.coreAllocation.toFixed(1)}%`);
@@ -3075,10 +3107,11 @@ body.presentation-mode .strategy-table input:disabled {
   function renderFundPortfolioTable() {
     const table = $("fundPortfolioTable");
     if (!table) return;
+    const dividendOnly = fundDividendOnlyActive();
     if (!state.fundPortfolio.length) {
       table.innerHTML = `
-        <thead><tr><th>Category</th><th>Fund</th><th>Allocation</th><th>Total return</th><th>Dividend</th><th>Derived NAV</th><th></th></tr></thead>
-        <tbody><tr><td colspan="7">No portfolio funds added.</td></tr></tbody>
+        <thead><tr><th>Category</th><th>Fund</th><th>Allocation</th>${dividendOnly ? "" : "<th>Total return</th>"}<th>Dividend</th>${dividendOnly ? "" : "<th>Derived NAV</th>"}<th></th></tr></thead>
+        <tbody><tr><td colspan="${dividendOnly ? 5 : 7}">No portfolio funds added.</td></tr></tbody>
       `;
       renderFundSummary();
       return;
@@ -3089,9 +3122,9 @@ body.presentation-mode .strategy-table input:disabled {
           <th>Category</th>
           <th>Fund</th>
           <th>Allocation %</th>
-          <th>Total return %</th>
+          ${dividendOnly ? "" : "<th>Total return %</th>"}
           <th>Dividend %</th>
-          <th>Derived NAV %</th>
+          ${dividendOnly ? "" : "<th>Derived NAV %</th>"}
           <th></th>
         </tr>
       </thead>
@@ -3109,9 +3142,9 @@ body.presentation-mode .strategy-table input:disabled {
               <small>${htmlEscape([row.code, row.currency, row.sector, row.returnPeriod].filter(Boolean).join(" / "))}</small>
             </td>
             <td><input data-field="allocation" type="number" min="0" max="100" step="0.1" value="${roundInput(row.allocation, 2)}" /></td>
-            <td><input data-field="totalReturn" type="number" step="0.01" value="${roundInput(row.totalReturn * 100, 2)}" /></td>
+            ${dividendOnly ? "" : `<td><input data-field="totalReturn" type="number" step="0.01" value="${roundInput(row.totalReturn * 100, 2)}" /></td>`}
             <td><input data-field="dividendYield" type="number" min="0" step="0.01" value="${roundInput(row.dividendYield * 100, 2)}" /></td>
-            <td class="nav-growth-cell">${percent(row.navGrowth)}</td>
+            ${dividendOnly ? "" : `<td class="nav-growth-cell">${percent(row.navGrowth)}</td>`}
             <td><button type="button" data-remove="${index}">Remove</button></td>
           </tr>
         `).join("")}
@@ -3155,18 +3188,19 @@ body.presentation-mode .strategy-table input:disabled {
     if (!state.fundPortfolio.length) return;
     syncFundPortfolioFromTable();
     const stats = portfolioStats();
+    const dividendOnly = fundDividendOnlyActive();
     const fromYear = Math.max(1, Math.round(numberValue(fields.fundApplyFromYear) || 1));
     state.strategy = readStrategyTable("strategyTable");
     ensureStrategyLength();
     state.strategy.forEach((row) => {
       if (row.year >= fromYear) {
-        row.navReturn = stats.navGrowth;
+        if (!dividendOnly) row.navReturn = stats.navGrowth;
         row.dividendYield = stats.dividendYield;
         row.dividendMode = fields.fundApplyDividendMode.value;
       }
     });
     fields.bulkFromYear.value = fromYear;
-    fields.bulkNavReturn.value = roundInput(stats.navGrowth * 100, 2);
+    if (!dividendOnly) fields.bulkNavReturn.value = roundInput(stats.navGrowth * 100, 2);
     fields.bulkDividendYield.value = roundInput(stats.dividendYield * 100, 2);
     fields.bulkDividendMode.value = fields.fundApplyDividendMode.value;
     renderStrategyTable();
@@ -4534,8 +4568,9 @@ body.presentation-mode .strategy-table input:disabled {
         <li>All-dividends-reinvested comparison keeps the advisor's other strategy rows, but sets dividend mode to reinvest and dividend drawdowns to zero.</li>
         <li>Fixed deposit incremental mode places the keyed FD amount annually for the selected variation's premium term.</li>
         <li>Fund management charges are not deducted by default because fund prices are already net of management charges.</li>
-        <li>Fund Builder derives NAV growth as (1 + total return) / (1 + dividend yield) - 1, then applies the weighted portfolio result into the editable strategy rows.</li>
-        <li>The default fund library is built from AFL rows marked iFAST = Yes and hydrated from iFAST GM factsheets: total return uses since-inception CAGR where available, dividend uses latest annualised yield, and NAV growth is derived.</li>
+        <li>Fund Builder derives NAV growth as (1 + total return) / (1 + dividend yield) - 1, then applies the weighted portfolio result into the editable strategy rows unless Dividend only is selected.</li>
+        <li>Dividend only applies the weighted annualised dividend yield and dividend mode, while leaving the strategy NAV growth inputs for advisor judgement.</li>
+        <li>The default fund library starts from AFL rows marked iFAST = Yes plus requested iFAST additions; total return uses since-inception CAGR where available, dividend uses latest annualised yield, and NAV growth is derived.</li>
         <li>Inflation toggle discounts displayed amounts only — model inputs and percentages remain in nominal terms.</li>
       </ul>
     `;
@@ -4586,6 +4621,7 @@ body.presentation-mode .strategy-table input:disabled {
         compareFd: fields.compareFd.checked,
         annualView: state.annualView,
         deltaMode: state.deltaMode,
+        fundDividendOnly: fields.fundDividendOnly.checked,
         inflationAdjust: fields.inflationAdjust.checked,
         inflationRate: pctInput(fields.inflationRate),
       },
@@ -4620,6 +4656,7 @@ body.presentation-mode .strategy-table input:disabled {
         fields.compareFd.checked = Boolean(payload.view.compareFd);
         if (payload.view.annualView) state.annualView = payload.view.annualView;
         if (payload.view.deltaMode) state.deltaMode = payload.view.deltaMode;
+        if (payload.view.fundDividendOnly !== undefined) fields.fundDividendOnly.checked = Boolean(payload.view.fundDividendOnly);
         if (payload.view.inflationAdjust !== undefined) fields.inflationAdjust.checked = Boolean(payload.view.inflationAdjust);
         if (payload.view.inflationRate !== undefined) fields.inflationRate.value = roundInput(Number(payload.view.inflationRate) * 100, 2);
       }
@@ -4881,6 +4918,10 @@ body.presentation-mode .strategy-table input:disabled {
     });
     document.addEventListener("click", (event) => {
       if (!event.target.closest(".fund-search-wrap") && fields.fundSuggestions) fields.fundSuggestions.hidden = true;
+    });
+    fields.fundDividendOnly.addEventListener("change", () => {
+      renderSelectedFundPreview();
+      renderFundPortfolioTable();
     });
     fields.addFundSelection.addEventListener("click", addSelectedFundToPortfolio);
     fields.applyPortfolioAssumptions.addEventListener("click", applyPortfolioAssumptions);
