@@ -1402,6 +1402,7 @@ input[type="range"]::-moz-range-thumb {
 
 .legend-swatch.partial { background: var(--amber); }
 .legend-swatch.full { background: var(--green); }
+.legend-swatch.life-stage { background: var(--blue); }
 
 /* ===== PRESENTATION MODE ===== */
 body.presentation-mode {
@@ -2157,6 +2158,7 @@ body.presentation-mode .strategy-table input:disabled {
           </div>
           <div class="projection-options">
             <label class="toggle"><input id="annualDividendMonthly" type="checkbox" /> Dividend credited / month</label>
+            <label id="annualLifeStageAccessWrap" class="toggle" hidden><input id="annualLifeStageAccess" type="checkbox" /> Show life-stage capital access</label>
             <div class="view-toggle" role="group" aria-label="Projection view">
               <button type="button" id="annualMilestoneBtn" class="view-toggle-btn active">Milestones</button>
               <button type="button" id="annualFullBtn" class="view-toggle-btn">All years</button>
@@ -3054,7 +3056,7 @@ body.presentation-mode .strategy-table input:disabled {
     "fundFilterDividend", "fundFilterNonDividend",
     "addFundSelection", "fundApplyFromYear", "fundApplyDividendMode",
     "fundDividendOnly", "applyPortfolioAssumptions", "clearPortfolioFunds",
-    "annualDividendMonthly",
+    "annualDividendMonthly", "annualLifeStageAccess", "annualLifeStageAccessWrap",
   ];
 
   function $(id) { return document.getElementById(id); }
@@ -4884,6 +4886,10 @@ body.presentation-mode .strategy-table input:disabled {
     return "";
   }
 
+  function supportsLifeStageWithdrawal(variant) {
+    return variant && (variant.key === "IRG15F10" || variant.key === "IRG20F10");
+  }
+
   function projectionAccessRows(result, variant) {
     const partialStart = variant.partialLimitStartYear || 6;
     const partialRow = model.partialWithdrawalAllowed(variant, partialStart)
@@ -4899,22 +4905,75 @@ body.presentation-mode .strategy-table input:disabled {
     };
   }
 
-  function renderAnnualAccessLegend(access, valueWrapper) {
+  function accessBreakdown(row, year, variant, includeLifeStage) {
+    if (!row) return null;
+    const capitalAccount = Math.max(0, (row.accountValue || 0) - Math.max(0, row.reinvestedDividendBasis || 0));
+    const capitalGross = Math.min(Math.max(0, row.partialWithdrawalLimit || 0), capitalAccount);
+    const chargeRate = year <= variant.mipYears && Number.isFinite(row.partialWithdrawalChargeRate)
+      ? row.partialWithdrawalChargeRate
+      : 0;
+    const capitalCharge = capitalGross * chargeRate;
+    const capitalNet = Math.max(0, capitalGross - capitalCharge);
+    const dividendAccess = Math.max(0, row.dividendWithdrawalLimit || row.reinvestedDividendBasis || 0);
+    const remainingCapital = Math.max(0, capitalAccount - capitalGross);
+    const lifeStageGross = includeLifeStage ? remainingCapital * 0.2 : 0;
+    const totalCash = capitalNet + dividendAccess + lifeStageGross;
+    const premiumBase = Math.max(0, (row.totalBasicPaid || 0) + (row.totalTopUps || 0));
+    return {
+      capitalAccount,
+      capitalGross,
+      chargeRate,
+      capitalCharge,
+      capitalNet,
+      dividendAccess,
+      remainingCapital,
+      lifeStageGross,
+      totalCash,
+      premiumBase,
+      premiumPercent: premiumBase > 0 ? totalCash / premiumBase : 0,
+    };
+  }
+
+  function fullCashoutBreakdown(row) {
+    if (!row) return null;
+    const dividendAccess = Math.max(0, row.dividendWithdrawalLimit || row.reinvestedDividendBasis || 0);
+    const capitalAccess = Math.max(0, (row.accountValue || 0) - dividendAccess);
+    const totalCash = capitalAccess + dividendAccess;
+    const premiumBase = Math.max(0, (row.totalBasicPaid || 0) + (row.totalTopUps || 0));
+    return {
+      capitalAccess,
+      dividendAccess,
+      totalCash,
+      premiumBase,
+      premiumPercent: premiumBase > 0 ? totalCash / premiumBase : 0,
+    };
+  }
+
+  function renderAnnualAccessLegend(access, valueWrapper, variant, includeLifeStage) {
     const legend = $("annualAccessLegend");
     if (!legend) return;
     const items = [];
     if (access.partialRow) {
+      const breakdown = accessBreakdown(access.partialRow, access.partialStartYear, variant, includeLifeStage);
       items.push({
         kind: "partial",
         title: "Partial withdrawal access starts",
-        detail: `Year ${access.partialStartYear}, age ${access.partialRow.age}: allowable partial withdrawal ${valueWrapper(access.partialRow.partialWithdrawalLimit || 0, access.partialStartYear)}.`,
+        detail: `Year ${access.partialStartYear}, age ${access.partialRow.age}: capital access ${valueWrapper(breakdown.capitalGross, access.partialStartYear)} less ${percent(breakdown.chargeRate)} capital charge (${valueWrapper(breakdown.capitalCharge, access.partialStartYear)}) plus dividend account ${valueWrapper(breakdown.dividendAccess, access.partialStartYear)} with no withdrawal charge. Cash to client ${valueWrapper(breakdown.capitalNet + breakdown.dividendAccess, access.partialStartYear)} (${percent(breakdown.premiumBase > 0 ? (breakdown.capitalNet + breakdown.dividendAccess) / breakdown.premiumBase : 0)} of premiums paid).`,
       });
+      if (includeLifeStage) {
+        items.push({
+          kind: "life-stage",
+          title: "Life-stage access overlay",
+          detail: `For IRG life events, extra no-charge capital access is modelled at 20% of the capital left after the normal partial withdrawal: ${valueWrapper(breakdown.lifeStageGross, access.partialStartYear)}. Combined cash to client ${valueWrapper(breakdown.totalCash, access.partialStartYear)} (${percent(breakdown.premiumPercent)} of premiums paid). Typical qualifying moments include key insured ages, tertiary education funding, marriage changes, welcoming or adopting a child, or purchasing a home.`,
+        });
+      }
     }
     if (access.fullRow) {
+      const full = fullCashoutBreakdown(access.fullRow);
       items.push({
         kind: "full",
         title: "Full cashout available",
-        detail: `Year ${access.fullCashoutYear}, age ${access.fullRow.age}: 100% drawdown access based on account value ${valueWrapper(access.fullRow.accountValue || 0, access.fullCashoutYear)}.`,
+        detail: `Year ${access.fullCashoutYear}, age ${access.fullRow.age}: 100% drawdown access from capital ${valueWrapper(full.capitalAccess, access.fullCashoutYear)} plus dividend account ${valueWrapper(full.dividendAccess, access.fullCashoutYear)}. Total cashout ${valueWrapper(full.totalCash, access.fullCashoutYear)} (${percent(full.premiumPercent)} of premiums paid).`,
       });
     }
     legend.innerHTML = items.map((item) => `
@@ -4937,6 +4996,10 @@ body.presentation-mode .strategy-table input:disabled {
     const totalYears = result.annual.length;
     const access = projectionAccessRows(result, variant);
     const monthlyDividends = Boolean(fields.annualDividendMonthly && fields.annualDividendMonthly.checked);
+    const lifeStageEligible = supportsLifeStageWithdrawal(variant);
+    if (fields.annualLifeStageAccessWrap) fields.annualLifeStageAccessWrap.hidden = !lifeStageEligible;
+    if (!lifeStageEligible && fields.annualLifeStageAccess) fields.annualLifeStageAccess.checked = false;
+    const includeLifeStage = lifeStageEligible && Boolean(fields.annualLifeStageAccess && fields.annualLifeStageAccess.checked);
 
     const milestoneOnly = state.annualView === "milestone";
     const annualRows = milestoneOnly
@@ -4958,7 +5021,7 @@ body.presentation-mode .strategy-table input:disabled {
       const adjusted = inflationActive() ? discount(v, year) : v;
       return money(adjusted, settings.currency);
     };
-    renderAnnualAccessLegend(access, valueWrapper);
+    renderAnnualAccessLegend(access, valueWrapper, variant, includeLifeStage);
 
     $("annualTable").innerHTML = `
       <thead>
@@ -5094,6 +5157,7 @@ body.presentation-mode .strategy-table input:disabled {
         compareFd: fields.compareFd.checked,
         annualView: state.annualView,
         annualDividendMonthly: Boolean(fields.annualDividendMonthly && fields.annualDividendMonthly.checked),
+        annualLifeStageAccess: Boolean(fields.annualLifeStageAccess && fields.annualLifeStageAccess.checked),
         deltaMode: state.deltaMode,
         fundDividendOnly: fields.fundDividendOnly.checked,
         inflationAdjust: fields.inflationAdjust.checked,
@@ -5130,6 +5194,7 @@ body.presentation-mode .strategy-table input:disabled {
         fields.compareFd.checked = Boolean(payload.view.compareFd);
         if (payload.view.annualView) state.annualView = payload.view.annualView;
         if (payload.view.annualDividendMonthly !== undefined && fields.annualDividendMonthly) fields.annualDividendMonthly.checked = Boolean(payload.view.annualDividendMonthly);
+        if (payload.view.annualLifeStageAccess !== undefined && fields.annualLifeStageAccess) fields.annualLifeStageAccess.checked = Boolean(payload.view.annualLifeStageAccess);
         if (payload.view.deltaMode) state.deltaMode = payload.view.deltaMode;
         if (payload.view.fundDividendOnly !== undefined) fields.fundDividendOnly.checked = Boolean(payload.view.fundDividendOnly);
         if (payload.view.inflationAdjust !== undefined) fields.inflationAdjust.checked = Boolean(payload.view.inflationAdjust);
@@ -5458,6 +5523,7 @@ body.presentation-mode .strategy-table input:disabled {
       renderAnnualTable();
     });
     fields.annualDividendMonthly.addEventListener("change", renderAnnualTable);
+    fields.annualLifeStageAccess.addEventListener("change", renderAnnualTable);
 
     // Delta mode toggle
     $("deltaToggle").addEventListener("click", () => {
