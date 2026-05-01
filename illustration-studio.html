@@ -936,7 +936,7 @@ dd {
 }
 
 .fund-builder-section.dividend-only .fund-summary-grid {
-  grid-template-columns: repeat(3, minmax(140px, 1fr));
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
 }
 
 .fund-builder-actions {
@@ -957,7 +957,7 @@ dd {
 
 .fund-summary-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(140px, 1fr));
+  grid-template-columns: repeat(6, minmax(140px, 1fr));
   gap: 10px;
   margin: 14px 0;
 }
@@ -1954,11 +1954,15 @@ body.presentation-mode .strategy-table input:disabled {
             <strong id="fundSatelliteAllocation">0.0%</strong>
           </div>
           <div class="fund-summary-card fund-nav-projection">
-            <small>Total return</small>
+            <small>Weighted total return</small>
             <strong id="fundWeightedReturn">0.0%</strong>
           </div>
           <div class="fund-summary-card">
             <small>Dividend yield</small>
+            <strong id="fundAverageDividend">0.0%</strong>
+          </div>
+          <div class="fund-summary-card">
+            <small>Weighted dividend yield</small>
             <strong id="fundWeightedDividend">0.0%</strong>
           </div>
           <div class="fund-summary-card fund-nav-projection">
@@ -3308,21 +3312,34 @@ body.presentation-mode .strategy-table input:disabled {
 
   function portfolioStats() {
     const totalAllocation = state.fundPortfolio.reduce((sum, row) => sum + Math.max(0, Number(row.allocation) || 0), 0);
-    const denominator = totalAllocation > 0 ? totalAllocation : 100;
-    const weighted = (field) => state.fundPortfolio.reduce((sum, row) => {
-      const weight = Math.max(0, Number(row.allocation) || 0) / denominator;
+    const investedDenominator = totalAllocation > 0 ? totalAllocation : 100;
+    const investedAverage = (field) => state.fundPortfolio.reduce((sum, row) => {
+      const weight = Math.max(0, Number(row.allocation) || 0) / investedDenominator;
       return sum + weight * (Number(row[field]) || 0);
     }, 0);
-    const dividendYield = weighted("dividendYield");
-    const totalReturn = weighted("totalReturn");
+    const portfolioWeighted = (field) => state.fundPortfolio.reduce((sum, row) => (
+      sum + rowWeightedRate(row, field)
+    ), 0);
+    const averageDividendYield = investedAverage("dividendYield");
+    const weightedDividendYield = portfolioWeighted("dividendYield");
+    const averageTotalReturn = investedAverage("totalReturn");
+    const totalReturn = portfolioWeighted("totalReturn");
     return {
       totalAllocation,
       coreAllocation: state.fundPortfolio.filter((row) => row.category === "core").reduce((sum, row) => sum + Math.max(0, Number(row.allocation) || 0), 0),
       satelliteAllocation: state.fundPortfolio.filter((row) => row.category === "satellite").reduce((sum, row) => sum + Math.max(0, Number(row.allocation) || 0), 0),
+      averageTotalReturn,
       totalReturn,
-      dividendYield,
-      navGrowth: deriveNavGrowth(totalReturn, dividendYield),
+      averageDividendYield,
+      dividendYield: weightedDividendYield,
+      weightedDividendYield,
+      navGrowth: deriveNavGrowth(totalReturn, weightedDividendYield),
     };
+  }
+
+  function rowWeightedRate(row, field) {
+    const allocationWeight = Math.max(0, Number(row.allocation) || 0) / 100;
+    return allocationWeight * (Number(row[field]) || 0);
   }
 
   function renderFundSummary() {
@@ -3332,6 +3349,7 @@ body.presentation-mode .strategy-table input:disabled {
     setText("fundCoreAllocation", `${stats.coreAllocation.toFixed(1)}%`);
     setText("fundSatelliteAllocation", `${stats.satelliteAllocation.toFixed(1)}%`);
     setText("fundWeightedReturn", percent(stats.totalReturn));
+    setText("fundAverageDividend", percent(stats.averageDividendYield));
     setText("fundWeightedDividend", percent(stats.dividendYield));
     setText("fundDerivedNav", percent(stats.navGrowth));
   }
@@ -3350,6 +3368,8 @@ body.presentation-mode .strategy-table input:disabled {
       row.navGrowth = deriveNavGrowth(row.totalReturn, row.dividendYield);
       const navCell = tr.querySelector(".nav-growth-cell");
       if (navCell) navCell.textContent = percent(row.navGrowth);
+      const weightedDividendCell = tr.querySelector(".weighted-dividend-cell");
+      if (weightedDividendCell) weightedDividendCell.textContent = percent(rowWeightedRate(row, "dividendYield"));
     });
   }
 
@@ -3359,8 +3379,8 @@ body.presentation-mode .strategy-table input:disabled {
     const dividendOnly = fundDividendOnlyActive();
     if (!state.fundPortfolio.length) {
       table.innerHTML = `
-        <thead><tr><th>Category</th><th>Fund</th><th>Allocation</th>${dividendOnly ? "" : "<th>Total return</th>"}<th>Dividend</th>${dividendOnly ? "" : "<th>Derived NAV</th>"}<th></th></tr></thead>
-        <tbody><tr><td colspan="${dividendOnly ? 5 : 7}">No portfolio funds added.</td></tr></tbody>
+        <thead><tr><th>Category</th><th>Fund</th><th>Allocation</th>${dividendOnly ? "" : "<th>Total return</th>"}<th>Dividend yield</th><th>Weighted dividend</th>${dividendOnly ? "" : "<th>Derived NAV</th>"}<th></th></tr></thead>
+        <tbody><tr><td colspan="${dividendOnly ? 6 : 8}">No portfolio funds added.</td></tr></tbody>
       `;
       renderFundSummary();
       return;
@@ -3372,7 +3392,8 @@ body.presentation-mode .strategy-table input:disabled {
           <th>Fund</th>
           <th>Allocation %</th>
           ${dividendOnly ? "" : "<th>Total return %</th>"}
-          <th>Dividend %</th>
+          <th>Dividend yield %</th>
+          <th>Weighted dividend %</th>
           ${dividendOnly ? "" : "<th>Derived NAV %</th>"}
           <th></th>
         </tr>
@@ -3393,6 +3414,7 @@ body.presentation-mode .strategy-table input:disabled {
             <td><input data-field="allocation" type="number" min="0" max="100" step="0.1" value="${roundInput(row.allocation, 2)}" /></td>
             ${dividendOnly ? "" : `<td><input data-field="totalReturn" type="number" step="0.01" value="${roundInput(row.totalReturn * 100, 2)}" /></td>`}
             <td><input data-field="dividendYield" type="number" min="0" step="0.01" value="${roundInput(row.dividendYield * 100, 2)}" /></td>
+            <td class="weighted-dividend-cell">${percent(rowWeightedRate(row, "dividendYield"))}</td>
             ${dividendOnly ? "" : `<td class="nav-growth-cell">${percent(row.navGrowth)}</td>`}
             <td><button type="button" data-remove="${index}">Remove</button></td>
           </tr>
@@ -4881,7 +4903,8 @@ body.presentation-mode .strategy-table input:disabled {
         <li>All-dividends-reinvested comparison keeps the advisor's other strategy rows, but sets dividend mode to reinvest and dividend drawdowns to zero.</li>
         <li>Fixed deposit incremental mode places the keyed FD amount annually for the selected variation's premium term.</li>
         <li>Fund management charges are not deducted by default because fund prices are already net of management charges.</li>
-        <li>Fund Builder derives NAV growth as (1 + total return) / (1 + dividend yield) - 1, then applies the weighted portfolio result into the editable strategy rows unless Dividend only is selected.</li>
+        <li>Fund Builder shows the invested-average dividend yield separately from the weighted dividend yield; the weighted figure is allocation percent multiplied by each fund's dividend yield and is the rate applied into projections.</li>
+        <li>Fund Builder derives NAV growth as (1 + weighted total return) / (1 + weighted dividend yield) - 1, then applies the portfolio-weighted result into the editable strategy rows unless Dividend only is selected.</li>
         <li>Dividend only applies the weighted annualised dividend yield and dividend mode, while leaving the strategy NAV growth inputs for advisor judgement.</li>
         <li>The default fund library starts from AFL rows marked iFAST = Yes plus requested iFAST additions, with USD-only share classes removed; total return uses since-inception CAGR where available, dividend uses latest annualised yield, and NAV growth is derived.</li>
         <li>Inflation toggle discounts displayed amounts only — model inputs and percentages remain in nominal terms.</li>
