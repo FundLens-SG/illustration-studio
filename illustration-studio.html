@@ -5016,9 +5016,9 @@ body.presentation-mode .strategy-table input:disabled {
         body: `
           <div class="access-lines">
             <div class="access-line"><span>Year ${access.partialStartYear}, age ${access.partialRow.age}</span><b></b></div>
-            <div class="access-line"><span>Partial Withdrawal (${percentCompact(breakdown.chargeRate)} charge)</span><b>${valueWrapper(breakdown.capitalNet, access.partialStartYear)}</b></div>
+            <div class="access-line"><span>Partial Withdrawal (${percentCompact(breakdown.chargeRate)} charge)</span><b>${valueWrapper(breakdown.capitalNet, access.partialStartYear, 3)}</b></div>
             <div class="access-line"><span>Dividend account</span><b>${valueWrapper(breakdown.dividendAccess, access.partialStartYear)}</b></div>
-            <div class="access-line access-total"><span>Total Withdrawal</span><b>${valueWrapper(breakdown.capitalNet + breakdown.dividendAccess, access.partialStartYear)} (${percent(breakdown.premiumBase > 0 ? (breakdown.capitalNet + breakdown.dividendAccess) / breakdown.premiumBase : 0)} of premiums paid)</b></div>
+            <div class="access-line access-total"><span>Total Withdrawal</span><b>${valueWrapper(breakdown.capitalNet + breakdown.dividendAccess, access.partialStartYear, 3)} (${percent(breakdown.premiumBase > 0 ? (breakdown.capitalNet + breakdown.dividendAccess) / breakdown.premiumBase : 0)} of premiums paid)</b></div>
           </div>
         `,
       });
@@ -5029,7 +5029,7 @@ body.presentation-mode .strategy-table input:disabled {
           title: "Life-stage withdrawal",
           body: `
             <div class="access-lines">
-              <div class="access-line"><span>20% drawdown on remaining capital</span><b>${valueWrapper(breakdown.lifeStageGross, access.partialStartYear)}</b></div>
+              <div class="access-line"><span>20% drawdown on remaining capital</span><b>${valueWrapper(breakdown.lifeStageGross, access.partialStartYear, 3)}</b></div>
             </div>
             <div class="life-stage-events">
               ${LIFE_STAGE_EVENTS.map(([key, label]) => `
@@ -5038,7 +5038,7 @@ body.presentation-mode .strategy-table input:disabled {
             </div>
             ${lifeStageSelected ? `
               <div class="access-lines">
-                <div class="access-line access-total"><span>Total Withdrawal Sum</span><b>${valueWrapper(totalWithLifeStage, access.partialStartYear)} (${percent(breakdown.premiumBase > 0 ? totalWithLifeStage / breakdown.premiumBase : 0)} of premiums paid)</b></div>
+                <div class="access-line access-total"><span>Total Withdrawal Sum</span><b>${valueWrapper(totalWithLifeStage, access.partialStartYear, 3)} (${percent(breakdown.premiumBase > 0 ? totalWithLifeStage / breakdown.premiumBase : 0)} of premiums paid)</b></div>
               </div>
             ` : ""}
           `,
@@ -5108,9 +5108,9 @@ body.presentation-mode .strategy-table input:disabled {
       fullBtn.classList.toggle("active", !milestoneOnly);
     }
 
-    const valueWrapper = (v, year) => {
+    const valueWrapper = (v, year, decimals = 0) => {
       const adjusted = inflationActive() ? discount(v, year) : v;
-      return money(adjusted, settings.currency);
+      return money(adjusted, settings.currency, decimals);
     };
     renderAnnualAccessLegend(access, valueWrapper, variant);
 
