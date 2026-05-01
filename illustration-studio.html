@@ -1,0 +1,4227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Illustration Studio</title>
+    <style>
+:root {
+  --ink: #101a28;
+  --ink-soft: #2a3548;
+  --muted: #69727d;
+  --bg: #f2f4f4;
+  --surface: #ffffff;
+  --surface-2: #f7f8f7;
+  --line: #d2d6d3;
+  --line-dark: #a9987d;
+  --navy: #0e1f33;
+  --navy-2: #162b45;
+  --gold: #a7853d;
+  --gold-dark: #81652b;
+  --gold-soft: #f4efe4;
+  --gold-glow: rgba(167, 133, 61, 0.18);
+  --blue: #284f73;
+  --blue-soft: #f0f5f8;
+  --green: #2f6b5d;
+  --green-soft: #eff7f3;
+  --amber: #8a6f2a;
+  --amber-soft: #f7f1df;
+  --red: #9f3d35;
+  --red-soft: #f8eeee;
+
+  /* Composition palette - reserved meanings */
+  --c-paid: #5a6b80;        /* Premium paid in - cool, capital base */
+  --c-bonus: #a7853d;        /* Bonuses - product gold */
+  --c-dividend: #2f6b5d;     /* Dividends accrued - teal/green growth */
+  --c-growth: #284f73;       /* NAV growth - navy blue */
+  --c-benchmark: #b7a173;    /* Benchmark line - warm muted */
+  --c-selected: #0e1f33;     /* Selected line - navy */
+  --c-delta-pos: #a7853d;    /* Positive delta - gold */
+  --c-delta-neg: #9f3d35;    /* Negative delta - red */
+
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 116px;
+  padding: 28px 40px;
+  color: #fff;
+  background: var(--navy);
+  border-bottom: 3px solid var(--gold);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08), 0 16px 36px rgba(16, 26, 40, 0.16);
+}
+
+h1, h2, p {
+  margin: 0;
+}
+
+h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.05;
+}
+
+h2 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.eyebrow {
+  margin-bottom: 6px;
+  color: #d8c895;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.source-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.source-strip span {
+  border: 1px solid rgba(216, 200, 149, 0.45);
+  border-radius: 999px;
+  padding: 8px 12px;
+  color: #f5edd4;
+  background: rgba(255, 255, 255, 0.035);
+  white-space: nowrap;
+}
+
+.exit-presentation {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 20;
+  border-color: rgba(216, 200, 149, 0.7);
+  color: #f7ecd0;
+  background: rgba(19, 36, 58, 0.95);
+  box-shadow: 0 10px 30px rgba(19, 36, 58, 0.22);
+}
+
+main {
+  width: min(1460px, calc(100vw - 42px));
+  margin: 22px auto 46px;
+}
+
+.controls,
+.status-row,
+.chart-panel,
+.strategy-section,
+.detail-section,
+.source-notes,
+.notes-section {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  box-shadow: 0 18px 42px rgba(16, 26, 40, 0.06);
+}
+
+.controls {
+  padding: 22px;
+  border-top: 3px solid rgba(167, 133, 61, 0.65);
+}
+
+.control-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #cabcaa;
+  border-radius: 4px;
+  padding: 8px 11px;
+  color: var(--ink);
+  background: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+textarea {
+  min-height: 84px;
+  resize: vertical;
+  font-family: inherit;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+input.invalid-input {
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
+input:focus,
+select:focus,
+button:focus,
+textarea:focus {
+  outline: 2px solid rgba(154, 122, 47, 0.25);
+  outline-offset: 1px;
+  border-color: var(--gold);
+}
+
+.toggle-row,
+.action-row,
+.bulk-tools,
+.advisor-settings,
+.benchmark-settings {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 11px;
+  margin-top: 16px;
+}
+
+.toggle {
+  display: inline-flex;
+  grid-template-columns: none;
+  align-items: center;
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 7px 11px;
+  color: #3f4855;
+  background: var(--surface-2);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.toggle input {
+  width: auto;
+  min-height: auto;
+  margin: 0 7px 0 0;
+  accent-color: var(--gold-dark);
+}
+
+.action-row select {
+  max-width: 340px;
+}
+
+button {
+  min-height: 40px;
+  border: 1px solid var(--line-dark);
+  border-radius: 4px;
+  padding: 8px 14px;
+  color: var(--navy);
+  background: #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+button:hover {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+}
+
+#startPresentation {
+  border-color: var(--gold-dark);
+  color: #fff;
+  background: var(--navy-2);
+}
+
+#startPresentation:hover {
+  background: var(--navy);
+}
+
+#copyShareLink.copied {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.advisor-settings,
+.benchmark-settings {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.advisor-settings label,
+.benchmark-settings label,
+.bulk-tools label {
+  min-width: 140px;
+  max-width: 220px;
+}
+
+.compact-toggle {
+  max-width: none;
+  align-self: end;
+}
+
+.caption-note {
+  flex: 1 1 240px;
+  align-self: end;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ===== HERO SECTION ===== */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1.1fr);
+  align-items: center;
+  gap: 36px;
+  margin-top: 16px;
+  padding: 28px 32px;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--gold);
+  border-radius: 4px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbf8f1 100%);
+  box-shadow: 0 22px 48px rgba(16, 26, 40, 0.07);
+}
+
+.hero-headline .eyebrow {
+  color: var(--muted);
+}
+
+.hero-headline strong {
+  display: block;
+  margin-top: 8px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 56px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.hero-caption {
+  margin-top: 14px;
+  max-width: 36ch;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.composition {
+  display: grid;
+  gap: 16px;
+}
+
+.composition-bar {
+  display: flex;
+  width: 100%;
+  height: 28px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(16, 26, 40, 0.08);
+  background: #ece8e0;
+}
+
+.composition-bar .seg {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  padding: 0 8px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: filter 0.15s ease;
+}
+
+.composition-bar .seg:hover {
+  filter: brightness(1.08);
+}
+
+.composition-bar .seg.compact-label { color: rgba(255,255,255,0); }
+
+.composition-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.composition-legend li {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.composition-legend i {
+  width: 12px;
+  height: 12px;
+  margin-top: 4px;
+  border-radius: 2px;
+  display: block;
+}
+
+.composition-legend span {
+  display: block;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.composition-legend strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== COMPARISON HERO ===== */
+.comparison-hero {
+  display: grid;
+  grid-template-columns: 1fr minmax(180px, 0.6fr) 1fr;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  box-shadow: 0 18px 42px rgba(16, 26, 40, 0.06);
+  overflow: hidden;
+}
+
+.comparison-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 26px 28px;
+  background: var(--surface);
+}
+
+.comparison-card.primary {
+  border-top: 4px solid var(--navy);
+}
+
+.comparison-card.secondary {
+  border-top: 4px solid var(--c-benchmark);
+  background: linear-gradient(180deg, #fdfbf6 0%, #faf6ec 100%);
+}
+
+.comparison-card .eyebrow {
+  color: var(--muted);
+}
+
+.comparison-card strong {
+  display: block;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.comparison-card small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.comparison-delta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px;
+  color: #fff;
+  background: linear-gradient(180deg, var(--gold) 0%, var(--gold-dark) 100%);
+  text-align: center;
+  position: relative;
+}
+
+.comparison-delta.negative {
+  background: linear-gradient(180deg, #b56158 0%, #8a3d35 100%);
+}
+
+.comparison-delta::before,
+.comparison-delta::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border: 14px solid transparent;
+  transform: translateY(-50%);
+}
+
+.comparison-delta::before {
+  left: -14px;
+  border-right-color: var(--gold);
+  border-left: 0;
+}
+
+.comparison-delta::after {
+  right: -14px;
+  border-left-color: var(--gold-dark);
+  border-right: 0;
+}
+
+.comparison-delta.negative::before { border-right-color: #b56158; }
+.comparison-delta.negative::after { border-left-color: #8a3d35; }
+
+.delta-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.delta-amount {
+  display: block;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.05;
+}
+
+.delta-toggle {
+  margin-top: 6px;
+  min-height: 28px;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.delta-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* ===== BENEFIT HIGHLIGHT ===== */
+.benefit-highlight {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(300px, auto) minmax(280px, 0.88fr);
+  gap: 24px;
+  align-items: center;
+  margin-top: 16px;
+  padding: 24px 28px;
+  border: 1px solid rgba(167, 133, 61, 0.48);
+  border-top: 4px solid var(--gold);
+  border-radius: 4px;
+  color: #f8f1dc;
+  background: var(--navy);
+  box-shadow: 0 20px 44px rgba(16, 26, 40, 0.16);
+}
+
+.benefit-highlight h2 { color: #ffffff; }
+
+.benefit-highlight strong {
+  display: block;
+  justify-self: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.05;
+  color: #ffffff;
+  text-align: center;
+}
+
+.benefit-highlight p:last-child {
+  max-width: 380px;
+  margin-left: auto;
+  color: #d8dfdf;
+}
+
+/* ===== CHART ===== */
+.chart-grid { margin-top: 16px; }
+
+.chart-panel {
+  min-width: 0;
+  padding: 22px 24px;
+  border-top: 3px solid rgba(167, 133, 61, 0.5);
+}
+
+.chart-stage {
+  position: relative;
+  width: 100%;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: -4px 0 14px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-legend i {
+  width: 22px;
+  height: 3px;
+  border-radius: 999px;
+}
+
+.chart-legend i.dashed {
+  height: 0;
+  border-top: 3px dashed var(--line-color, #74808f);
+  background: transparent !important;
+}
+
+.chart-legend i.area {
+  height: 12px;
+  border-radius: 2px;
+  opacity: 0.45;
+}
+
+.chart-hint {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+canvas#valueChart {
+  width: 100%;
+  height: 380px;
+  display: block;
+  cursor: crosshair;
+}
+
+.chart-tooltip {
+  position: absolute;
+  z-index: 5;
+  min-width: 200px;
+  max-width: 280px;
+  padding: 10px 12px;
+  border: 1px solid rgba(16, 26, 40, 0.12);
+  border-radius: 4px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 14px 28px rgba(16, 26, 40, 0.14);
+  font-size: 12px;
+  pointer-events: none;
+  transform: translate(12px, 12px);
+}
+
+.chart-tooltip h4 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.chart-tooltip dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+}
+
+.chart-tooltip dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 11.5px;
+}
+
+.chart-tooltip dt i {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+}
+
+.chart-tooltip dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== HEADINGS ===== */
+.panel-heading,
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2ddd2;
+}
+
+.panel-heading span,
+.premium-note {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ===== STATUS ===== */
+.status-row {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.68fr) minmax(520px, 1.32fr);
+  margin-top: 16px;
+}
+
+.checks, .assumptions { padding: 18px 20px; }
+
+.checks { border-right: 1px solid var(--line); }
+
+.checks.ok { background: #f3faf6; }
+
+.checks.review { background: var(--amber-soft); }
+
+.checks strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.checks span {
+  color: #46515e;
+  line-height: 1.45;
+}
+
+.assumptions dl {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(110px, 1fr));
+  gap: 14px;
+  margin: 12px 0 0;
+}
+
+dt {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+dd {
+  margin: 2px 0 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== STRATEGY / DETAIL / NOTES SECTIONS ===== */
+.strategy-section,
+.detail-section,
+.source-notes,
+.notes-section {
+  margin-top: 16px;
+  padding: 22px;
+}
+
+.notes-section .section-heading {
+  align-items: flex-end;
+}
+
+.notes-section .caption-note {
+  flex: 0 0 auto;
+}
+
+.bulk-tools {
+  align-items: end;
+  padding: 14px;
+  margin: 0 0 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.historical-tools {
+  background: linear-gradient(180deg, #fbf6e8 0%, #f7eeda 100%);
+  border-color: rgba(167, 133, 61, 0.4);
+}
+
+.historical-tools label { min-width: 150px; }
+
+.historical-note {
+  flex: 1 1 240px;
+  align-self: end;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+.sensitivity-tools .slider-label {
+  min-width: 220px;
+  max-width: 260px;
+  flex: 1 1 220px;
+}
+
+.slider-label span {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.slider-label strong {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  min-height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold-soft) 0%, var(--gold) 100%);
+  box-shadow: inset 0 1px 2px rgba(16, 26, 40, 0.1);
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--navy);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(16, 26, 40, 0.3);
+  cursor: grab;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--navy);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(16, 26, 40, 0.3);
+  cursor: grab;
+}
+
+/* ===== TABLES ===== */
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  position: relative;
+}
+
+.strategy-wrap { max-height: 520px; }
+
+.output-wrap { max-height: 720px; }
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+}
+
+.data-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  height: 38px;
+  border-bottom: 1px solid #cfc2ad;
+  padding: 9px 10px;
+  color: #243246;
+  text-align: right;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+  background-clip: padding-box;
+  box-shadow: 0 1px 0 #cfc2ad, 0 3px 8px rgba(16, 26, 40, 0.08);
+}
+
+.data-table th:first-child,
+.data-table td:first-child {
+  text-align: left;
+}
+
+.data-table td {
+  border-bottom: 1px solid #eee7dc;
+  padding: 9px 10px;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.data-table tbody tr:hover td {
+  filter: brightness(0.985);
+}
+
+.data-table tbody tr.year-highlight td {
+  background: var(--gold-soft) !important;
+  box-shadow: inset 4px 0 0 var(--gold);
+}
+
+.data-table tbody tr.partial-window td:first-child {
+  border-left: 4px solid var(--amber);
+  padding-left: 6px;
+}
+
+.data-table tbody tr.full-withdrawal-window td:first-child {
+  border-left: 4px solid var(--green);
+  padding-left: 6px;
+}
+
+.data-table tbody tr.milestone td:first-child::after {
+  content: attr(data-milestone);
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--gold-dark);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
+.data-table .col-time { background: #f4f0e8; }
+
+.data-table .col-premium { background: #f6f0e4; }
+
+.data-table .col-bonus { background: #fbf6e8; }
+
+.data-table .col-growth,
+.input-growth { background: #f3f7fa; }
+
+.data-table .col-income,
+.input-income { background: #f3faf6; }
+
+.data-table .col-withdrawal,
+.input-withdrawal { background: #f8f2e4; }
+
+.data-table .col-value { background: #f1f3f5; }
+
+.data-table .col-total {
+  background: #e6edf4;
+  border-left: 2px solid #8ea6ba;
+  border-right: 1px solid #c2cfda;
+  color: #0e263d;
+  font-weight: 700;
+}
+
+.data-table .col-benchmark {
+  background: #f4edda;
+  border-left: 2px solid #b79a59;
+  color: #2b2414;
+  font-weight: 700;
+}
+
+.data-table .col-compare {
+  background: #f3ecd7;
+  border-left: 2px solid #b79a59;
+  color: #2f2510;
+  font-weight: 700;
+}
+
+.data-table .col-charge,
+.input-charge { background: var(--red-soft); }
+
+.strategy-table input,
+.strategy-table select {
+  min-width: 96px;
+  height: 34px;
+  min-height: 34px;
+  padding: 5px 8px;
+  text-align: right;
+}
+
+.strategy-table select {
+  min-width: 110px;
+  text-align: left;
+}
+
+.strategy-table input:disabled {
+  color: #9ca3af;
+  background: #f2f2f0;
+}
+
+.premium-cell,
+.allowable-cell,
+.allowable-dividend-cell {
+  color: #394454;
+  font-weight: 700;
+}
+
+/* ===== VIEW TOGGLE ===== */
+.view-toggle {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px;
+  background: var(--surface-2);
+}
+
+.view-toggle-btn {
+  min-height: 30px;
+  padding: 4px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  box-shadow: none;
+}
+
+.view-toggle-btn.active {
+  background: var(--navy);
+  color: #fff;
+}
+
+.view-toggle-btn:hover:not(.active) {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* ===== PRESENTATION MODE ===== */
+body.presentation-mode {
+  background: #f2f4f4;
+}
+
+body.presentation-mode .controls,
+body.presentation-mode .strategy-section,
+body.presentation-mode .source-notes,
+body.presentation-mode .notes-section,
+body.presentation-mode .status-row {
+  display: none;
+}
+
+body.presentation-mode main {
+  width: min(1500px, calc(100vw - 48px));
+}
+
+body.presentation-mode .topbar {
+  padding: 30px 42px;
+}
+
+body.presentation-mode h1 {
+  font-size: 34px;
+}
+
+body.presentation-mode .detail-section .section-heading select {
+  display: none;
+}
+
+body.presentation-mode .hero,
+body.presentation-mode .comparison-hero,
+body.presentation-mode .chart-panel,
+body.presentation-mode .detail-section {
+  box-shadow: 0 16px 36px rgba(19, 36, 58, 0.06);
+}
+
+body.presentation-mode .strategy-table input:disabled {
+  opacity: 0.8;
+}
+
+/* ===== USAGE BANNER ===== */
+.usage-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  width: min(1460px, calc(100vw - 42px));
+  margin: 16px auto 0;
+  padding: 10px 18px;
+  border: 1px solid rgba(167, 133, 61, 0.55);
+  border-left: 4px solid var(--gold);
+  border-radius: 4px;
+  background: linear-gradient(180deg, #fdf6e3 0%, #f7edd0 100%);
+  color: #5a4a23;
+  font-size: 12.5px;
+}
+
+.usage-banner strong {
+  color: #6b4d10;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.usage-banner span {
+  color: #6b5828;
+  font-weight: 600;
+}
+
+/* ===== DISCLAIMERS ===== */
+.disclaimers {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  padding: 22px;
+  margin-top: 16px;
+  box-shadow: 0 18px 42px rgba(16, 26, 40, 0.06);
+  color: #46515e;
+}
+
+.disclaimers h2 {
+  margin-bottom: 10px;
+}
+
+.disclaimers ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.disclaimers li {
+  margin: 8px 0;
+  line-height: 1.55;
+  font-size: 12.5px;
+}
+
+.disclaimers strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* ===== SOURCE NOTES ===== */
+.source-notes { color: #394454; }
+
+.source-notes h2 { margin-bottom: 8px; }
+
+.source-notes ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.source-notes li { margin: 5px 0; }
+
+/* ===== PRINT ===== */
+@media print {
+  @page { size: A4 landscape; margin: 12mm; }
+
+  body { background: #fff; }
+
+  .controls,
+  .strategy-section,
+  .source-notes,
+  .notes-section,
+  .status-row,
+  .exit-presentation,
+  .chart-hint,
+  .view-toggle,
+  .delta-toggle,
+  .action-row,
+  .toggle-row {
+    display: none !important;
+  }
+
+  main { width: 100% !important; margin: 0 !important; }
+
+  .topbar { box-shadow: none; padding: 14px 20px; }
+
+  .hero, .comparison-hero, .chart-panel, .detail-section, .benefit-highlight {
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  .usage-banner {
+    width: 100% !important;
+    margin: 0 0 8mm !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    background: #fbf3da !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .disclaimers {
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    page-break-before: auto;
+  }
+
+  .disclaimers li { font-size: 10.5px; }
+
+  .data-table { font-size: 11px; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1120px) {
+  .topbar,
+  .status-row,
+  .benefit-highlight,
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .comparison-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-delta {
+    border-radius: 0;
+    padding: 14px;
+  }
+
+  .comparison-delta::before,
+  .comparison-delta::after {
+    display: none;
+  }
+
+  .benefit-highlight strong {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .benefit-highlight p:last-child {
+    margin-left: 0;
+  }
+
+  .source-strip { justify-content: flex-start; }
+
+  .control-grid {
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+  }
+
+  .checks {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .assumptions dl {
+    grid-template-columns: repeat(4, minmax(100px, 1fr));
+  }
+
+  .hero-headline strong { font-size: 44px; }
+}
+
+@media (max-width: 760px) {
+  main {
+    width: calc(100vw - 18px);
+    margin-top: 9px;
+  }
+
+  .topbar { padding: 18px; }
+
+  .control-grid,
+  .assumptions dl {
+    grid-template-columns: 1fr;
+  }
+
+  .source-strip span {
+    white-space: normal;
+  }
+
+  .hero-headline strong {
+    font-size: 36px;
+  }
+
+  .comparison-card strong {
+    font-size: 28px;
+  }
+}
+
+</style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Private Client Illustration</p>
+        <h1>Illustration Studio</h1>
+      </div>
+      <div class="source-strip">
+        <span>Updated to Apr 2026</span>
+      </div>
+    </header>
+    <button id="exitPresentation" class="exit-presentation" type="button" hidden>Exit presentation</button>
+
+    <div class="usage-banner" role="note">
+      <strong>For educational purposes only · Not for distribution</strong>
+      <span>Internal advisor working tool. Not an offer, solicitation or recommendation.</span>
+    </div>
+
+    <main>
+      <section class="controls" aria-label="Model controls">
+        <div class="control-grid">
+          <label>
+            Variant
+            <select id="variantKey"></select>
+          </label>
+          <label>
+            Currency
+            <select id="currency">
+              <option>SGD</option>
+              <option>USD</option>
+            </select>
+          </label>
+          <label>
+            Payment mode
+            <select id="paymentFrequency">
+              <option value="Annual">Annual</option>
+              <option value="SemiAnnual">Semi-Annual</option>
+              <option value="Quarterly">Quarterly</option>
+              <option value="Monthly">Monthly</option>
+            </select>
+          </label>
+          <label>
+            Annualised basic premium
+            <input id="annualizedPremium" type="number" min="0" step="100" value="100000" />
+          </label>
+          <label>
+            Age last birthday
+            <input id="startAge" type="number" min="0" max="98" step="1" value="62" />
+          </label>
+        </div>
+
+        <div class="toggle-row" role="group" aria-label="Bonus and benchmark toggles">
+          <label class="toggle"><input id="includeWelcome" type="checkbox" checked /> Welcome Bonus</label>
+          <label class="toggle"><input id="includeAnnualBonus" type="checkbox" checked /> Annual Premium Bonus</label>
+          <label class="toggle"><input id="includeLoyalty" type="checkbox" checked /> Loyalty Bonus</label>
+          <label class="toggle"><input id="compareCustom" type="checkbox" /> Compare with</label>
+          <label class="toggle"><input id="compareReinvest" type="checkbox" /> Compare all dividends reinvested</label>
+          <label class="toggle"><input id="compareFd" type="checkbox" /> Compare fixed deposit</label>
+          <label class="toggle"><input id="inflationAdjust" type="checkbox" /> Show in today's dollars</label>
+          <label class="toggle"><input id="deductPiFundMgmt" type="checkbox" /> PI 1.25% fund-charge deduction</label>
+          <label class="toggle"><input id="showAdvisorDetails" type="checkbox" /> Advisor details</label>
+        </div>
+
+        <div id="inflationSettings" class="benchmark-settings" hidden>
+          <label>
+            Inflation rate %
+            <input id="inflationRate" type="number" min="0" max="20" step="0.1" value="2.5" />
+          </label>
+          <p class="caption-note">All headline figures and the chart will discount future amounts to today's purchasing power.</p>
+        </div>
+
+        <div id="fdSettings" class="benchmark-settings" hidden>
+          <label>
+            Fixed deposit rate %
+            <input id="fdRate" type="number" min="0" max="20" step="0.05" value="3" />
+          </label>
+          <label>
+            FD funding style
+            <select id="fdFundingMode">
+              <option value="single">Single sum today</option>
+              <option value="incremental" selected>Annual incremental sum</option>
+            </select>
+          </label>
+          <label>
+            FD amount
+            <input id="fdAmount" type="number" min="0" step="100" value="100000" />
+          </label>
+          <label class="toggle compact-toggle"><input id="fdCompound" type="checkbox" checked /> Compound interest</label>
+        </div>
+
+        <div id="compareSettings" class="benchmark-settings compare-settings" hidden>
+          <label>
+            Compare variation
+            <select id="compareVariantKey"></select>
+          </label>
+          <label>
+            Compare annual premium
+            <input id="compareAnnualizedPremium" type="number" min="0" step="100" value="100000" />
+          </label>
+          <button id="copyMainStrategy" type="button">Copy selected strategy</button>
+        </div>
+
+        <div class="action-row">
+          <button id="saveHtmlScenario" type="button">Save HTML</button>
+          <button id="loadHtmlScenario" type="button">Load HTML</button>
+          <input id="loadScenarioFile" type="file" accept=".html,text/html,.json,application/json" hidden />
+          <button id="copyShareLink" type="button" title="Copy a share link with the current scenario encoded">Copy share link</button>
+          <button id="startPresentation" type="button">Presentation mode</button>
+          <button id="printScenario" type="button">Print / save PDF</button>
+          <button id="exportAnnual" type="button">Export annual CSV</button>
+          <button id="exportMonthly" type="button">Export monthly CSV</button>
+        </div>
+
+        <div id="advisorSettings" class="advisor-settings" hidden>
+          <label>
+            Admin after MIP override
+            <input id="adminAfterOverride" type="number" min="0" max="10" step="0.01" placeholder="Product default" />
+          </label>
+        </div>
+      </section>
+
+      <!-- HERO: single big number + composition bar -->
+      <section id="heroSummary" class="hero" aria-label="Projected wealth summary">
+        <div class="hero-headline">
+          <p class="eyebrow"><span id="heroLabel">Projected wealth</span> at <span id="heroEndAge">age 99</span></p>
+          <strong id="heroTotal">S$0</strong>
+          <p class="hero-caption" id="heroCaption"></p>
+        </div>
+        <div class="composition">
+          <div class="composition-bar" id="compositionBar" role="img" aria-label="Composition of projected wealth"></div>
+          <ul class="composition-legend" id="compositionLegend"></ul>
+        </div>
+      </section>
+
+      <!-- COMPARISON HERO: two big cards + a center delta band -->
+      <section id="comparisonHero" class="comparison-hero" aria-label="Headline comparison" hidden>
+        <article class="comparison-card primary">
+          <p class="eyebrow" id="cmpPrimaryLabel">Selected strategy</p>
+          <strong id="cmpPrimaryValue">S$0</strong>
+          <small id="cmpPrimaryDetail"></small>
+        </article>
+        <div class="comparison-delta" id="comparisonDelta">
+          <span class="delta-label" id="cmpDeltaLabel">Difference</span>
+          <strong class="delta-amount" id="cmpDeltaAmount">S$0</strong>
+          <button type="button" class="delta-toggle" id="deltaToggle">Show as %</button>
+        </div>
+        <article class="comparison-card secondary">
+          <p class="eyebrow" id="cmpSecondaryLabel">Benchmark</p>
+          <strong id="cmpSecondaryValue">S$0</strong>
+          <small id="cmpSecondaryDetail"></small>
+        </article>
+      </section>
+
+      <section class="benefit-highlight" aria-label="Legacy protection benefit">
+        <div>
+          <p class="eyebrow">Legacy Protection</p>
+          <h2>Death and Terminal Illness Benefit</h2>
+        </div>
+        <strong>101% Capital Protected</strong>
+        <p>A clear protection floor for clients and beneficiaries alongside the investment strategy.</p>
+      </section>
+
+      <section class="chart-grid" aria-label="Charts">
+        <div class="chart-panel">
+          <div class="panel-heading">
+            <h2>Projected Client Value And Benchmark</h2>
+            <span id="chartEndLabel"></span>
+          </div>
+          <div id="chartLegend" class="chart-legend"></div>
+          <div class="chart-stage">
+            <canvas id="valueChart" width="1100" height="380"></canvas>
+            <div id="chartTooltip" class="chart-tooltip" hidden></div>
+          </div>
+          <p class="chart-hint">Hover any year for a breakdown. Click a year to highlight it in the projection table below.</p>
+        </div>
+      </section>
+
+      <section class="status-row" aria-label="Model status">
+        <div id="checks" class="checks"></div>
+        <div id="assumptions" class="assumptions"></div>
+      </section>
+
+      <section class="strategy-section" aria-label="Strategy inputs">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Editable Strategy</p>
+            <h2>Returns, Dividends And Withdrawals</h2>
+          </div>
+          <div class="premium-note" id="premiumNote"></div>
+        </div>
+        <div class="bulk-tools sensitivity-tools" aria-label="Bulk strategy actions">
+          <label class="slider-label">
+            <span>NAV growth <strong id="bulkNavReturnReadout">0.0%</strong></span>
+            <input id="bulkNavReturn" type="range" min="-5" max="15" step="0.25" value="0" />
+          </label>
+          <label class="slider-label">
+            <span>Dividend rate <strong id="bulkDividendYieldReadout">6.0%</strong></span>
+            <input id="bulkDividendYield" type="range" min="0" max="12" step="0.25" value="6" />
+          </label>
+          <label>
+            Dividend mode
+            <select id="bulkDividendMode">
+              <option value="none">None</option>
+              <option value="reinvest" selected>Reinvest</option>
+              <option value="payout">Payout</option>
+            </select>
+          </label>
+          <label>
+            From year
+            <input id="bulkFromYear" type="number" min="1" max="99" step="1" value="1" />
+          </label>
+          <button id="applyBulkBelow" type="button">Apply to rows below</button>
+          <button id="autofillPremiums" type="button">Reset required premiums</button>
+        </div>
+        <div class="bulk-tools historical-tools" aria-label="Historical scenario">
+          <label>
+            Backfill from
+            <select id="historicalStartYear"></select>
+          </label>
+          <label>
+            Add dividend yield %
+            <input id="historicalDividendBoost" type="number" min="0" max="10" step="0.1" value="2" title="S&P data is price-only; add the long-run S&P dividend yield to approximate total return." />
+          </label>
+          <button id="applyHistoricalSp500" type="button">Apply S&amp;P 500 history</button>
+          <span class="historical-note" id="historicalReadout"></span>
+        </div>
+        <div class="table-wrap strategy-wrap">
+          <table id="strategyTable" class="data-table strategy-table"></table>
+        </div>
+      </section>
+
+      <section id="compareStrategySection" class="strategy-section compare-workings" aria-label="Comparison strategy inputs" hidden>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Editable Comparison</p>
+            <h2>Compare With Strategy</h2>
+          </div>
+          <div class="premium-note" id="comparePremiumNote"></div>
+        </div>
+        <div class="bulk-tools sensitivity-tools" aria-label="Comparison bulk strategy actions">
+          <label class="slider-label">
+            <span>NAV growth <strong id="compareBulkNavReturnReadout">0.0%</strong></span>
+            <input id="compareBulkNavReturn" type="range" min="-5" max="15" step="0.25" value="0" />
+          </label>
+          <label class="slider-label">
+            <span>Dividend rate <strong id="compareBulkDividendYieldReadout">6.0%</strong></span>
+            <input id="compareBulkDividendYield" type="range" min="0" max="12" step="0.25" value="6" />
+          </label>
+          <label>
+            Dividend mode
+            <select id="compareBulkDividendMode">
+              <option value="none">None</option>
+              <option value="reinvest" selected>Reinvest</option>
+              <option value="payout">Payout</option>
+            </select>
+          </label>
+          <label>
+            From year
+            <input id="compareBulkFromYear" type="number" min="1" max="99" step="1" value="1" />
+          </label>
+          <button id="applyCompareBulkBelow" type="button">Apply to rows below</button>
+          <button id="resetComparePremiums" type="button">Reset comparison premiums</button>
+        </div>
+        <div class="table-wrap strategy-wrap">
+          <table id="compareStrategyTable" class="data-table strategy-table"></table>
+        </div>
+      </section>
+
+      <section class="detail-section" aria-label="Outputs">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Client View</p>
+            <h2>Annual Projection</h2>
+          </div>
+          <div class="view-toggle" role="group" aria-label="Projection view">
+            <button type="button" id="annualMilestoneBtn" class="view-toggle-btn active">Milestones</button>
+            <button type="button" id="annualFullBtn" class="view-toggle-btn">All years</button>
+          </div>
+        </div>
+        <div class="table-wrap output-wrap">
+          <table id="annualTable" class="data-table"></table>
+        </div>
+      </section>
+
+      <section class="notes-section" aria-label="Scenario notes">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Advisor Working Notes</p>
+            <h2>Scenario Notes</h2>
+          </div>
+          <small class="caption-note">Saved with the scenario when you export HTML or copy the share link.</small>
+        </div>
+        <textarea id="scenarioNotes" rows="3" placeholder="Notes about goals, risk preferences, drawdown plans — travel with the scenario when shared or saved."></textarea>
+      </section>
+
+      <section class="source-notes" aria-label="Source notes">
+        <h2>Source Notes</h2>
+        <div id="sourceNotes"></div>
+      </section>
+
+      <section class="disclaimers" aria-label="Important disclaimers">
+        <h2>Important Disclaimers</h2>
+        <ul>
+          <li><strong>Educational purpose only.</strong> This illustration is prepared for educational and discussion purposes between an advisor and client. It is not an offer, solicitation or recommendation to buy or sell any financial product, and is not for distribution or reproduction without authorisation.</li>
+          <li><strong>Not financial advice.</strong> Information shown does not constitute investment, tax or legal advice. Clients should consult a licensed financial advisor and consider their own objectives, financial situation and needs before making any investment decision.</li>
+          <li><strong>Investment risk.</strong> The underlying assets are invested in funds whose values are subject to market fluctuations. Investments carry risks, including the possible loss of the principal amount invested. The value of units in the underlying funds, and any income from them, may rise as well as fall.</li>
+          <li><strong>Non-guaranteed projections.</strong> Projected account values, total values, dividends and bonuses shown here are illustrative only, based on the NAV growth and dividend rates entered for each year. They are not guaranteed and may differ materially from actual future performance. Past performance of any fund is not necessarily indicative of future performance.</li>
+          <li><strong>Bonuses and dividends.</strong> Welcome Bonus, Annual Premium Bonus, Loyalty Bonus and dividend payouts are subject to the policy's terms — including premium payment conditions and the actual performance of the underlying funds — and are not guaranteed.</li>
+          <li><strong>Charges.</strong> Projections are net of the admin and partial-withdrawal charges modelled here. The product is subject to other fees and charges set out in the policy contract and product summary, including but not limited to fund management charges, surrender charges and applicable deductions.</li>
+          <li><strong>Currency risk.</strong> Where the policy currency differs from the client's reference currency, projected outcomes may be affected by exchange rate fluctuations.</li>
+          <li><strong>Capital protection.</strong> The "101% Capital Protected" feature applies only to the Death and Terminal Illness Benefit as defined in the policy contract. Surrender value is not guaranteed and, particularly during the early policy years, may be less than total premiums paid.</li>
+          <li><strong>Source documents prevail.</strong> Please refer to the policy contract, product summary and fund factsheets for the full terms, conditions, charges and risk disclosures. In the event of any discrepancy, those documents prevail over this illustration.</li>
+        </ul>
+      </section>
+    </main>
+
+    <script>
+(function (root) {
+  "use strict";
+
+  const FREQUENCIES = {
+    Annual: { label: "Annual", paymentsPerYear: 1, dueMonths: [1] },
+    SemiAnnual: { label: "Semi-Annual", paymentsPerYear: 2, dueMonths: [1, 7] },
+    Quarterly: { label: "Quarterly", paymentsPerYear: 4, dueMonths: [1, 4, 7, 10] },
+    Monthly: { label: "Monthly", paymentsPerYear: 12, dueMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
+  };
+
+  const SURRENDER_COMMON_10 = {
+    1: 1, 2: 1, 3: 0.79, 4: 0.6, 5: 0.5, 6: 0.47, 7: 0.44, 8: 0.21, 9: 0.16, 10: 0.08,
+  };
+  const PARTIAL_COMMON_10 = {
+    1: 1, 2: 1, 3: 0.79, 4: 0.6, 5: 0.5, 6: 0.08, 7: 0.08, 8: 0.08, 9: 0.08, 10: 0.08,
+  };
+
+  const VARIANTS = {
+    "5F1": {
+      key: "5F1",
+      label: "5 Years Flexi 1",
+      currencies: ["SGD", "USD"],
+      mipYears: 5,
+      flexiStartYear: 2,
+      shortfallYears: 1,
+      adminDuring: 0.025,
+      adminAfter: 0.01,
+      loyaltyRate: 0,
+      annualPremiumBonusRate: 0,
+      minPremiums: {
+        SGD: { Annual: 25000 },
+        USD: { Annual: 25000 },
+      },
+      welcomeBands: [{ min: 25000, max: Infinity, rate: 0.058 }],
+      surrenderCharge: { 1: 0.15, 2: 0.12, 3: 0.09, 4: 0.06, 5: 0.03 },
+      partialCharge: { 1: 0.15, 2: 0.12, 3: 0.09, 4: 0.06, 5: 0.03 },
+      shortfallCharge: {},
+    },
+    "6F2": {
+      key: "6F2",
+      label: "6 Years Flexi 2",
+      currencies: ["SGD", "USD"],
+      mipYears: 6,
+      flexiStartYear: 3,
+      shortfallYears: 2,
+      adminDuring: 0.025,
+      adminAfter: 0.01,
+      loyaltyRate: 0,
+      annualPremiumBonusRate: 0,
+      minPremiums: {
+        SGD: { Annual: 10000 },
+        USD: { Annual: 10000 },
+      },
+      welcomeBands: [{ min: 10000, max: Infinity, rate: 0.116 }],
+      surrenderCharge: { 1: 1, 2: 1, 3: 0.77, 4: 0.4, 5: 0.2, 6: 0.1 },
+      partialCharge: { 1: 1, 2: 1, 3: 0.77, 4: 0.4, 5: 0.2, 6: 0.1 },
+      shortfallCharge: { 2: 1 },
+    },
+    "7F5": {
+      key: "7F5",
+      label: "7 Years Flexi 5",
+      currencies: ["SGD", "USD"],
+      mipYears: 7,
+      flexiStartYear: 6,
+      shortfallYears: 5,
+      adminDuring: 0.025,
+      adminAfter: 0.01,
+      loyaltyRate: 0.003,
+      annualPremiumBonusRate: 0,
+      minPremiums: {
+        SGD: { Annual: 12000, SemiAnnual: 6000, Quarterly: 3000, Monthly: 1000 },
+        USD: { Annual: 12000 },
+      },
+      welcomeBands: [
+        { min: 12000, max: 48000, rate: 0.07 },
+        { min: 48000, max: Infinity, rate: 0.12 },
+      ],
+      surrenderCharge: { 1: 1, 2: 1, 3: 0.77, 4: 0.4, 5: 0.2, 6: 0.1, 7: 0.05 },
+      partialCharge: { 1: 1, 2: 1, 3: 0.77, 4: 0.4, 5: 0.2, 6: 0.1, 7: 0.05 },
+      shortfallCharge: { 1: 1, 2: 1, 3: 0.77, 4: 0.4, 5: 0.2 },
+    },
+    "10F3": {
+      key: "10F3",
+      label: "10 Years Flexi 3",
+      currencies: ["SGD", "USD"],
+      mipYears: 10,
+      flexiStartYear: 4,
+      shortfallYears: 3,
+      partialLimitStartYear: 6,
+      adminDuring: 0.025,
+      adminAfter: 0.007,
+      loyaltyRate: 0.003,
+      annualPremiumBonusRate: 0.02,
+      minPremiums: {
+        SGD: { Annual: 6000, SemiAnnual: 3000, Quarterly: 1500, Monthly: 500 },
+        USD: { Annual: 6000 },
+      },
+      welcomeBands: [
+        { min: 6000, max: 9600, rate: 0.08 },
+        { min: 9600, max: Infinity, rate: 0.15 },
+      ],
+      policyFeeBand: { min: 6000, max: 9600, monthlyFee: 5 },
+      surrenderCharge: SURRENDER_COMMON_10,
+      partialCharge: PARTIAL_COMMON_10,
+      shortfallCharge: { 1: 1, 2: 1, 3: 0.79 },
+    },
+    "10F5": {
+      key: "10F5",
+      label: "10 Years Flexi 5",
+      currencies: ["SGD", "USD"],
+      mipYears: 10,
+      flexiStartYear: 6,
+      shortfallYears: 5,
+      partialLimitStartYear: 6,
+      adminDuring: 0.025,
+      adminAfter: 0.007,
+      loyaltyRate: 0.003,
+      annualPremiumBonusRate: 0.05,
+      minPremiums: {
+        SGD: { Annual: 6000, SemiAnnual: 3000, Quarterly: 1500, Monthly: 500 },
+        USD: { Annual: 6000 },
+      },
+      welcomeBands: [
+        { min: 6000, max: 9600, rate: 0.1 },
+        { min: 9600, max: Infinity, rate: 0.25 },
+      ],
+      policyFeeBand: { min: 6000, max: 9600, monthlyFee: 5 },
+      surrenderCharge: SURRENDER_COMMON_10,
+      partialCharge: PARTIAL_COMMON_10,
+      shortfallCharge: { 1: 1, 2: 1, 3: 0.79, 4: 0.6, 5: 0.5 },
+    },
+    "10F8": {
+      key: "10F8",
+      label: "10 Years Flexi 8",
+      currencies: ["SGD", "USD"],
+      mipYears: 10,
+      flexiStartYear: 9,
+      shortfallYears: 8,
+      partialLimitStartYear: 6,
+      adminDuring: 0.025,
+      adminAfter: 0.007,
+      loyaltyRate: 0.003,
+      annualPremiumBonusRate: 0.05,
+      minPremiums: {
+        SGD: { Annual: 6000, SemiAnnual: 3000, Quarterly: 1500, Monthly: 500 },
+        USD: { Annual: 6000 },
+      },
+      welcomeBands: [
+        { min: 6000, max: 9600, rate: 0.13 },
+        { min: 9600, max: Infinity, rate: 0.3 },
+      ],
+      policyFeeBand: { min: 6000, max: 9600, monthlyFee: 5 },
+      surrenderCharge: SURRENDER_COMMON_10,
+      partialCharge: PARTIAL_COMMON_10,
+      shortfallCharge: { 1: 1, 2: 1, 3: 0.79, 4: 0.6, 5: 0.5, 6: 0.47, 7: 0.44, 8: 0.21 },
+    },
+    "13F10": {
+      key: "13F10",
+      label: "13 Years Flexi 10",
+      currencies: ["SGD"],
+      mipYears: 13,
+      flexiStartYear: 11,
+      shortfallYears: 10,
+      partialLimitStartYear: 6,
+      adminDuring: 0.025,
+      adminAfter: 0.007,
+      loyaltyRate: 0.003,
+      annualPremiumBonusRate: 0.05,
+      minPremiums: {
+        SGD: { Annual: 3600, SemiAnnual: 1800, Quarterly: 900, Monthly: 300 },
+      },
+      welcomeBands: [
+        { min: 3600, max: 9600, rate: 0.15 },
+        { min: 9600, max: Infinity, rate: 0.45 },
+      ],
+      policyFeeBand: { min: 3600, max: 9600, monthlyFee: 5 },
+      surrenderCharge: { 1: 1, 2: 1, 3: 0.81, 4: 0.63, 5: 0.53, 6: 0.49, 7: 0.46, 8: 0.27, 9: 0.22, 10: 0.14, 11: 0.08, 12: 0.08, 13: 0.08 },
+      partialCharge: { 1: 1, 2: 1, 3: 0.81, 4: 0.63, 5: 0.53, 6: 0.08, 7: 0.08, 8: 0.08, 9: 0.08, 10: 0.08, 11: 0.08, 12: 0.08, 13: 0.08 },
+      shortfallCharge: { 1: 1, 2: 1, 3: 0.81, 4: 0.63, 5: 0.53, 6: 0.49, 7: 0.46, 8: 0.27, 9: 0.22, 10: 0.14 },
+    },
+    "IRG15F10": {
+      key: "IRG15F10",
+      label: "IRG 15 Years Flexi 10",
+      family: "InvestReady Growth",
+      currencies: ["SGD"],
+      mipYears: 15,
+      flexiStartYear: 11,
+      shortfallYears: 10,
+      partialLimitStartYear: 6,
+      mipPartialCap: 0.2,           // 20% of NAV-funded account value during MIP
+      adminMode: "vmpp",            // admin charge based on Value of Minimum Premium Payable
+      adminDuring: 0.0218,
+      adminAfter: 0.0095,
+      loyaltyRate: 0.003,
+      annualPremiumBonusRate: 0.03,
+      premiumBonusRate: 0.02,        // 2% per regular basic premium from flexi start date
+      boosterBonusRate: 0.35,        // 35% × first-year premium one-time at end of MIP if conditions met
+      topUpChargeRate: 0.05,
+      minPremiums: {
+        SGD: { Annual: 3600, SemiAnnual: 1800, Quarterly: 900, Monthly: 300 },
+      },
+      welcomeBands: [
+        { min: 3600, max: 9600, rate: 0.15 },
+        { min: 9600, max: Infinity, rate: 0.45 },
+      ],
+      surrenderCharge: { 1: 1, 2: 1, 3: 0.9, 4: 0.8, 5: 0.62, 6: 0.49, 7: 0.46, 8: 0.32, 9: 0.26, 10: 0.21, 11: 0.18, 12: 0.15, 13: 0.12, 14: 0.08, 15: 0.08 },
+      partialCharge: { 1: 1, 2: 1, 3: 0.9, 4: 0.8, 5: 0.62, 6: 0.49, 7: 0.46, 8: 0.32, 9: 0.26, 10: 0.21, 11: 0.18, 12: 0.15, 13: 0.12, 14: 0.08, 15: 0.08 },
+      shortfallCharge: { 1: 1, 2: 1, 3: 0.9, 4: 0.8, 5: 0.62, 6: 0.49, 7: 0.46, 8: 0.32, 9: 0.26, 10: 0.21 },
+    },
+    "IRG20F10": {
+      key: "IRG20F10",
+      label: "IRG 20 Years Flexi 10",
+      family: "InvestReady Growth",
+      currencies: ["SGD"],
+      mipYears: 20,
+      flexiStartYear: 11,
+      shortfallYears: 10,
+      partialLimitStartYear: 6,
+      mipPartialCap: 0.2,
+      adminMode: "vmpp",
+      adminDuring: 0.018,
+      adminAfter: 0.0092,
+      loyaltyRate: 0.003,
+      annualPremiumBonusRate: 0.03,
+      premiumBonusRate: 0.02,
+      boosterBonusRate: 0.35,
+      topUpChargeRate: 0.05,
+      minPremiums: {
+        SGD: { Annual: 2400, SemiAnnual: 1200, Quarterly: 600, Monthly: 200 },
+      },
+      welcomeBands: [
+        { min: 2400, max: 9600, rate: 0.30 },
+        { min: 9600, max: Infinity, rate: 0.60 },
+      ],
+      surrenderCharge: { 1: 1, 2: 1, 3: 0.9, 4: 0.85, 5: 0.8, 6: 0.75, 7: 0.62, 8: 0.52, 9: 0.45, 10: 0.4, 11: 0.36, 12: 0.33, 13: 0.3, 14: 0.27, 15: 0.24, 16: 0.21, 17: 0.17, 18: 0.13, 19: 0.08, 20: 0.08 },
+      partialCharge: { 1: 1, 2: 1, 3: 0.9, 4: 0.85, 5: 0.8, 6: 0.75, 7: 0.62, 8: 0.52, 9: 0.45, 10: 0.4, 11: 0.36, 12: 0.33, 13: 0.3, 14: 0.27, 15: 0.24, 16: 0.21, 17: 0.17, 18: 0.13, 19: 0.08, 20: 0.08 },
+      shortfallCharge: { 1: 1, 2: 1, 3: 0.9, 4: 0.85, 5: 0.8, 6: 0.75, 7: 0.62, 8: 0.52, 9: 0.45, 10: 0.4 },
+    },
+  };
+
+  const VARIANT_ORDER = ["5F1", "6F2", "7F5", "10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10"];
+  const PARTIAL_WITHDRAWAL_VARIANTS = new Set(["10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10"]);
+
+  function num(value, fallback = 0) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+
+  function pct(value) {
+    return num(value) / 100;
+  }
+
+  function currencySymbol(currency) {
+    return currency === "USD" ? "US$" : "S$";
+  }
+
+  function annualToMonthly(rate) {
+    const floor = Math.max(rate, -0.999);
+    return Math.pow(1 + floor, 1 / 12) - 1;
+  }
+
+  function rateForYear(table, year) {
+    return table && table[year] ? table[year] : 0;
+  }
+
+  function welcomeRate(variant, annualizedPremium) {
+    const band = variant.welcomeBands.find((item) => annualizedPremium >= item.min && annualizedPremium < item.max);
+    return band ? band.rate : 0;
+  }
+
+  function annualizedMinimum(variant, currency, frequency) {
+    const premium = variant.minPremiums[currency] && variant.minPremiums[currency][frequency];
+    const freq = FREQUENCIES[frequency] || FREQUENCIES.Annual;
+    return premium ? premium * freq.paymentsPerYear : null;
+  }
+
+  function policyFeeMonthly(variant, annualizedPremium, override) {
+    if (Number.isFinite(override) && override >= 0) return override;
+    const band = variant.policyFeeBand;
+    if (!band) return 0;
+    return annualizedPremium >= band.min && annualizedPremium < band.max ? band.monthlyFee : 0;
+  }
+
+  function cloneStrategy(strategy, years) {
+    const out = [];
+    for (let year = 1; year <= years; year += 1) {
+      const row = strategy[year - 1] || {};
+      out.push({
+        year,
+        basicPremium: num(row.basicPremium),
+        topUp: num(row.topUp),
+        navReturn: num(row.navReturn),
+        dividendYield: num(row.dividendYield),
+        dividendMode: row.dividendMode || "reinvest",
+        optionalDeduction: num(row.optionalDeduction, num(row.otherOutflow)),
+        dividendWithdrawal: num(row.dividendWithdrawal),
+        partialWithdrawal: num(row.partialWithdrawal, num(row.withdrawal)),
+      });
+    }
+    return out;
+  }
+
+  function premiumForYear(settings, year) {
+    const variant = VARIANTS[settings.variantKey || "10F3"];
+    return year <= variant.shortfallYears ? num(settings.annualizedPremium, 0) : 0;
+  }
+
+  function partialWithdrawalAllowed(variant, year) {
+    return PARTIAL_WITHDRAWAL_VARIANTS.has(variant.key) && year >= (variant.partialLimitStartYear || 6);
+  }
+
+  function partialWithdrawalLimit(variant, year, accountValue, priorLimitUsage, dividendBasis = 0) {
+    if (!partialWithdrawalAllowed(variant, year)) return 0;
+    const residualFloor = 1000;
+    const navAccountValue = Math.max(0, accountValue - Math.max(0, dividendBasis));
+    const residualLimited = Math.min(navAccountValue, Math.max(0, accountValue - residualFloor));
+    if (year <= variant.mipYears) {
+      const cap = Number.isFinite(variant.mipPartialCap) ? variant.mipPartialCap : 0.5;
+      return Math.max(0, Math.min(residualLimited, navAccountValue * cap - priorLimitUsage));
+    }
+    return residualLimited;
+  }
+
+  function defaultStrategy(settings, preset = "excelBase") {
+    const variant = VARIANTS[settings.variantKey || "10F3"];
+    const years = Math.max(1, Math.min(99, num(settings.projectionYears, 37)));
+    const annualizedPremium = num(settings.annualizedPremium, 100000);
+    const rows = [];
+    for (let year = 1; year <= years; year += 1) {
+      const row = {
+        year,
+        basicPremium: 0,
+        topUp: 0,
+        navReturn: 0,
+        dividendYield: 0.06,
+        dividendMode: "reinvest",
+        optionalDeduction: 0,
+        dividendWithdrawal: 0,
+        partialWithdrawal: 0,
+      };
+      if (preset === "piMain") {
+        row.basicPremium = annualizedPremium;
+        row.navReturn = 0.08;
+        row.dividendYield = 0;
+      } else if (preset === "dividendLater") {
+        row.basicPremium = premiumForYear(settings, year);
+        row.navReturn = year <= variant.mipYears ? 0.065 : 0.015;
+        row.dividendYield = year <= variant.mipYears ? 0 : 0.055;
+        row.dividendMode = year <= variant.mipYears ? "none" : "payout";
+      } else if (preset === "singlife") {
+        row.basicPremium = year <= variant.shortfallYears ? 50000 : 0;
+        row.dividendYield = 0.063;
+        row.optionalDeduction = year <= 23 ? 5629 + 3055.26 : 3055.26;
+      } else if (preset === "backdated") {
+        row.basicPremium = year <= variant.shortfallYears ? 100000 : 0;
+        row.dividendYield = 0.07;
+        row.optionalDeduction = year === 1 ? 7598.63 + 3055.26 : year <= 23 ? 5065.75 + 3055.26 : 3055.26;
+      } else if (preset === "blank") {
+        row.dividendYield = 0;
+        row.dividendMode = "none";
+      } else {
+        row.basicPremium = premiumForYear(settings, year);
+        row.dividendYield = 0.06;
+      }
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  function irrMonthly(cashFlows) {
+    const hasPositive = cashFlows.some((x) => x > 0);
+    const hasNegative = cashFlows.some((x) => x < 0);
+    if (!hasPositive || !hasNegative) return null;
+    let rate = 0.005;
+    for (let i = 0; i < 60; i += 1) {
+      let npv = 0;
+      let derivative = 0;
+      for (let t = 0; t < cashFlows.length; t += 1) {
+        const cashFlow = cashFlows[t] || 0;
+        const denom = Math.pow(1 + rate, t);
+        npv += cashFlow / denom;
+        if (t > 0) derivative -= (t * cashFlow) / Math.pow(1 + rate, t + 1);
+      }
+      if (Math.abs(npv) < 0.0001) break;
+      if (Math.abs(derivative) < 1e-10) break;
+      const next = rate - npv / derivative;
+      if (!Number.isFinite(next) || next <= -0.99) break;
+      if (Math.abs(next - rate) < 1e-10) {
+        rate = next;
+        break;
+      }
+      rate = next;
+    }
+    return Number.isFinite(rate) ? Math.pow(1 + rate, 12) - 1 : null;
+  }
+
+  function simulate(settings, strategy, mode = "custom") {
+    const variant = VARIANTS[settings.variantKey] || VARIANTS["10F3"];
+    const frequency = FREQUENCIES[settings.paymentFrequency] || FREQUENCIES.Annual;
+    const years = Math.max(1, Math.min(99, num(settings.projectionYears, 37)));
+    const rows = cloneStrategy(strategy, years);
+    const annualizedPremium = num(settings.annualizedPremium, 100000);
+    const adminAfterOverride = Number.isFinite(settings.adminAfterOverride) ? settings.adminAfterOverride : null;
+    const adminAfter = adminAfterOverride === null ? variant.adminAfter : adminAfterOverride;
+    const policyFee = policyFeeMonthly(variant, annualizedPremium, settings.policyFeeOverride);
+    const piMgmtDeduction = settings.deductPiFundMgmt ? num(settings.piFundMgmtRate, 0.0125) : 0;
+    const topUpChargeRate = Number.isFinite(settings.topUpChargeRate)
+      ? settings.topUpChargeRate
+      : (Number.isFinite(variant.topUpChargeRate) ? variant.topUpChargeRate : 0);
+    const adminMode = variant.adminMode || "account";
+
+    // Pre-compute VMPP series for variants where admin charge tracks
+    // a notional accumulation of premiums up to flexi start date at 6% p.a. over the MIP.
+    const vmppByYear = new Array(years + 1).fill(0);
+    if (adminMode === "vmpp") {
+      let prev = 0;
+      for (let y = 1; y <= years; y += 1) {
+        if (y === 1) {
+          prev = annualizedPremium;
+        } else if (y > variant.mipYears) {
+          // Frozen after MIP
+          prev = vmppByYear[y - 1];
+        } else {
+          const extra = y <= variant.shortfallYears ? annualizedPremium : 0;
+          prev = extra + vmppByYear[y - 1] * 1.06;
+        }
+        vmppByYear[y] = prev;
+      }
+    }
+
+    const cashFlows = [0];
+    const monthly = [];
+    const annual = [];
+
+    let account = 0;
+    let totalBasicPaid = 0;
+    let totalTopUps = 0;
+    let totalGrossWithdrawals = 0;
+    let cashDividends = 0;
+    let cashWithdrawals = 0;
+    let reinvestedDividendBasis = 0;
+    let totalReinvestedDividends = 0;
+    let totalCoiCharges = 0;
+    let lapsed = false;
+    let bonusTotal = 0;
+    let priorPartialWithdrawalUsage = 0;
+    let yearPremiumBonusPaid = 0;
+    let lastPremiumBonusYear = 0;
+    let boosterPaid = false;
+    let boosterEligible = true; // tracks "regular basic premiums paid on time before flexi start date"
+    const rollingWithdrawals = [];
+    const annualBuckets = new Map();
+
+    for (let month = 1; month <= years * 12; month += 1) {
+      const year = Math.ceil(month / 12);
+      const monthInYear = ((month - 1) % 12) + 1;
+      const row = rows[year - 1];
+      const bucket = annualBuckets.get(year) || {
+        year,
+        premiums: 0,
+        topUps: 0,
+        bonuses: 0,
+        grossDividends: 0,
+        cashDividends: 0,
+        reinvestedDividends: 0,
+        adminCharges: 0,
+        policyFees: 0,
+        shortfallCharges: 0,
+        coiCharges: 0,
+        optionalDeductions: 0,
+        dividendWithdrawals: 0,
+        partialWithdrawals: 0,
+        withdrawalCharges: 0,
+        dividendWithdrawalLimit: 0,
+        partialWithdrawalLimit: 0,
+        partialWithdrawalChargeRate: 0,
+        adminRate: 0,
+      };
+
+      const dueIndex = frequency.dueMonths.indexOf(monthInYear);
+      const basicPremium = dueIndex >= 0 ? row.basicPremium / frequency.dueMonths.length : 0;
+      const topUp = monthInYear === 1 ? row.topUp : 0;
+      let bonus = 0;
+
+      // Reset per-year premium-bonus accumulator
+      if (monthInYear === 1 && year !== lastPremiumBonusYear) {
+        yearPremiumBonusPaid = 0;
+        lastPremiumBonusYear = year;
+      }
+
+      // Booster bonus eligibility: regular basic premiums must be paid on time before flexi start date.
+      // Treat any year before flexi start where basic premium falls short of annualised as a missed payment.
+      if (year < variant.flexiStartYear && monthInYear === 12) {
+        const paidThisYear = (rows[year - 1].basicPremium || 0);
+        if (paidThisYear + 0.01 < annualizedPremium) boosterEligible = false;
+      }
+
+      if (basicPremium > 0) {
+        account += basicPremium;
+        totalBasicPaid += basicPremium;
+        bucket.premiums += basicPremium;
+        cashFlows[month] = (cashFlows[month] || 0) - basicPremium;
+
+        if (settings.includeWelcome && year === 1) {
+          bonus += basicPremium * welcomeRate(variant, annualizedPremium);
+        }
+        if (settings.includeAnnualBonus && settings.paymentFrequency === "Annual" && year === 1 && monthInYear === 1) {
+          bonus += basicPremium * variant.annualPremiumBonusRate;
+        }
+        // Premium Bonus (IRG only): from flexi start date onwards, 2% per regular basic premium paid,
+        // capped at 2% × first-year annualised premium per policy year.
+        const premiumBonusRate = variant.premiumBonusRate || 0;
+        if (premiumBonusRate > 0 && year >= variant.flexiStartYear) {
+          const yearCap = annualizedPremium * premiumBonusRate;
+          const headroom = Math.max(0, yearCap - yearPremiumBonusPaid);
+          const candidate = Math.min(basicPremium * premiumBonusRate, headroom);
+          if (candidate > 0) {
+            bonus += candidate;
+            yearPremiumBonusPaid += candidate;
+          }
+        }
+      }
+
+      if (topUp > 0) {
+        const investedTopUp = topUp * (1 - num(topUpChargeRate));
+        account += investedTopUp;
+        totalTopUps += topUp;
+        bucket.topUps += topUp;
+        cashFlows[month] = (cashFlows[month] || 0) - topUp;
+      }
+
+      // Booster Bonus (IRG only): paid one business day after end of MIP if conditions are met.
+      // Approximated as paid in month 1 of policy year (mipYears + 1).
+      const boosterRate = variant.boosterBonusRate || 0;
+      if (boosterRate > 0 && !boosterPaid && year === variant.mipYears + 1 && monthInYear === 1) {
+        // Condition (i): account value at end of MIP, less withdrawals/payouts/COI taken out, ≤ premiums + topups.
+        // Equivalently: account ≤ premiums + topups + cumulative withdrawals + cash divs + COI.
+        const adjustedAccount = account
+          - (totalGrossWithdrawals + cashDividends + cashWithdrawals + totalCoiCharges) * 0; // included on rhs instead
+        const threshold = totalBasicPaid + totalTopUps + totalGrossWithdrawals + cashDividends + cashWithdrawals + totalCoiCharges;
+        if (boosterEligible && adjustedAccount <= threshold) {
+          const boosterAmount = annualizedPremium * boosterRate;
+          bonus += boosterAmount;
+        }
+        boosterPaid = true;
+      }
+
+      const recentWithdrawal = rollingWithdrawals.some((entry) => month - entry.month <= 12);
+      if (settings.includeLoyalty && monthInYear === 1 && year > variant.mipYears && variant.loyaltyRate > 0 && !recentWithdrawal) {
+        bonus += account * variant.loyaltyRate;
+      }
+
+      if (bonus > 0) {
+        account += bonus;
+        bonusTotal += bonus;
+        bucket.bonuses += bonus;
+      }
+
+      let navAnnual = row.navReturn - piMgmtDeduction;
+      let dividendAnnual = row.dividendYield;
+      let dividendMode = row.dividendMode;
+      if (mode === "navOnly") {
+        navAnnual = (1 + navAnnual) * (1 + dividendAnnual) - 1;
+        dividendAnnual = 0;
+        dividendMode = "none";
+      }
+      if (mode === "dividendPayout" && dividendAnnual > 0) {
+        dividendMode = "payout";
+      }
+
+      account *= 1 + annualToMonthly(navAnnual);
+
+      const dividend = dividendAnnual > 0 ? account * annualToMonthly(dividendAnnual) : 0;
+      if (dividend > 0) {
+        bucket.grossDividends += dividend;
+        if (dividendMode === "payout" && dividend >= num(settings.dividendMinimum, 40)) {
+          cashDividends += dividend;
+          bucket.cashDividends += dividend;
+          cashFlows[month] = (cashFlows[month] || 0) + dividend;
+        } else if (dividendMode !== "none") {
+          account += dividend;
+          reinvestedDividendBasis += dividend;
+          totalReinvestedDividends += dividend;
+          bucket.reinvestedDividends += dividend;
+        }
+      }
+
+      const adminRate = year <= variant.mipYears ? variant.adminDuring : adminAfter;
+      const adminBase = adminMode === "vmpp" ? vmppByYear[year] : account;
+      const adminCharge = Math.max(0, adminBase) * adminRate / 12;
+      account -= adminCharge;
+      bucket.adminCharges += adminCharge;
+      bucket.adminRate = adminRate;
+
+      if (policyFee > 0) {
+        const fee = Math.min(policyFee, Math.max(0, account));
+        account -= fee;
+        bucket.policyFees += fee;
+      }
+
+      if (settings.usePremiumShortfall) {
+        const gap = Math.max(0, annualizedPremium - row.basicPremium);
+        const shortfallRate = rateForYear(variant.shortfallCharge, year);
+        if (gap > 0 && shortfallRate > 0 && year < variant.flexiStartYear) {
+          const shortfallCharge = shortfallRate * gap / 12;
+          account -= shortfallCharge;
+          bucket.shortfallCharges += shortfallCharge;
+        }
+      }
+
+      const deathBase = 1.01 * Math.max(0, totalBasicPaid + totalTopUps - totalGrossWithdrawals);
+      const naar = Math.max(0, deathBase - account);
+      const coiCharge = naar * num(settings.coiAnnualRate) / 12;
+      if (coiCharge > 0) {
+        account -= coiCharge;
+        bucket.coiCharges += coiCharge;
+        totalCoiCharges += coiCharge;
+      }
+
+      const optionalDeduction = row.optionalDeduction / 12;
+      if (optionalDeduction > 0) {
+        account -= optionalDeduction;
+        bucket.optionalDeductions += optionalDeduction;
+      }
+
+      if (monthInYear === 12) {
+        const dividendWithdrawalLimit = Math.min(Math.max(0, account), reinvestedDividendBasis);
+        bucket.dividendWithdrawalLimit = dividendWithdrawalLimit;
+        const dividendWithdrawal = Math.min(row.dividendWithdrawal, dividendWithdrawalLimit);
+        if (dividendWithdrawal > 0) {
+          account -= dividendWithdrawal;
+          reinvestedDividendBasis = Math.max(0, reinvestedDividendBasis - dividendWithdrawal);
+          totalGrossWithdrawals += dividendWithdrawal;
+          cashWithdrawals += dividendWithdrawal;
+          bucket.dividendWithdrawals += dividendWithdrawal;
+          cashFlows[month] = (cashFlows[month] || 0) + dividendWithdrawal;
+          rollingWithdrawals.push({ month, amount: dividendWithdrawal, type: "dividend" });
+        }
+
+        const availablePartialLimit = partialWithdrawalLimit(variant, year, Math.max(0, account), priorPartialWithdrawalUsage, reinvestedDividendBasis);
+        bucket.partialWithdrawalLimit = availablePartialLimit;
+        const grossWithdrawal = Math.min(row.partialWithdrawal, availablePartialLimit);
+        const chargeRate = year <= variant.mipYears ? rateForYear(variant.partialCharge, year) : 0;
+        const chargeableWithdrawal = grossWithdrawal;
+        const withdrawalCharge = chargeableWithdrawal * chargeRate;
+        const netWithdrawal = grossWithdrawal - withdrawalCharge;
+        bucket.partialWithdrawalChargeRate = chargeRate;
+        if (grossWithdrawal > 0) {
+          account -= grossWithdrawal;
+          totalGrossWithdrawals += grossWithdrawal;
+          cashWithdrawals += netWithdrawal;
+          bucket.partialWithdrawals += grossWithdrawal;
+          bucket.withdrawalCharges += withdrawalCharge;
+          cashFlows[month] = (cashFlows[month] || 0) + netWithdrawal;
+          rollingWithdrawals.push({ month, amount: grossWithdrawal, type: "partial" });
+          priorPartialWithdrawalUsage += grossWithdrawal;
+        }
+      }
+
+      if (account <= 0) {
+        account = 0;
+        lapsed = true;
+      }
+
+      annualBuckets.set(year, bucket);
+      const surrenderChargeRate = year <= variant.mipYears ? rateForYear(variant.surrenderCharge, year) : 0;
+      const surrenderCharge = surrenderChargeRate * Math.max(0, account - reinvestedDividendBasis);
+      const surrenderValue = Math.max(0, account - surrenderCharge);
+      const deathBenefit = Math.max(1.01 * Math.max(0, totalBasicPaid + totalTopUps - totalGrossWithdrawals), account);
+      monthly.push({
+        month,
+        year,
+        age: num(settings.startAge, 62) + year,
+        accountValue: account,
+        surrenderValue,
+        deathBenefit,
+        cashDividends,
+        cashWithdrawals,
+        totalValue: account + cashDividends + cashWithdrawals,
+        totalBasicPaid,
+        totalTopUps,
+        totalReinvestedDividends,
+        reinvestedDividendBasis,
+        lapsed,
+      });
+
+      if (monthInYear === 12) {
+        const endBucket = annualBuckets.get(year);
+        annual.push({
+          ...endBucket,
+          age: num(settings.startAge, 62) + year,
+          accountValue: account,
+          surrenderValue,
+          deathBenefit,
+          cashDividends,
+          cashWithdrawals,
+          totalValue: account + cashDividends + cashWithdrawals,
+          totalBasicPaid,
+          totalTopUps,
+          totalReinvestedDividends,
+          surrenderChargeRate,
+          surrenderCharge,
+          reinvestedDividendBasis,
+          lapsed,
+        });
+      }
+    }
+
+    if (cashFlows.length <= years * 12) {
+      cashFlows.length = years * 12 + 1;
+    }
+    cashFlows[years * 12] = (cashFlows[years * 12] || 0) + account;
+    const final = annual[annual.length - 1] || {};
+    const irr = irrMonthly(cashFlows);
+    return {
+      mode,
+      variant,
+      settings: { ...settings, adminAfter, policyFee },
+      annual,
+      monthly,
+      final: {
+        ...final,
+        irr,
+        bonusTotal,
+        netCapital: totalBasicPaid + totalTopUps,
+      },
+      cashFlows,
+      warnings: validate(settings, rows),
+    };
+  }
+
+  function validate(settings, strategy) {
+    const warnings = [];
+    const variant = VARIANTS[settings.variantKey] || VARIANTS["10F3"];
+    const annualizedPremium = num(settings.annualizedPremium);
+    const minimum = annualizedMinimum(variant, settings.currency, settings.paymentFrequency);
+    if (!variant.currencies.includes(settings.currency)) {
+      warnings.push(`${variant.label} is not available in ${settings.currency}.`);
+    }
+    if (minimum === null) {
+      warnings.push(`${settings.paymentFrequency} mode is not available for ${variant.label} in ${settings.currency}.`);
+    } else if (annualizedPremium < minimum) {
+      warnings.push(`Annualised basic premium is below the ${currencySymbol(settings.currency)}${minimum.toLocaleString()} minimum for this mode.`);
+    }
+    const missingBeforeFlexi = strategy.some((row) => row.year <= variant.shortfallYears && row.basicPremium < annualizedPremium);
+    if (missingBeforeFlexi && settings.usePremiumShortfall) {
+      warnings.push("Required premium funding gap detected during the premium term.");
+    }
+    if (settings.deductPiFundMgmt) {
+      warnings.push("PI mode deducts 1.25% p.a.; keep it off for factsheet returns that are already net of fund management charges.");
+    }
+    return warnings;
+  }
+
+  // S&P 500 calendar-year returns (price-only, year-end close to year-end close).
+  // Source: ^SPX daily close, full years 1951–2025.
+  const SP500_ANNUAL_RETURNS = {1951:0.164625,1952:0.117796,1953:-0.06624,1954:0.450222,1955:0.264036,1956:0.026165,1957:-0.143133,1958:0.380595,1959:0.084767,1960:-0.029721,1961:0.231285,1962:-0.118099,1963:0.188906,1964:0.129699,1965:0.090619,1966:-0.13091,1967:0.200921,1968:0.076604,1969:-0.113614,1970:0.000978,1971:0.107868,1972:0.156333,1973:-0.173655,1974:-0.297181,1975:0.31549,1976:0.191485,1977:-0.11502,1978:0.01062,1979:0.123088,1980:0.257736,1981:-0.097304,1982:0.147613,1983:0.17271,1984:0.014006,1985:0.263334,1986:0.146204,1987:0.020275,1988:0.124008,1989:0.272505,1990:-0.065591,1991:0.263067,1992:0.044643,1993:0.070552,1994:-0.015393,1995:0.341107,1996:0.202637,1997:0.310082,1998:0.266686,1999:0.19526,2000:-0.101392,2001:-0.130427,2002:-0.23366,2003:0.263804,2004:0.089935,2005:0.03001,2006:0.136194,2007:0.035296,2008:-0.384858,2009:0.234542,2010:0.127827,2011:-3.2e-05,2012:0.134057,2013:0.296012,2014:0.113906,2015:-0.007266,2016:0.09535,2017:0.1942,2018:-0.062373,2019:0.288781,2020:0.162589,2021:0.268927,2022:-0.194428,2023:0.242305,2024:0.23309,2025:0.163878};
+
+  const api = {
+    FREQUENCIES,
+    SP500_ANNUAL_RETURNS,
+    VARIANTS,
+    VARIANT_ORDER,
+    annualizedMinimum,
+    currencySymbol,
+    defaultStrategy,
+    partialWithdrawalAllowed,
+    partialWithdrawalLimit,
+    policyFeeMonthly,
+    premiumForYear,
+    simulate,
+    validate,
+    welcomeRate,
+  };
+
+  root.IRModel = api;
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+})(typeof window !== "undefined" ? window : globalThis);
+
+    </script>
+    <script>
+(function () {
+  "use strict";
+
+  const model = window.IRModel;
+  const state = {
+    strategy: [],
+    compareStrategy: [],
+    results: null,
+    annualView: "milestone", // "milestone" | "full"
+    deltaMode: "amount", // "amount" | "percent"
+    highlightYear: null,
+    chartGeometry: null,
+  };
+
+  const fields = {};
+  const fieldIds = [
+    "variantKey", "currency", "paymentFrequency", "annualizedPremium", "startAge",
+    "adminAfterOverride", "includeWelcome", "includeAnnualBonus", "includeLoyalty",
+    "compareCustom", "compareVariantKey", "compareAnnualizedPremium",
+    "compareReinvest", "compareFd", "fdRate", "fdFundingMode", "fdAmount", "fdCompound",
+    "deductPiFundMgmt", "showAdvisorDetails", "loadScenarioFile",
+    "bulkNavReturn", "bulkDividendYield", "bulkDividendMode", "bulkFromYear",
+    "compareBulkNavReturn", "compareBulkDividendYield", "compareBulkDividendMode", "compareBulkFromYear",
+    "inflationAdjust", "inflationRate", "scenarioNotes",
+    "historicalStartYear", "historicalDividendBoost",
+  ];
+
+  function $(id) { return document.getElementById(id); }
+
+  function collectFields() {
+    fieldIds.forEach((id) => { fields[id] = $(id); });
+  }
+
+  // ===== FORMATTERS =====
+  function money(value, currency = "SGD", decimals = 0) {
+    const symbol = model.currencySymbol(currency);
+    const num = Number(value || 0);
+    return `${num < 0 ? "-" : ""}${symbol}${Math.abs(num).toLocaleString(undefined, { maximumFractionDigits: decimals, minimumFractionDigits: decimals })}`;
+  }
+
+  function compactMoney(value, currency) {
+    const symbol = model.currencySymbol(currency);
+    const abs = Math.abs(value || 0);
+    const sign = value < 0 ? "-" : "";
+    if (abs >= 1000000) return `${sign}${symbol}${(abs / 1000000).toFixed(1)}m`;
+    if (abs >= 1000) return `${sign}${symbol}${Math.round(abs / 1000)}k`;
+    return `${sign}${symbol}${Math.round(abs)}`;
+  }
+
+  function percent(value, decimals = 1) {
+    if (value === null || value === undefined || Number.isNaN(value)) return "n.m.";
+    return `${(value * 100).toFixed(decimals)}%`;
+  }
+
+  function numberValue(input) {
+    const parsed = Number(input.value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function pctInput(input) { return numberValue(input) / 100; }
+
+  function projectionYearsFromAge(age) {
+    return Math.max(1, 99 - Math.max(0, Math.min(98, Math.round(Number(age) || 0))));
+  }
+
+  // ===== INFLATION =====
+  function inflationActive() {
+    return fields.inflationAdjust && fields.inflationAdjust.checked;
+  }
+
+  function inflationRate() {
+    return inflationActive() ? Math.max(0, pctInput(fields.inflationRate)) : 0;
+  }
+
+  function discount(value, year) {
+    const rate = inflationRate();
+    if (rate <= 0) return value;
+    return value / Math.pow(1 + rate, Math.max(0, year));
+  }
+
+  // ===== PREMIUM ENFORCEMENT =====
+  function currentMinimumPremium() {
+    if (!fields.variantKey || !fields.currency || !fields.paymentFrequency) return null;
+    const variant = model.VARIANTS[fields.variantKey.value];
+    if (!variant) return null;
+    return model.annualizedMinimum(variant, fields.currency.value, fields.paymentFrequency.value);
+  }
+
+  function comparisonMinimumPremium() {
+    if (!fields.compareVariantKey || !fields.currency || !fields.paymentFrequency) return null;
+    const variant = model.VARIANTS[fields.compareVariantKey.value];
+    if (!variant) return null;
+    return model.annualizedMinimum(variant, fields.currency.value, fields.paymentFrequency.value);
+  }
+
+  function enforcePremiumMinimum(clamp = false) {
+    const minimum = currentMinimumPremium();
+    if (!fields.annualizedPremium || minimum === null) return true;
+    fields.annualizedPremium.min = minimum;
+    const premium = numberValue(fields.annualizedPremium);
+    const valid = premium >= minimum;
+    if (!valid && clamp) {
+      fields.annualizedPremium.value = minimum;
+      fields.annualizedPremium.classList.remove("invalid-input");
+      fields.annualizedPremium.setCustomValidity("");
+      return true;
+    }
+    fields.annualizedPremium.classList.toggle("invalid-input", !valid);
+    fields.annualizedPremium.setCustomValidity(valid ? "" : `Minimum annualised premium is ${money(minimum, fields.currency.value)}.`);
+    return valid;
+  }
+
+  function enforceComparePremiumMinimum(clamp = false) {
+    if (!fields.compareCustom || !fields.compareCustom.checked) return true;
+    const minimum = comparisonMinimumPremium();
+    if (!fields.compareAnnualizedPremium || minimum === null) return true;
+    fields.compareAnnualizedPremium.min = minimum;
+    const premium = numberValue(fields.compareAnnualizedPremium);
+    const valid = premium >= minimum;
+    if (!valid && clamp) {
+      fields.compareAnnualizedPremium.value = minimum;
+      fields.compareAnnualizedPremium.classList.remove("invalid-input");
+      fields.compareAnnualizedPremium.setCustomValidity("");
+      return true;
+    }
+    fields.compareAnnualizedPremium.classList.toggle("invalid-input", !valid);
+    fields.compareAnnualizedPremium.setCustomValidity(valid ? "" : `Minimum annualised premium is ${money(minimum, fields.currency.value)}.`);
+    return valid;
+  }
+
+  function renderMinimumPremiumWarning() {
+    const minimum = currentMinimumPremium();
+    const el = $("checks");
+    if (!el || minimum === null) return;
+    el.className = "checks review";
+    el.innerHTML = `
+      <strong>Review inputs</strong>
+      <span>Annualised basic premium must be at least ${money(minimum, fields.currency.value)} for this variant and payment mode.</span>
+    `;
+  }
+
+  // ===== SETTINGS BUILDERS =====
+  function currentSettings() {
+    const adminOverrideRaw = fields.adminAfterOverride.value.trim();
+    const startAge = numberValue(fields.startAge);
+    return {
+      variantKey: fields.variantKey.value,
+      currency: fields.currency.value,
+      paymentFrequency: fields.paymentFrequency.value,
+      annualizedPremium: numberValue(fields.annualizedPremium),
+      startAge,
+      projectionYears: projectionYearsFromAge(startAge),
+      adminAfterOverride: adminOverrideRaw === "" ? null : Number(adminOverrideRaw) / 100,
+      includeWelcome: fields.includeWelcome.checked,
+      includeAnnualBonus: fields.includeAnnualBonus.checked,
+      includeLoyalty: fields.includeLoyalty.checked,
+      usePremiumShortfall: true,
+      deductPiFundMgmt: fields.deductPiFundMgmt.checked,
+      piFundMgmtRate: 0.0125,
+      dividendMinimum: 40,
+      topUpChargeRate: 0,
+    };
+  }
+
+  function currentComparisonSettings(settings = currentSettings()) {
+    const variant = model.VARIANTS[settings.variantKey];
+    return {
+      showCustom: fields.compareCustom.checked,
+      compareVariantKey: fields.compareVariantKey.value,
+      compareAnnualizedPremium: numberValue(fields.compareAnnualizedPremium),
+      showReinvest: fields.compareReinvest.checked,
+      showFd: fields.compareFd.checked,
+      fdRate: pctInput(fields.fdRate),
+      fdFundingMode: fields.fdFundingMode.value,
+      fdAmount: numberValue(fields.fdAmount),
+      fdCompound: fields.fdCompound.checked,
+      fdFundingYears: variant.shortfallYears,
+    };
+  }
+
+  function currentCompareSettings(base = currentSettings()) {
+    return {
+      ...base,
+      variantKey: fields.compareVariantKey.value,
+      annualizedPremium: numberValue(fields.compareAnnualizedPremium),
+    };
+  }
+
+  function reinvestDividendStrategy(strategy) {
+    return strategy.map((row) => ({
+      ...row,
+      dividendMode: row.dividendYield > 0 ? "reinvest" : row.dividendMode,
+      dividendWithdrawal: 0,
+    }));
+  }
+
+  function simulateFixedDeposit(settings, comparison) {
+    const years = settings.projectionYears;
+    const amount = Math.max(0, comparison.fdAmount);
+    const rate = Math.max(0, comparison.fdRate);
+    const deposits = comparison.fdFundingMode === "incremental"
+      ? Array.from({ length: comparison.fdFundingYears }, (_, index) => ({ year: index + 1, amount }))
+      : [{ year: 1, amount }];
+    const annual = [];
+    for (let year = 1; year <= years; year += 1) {
+      let value = 0;
+      let contributions = 0;
+      deposits.forEach((deposit) => {
+        if (deposit.year > year) return;
+        const duration = year - deposit.year + 1;
+        contributions += deposit.amount;
+        value += comparison.fdCompound
+          ? deposit.amount * Math.pow(1 + rate, duration)
+          : deposit.amount * (1 + rate * duration);
+      });
+      annual.push({ year, age: settings.startAge + year, contributions, value });
+    }
+    const final = annual[annual.length - 1] || { contributions: 0, value: 0 };
+    return { annual, final: { ...final, gain: final.value - final.contributions } };
+  }
+
+  // ===== VARIANT POPULATION =====
+  function populateVariants() {
+    const options = model.VARIANT_ORDER.map((key) => {
+      const variant = model.VARIANTS[key];
+      return `<option value="${key}">${variant.label}</option>`;
+    }).join("");
+    fields.variantKey.innerHTML = options;
+    fields.variantKey.value = "10F3";
+    fields.compareVariantKey.innerHTML = options;
+    fields.compareVariantKey.value = "10F5";
+  }
+
+  function syncCurrencyOptions() {
+    const variant = model.VARIANTS[fields.variantKey.value];
+    const value = fields.currency.value;
+    fields.currency.innerHTML = variant.currencies.map((currency) => `<option>${currency}</option>`).join("");
+    fields.currency.value = variant.currencies.includes(value) ? value : variant.currencies[0];
+    syncPaymentOptions();
+    enforceComparePremiumMinimum(true);
+  }
+
+  function syncPaymentOptions() {
+    const variant = model.VARIANTS[fields.variantKey.value];
+    const currency = fields.currency.value;
+    const current = fields.paymentFrequency.value;
+    const available = variant.minPremiums[currency] || {};
+    fields.paymentFrequency.innerHTML = Object.keys(model.FREQUENCIES).map((key) => {
+      const disabled = available[key] ? "" : "disabled";
+      return `<option value="${key}" ${disabled}>${model.FREQUENCIES[key].label}</option>`;
+    }).join("");
+    fields.paymentFrequency.value = available[current] ? current : Object.keys(available)[0] || "Annual";
+    enforcePremiumMinimum(true);
+    enforceComparePremiumMinimum(true);
+  }
+
+  // ===== STRATEGY TABLE =====
+  function readCell(tr, field, fallback = 0) {
+    const el = tr.querySelector(`[data-field='${field}']`);
+    if (!el) return fallback;
+    if (el.tagName === "SELECT") return el.value;
+    const parsed = Number(el.value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+
+  function readStrategyTable(tableId = "strategyTable") {
+    const rows = Array.from(document.querySelectorAll(`#${tableId} tbody tr`));
+    return rows.map((tr) => ({
+      year: Number(tr.dataset.year),
+      basicPremium: Number(tr.dataset.basicPremium) || 0,
+      topUp: readCell(tr, "topUp"),
+      navReturn: readCell(tr, "navReturn") / 100,
+      dividendYield: readCell(tr, "dividendYield") / 100,
+      dividendMode: readCell(tr, "dividendMode", "reinvest"),
+      optionalDeduction: readCell(tr, "optionalDeduction"),
+      dividendWithdrawal: readCell(tr, "dividendWithdrawal"),
+      partialWithdrawal: readCell(tr, "partialWithdrawal"),
+    }));
+  }
+
+  function ensureStrategyRows(rows, settings) {
+    const years = settings.projectionYears;
+    if (rows.length < years) {
+      for (let year = rows.length + 1; year <= years; year += 1) {
+        rows.push({
+          year,
+          basicPremium: model.premiumForYear(settings, year),
+          topUp: 0, navReturn: 0,
+          dividendYield: 0.06, dividendMode: "reinvest",
+          optionalDeduction: 0, dividendWithdrawal: 0, partialWithdrawal: 0,
+        });
+      }
+    }
+    return rows.slice(0, years);
+  }
+
+  function ensureStrategyLength() {
+    state.strategy = ensureStrategyRows(state.strategy, currentSettings());
+  }
+
+  function ensureCompareStrategyLength() {
+    state.compareStrategy = ensureStrategyRows(state.compareStrategy, currentCompareSettings());
+  }
+
+  function autofillPremiums() {
+    const settings = currentSettings();
+    ensureStrategyLength();
+    state.strategy.forEach((row) => { row.basicPremium = model.premiumForYear(settings, row.year); });
+  }
+
+  function autofillComparePremiums() {
+    const settings = currentCompareSettings();
+    ensureCompareStrategyLength();
+    state.compareStrategy.forEach((row) => { row.basicPremium = model.premiumForYear(settings, row.year); });
+  }
+
+  function copyMainStrategyToCompare() {
+    const compareSettings = currentCompareSettings();
+    state.strategy = readStrategyTable("strategyTable");
+    state.compareStrategy = ensureStrategyRows(state.strategy.map((row) => ({ ...row })), compareSettings);
+    autofillComparePremiums();
+    renderCompareStrategyTable();
+    recalc();
+  }
+
+  function rowClassForYear(variant, year) {
+    if (model.partialWithdrawalAllowed(variant, year) && year <= variant.mipYears) return "partial-window";
+    if (year === variant.mipYears + 1) return "full-withdrawal-window";
+    return "";
+  }
+
+  function renderStrategyTable() {
+    ensureStrategyLength();
+    const settings = currentSettings();
+    renderStrategyTableFor("strategyTable", state.strategy, settings, "main");
+    updatePremiumNote();
+  }
+
+  function renderCompareStrategyTable() {
+    $("compareSettings").hidden = !fields.compareCustom.checked;
+    $("compareStrategySection").hidden = !fields.compareCustom.checked;
+    if (!fields.compareCustom.checked) return;
+    enforceComparePremiumMinimum(true);
+    ensureCompareStrategyLength();
+    autofillComparePremiums();
+    renderStrategyTableFor("compareStrategyTable", state.compareStrategy, currentCompareSettings(), "compare");
+    updateComparePremiumNote();
+  }
+
+  function renderStrategyTableFor(tableId, rows, settings, target) {
+    const showAdvisor = fields.showAdvisorDetails.checked;
+    const table = $(tableId);
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th class="col-time">Yr</th>
+          <th class="col-time">Age</th>
+          <th class="col-premium">Premium</th>
+          ${showAdvisor ? '<th class="col-premium">Top-up</th>' : ''}
+          <th class="col-growth">NAV growth %</th>
+          <th class="col-income">Dividend %</th>
+          <th class="col-income">Dividend mode</th>
+          <th class="col-withdrawal">Allowable dividend drawdown</th>
+          <th class="col-withdrawal">Dividend withdrawal</th>
+          <th class="col-withdrawal">Allowable partial</th>
+          <th class="col-withdrawal">Partial withdrawal</th>
+          ${showAdvisor ? '<th class="col-charge">Optional deduction</th>' : ''}
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map((row) => strategyRowHtml(row, settings, showAdvisor, target)).join("")}
+      </tbody>
+    `;
+    table.querySelectorAll("input,select").forEach((el) => {
+      el.addEventListener("input", recalc);
+      el.addEventListener("change", recalc);
+    });
+  }
+
+  function strategyRowHtml(row, settings, showAdvisor, target = "main") {
+    const age = Number(settings.startAge || 0) + row.year;
+    const mode = row.dividendMode || "none";
+    const variant = model.VARIANTS[settings.variantKey];
+    const canWithdraw = model.partialWithdrawalAllowed(variant, row.year);
+    const rowClass = rowClassForYear(variant, row.year);
+    const dividendCellClass = target === "compare" ? "compare-allowable-dividend-cell" : "allowable-dividend-cell";
+    const partialCellClass = target === "compare" ? "compare-allowable-cell" : "allowable-cell";
+    const rowTitle = rowClass === "partial-window"
+      ? "50% partial withdrawal window during MIP"
+      : rowClass === "full-withdrawal-window"
+        ? "First year with no surrender charge"
+        : "";
+    return `
+      <tr class="${rowClass}" title="${rowTitle}" data-year="${row.year}" data-basic-premium="${roundInput(row.basicPremium)}">
+        <td class="col-time">${row.year}</td>
+        <td class="col-time">${age}</td>
+        <td class="col-premium premium-cell">${row.basicPremium ? money(row.basicPremium, settings.currency) : "-"}</td>
+        ${showAdvisor ? `<td class="col-premium"><input data-field="topUp" type="number" min="0" step="100" value="${roundInput(row.topUp)}" /></td>` : ""}
+        <td class="col-growth"><input class="input-growth" data-field="navReturn" type="number" step="0.1" value="${roundInput(row.navReturn * 100, 2)}" /></td>
+        <td class="col-income"><input class="input-income" data-field="dividendYield" type="number" step="0.1" value="${roundInput(row.dividendYield * 100, 2)}" /></td>
+        <td class="col-income">
+          <select class="input-income" data-field="dividendMode">
+            <option value="none" ${mode === "none" ? "selected" : ""}>None</option>
+            <option value="reinvest" ${mode === "reinvest" ? "selected" : ""}>Reinvest</option>
+            <option value="payout" ${mode === "payout" ? "selected" : ""}>Payout</option>
+          </select>
+        </td>
+        <td class="col-withdrawal ${dividendCellClass}" data-year="${row.year}">-</td>
+        <td class="col-withdrawal"><input class="input-withdrawal" data-field="dividendWithdrawal" type="number" min="0" step="100" value="${roundInput(row.dividendWithdrawal)}" disabled /></td>
+        <td class="col-withdrawal ${partialCellClass}" data-year="${row.year}">${canWithdraw ? "Calculating" : "-"}</td>
+        <td class="col-withdrawal"><input class="input-withdrawal" data-field="partialWithdrawal" type="number" min="0" step="100" value="${roundInput(row.partialWithdrawal)}" ${canWithdraw ? "" : "disabled"} /></td>
+        ${showAdvisor ? `<td class="col-charge"><input class="input-charge" data-field="optionalDeduction" type="number" min="0" step="100" value="${roundInput(row.optionalDeduction)}" /></td>` : ""}
+      </tr>
+    `;
+  }
+
+  function updatePremiumNote() {
+    const settings = currentSettings();
+    const variant = model.VARIANTS[settings.variantKey];
+    const minimum = currentMinimumPremium();
+    if (minimum !== null && settings.annualizedPremium < minimum) {
+      $("premiumNote").textContent = `${money(minimum, settings.currency)} p.a. minimum. Lower premium inputs are not applied.`;
+      return;
+    }
+    $("premiumNote").textContent = `${money(settings.annualizedPremium, settings.currency)} p.a. auto-filled for first ${variant.shortfallYears} policy year${variant.shortfallYears === 1 ? "" : "s"}. Illustration runs to age 99.`;
+  }
+
+  function updateComparePremiumNote() {
+    const el = $("comparePremiumNote");
+    if (!el) return;
+    const settings = currentCompareSettings();
+    const variant = model.VARIANTS[settings.variantKey];
+    const minimum = comparisonMinimumPremium();
+    if (minimum !== null && settings.annualizedPremium < minimum) {
+      el.textContent = `${money(minimum, settings.currency)} p.a. minimum. Lower comparison premium inputs are not applied.`;
+      return;
+    }
+    el.textContent = `${variant.label}: ${money(settings.annualizedPremium, settings.currency)} p.a. for first ${variant.shortfallYears} policy year${variant.shortfallYears === 1 ? "" : "s"}.`;
+  }
+
+  function updateStrategyReadouts(result, tableId = "strategyTable", settings = currentSettings(), target = "main") {
+    const variant = model.VARIANTS[settings.variantKey];
+    const dividendCellClass = target === "compare" ? "compare-allowable-dividend-cell" : "allowable-dividend-cell";
+    const partialCellClass = target === "compare" ? "compare-allowable-cell" : "allowable-cell";
+    result.annual.forEach((row) => {
+      const dividendCell = document.querySelector(`#${tableId} .${dividendCellClass}[data-year='${row.year}']`);
+      if (dividendCell) {
+        dividendCell.textContent = row.dividendWithdrawalLimit > 0 ? money(row.dividendWithdrawalLimit, settings.currency) : "-";
+      }
+      const cell = document.querySelector(`#${tableId} .${partialCellClass}[data-year='${row.year}']`);
+      if (cell) cell.textContent = model.partialWithdrawalAllowed(variant, row.year) ? money(row.partialWithdrawalLimit, settings.currency) : "-";
+      const tr = document.querySelector(`#${tableId} tbody tr[data-year='${row.year}']`);
+      const dividendInput = tr && tr.querySelector("[data-field='dividendWithdrawal']");
+      if (dividendInput) {
+        const limit = Math.round(row.dividendWithdrawalLimit || 0);
+        dividendInput.disabled = limit <= 0;
+        dividendInput.max = limit;
+        if (limit <= 0) dividendInput.value = 0;
+        else if (numberValue(dividendInput) > limit) dividendInput.value = limit;
+      }
+      const partialInput = tr && tr.querySelector("[data-field='partialWithdrawal']");
+      if (partialInput) {
+        const limit = Math.round(row.partialWithdrawalLimit || 0);
+        partialInput.disabled = !model.partialWithdrawalAllowed(variant, row.year);
+        partialInput.max = limit;
+        if (partialInput.disabled) partialInput.value = 0;
+        else if (numberValue(partialInput) > limit) partialInput.value = limit;
+      }
+    });
+  }
+
+  function roundInput(value, decimals = 0) {
+    const factor = 10 ** decimals;
+    return Math.round((Number(value) || 0) * factor) / factor;
+  }
+
+  function applyPreset(name = "excelBase") {
+    if (name === "singlife") fields.annualizedPremium.value = 50000;
+    else if (name === "backdated" || name === "excelBase" || name === "piMain") fields.annualizedPremium.value = 100000;
+    enforcePremiumMinimum(true);
+    fields.deductPiFundMgmt.checked = name === "piMain";
+    state.strategy = model.defaultStrategy(currentSettings(), name);
+    autofillPremiums();
+    renderStrategyTable();
+    recalc();
+  }
+
+  // ===== BULK / SLIDER TOOLS =====
+  function applyBulkToRows(rows, bulkFields) {
+    const fromYear = Math.max(1, Math.round(numberValue(bulkFields.fromYear) || 1));
+    const navReturn = pctInput(bulkFields.navReturn);
+    const dividendYield = pctInput(bulkFields.dividendYield);
+    const dividendMode = bulkFields.dividendMode.value;
+    rows.forEach((row) => {
+      if (row.year >= fromYear) {
+        row.navReturn = navReturn;
+        row.dividendYield = dividendYield;
+        row.dividendMode = dividendMode;
+      }
+    });
+  }
+
+  function applyBulkBelow() {
+    state.strategy = readStrategyTable("strategyTable");
+    applyBulkToRows(state.strategy, {
+      navReturn: fields.bulkNavReturn,
+      dividendYield: fields.bulkDividendYield,
+      dividendMode: fields.bulkDividendMode,
+      fromYear: fields.bulkFromYear,
+    });
+    renderStrategyTable();
+    recalc();
+  }
+
+  function applyCompareBulkBelow() {
+    if (!fields.compareCustom.checked) return;
+    state.compareStrategy = readStrategyTable("compareStrategyTable");
+    applyBulkToRows(state.compareStrategy, {
+      navReturn: fields.compareBulkNavReturn,
+      dividendYield: fields.compareBulkDividendYield,
+      dividendMode: fields.compareBulkDividendMode,
+      fromYear: fields.compareBulkFromYear,
+    });
+    renderCompareStrategyTable();
+    recalc();
+  }
+
+  // ===== HISTORICAL S&P 500 SCENARIO =====
+  function historicalYears() {
+    const data = model.SP500_ANNUAL_RETURNS || {};
+    return Object.keys(data).map(Number).sort((a, b) => a - b);
+  }
+
+  function populateHistoricalStartYears() {
+    const years = historicalYears();
+    if (!years.length || !fields.historicalStartYear) return;
+    const settings = currentSettings();
+    const projection = projectionYearsFromAge(settings.startAge);
+    // Recommend a start year that lets at least half the projection draw on real history
+    const minHistoryRecommended = Math.max(10, Math.floor(projection / 2));
+    const lastYear = years[years.length - 1];
+    const recommendedStart = lastYear - minHistoryRecommended + 1;
+    const previous = fields.historicalStartYear.value;
+    fields.historicalStartYear.innerHTML = years.map((y) => `<option value="${y}">${y}</option>`).join("");
+    if (previous && years.includes(Number(previous))) {
+      fields.historicalStartYear.value = previous;
+    } else {
+      // Default to a start year roughly 30 years back from latest, or the recommended floor
+      const defaultStart = Math.min(Math.max(lastYear - 30, years[0]), recommendedStart);
+      fields.historicalStartYear.value = String(defaultStart);
+    }
+  }
+
+  function applyHistoricalSp500() {
+    const data = model.SP500_ANNUAL_RETURNS || {};
+    const years = historicalYears();
+    if (!years.length) return;
+    const startYear = Number(fields.historicalStartYear.value) || years[0];
+    const dividendBoost = Math.max(0, numberValue(fields.historicalDividendBoost) / 100);
+    state.strategy = readStrategyTable("strategyTable");
+    ensureStrategyLength();
+    const lastYear = years[years.length - 1];
+    let appliedCount = 0;
+    let firstAppliedYear = null;
+    let lastAppliedYear = null;
+    state.strategy.forEach((row, idx) => {
+      const calendarYear = startYear + idx;
+      if (data[calendarYear] !== undefined) {
+        row.navReturn = data[calendarYear] + dividendBoost;
+        appliedCount += 1;
+        if (firstAppliedYear === null) firstAppliedYear = calendarYear;
+        lastAppliedYear = calendarYear;
+      }
+    });
+    renderStrategyTable();
+    recalc();
+    const projection = state.strategy.length;
+    const tail = projection - appliedCount;
+    const boostText = dividendBoost > 0 ? ` + ${(dividendBoost * 100).toFixed(1)}% dividend yield` : "";
+    let msg;
+    if (appliedCount === 0) {
+      msg = `No history applied — ${startYear} is outside the available range.`;
+    } else if (tail <= 0) {
+      msg = `Applied S&P 500 ${firstAppliedYear}–${lastAppliedYear}${boostText} (${appliedCount} yrs).`;
+    } else {
+      msg = `Applied S&P 500 ${firstAppliedYear}–${lastAppliedYear}${boostText} (${appliedCount} yrs). Last ${tail} projection year${tail === 1 ? "" : "s"} left at prior values — extend history or set manually.`;
+    }
+    const readout = $("historicalReadout");
+    if (readout) readout.textContent = msg;
+  }
+
+  function syncSliderReadouts() {
+    const main = (input) => {
+      const v = Math.round(Number(input.value || 0) * 100) / 100;
+      return `${v}%`;
+    };
+    if ($("bulkNavReturnReadout")) $("bulkNavReturnReadout").textContent = main(fields.bulkNavReturn);
+    if ($("bulkDividendYieldReadout")) $("bulkDividendYieldReadout").textContent = main(fields.bulkDividendYield);
+    if ($("compareBulkNavReturnReadout")) $("compareBulkNavReturnReadout").textContent = main(fields.compareBulkNavReturn);
+    if ($("compareBulkDividendYieldReadout")) $("compareBulkDividendYieldReadout").textContent = main(fields.compareBulkDividendYield);
+  }
+
+  // ===== CORE RECALC =====
+  function recalc() {
+    if (!enforcePremiumMinimum(false)) {
+      updatePremiumNote();
+      renderMinimumPremiumWarning();
+      return;
+    }
+    state.strategy = readStrategyTable();
+    const settings = currentSettings();
+    const comparison = currentComparisonSettings(settings);
+    let customCompare = null;
+    if (comparison.showCustom) {
+      ensureCompareStrategyLength();
+      const compareRows = readStrategyTable("compareStrategyTable");
+      if (compareRows.length) state.compareStrategy = compareRows;
+      autofillComparePremiums();
+      customCompare = model.simulate(currentCompareSettings(settings), state.compareStrategy, "custom");
+    }
+    const results = {
+      custom: model.simulate(settings, state.strategy, "custom"),
+      customCompare,
+      reinvest: comparison.showReinvest ? model.simulate(settings, reinvestDividendStrategy(state.strategy), "custom") : null,
+      fixedDeposit: comparison.showFd ? simulateFixedDeposit(settings, comparison) : null,
+      comparison,
+    };
+    state.results = results;
+    $("advisorSettings").hidden = !fields.showAdvisorDetails.checked;
+    $("compareSettings").hidden = !fields.compareCustom.checked;
+    $("compareStrategySection").hidden = !fields.compareCustom.checked;
+    $("fdSettings").hidden = !fields.compareFd.checked;
+    $("inflationSettings").hidden = !inflationActive();
+    syncSliderReadouts();
+    renderChecks(results.custom);
+    renderAssumptions(results.custom);
+    renderHero(results);
+    renderComparisonHero(results);
+    renderCharts(results);
+    renderAnnualTable();
+    renderSourceNotes();
+    updateStrategyReadouts(results.custom);
+    if (results.customCompare) updateStrategyReadouts(results.customCompare, "compareStrategyTable", currentCompareSettings(settings), "compare");
+  }
+
+  function renderChecks(result) {
+    const el = $("checks");
+    const warnings = [...result.warnings];
+    if (result.final.lapsed) warnings.push("Account value reached zero during the projection.");
+    el.className = warnings.length ? "checks review" : "checks ok";
+    el.innerHTML = `
+      <strong>${warnings.length ? "Review inputs" : "Ready for client view"}</strong>
+      <span>${warnings.length ? warnings.join(" ") : "Premium term, MIP charges and withdrawal rules are aligned to the selected variation."}</span>
+    `;
+  }
+
+  function renderAssumptions(result) {
+    const variant = result.variant;
+    const settings = currentSettings();
+    const welcome = model.welcomeRate(variant, settings.annualizedPremium);
+    const policyFee = model.policyFeeMonthly(variant, settings.annualizedPremium);
+    const policyFeeText = policyFee > 0
+      ? `${money(policyFee, settings.currency)} / mo`
+      : variant.policyFeeBand
+        ? `Above ${money(variant.policyFeeBand.max, settings.currency)} p.a.`
+        : "Not applicable";
+    const adminText = variant.adminMode === "vmpp"
+      ? `${percent(variant.adminDuring)} / ${percent(result.settings.adminAfter)} of VMPP`
+      : `${percent(variant.adminDuring)} / ${percent(result.settings.adminAfter)}`;
+    const extraRows = [];
+    if (variant.premiumBonusRate > 0) {
+      extraRows.push(`<div><dt>Premium Bonus</dt><dd>${percent(variant.premiumBonusRate)} from Yr ${variant.flexiStartYear}</dd></div>`);
+    }
+    if (variant.boosterBonusRate > 0) {
+      extraRows.push(`<div><dt>Booster Bonus</dt><dd>${percent(variant.boosterBonusRate)} at MIP end</dd></div>`);
+    }
+    $("assumptions").innerHTML = `
+      <strong>${variant.label}</strong>
+      <dl>
+        <div><dt>MIP</dt><dd>${variant.mipYears} yrs</dd></div>
+        <div><dt>Premium term</dt><dd>${variant.shortfallYears} yrs</dd></div>
+        <div><dt>Admin</dt><dd>${adminText}</dd></div>
+        <div><dt>Policy fee</dt><dd>${policyFeeText}</dd></div>
+        <div><dt>Welcome Bonus</dt><dd>${percent(welcome)}</dd></div>
+        <div><dt>Annual Premium Bonus</dt><dd>${percent(variant.annualPremiumBonusRate)}</dd></div>
+        <div><dt>Loyalty Bonus</dt><dd>${percent(variant.loyaltyRate)}</dd></div>
+        ${extraRows.join("")}
+      </dl>
+    `;
+  }
+
+  // ===== HERO =====
+  function compositionFor(result) {
+    const f = result.final;
+    const paid = (f.totalBasicPaid || 0) + (f.totalTopUps || 0);
+    const bonuses = f.bonusTotal || 0;
+    const dividends = (f.totalReinvestedDividends || 0) + (f.cashDividends || 0);
+    // residual NAV growth = totalValue - paid - bonuses - dividends-in-cash
+    // accountValue already contains reinvested dividends + bonuses + premiums + NAV growth - charges
+    // totalValue = accountValue + cashDividends + cashWithdrawals
+    // So a clean breakdown of TOTAL value:
+    //   capital paid + bonuses + cumulative dividends (reinvested+cash) + (NAV growth - charges)
+    // However reinvested dividends are themselves earnings, which makes "growth" the residual.
+    const total = f.totalValue || 0;
+    const residual = total - paid - bonuses - dividends;
+    return { paid, bonuses, dividends, growth: residual, total };
+  }
+
+  function renderHero(results) {
+    const settings = currentSettings();
+    const result = results.custom;
+    const endYear = result.annual.length;
+    const endAge = settings.startAge + endYear;
+    const composition = compositionFor(result);
+    const total = inflationActive() ? discount(composition.total, endYear) : composition.total;
+    const paid = inflationActive() ? discount(composition.paid, endYear) : composition.paid;
+    const bonuses = inflationActive() ? discount(composition.bonuses, endYear) : composition.bonuses;
+    const dividends = inflationActive() ? discount(composition.dividends, endYear) : composition.dividends;
+    const growth = inflationActive() ? discount(composition.growth, endYear) : composition.growth;
+
+    $("heroLabel").textContent = "Projected wealth";
+    $("heroEndAge").textContent = `age ${endAge}${inflationActive() ? " in today's dollars" : ""}`;
+    $("heroTotal").textContent = money(total, settings.currency);
+
+    const irrText = result.final.irr !== null && !Number.isNaN(result.final.irr)
+      ? ` at ${percent(result.final.irr)} IRR`
+      : "";
+    $("heroCaption").textContent = `From ${money(paid, settings.currency)} contributed${irrText}.`;
+
+    // Composition bar segments — show only positive segments
+    const segs = [
+      { key: "paid", label: "Capital paid in", value: paid, color: "var(--c-paid)" },
+      { key: "bonuses", label: "Bonuses credited", value: bonuses, color: "var(--c-bonus)" },
+      { key: "dividends", label: "Dividends accrued", value: dividends, color: "var(--c-dividend)" },
+      { key: "growth", label: "Investment growth", value: Math.max(0, growth), color: "var(--c-growth)" },
+    ];
+    const positiveSum = segs.reduce((acc, s) => acc + Math.max(0, s.value), 0) || 1;
+
+    $("compositionBar").innerHTML = segs.map((s) => {
+      const v = Math.max(0, s.value);
+      const pct = (v / positiveSum) * 100;
+      if (pct < 0.5) return "";
+      const compact = pct < 6 ? "compact-label" : "";
+      return `<div class="seg ${compact}" style="width:${pct.toFixed(2)}%; background:${s.color}" title="${s.label}: ${money(s.value, settings.currency)}">${pct >= 6 ? Math.round(pct) + "%" : ""}</div>`;
+    }).join("");
+
+    $("compositionLegend").innerHTML = segs.map((s) => `
+      <li>
+        <i style="background:${s.color}"></i>
+        <div>
+          <span>${s.label}</span>
+          <strong>${money(s.value, settings.currency)}</strong>
+        </div>
+      </li>
+    `).join("");
+  }
+
+  // ===== COMPARISON HERO =====
+  function renderComparisonHero(results) {
+    const settings = currentSettings();
+    const hero = $("comparisonHero");
+
+    let primary = null;
+    let secondary = null;
+
+    if (results.customCompare) {
+      primary = {
+        label: results.custom.variant.label,
+        value: results.custom.final.totalValue,
+        detail: `From ${money(results.custom.final.totalBasicPaid + results.custom.final.totalTopUps, settings.currency)} paid · ${percent(results.custom.final.irr)} IRR`,
+      };
+      secondary = {
+        label: results.customCompare.variant.label,
+        value: results.customCompare.final.totalValue,
+        detail: `From ${money(results.customCompare.final.totalBasicPaid + results.customCompare.final.totalTopUps, settings.currency)} paid · ${percent(results.customCompare.final.irr)} IRR`,
+      };
+    } else if (results.fixedDeposit) {
+      primary = {
+        label: `${results.custom.variant.label} (selected)`,
+        value: results.custom.final.totalValue,
+        detail: `From ${money(results.custom.final.totalBasicPaid + results.custom.final.totalTopUps, settings.currency)} paid · ${percent(results.custom.final.irr)} IRR`,
+      };
+      secondary = {
+        label: `Fixed deposit (${results.comparison.fdFundingMode === "single" ? "single sum" : "annual"}, ${results.comparison.fdCompound ? "compounded" : "simple"})`,
+        value: results.fixedDeposit.final.value,
+        detail: `From ${money(results.fixedDeposit.final.contributions, settings.currency)} placed at ${percent(results.comparison.fdRate)}`,
+      };
+    } else if (results.reinvest) {
+      primary = {
+        label: `${results.custom.variant.label} — your strategy`,
+        value: results.custom.final.totalValue,
+        detail: `${percent(results.custom.final.irr)} IRR`,
+      };
+      secondary = {
+        label: "All dividends reinvested",
+        value: results.reinvest.final.totalValue,
+        detail: `${percent(results.reinvest.final.irr)} IRR`,
+      };
+    }
+
+    if (!primary || !secondary) {
+      hero.hidden = true;
+      return;
+    }
+    hero.hidden = false;
+
+    const endYear = results.custom.annual.length;
+    const primaryValue = inflationActive() ? discount(primary.value, endYear) : primary.value;
+    const secondaryValue = inflationActive() ? discount(secondary.value, endYear) : secondary.value;
+    const delta = primaryValue - secondaryValue;
+    const positive = delta >= 0;
+
+    $("cmpPrimaryLabel").textContent = primary.label;
+    $("cmpPrimaryValue").textContent = money(primaryValue, settings.currency);
+    $("cmpPrimaryDetail").textContent = primary.detail;
+
+    $("cmpSecondaryLabel").textContent = secondary.label;
+    $("cmpSecondaryValue").textContent = money(secondaryValue, settings.currency);
+    $("cmpSecondaryDetail").textContent = secondary.detail;
+
+    const deltaEl = $("comparisonDelta");
+    deltaEl.classList.toggle("negative", !positive);
+    $("cmpDeltaLabel").textContent = positive
+      ? `${results.custom.variant.label} ahead by`
+      : `${results.custom.variant.label} behind by`;
+
+    if (state.deltaMode === "percent" && secondaryValue !== 0) {
+      const pct = (delta / secondaryValue) * 100;
+      $("cmpDeltaAmount").textContent = `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`;
+      $("deltaToggle").textContent = "Show as $";
+    } else {
+      $("cmpDeltaAmount").textContent = `${positive ? "+" : "−"}${money(Math.abs(delta), settings.currency)}`;
+      $("deltaToggle").textContent = "Show as %";
+    }
+  }
+
+  // ===== CHART =====
+  function buildChartSeries(results) {
+    const settings = currentSettings();
+    const annual = results.custom.annual;
+    const labels = annual.map((row) => `Y${row.year}`);
+    const ages = annual.map((row) => row.age);
+
+    const cumulativePaid = [];
+    let running = 0;
+    annual.forEach((row) => {
+      running += (row.premiums || 0) + (row.topUps || 0);
+      cumulativePaid.push(running);
+    });
+
+    const selectedTotal = annual.map((row) => row.totalValue);
+    const accountOnly = annual.map((row) => row.accountValue);
+
+    const apply = (values) => inflationActive()
+      ? values.map((v, i) => discount(v, i + 1))
+      : values.slice();
+
+    const series = {
+      labels,
+      ages,
+      cumulativePaid: apply(cumulativePaid),
+      selected: { name: `${results.custom.variant.label} total client value`, color: "var(--c-selected)", values: apply(selectedTotal) },
+      account: { name: "Account value (after cash-outs)", color: "#74808f", values: apply(accountOnly), dash: [6, 6] },
+    };
+
+    const benchmarks = [];
+    if (results.customCompare) {
+      benchmarks.push({
+        name: `${results.customCompare.variant.label} total value`,
+        color: "var(--c-benchmark)",
+        values: apply(results.customCompare.annual.map((row) => row.totalValue)),
+        kind: "compare",
+      });
+    }
+    if (results.reinvest) {
+      benchmarks.push({
+        name: "All dividends reinvested",
+        color: "#a7853d",
+        values: apply(results.reinvest.annual.map((row) => row.totalValue)),
+        kind: "reinvest",
+      });
+    }
+    if (results.fixedDeposit) {
+      benchmarks.push({
+        name: "Fixed deposit",
+        color: "var(--c-dividend)",
+        values: apply(results.fixedDeposit.annual.map((row) => row.value)),
+        kind: "fd",
+      });
+    }
+    series.benchmarks = benchmarks;
+
+    // Milestones — "critical" markers always carry a year label on the X-axis
+    // and a name above the dot; "age" markers are quieter cadence anchors.
+    const variant = results.custom.variant;
+    const milestones = [];
+    const seen = new Set();
+    const addMilestone = (year, label, kind = "age") => {
+      if (year < 1 || year > annual.length) return;
+      if (seen.has(year)) return;
+      seen.add(year);
+      milestones.push({ year, label, age: settings.startAge + year, kind });
+    };
+    addMilestone(variant.shortfallYears, "Premium term ends", "critical");
+    // Partial withdrawal opens — only 10F3, 10F5, 10F8, 13F10 from year 6 (or variant override)
+    const partialStartYear = variant.partialLimitStartYear || 6;
+    if (model.partialWithdrawalAllowed(variant, partialStartYear)) {
+      addMilestone(partialStartYear, "Partial withdrawal opens", "critical");
+    }
+    addMilestone(variant.mipYears + 1, "MIP ends", "critical");
+    if (variant.loyaltyRate > 0) addMilestone(variant.mipYears + 1, "Loyalty bonus", "critical");
+    [70, 75, 80, 85, 90, 95].forEach((age) => {
+      const year = age - settings.startAge;
+      if (year >= 1 && year <= annual.length) addMilestone(year, `Age ${age}`, "age");
+    });
+    addMilestone(annual.length, `Age ${settings.startAge + annual.length}`, "critical");
+    series.milestones = milestones;
+
+    return series;
+  }
+
+  function renderCharts(results) {
+    const settings = currentSettings();
+    const series = buildChartSeries(results);
+    const annual = results.custom.annual;
+    const hasCashReceived = annual.some((row) => (row.cashDividends + row.cashWithdrawals) > 0);
+    $("chartEndLabel").textContent = `End age ${settings.startAge + annual.length}`;
+
+    // Legend
+    const legendItems = [];
+    legendItems.push({ name: "Capital paid in", color: "var(--c-paid)", swatch: "line" });
+    legendItems.push({ name: "Investment growth (filled)", color: "var(--c-growth)", swatch: "area" });
+    legendItems.push({ name: series.selected.name, color: "var(--c-selected)", swatch: "line" });
+    if (hasCashReceived && !results.customCompare) {
+      legendItems.push({ name: series.account.name, color: "#74808f", swatch: "dashed" });
+    }
+    series.benchmarks.forEach((b) => legendItems.push({ name: b.name, color: b.color, swatch: "line" }));
+    if (series.milestones.length) {
+      legendItems.push({ name: "Milestones", color: "var(--c-bonus)", swatch: "dot" });
+    }
+
+    $("chartLegend").innerHTML = legendItems.map((item) => {
+      if (item.swatch === "area") return `<span><i class="area" style="background:${item.color}"></i>${item.name}</span>`;
+      if (item.swatch === "dashed") return `<span><i class="dashed" style="--line-color:${item.color}; background:${item.color}"></i>${item.name}</span>`;
+      if (item.swatch === "dot") return `<span><i style="background:${item.color}; height:9px; width:9px; border-radius:50%"></i>${item.name}</span>`;
+      return `<span><i style="background:${item.color}"></i>${item.name}</span>`;
+    }).join("");
+
+    drawChart(series, settings);
+  }
+
+  function resolveColor(token) {
+    if (typeof token !== "string") return token;
+    if (!token.startsWith("var(")) return token;
+    const name = token.match(/var\((--[^)]+)\)/);
+    if (!name) return token;
+    return getComputedStyle(document.documentElement).getPropertyValue(name[1]).trim() || "#000";
+  }
+
+  function drawChart(series, settings) {
+    const canvas = $("valueChart");
+    const ctx = canvas.getContext("2d");
+    const ratio = window.devicePixelRatio || 1;
+    const cssWidth = canvas.clientWidth || 1100;
+    const cssHeight = 380;
+    canvas.width = Math.round(cssWidth * ratio);
+    canvas.height = Math.round(cssHeight * ratio);
+    canvas.style.height = `${cssHeight}px`;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+    const width = cssWidth;
+    const height = cssHeight;
+    const pad = { top: 28, right: 26, bottom: 44, left: 78 };
+
+    const allValues = [
+      ...series.cumulativePaid,
+      ...series.selected.values,
+      ...(series.account ? series.account.values : []),
+      ...series.benchmarks.flatMap((b) => b.values),
+    ];
+    const max = Math.max(1, ...allValues);
+    const min = 0;
+    const labels = series.labels;
+
+    ctx.clearRect(0, 0, width, height);
+
+    // Geometry helpers
+    const xAt = (i) => pad.left + (i / Math.max(1, labels.length - 1)) * (width - pad.left - pad.right);
+    const yAt = (v) => height - pad.bottom - ((v - min) / (max - min || 1)) * (height - pad.top - pad.bottom);
+
+    state.chartGeometry = { pad, width, height, xAt, yAt, labels, count: labels.length };
+
+    // Background grid
+    ctx.strokeStyle = "#eee8dc";
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i += 1) {
+      const value = min + ((max - min) * i) / 4;
+      const y = yAt(value);
+      ctx.beginPath();
+      ctx.moveTo(pad.left, y);
+      ctx.lineTo(width - pad.right, y);
+      ctx.stroke();
+    }
+
+    // Highlight band for selected year
+    if (state.highlightYear !== null && state.highlightYear >= 1 && state.highlightYear <= labels.length) {
+      const idx = state.highlightYear - 1;
+      const xH = xAt(idx);
+      ctx.fillStyle = "rgba(167, 133, 61, 0.10)";
+      ctx.fillRect(xH - 14, pad.top, 28, height - pad.top - pad.bottom);
+      ctx.strokeStyle = "rgba(167, 133, 61, 0.5)";
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(xH, pad.top);
+      ctx.lineTo(xH, height - pad.bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Investment growth area: between cumulative paid and selected total
+    const goldStroke = resolveColor("var(--c-bonus)");
+    const goldGlow = "rgba(167, 133, 61, 0.18)";
+    const navyStroke = resolveColor("var(--c-selected)");
+    const grayPaid = resolveColor("var(--c-paid)");
+    const accountColor = "#74808f";
+
+    ctx.fillStyle = goldGlow;
+    ctx.beginPath();
+    series.cumulativePaid.forEach((v, i) => {
+      const x = xAt(i);
+      const y = yAt(v);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    for (let i = series.selected.values.length - 1; i >= 0; i -= 1) {
+      ctx.lineTo(xAt(i), yAt(series.selected.values[i]));
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // Cumulative paid line
+    ctx.strokeStyle = grayPaid;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([2, 4]);
+    ctx.beginPath();
+    series.cumulativePaid.forEach((v, i) => {
+      const x = xAt(i);
+      const y = yAt(v);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Comparison gap fill (selected vs first benchmark)
+    if (series.benchmarks.length) {
+      const benchmark = series.benchmarks[0];
+      const benchColor = resolveColor(benchmark.color);
+      // Fill between selected and benchmark — gold if selected ahead, red soft if behind
+      for (let i = 0; i < series.selected.values.length - 1; i += 1) {
+        const x1 = xAt(i);
+        const x2 = xAt(i + 1);
+        const sA = series.selected.values[i];
+        const sB = series.selected.values[i + 1];
+        const bA = benchmark.values[i];
+        const bB = benchmark.values[i + 1];
+        const ahead = (sA + sB) / 2 >= (bA + bB) / 2;
+        ctx.fillStyle = ahead ? "rgba(167, 133, 61, 0.12)" : "rgba(159, 61, 53, 0.10)";
+        ctx.beginPath();
+        ctx.moveTo(x1, yAt(sA));
+        ctx.lineTo(x2, yAt(sB));
+        ctx.lineTo(x2, yAt(bB));
+        ctx.lineTo(x1, yAt(bA));
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Benchmark line
+      ctx.strokeStyle = benchColor;
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      benchmark.values.forEach((v, i) => {
+        const x = xAt(i);
+        const y = yAt(v);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+
+    // Additional benchmarks beyond first
+    series.benchmarks.slice(1).forEach((b) => {
+      ctx.strokeStyle = resolveColor(b.color);
+      ctx.lineWidth = 2;
+      ctx.setLineDash(b.dash || []);
+      ctx.beginPath();
+      b.values.forEach((v, i) => {
+        const x = xAt(i);
+        const y = yAt(v);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+
+    // Account-only (when comparing reinvest is off and no compare-with)
+    if (series.account && !series.benchmarks.some((b) => b.kind === "compare")) {
+      ctx.strokeStyle = accountColor;
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash(series.account.dash || []);
+      ctx.beginPath();
+      series.account.values.forEach((v, i) => {
+        const x = xAt(i);
+        const y = yAt(v);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Selected line (drawn last for prominence)
+    ctx.strokeStyle = navyStroke;
+    ctx.lineWidth = 2.8;
+    ctx.beginPath();
+    series.selected.values.forEach((v, i) => {
+      const x = xAt(i);
+      const y = yAt(v);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Y axis labels
+    ctx.fillStyle = "#736a5b";
+    ctx.font = "12px Arial";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    for (let i = 0; i <= 4; i += 1) {
+      const value = min + ((max - min) * i) / 4;
+      const y = yAt(value);
+      ctx.fillText(compactMoney(value, settings.currency), pad.left - 10, y);
+    }
+
+    // X axis labels — critical milestone years get a bold callout, regular spaced
+    // labels fill in around them and skip when they would collide.
+    const drawnXs = [];
+    const minGap = 26;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+
+    series.milestones
+      .filter((m) => m.kind === "critical")
+      .forEach((m) => {
+        const x = xAt(m.year - 1);
+        if (drawnXs.some((dx) => Math.abs(dx - x) < minGap)) return;
+        drawnXs.push(x);
+        ctx.fillStyle = "#5a4a23";
+        ctx.font = "bold 12px Arial";
+        ctx.fillText(`Y${m.year}`, x, height - pad.bottom + 12);
+      });
+
+    ctx.fillStyle = "#736a5b";
+    ctx.font = "12px Arial";
+    const step = Math.max(1, Math.ceil(labels.length / 10));
+    labels.forEach((label, i) => {
+      if (i % step !== 0 && i !== labels.length - 1) return;
+      const x = xAt(i);
+      if (drawnXs.some((dx) => Math.abs(dx - x) < minGap)) return;
+      drawnXs.push(x);
+      ctx.fillText(label, x, height - pad.bottom + 12);
+    });
+
+    // Milestone markers
+    series.milestones.forEach((m) => {
+      const idx = m.year - 1;
+      const x = xAt(idx);
+      const y = yAt(series.selected.values[idx]);
+      ctx.beginPath();
+      ctx.arc(x, y, 5.5, 0, Math.PI * 2);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.strokeStyle = goldStroke;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Show event label above the dot only for critical milestones to keep the chart calm.
+      if (m.kind === "critical") {
+        ctx.fillStyle = "#5a4a23";
+        ctx.font = "10px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.fillText(m.label, x, y - 10);
+      }
+    });
+  }
+
+  // ===== CHART INTERACTION =====
+  function chartIndexFromEvent(event) {
+    const geometry = state.chartGeometry;
+    if (!geometry) return null;
+    const canvas = $("valueChart");
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    if (x < geometry.pad.left || x > geometry.width - geometry.pad.right) return null;
+    const ratio = (x - geometry.pad.left) / (geometry.width - geometry.pad.left - geometry.pad.right);
+    const idx = Math.round(ratio * (geometry.count - 1));
+    return Math.min(geometry.count - 1, Math.max(0, idx));
+  }
+
+  function showTooltipAt(event) {
+    if (!state.results) return;
+    const idx = chartIndexFromEvent(event);
+    const tooltip = $("chartTooltip");
+    if (idx === null) {
+      tooltip.hidden = true;
+      return;
+    }
+    const settings = currentSettings();
+    const result = state.results.custom;
+    const row = result.annual[idx];
+    const compRow = state.results.customCompare && state.results.customCompare.annual[idx];
+    const fdRow = state.results.fixedDeposit && state.results.fixedDeposit.annual[idx];
+    const reinvestRow = state.results.reinvest && state.results.reinvest.annual[idx];
+
+    let cumulativePaid = 0;
+    for (let i = 0; i <= idx; i += 1) {
+      cumulativePaid += result.annual[i].premiums + result.annual[i].topUps;
+    }
+
+    const yearNum = row.year;
+    const wrap = (v) => inflationActive() ? discount(v, yearNum) : v;
+    const money2 = (v) => money(wrap(v), settings.currency);
+
+    const rows = [
+      [`<i style="background:${resolveColor("var(--c-paid)")}"></i> Capital paid in`, money2(cumulativePaid)],
+      [`<i style="background:${resolveColor("var(--c-dividend)")}"></i> Dividends accrued`, money2((row.totalReinvestedDividends || 0) + (row.cashDividends || 0))],
+      [`<i style="background:${resolveColor("var(--c-selected)")}"></i> Account value`, money2(row.accountValue)],
+      [`<i style="background:${resolveColor("var(--c-bonus)")}"></i> Total wealth`, money2(row.totalValue)],
+    ];
+    if (compRow) rows.push([`<i style="background:${resolveColor("var(--c-benchmark)")}"></i> ${state.results.customCompare.variant.label}`, money2(compRow.totalValue)]);
+    if (fdRow) rows.push([`<i style="background:${resolveColor("var(--c-dividend)")}"></i> Fixed deposit`, money2(fdRow.value)]);
+    if (reinvestRow) rows.push([`<i style="background:#a7853d"></i> All reinvested`, money2(reinvestRow.totalValue)]);
+
+    tooltip.innerHTML = `
+      <h4>Year ${yearNum} · Age ${row.age}</h4>
+      <dl>
+        ${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}
+      </dl>
+    `;
+    tooltip.hidden = false;
+    const stage = $("valueChart").parentElement;
+    const stageRect = stage.getBoundingClientRect();
+    const tooltipWidth = tooltip.offsetWidth;
+    const tooltipHeight = tooltip.offsetHeight;
+    const stageMouseX = event.clientX - stageRect.left;
+    const stageMouseY = event.clientY - stageRect.top;
+    let left = stageMouseX + 14;
+    let top = stageMouseY + 14;
+    if (left + tooltipWidth > stage.clientWidth - 8) left = stageMouseX - tooltipWidth - 14;
+    if (top + tooltipHeight > stage.clientHeight - 8) top = stageMouseY - tooltipHeight - 14;
+    tooltip.style.transform = `translate(${Math.max(8, left)}px, ${Math.max(8, top)}px)`;
+  }
+
+  function bindChartEvents() {
+    const canvas = $("valueChart");
+    canvas.addEventListener("mousemove", showTooltipAt);
+    canvas.addEventListener("mouseleave", () => { $("chartTooltip").hidden = true; });
+    canvas.addEventListener("click", (event) => {
+      const idx = chartIndexFromEvent(event);
+      if (idx === null) return;
+      const year = idx + 1;
+      state.highlightYear = state.highlightYear === year ? null : year;
+      // Re-render chart highlight + table highlight
+      if (state.results) {
+        renderCharts(state.results);
+        renderAnnualTable();
+      }
+      // If a year is highlighted, ensure milestone view shows it
+      if (state.highlightYear !== null) {
+        const tr = document.querySelector(`#annualTable tbody tr[data-year='${state.highlightYear}']`);
+        if (tr) tr.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+    window.addEventListener("resize", () => {
+      if (state.results) drawChart(buildChartSeries(state.results), currentSettings());
+    });
+  }
+
+  // ===== ANNUAL TABLE =====
+  function isMilestoneYear(year, settings, variant, totalYears) {
+    if (year === 1 || year === totalYears) return true;
+    if (year === variant.shortfallYears) return true;
+    if (year === variant.mipYears) return true;
+    if (year === variant.mipYears + 1) return true;
+    const partialStart = variant.partialLimitStartYear || 6;
+    if (year === partialStart && model.partialWithdrawalAllowed(variant, partialStart)) return true;
+    const age = settings.startAge + year;
+    if (age % 5 === 0 && age >= settings.startAge + 3) return true;
+    return false;
+  }
+
+  function milestoneLabel(year, settings, variant, totalYears) {
+    const age = settings.startAge + year;
+    if (year === 1) return "Start";
+    if (year === totalYears) return "Final";
+    if (year === variant.shortfallYears) return "Premium term ends";
+    const partialStart = variant.partialLimitStartYear || 6;
+    if (year === partialStart && model.partialWithdrawalAllowed(variant, partialStart)) return "Partial withdrawal opens";
+    if (year === variant.mipYears) return "MIP last year";
+    if (year === variant.mipYears + 1) return "Post-MIP";
+    if (age % 5 === 0) return `Age ${age}`;
+    return "";
+  }
+
+  function renderAnnualTable() {
+    const result = state.results.custom;
+    const settings = currentSettings();
+    const showAdvisor = fields.showAdvisorDetails.checked;
+    const reinvestAnnual = state.results.reinvest && state.results.reinvest.annual;
+    const fdAnnual = state.results.fixedDeposit && state.results.fixedDeposit.annual;
+    const compareResult = state.results.customCompare;
+    const variant = result.variant;
+    const totalYears = result.annual.length;
+
+    const milestoneOnly = state.annualView === "milestone";
+    const annualRows = milestoneOnly
+      ? result.annual.filter((row) => isMilestoneYear(row.year, settings, variant, totalYears))
+      : result.annual;
+
+    const hasDividendWithdrawals = result.annual.some((row) => row.dividendWithdrawals > 0);
+    const hasPartialWithdrawals = result.annual.some((row) => row.partialWithdrawals > 0);
+
+    // Sync toggle button states
+    const milestoneBtn = $("annualMilestoneBtn");
+    const fullBtn = $("annualFullBtn");
+    if (milestoneBtn && fullBtn) {
+      milestoneBtn.classList.toggle("active", milestoneOnly);
+      fullBtn.classList.toggle("active", !milestoneOnly);
+    }
+
+    const valueWrapper = (v, year) => {
+      const adjusted = inflationActive() ? discount(v, year) : v;
+      return money(adjusted, settings.currency);
+    };
+
+    $("annualTable").innerHTML = `
+      <thead>
+        <tr>
+          <th class="col-time">Year</th>
+          <th class="col-time">Age</th>
+          <th class="col-premium">Premium paid</th>
+          <th class="col-bonus">Year 1 bonuses</th>
+          <th class="col-income">Dividend credited</th>
+          <th class="col-income">Cash dividends received</th>
+          <th class="col-income">Total dividends reinvested</th>
+          ${hasDividendWithdrawals ? '<th class="col-withdrawal">Dividend withdrawal</th>' : ''}
+          ${hasPartialWithdrawals ? '<th class="col-withdrawal">Partial withdrawal</th>' : ''}
+          <th class="col-value">Account value</th>
+          ${compareResult ? `<th class="col-total">${result.variant.label} account + div</th><th class="col-compare">${compareResult.variant.label} account + div</th>` : '<th class="col-total">Account + div</th>'}
+          ${reinvestAnnual ? '<th class="col-value">All-dividends-reinvested value</th>' : ''}
+          ${fdAnnual ? '<th class="col-benchmark">Fixed deposit value</th>' : ''}
+          ${showAdvisor ? '<th class="col-charge">Admin %</th><th class="col-charge">PW charge %</th><th class="col-charge">Bonuses</th>' : ''}
+        </tr>
+      </thead>
+      <tbody>
+        ${annualRows.map((row) => {
+          const compareRow = compareResult ? compareResult.annual[row.year - 1] : null;
+          const reinvestRow = reinvestAnnual ? reinvestAnnual[row.year - 1] : null;
+          const fdRow = fdAnnual ? fdAnnual[row.year - 1] : null;
+          const milestoneCls = milestoneOnly ? milestoneLabel(row.year, settings, variant, totalYears) : "";
+          const classes = [rowClassForYear(variant, row.year)];
+          if (state.highlightYear === row.year) classes.push("year-highlight");
+          if (milestoneCls) classes.push("milestone");
+          return `
+          <tr class="${classes.filter(Boolean).join(" ")}" data-year="${row.year}" ${milestoneCls ? `data-milestone="${milestoneCls}"` : ""}>
+            <td class="col-time">${row.year}</td>
+            <td class="col-time">${row.age}</td>
+            <td class="col-premium">${valueWrapper(row.premiums + row.topUps, row.year)}</td>
+            <td class="col-bonus">${row.year === 1 ? valueWrapper(row.bonuses, row.year) : "-"}</td>
+            <td class="col-income">${valueWrapper(row.grossDividends, row.year)}</td>
+            <td class="col-income">${valueWrapper(row.cashDividends, row.year)}</td>
+            <td class="col-income">${valueWrapper(row.totalReinvestedDividends, row.year)}</td>
+            ${hasDividendWithdrawals ? `<td class="col-withdrawal">${valueWrapper(row.dividendWithdrawals, row.year)}</td>` : ""}
+            ${hasPartialWithdrawals ? `<td class="col-withdrawal">${valueWrapper(row.partialWithdrawals, row.year)}</td>` : ""}
+            <td class="col-value">${valueWrapper(row.accountValue, row.year)}</td>
+            ${compareResult ? `<td class="col-total">${valueWrapper(row.totalValue, row.year)}</td><td class="col-compare">${valueWrapper(compareRow.totalValue, row.year)}</td>` : `<td class="col-total">${valueWrapper(row.totalValue, row.year)}</td>`}
+            ${reinvestAnnual ? `<td class="col-value">${valueWrapper(reinvestRow.accountValue, row.year)}</td>` : ""}
+            ${fdAnnual ? `<td class="col-benchmark">${valueWrapper(fdRow.value, row.year)}</td>` : ""}
+            ${showAdvisor ? `<td class="col-charge">${percent(row.adminRate)}</td><td class="col-charge">${percent(row.partialWithdrawalChargeRate)}</td><td class="col-charge">${valueWrapper(row.bonuses, row.year)}</td>` : ""}
+          </tr>
+        `; }).join("")}
+      </tbody>
+    `;
+
+    // Click on a year row toggles highlight (for cross-link)
+    document.querySelectorAll("#annualTable tbody tr").forEach((tr) => {
+      tr.addEventListener("click", () => {
+        const yr = Number(tr.dataset.year);
+        state.highlightYear = state.highlightYear === yr ? null : yr;
+        if (state.results) {
+          renderCharts(state.results);
+          renderAnnualTable();
+        }
+      });
+    });
+  }
+
+  function renderSourceNotes() {
+    $("sourceNotes").hidden = !fields.showAdvisorDetails.checked;
+    $("sourceNotes").innerHTML = `
+      <h2>Advisor Notes</h2>
+      <ul>
+        <li>Premiums are auto-filled for the required premium term of the selected variation.</li>
+        <li>Partial withdrawal input is enabled only for 10F3, 10F5, 10F8 and 13F10 from policy year 6 onwards.</li>
+        <li>During MIP, allowable partial withdrawal is capped at 50% of NAV-funded account value, excluding reinvested dividend basis, less prior partial withdrawal usage.</li>
+        <li>Dividend withdrawal input is enabled only when reinvested dividends exist; 0% dividend years do not create new dividend drawdown capacity.</li>
+        <li>Reinvested dividend withdrawals are modeled separately and do not attract partial withdrawal charges.</li>
+        <li>The presentation chart compares total client value, meaning account value plus all cash received, so cash-outs are not shown as investment losses.</li>
+        <li>Compare-with scenario uses its own selected variation, premium and editable strategy table, and auto-fills required basic-premium years to that variation.</li>
+        <li>All-dividends-reinvested comparison keeps the advisor's other strategy rows, but sets dividend mode to reinvest and dividend drawdowns to zero.</li>
+        <li>Fixed deposit incremental mode places the keyed FD amount annually for the selected variation's premium term.</li>
+        <li>Fund management charges are not deducted by default because fund prices are already net of management charges.</li>
+        <li>Inflation toggle discounts displayed amounts only — model inputs and percentages remain in nominal terms.</li>
+      </ul>
+    `;
+  }
+
+  // ===== CSV EXPORT =====
+  function exportCsv(kind) {
+    const settings = currentSettings();
+    const result = state.results.custom;
+    const rows = kind === "monthly" ? result.monthly : result.annual;
+    const cols = kind === "monthly"
+      ? ["month", "year", "age", "accountValue", "totalValue", "surrenderValue", "cashDividends", "cashWithdrawals", "totalBasicPaid", "totalTopUps", "totalReinvestedDividends", "reinvestedDividendBasis"]
+      : ["year", "age", "premiums", "topUps", "bonuses", "grossDividends", "cashDividends", "dividendWithdrawals", "partialWithdrawals", "withdrawalCharges", "accountValue", "totalValue", "surrenderValue", "totalBasicPaid", "totalReinvestedDividends", "reinvestedDividendBasis", "adminRate", "partialWithdrawalChargeRate", "surrenderChargeRate"];
+    const csv = [
+      cols.join(","),
+      ...rows.map((row) => cols.map((col) => csvValue(row[col])).join(",")),
+    ].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `investready-${settings.variantKey}-${kind}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function csvValue(value) {
+    if (value === null || value === undefined) return "";
+    if (typeof value === "number") return String(Math.round(value * 100) / 100);
+    return `"${String(value).replaceAll('"', '""')}"`;
+  }
+
+  // ===== SCENARIO PAYLOAD / SAVE / LOAD / SHARE =====
+  function currentScenarioPayload() {
+    return {
+      app: "illustration-studio",
+      version: 3,
+      savedAt: new Date().toISOString(),
+      settings: currentSettings(),
+      comparison: currentComparisonSettings(),
+      strategy: readStrategyTable(),
+      compareStrategy: fields.compareCustom.checked ? readStrategyTable("compareStrategyTable") : state.compareStrategy,
+      view: {
+        showAdvisorDetails: fields.showAdvisorDetails.checked,
+        compareCustom: fields.compareCustom.checked,
+        compareReinvest: fields.compareReinvest.checked,
+        compareFd: fields.compareFd.checked,
+        annualView: state.annualView,
+        deltaMode: state.deltaMode,
+        inflationAdjust: fields.inflationAdjust.checked,
+        inflationRate: pctInput(fields.inflationRate),
+      },
+      notes: fields.scenarioNotes ? fields.scenarioNotes.value : "",
+    };
+  }
+
+  function applyScenarioPayload(payload) {
+    try {
+      const settings = payload.settings || {};
+      Object.entries(settings).forEach(([key, value]) => {
+        if (!fields[key]) return;
+        if (fields[key].type === "checkbox") fields[key].checked = Boolean(value);
+        else if (key === "adminAfterOverride" || key === "fdRate") fields[key].value = value === null ? "" : roundInput(Number(value) * 100, 3);
+        else fields[key].value = value;
+      });
+      const comparison = payload.comparison || {};
+      if (comparison.fdRate !== undefined) fields.fdRate.value = roundInput(Number(comparison.fdRate) * 100, 3);
+      if (comparison.fdFundingMode) fields.fdFundingMode.value = comparison.fdFundingMode;
+      if (comparison.fdAmount !== undefined) fields.fdAmount.value = roundInput(comparison.fdAmount);
+      if (comparison.fdCompound !== undefined) fields.fdCompound.checked = Boolean(comparison.fdCompound);
+      if (comparison.showReinvest !== undefined) fields.compareReinvest.checked = Boolean(comparison.showReinvest);
+      if (comparison.showCustom !== undefined) fields.compareCustom.checked = Boolean(comparison.showCustom);
+      if (comparison.showFlexiPair !== undefined) fields.compareCustom.checked = Boolean(comparison.showFlexiPair);
+      if (comparison.compareVariantKey) fields.compareVariantKey.value = comparison.compareVariantKey;
+      if (comparison.compareAnnualizedPremium !== undefined) fields.compareAnnualizedPremium.value = roundInput(comparison.compareAnnualizedPremium);
+      if (comparison.showFd !== undefined) fields.compareFd.checked = Boolean(comparison.showFd);
+      if (payload.view) {
+        fields.showAdvisorDetails.checked = Boolean(payload.view.showAdvisorDetails);
+        fields.compareCustom.checked = Boolean(payload.view.compareCustom || payload.view.compareFlexiPair);
+        fields.compareReinvest.checked = Boolean(payload.view.compareReinvest);
+        fields.compareFd.checked = Boolean(payload.view.compareFd);
+        if (payload.view.annualView) state.annualView = payload.view.annualView;
+        if (payload.view.deltaMode) state.deltaMode = payload.view.deltaMode;
+        if (payload.view.inflationAdjust !== undefined) fields.inflationAdjust.checked = Boolean(payload.view.inflationAdjust);
+        if (payload.view.inflationRate !== undefined) fields.inflationRate.value = roundInput(Number(payload.view.inflationRate) * 100, 2);
+      }
+      if (payload.notes !== undefined && fields.scenarioNotes) fields.scenarioNotes.value = payload.notes;
+      syncCurrencyOptions();
+      enforcePremiumMinimum(true);
+      enforceComparePremiumMinimum(true);
+      state.strategy = payload.strategy || [];
+      state.compareStrategy = payload.compareStrategy || [];
+      autofillPremiums();
+      autofillComparePremiums();
+      renderStrategyTable();
+      renderCompareStrategyTable();
+      // Sync slider readouts after applying values
+      syncSliderReadouts();
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function loadEmbeddedScenario() {
+    const script = document.getElementById("investready-scenario-data");
+    if (!script || !script.textContent.trim()) return false;
+    try { return applyScenarioPayload(JSON.parse(script.textContent)); }
+    catch { return false; }
+  }
+
+  function loadScenarioFromHash() {
+    const hash = window.location.hash;
+    if (!hash || hash.length < 4) return false;
+    if (!hash.startsWith("#s=")) return false;
+    try {
+      const encoded = hash.slice(3);
+      const json = decodeURIComponent(escape(window.atob(encoded.replace(/-/g, "+").replace(/_/g, "/"))));
+      const payload = JSON.parse(json);
+      return applyScenarioPayload(payload);
+    } catch { return false; }
+  }
+
+  function scenarioToHash(payload) {
+    const json = JSON.stringify(payload);
+    const b64 = window.btoa(unescape(encodeURIComponent(json))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    return `#s=${b64}`;
+  }
+
+  async function copyShareLink() {
+    const payload = currentScenarioPayload();
+    const hash = scenarioToHash(payload);
+    const url = `${window.location.origin}${window.location.pathname}${hash}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // Fallback: put it in a temporary input
+      const tmp = document.createElement("input");
+      tmp.value = url;
+      document.body.appendChild(tmp);
+      tmp.select();
+      document.execCommand("copy");
+      document.body.removeChild(tmp);
+    }
+    const btn = $("copyShareLink");
+    if (btn) {
+      const original = btn.textContent;
+      btn.textContent = url.length > 1900 ? "Link copied (long)" : "Link copied!";
+      btn.classList.add("copied");
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove("copied");
+      }, 2200);
+    }
+    // Also update URL hash so refresh keeps it
+    history.replaceState(null, "", hash);
+  }
+
+  function buildCurrentDocumentHtml(payload) {
+    const clone = document.documentElement.cloneNode(true);
+    let script = clone.querySelector("#investready-scenario-data");
+    if (!script) {
+      script = document.createElement("script");
+      script.id = "investready-scenario-data";
+      script.type = "application/json";
+      clone.querySelector("head").appendChild(script);
+    }
+    script.textContent = JSON.stringify(payload, null, 2).replace(/<\/script/gi, "<\\/script");
+    return `<!doctype html>\n${clone.outerHTML}`;
+  }
+
+  function downloadText(filename, text, type) {
+    const blob = new Blob([text], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function saveHtmlScenario() {
+    const payload = currentScenarioPayload();
+    const html = buildCurrentDocumentHtml(payload);
+    const date = new Date().toISOString().slice(0, 10);
+    downloadText(`illustration-studio-${payload.settings.variantKey}-${date}.html`, html, "text/html;charset=utf-8");
+  }
+
+  function extractScenarioPayload(text) {
+    try { return JSON.parse(text); }
+    catch {
+      const doc = new DOMParser().parseFromString(text, "text/html");
+      const script = doc.getElementById("investready-scenario-data");
+      if (!script) return null;
+      return JSON.parse(script.textContent);
+    }
+  }
+
+  async function loadHtmlScenarioFile(file) {
+    if (!file) return;
+    try {
+      const payload = extractScenarioPayload(await file.text());
+      if (!payload || !applyScenarioPayload(payload)) throw new Error("Invalid InvestReady scenario file");
+      recalc();
+    } catch {
+      window.alert("This file does not contain a valid Illustration Studio saved scenario.");
+    } finally {
+      fields.loadScenarioFile.value = "";
+    }
+  }
+
+  // ===== EVENT BINDING =====
+  function bindEvents() {
+    fields.variantKey.addEventListener("change", () => {
+      syncCurrencyOptions();
+      enforcePremiumMinimum(true);
+      autofillPremiums();
+      renderStrategyTable();
+      renderCompareStrategyTable();
+      recalc();
+    });
+    fields.currency.addEventListener("change", () => {
+      syncPaymentOptions();
+      enforcePremiumMinimum(true);
+      enforceComparePremiumMinimum(true);
+      autofillPremiums();
+      renderStrategyTable();
+      renderCompareStrategyTable();
+      recalc();
+    });
+    fields.paymentFrequency.addEventListener("change", () => {
+      enforcePremiumMinimum(true);
+      enforceComparePremiumMinimum(true);
+      autofillPremiums();
+      renderStrategyTable();
+      renderCompareStrategyTable();
+      recalc();
+    });
+    fields.annualizedPremium.addEventListener("input", () => {
+      if (!enforcePremiumMinimum(false)) {
+        updatePremiumNote();
+        renderMinimumPremiumWarning();
+        return;
+      }
+      autofillPremiums();
+      renderStrategyTable();
+      recalc();
+    });
+    fields.annualizedPremium.addEventListener("change", () => {
+      enforcePremiumMinimum(true);
+      autofillPremiums();
+      renderStrategyTable();
+      recalc();
+    });
+    fields.startAge.addEventListener("input", () => {
+      ensureStrategyLength();
+      autofillPremiums();
+      renderStrategyTable();
+      renderCompareStrategyTable();
+      populateHistoricalStartYears();
+      recalc();
+    });
+    ["adminAfterOverride", "fdRate", "fdAmount"].forEach((id) => fields[id].addEventListener("input", recalc));
+    fields.compareVariantKey.addEventListener("change", () => {
+      enforceComparePremiumMinimum(true);
+      autofillComparePremiums();
+      renderCompareStrategyTable();
+      recalc();
+    });
+    fields.compareAnnualizedPremium.addEventListener("input", () => {
+      if (!enforceComparePremiumMinimum(false)) {
+        updateComparePremiumNote();
+        return;
+      }
+      autofillComparePremiums();
+      renderCompareStrategyTable();
+      recalc();
+    });
+    fields.compareAnnualizedPremium.addEventListener("change", () => {
+      enforceComparePremiumMinimum(true);
+      autofillComparePremiums();
+      renderCompareStrategyTable();
+      recalc();
+    });
+    fields.fdFundingMode.addEventListener("change", recalc);
+    fields.compareCustom.addEventListener("change", () => {
+      if (fields.compareCustom.checked && !state.compareStrategy.length) {
+        fields.compareAnnualizedPremium.value = fields.annualizedPremium.value;
+        copyMainStrategyToCompare();
+        return;
+      }
+      renderCompareStrategyTable();
+      recalc();
+    });
+    ["includeWelcome", "includeAnnualBonus", "includeLoyalty", "compareReinvest", "compareFd", "fdCompound", "deductPiFundMgmt"].forEach((id) => fields[id].addEventListener("change", recalc));
+
+    // Inflation
+    fields.inflationAdjust.addEventListener("change", () => {
+      $("inflationSettings").hidden = !inflationActive();
+      recalc();
+    });
+    fields.inflationRate.addEventListener("input", recalc);
+
+    // Sliders update the readout live but do NOT recalc until "Apply to rows below" is pressed.
+    [fields.bulkNavReturn, fields.bulkDividendYield].forEach((el) => {
+      el.addEventListener("input", syncSliderReadouts);
+    });
+    [fields.compareBulkNavReturn, fields.compareBulkDividendYield].forEach((el) => {
+      el.addEventListener("input", syncSliderReadouts);
+    });
+
+    fields.showAdvisorDetails.addEventListener("change", () => {
+      renderStrategyTable();
+      renderCompareStrategyTable();
+      recalc();
+    });
+    $("applyBulkBelow").addEventListener("click", applyBulkBelow);
+    $("applyCompareBulkBelow").addEventListener("click", applyCompareBulkBelow);
+    $("applyHistoricalSp500").addEventListener("click", applyHistoricalSp500);
+    $("copyMainStrategy").addEventListener("click", copyMainStrategyToCompare);
+    $("autofillPremiums").addEventListener("click", () => {
+      autofillPremiums();
+      renderStrategyTable();
+      recalc();
+    });
+    $("resetComparePremiums").addEventListener("click", () => {
+      autofillComparePremiums();
+      renderCompareStrategyTable();
+      recalc();
+    });
+    $("saveHtmlScenario").addEventListener("click", saveHtmlScenario);
+    $("loadHtmlScenario").addEventListener("click", () => fields.loadScenarioFile.click());
+    $("copyShareLink").addEventListener("click", copyShareLink);
+    fields.loadScenarioFile.addEventListener("change", () => loadHtmlScenarioFile(fields.loadScenarioFile.files[0]));
+    $("startPresentation").addEventListener("click", () => {
+      document.body.classList.add("presentation-mode");
+      $("exitPresentation").hidden = false;
+      fields.showAdvisorDetails.checked = false;
+      renderStrategyTable();
+      renderCompareStrategyTable();
+      recalc();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    $("exitPresentation").addEventListener("click", () => {
+      document.body.classList.remove("presentation-mode");
+      $("exitPresentation").hidden = true;
+      // After leaving presentation mode the canvas needs a redraw at new size
+      if (state.results) drawChart(buildChartSeries(state.results), currentSettings());
+    });
+    $("printScenario").addEventListener("click", () => window.print());
+    $("exportAnnual").addEventListener("click", () => exportCsv("annual"));
+    $("exportMonthly").addEventListener("click", () => exportCsv("monthly"));
+
+    // Annual view toggle
+    $("annualMilestoneBtn").addEventListener("click", () => {
+      state.annualView = "milestone";
+      renderAnnualTable();
+    });
+    $("annualFullBtn").addEventListener("click", () => {
+      state.annualView = "full";
+      renderAnnualTable();
+    });
+
+    // Delta mode toggle
+    $("deltaToggle").addEventListener("click", () => {
+      state.deltaMode = state.deltaMode === "amount" ? "percent" : "amount";
+      if (state.results) renderComparisonHero(state.results);
+    });
+
+    // Notes — no recalc needed (just stored on save)
+    if (fields.scenarioNotes) {
+      fields.scenarioNotes.addEventListener("input", () => { /* noop, read on save */ });
+    }
+  }
+
+  function init() {
+    collectFields();
+    populateVariants();
+    syncCurrencyOptions();
+    enforcePremiumMinimum(true);
+    bindEvents();
+    bindChartEvents();
+    populateHistoricalStartYears();
+    syncSliderReadouts();
+    if (loadScenarioFromHash()) {
+      recalc();
+    } else if (loadEmbeddedScenario()) {
+      recalc();
+    } else {
+      applyPreset("excelBase");
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})();
+
+    </script>
+  </body>
+</html>
