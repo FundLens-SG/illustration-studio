@@ -2894,6 +2894,39 @@ body.presentation-mode .strategy-table input:disabled {
       .trim();
   }
 
+  const FUND_ACRONYM_STOP_WORDS = new Set([
+    "a", "an", "and", "as", "by", "for", "from", "in", "of", "on", "or", "the", "to", "with",
+    "fund", "funds", "class", "cl", "share", "shares", "series", "sicav",
+    "acc", "dist", "dis", "inc", "m", "g", "h", "hdg", "hedge", "hedged",
+    "sgd", "usd", "aud", "cad", "chf", "eur", "gbp", "hkd", "jpy", "rmb",
+  ]);
+
+  function acronymCandidates(value) {
+    const words = foldText(value)
+      .split(/\s+/)
+      .filter((word) => word && !FUND_ACRONYM_STOP_WORDS.has(word));
+    const candidates = new Set();
+    for (let start = 0; start < words.length; start += 1) {
+      let acronym = "";
+      const endLimit = Math.min(words.length, start + 10);
+      for (let end = start; end < endLimit; end += 1) {
+        acronym += words[end][0];
+        if (acronym.length >= 2) candidates.add(acronym);
+      }
+    }
+    if (words.length) candidates.add(words.map((word) => word[0]).join(""));
+    return candidates;
+  }
+
+  function acronymScore(token, candidates) {
+    if (token.length < 2 || !candidates.size) return 0;
+    if (candidates.has(token)) return 110;
+    const values = Array.from(candidates);
+    if (token.length >= 3 && values.some((candidate) => candidate.startsWith(token))) return 82;
+    if (token.length >= 4 && values.some((candidate) => candidate.includes(token))) return 54;
+    return 0;
+  }
+
   function firstDefined(source, keys) {
     for (const key of keys) {
       if (source && source[key] !== undefined && source[key] !== null && source[key] !== "") return source[key];
@@ -3037,12 +3070,16 @@ body.presentation-mode .strategy-table input:disabled {
     const hay = foldText(`${fund.code} ${fund.name} ${fund.sector}`);
     const name = foldText(fund.name);
     const code = foldText(fund.code);
+    const hayWords = hay.split(" ");
+    const acronyms = acronymCandidates(fund.name);
     let score = 0;
     for (const token of q.split(/\s+/).filter(Boolean)) {
+      const initialsScore = acronymScore(token, acronyms);
       if (code === token) score += 120;
       else if (code.startsWith(token)) score += 90;
+      else if (initialsScore) score += initialsScore;
       else if (name.startsWith(token)) score += 70;
-      else if (hay.split(" ").some((word) => word.startsWith(token))) score += 42;
+      else if (hayWords.some((word) => word.startsWith(token))) score += 42;
       else if (hay.includes(token)) score += 24;
       else return -1;
     }
