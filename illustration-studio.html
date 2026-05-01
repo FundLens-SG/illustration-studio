@@ -963,27 +963,6 @@ dd {
   padding: 4px 9px;
 }
 
-.fund-import {
-  margin-top: 14px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  padding: 12px;
-  background: #fff;
-}
-
-.fund-import summary {
-  cursor: pointer;
-  color: var(--ink-soft);
-  font-weight: 700;
-}
-
-.fund-import textarea {
-  margin-top: 12px;
-  min-height: 130px;
-  font-family: Consolas, "Courier New", monospace;
-  font-size: 12px;
-}
-
 .fund-data-note {
   margin-top: 8px;
   color: var(--muted);
@@ -1793,15 +1772,6 @@ body.presentation-mode .strategy-table input:disabled {
           <table id="fundPortfolioTable" class="data-table fund-table"></table>
         </div>
 
-        <details class="fund-import">
-          <summary>Data import</summary>
-          <textarea id="fundImportData" spellcheck="false" placeholder="JSON or CSV"></textarea>
-          <div class="action-row">
-            <button id="importFundData" type="button">Import fund data</button>
-            <button id="loadFundData" type="button">Load file</button>
-            <input id="fundDataFile" type="file" accept=".json,.csv,text/csv,application/json" hidden />
-          </div>
-        </details>
       </section>
 
       <section class="strategy-section" aria-label="Strategy inputs">
@@ -2789,8 +2759,7 @@ body.presentation-mode .strategy-table input:disabled {
     "historicalStartYear", "historicalDividendBoost",
     "fundSearch", "fundSuggestions", "fundCategory", "fundAllocation",
     "addFundSelection", "fundApplyFromYear", "fundApplyDividendMode",
-    "applyPortfolioAssumptions", "clearPortfolioFunds", "fundImportData",
-    "importFundData", "loadFundData", "fundDataFile",
+    "applyPortfolioAssumptions", "clearPortfolioFunds",
   ];
 
   function $(id) { return document.getElementById(id); }
@@ -2832,8 +2801,6 @@ body.presentation-mode .strategy-table input:disabled {
   }
 
   // ===== FUND PORTFOLIO BUILDER =====
-  const FUND_LIBRARY_STORAGE_KEY = "illustrationStudio.fundLibrary.v1";
-
   function htmlEscape(value) {
     return String(value ?? "")
       .replaceAll("&", "&amp;")
@@ -2958,24 +2925,12 @@ body.presentation-mode .strategy-table input:disabled {
     };
   }
 
-  function mergeFundLibrary(additions, persist = false) {
+  function mergeFundLibrary(additions) {
     const byId = new Map(state.fundLibrary.map((fund) => [fund.id, fund]));
     additions.map((item) => normalizeFund(item, item.source || "Imported")).filter(Boolean).forEach((fund) => {
       byId.set(fund.id, { ...(byId.get(fund.id) || {}), ...fund });
     });
     state.fundLibrary = Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name));
-    if (persist) {
-      try { localStorage.setItem(FUND_LIBRARY_STORAGE_KEY, JSON.stringify(state.fundLibrary)); } catch { /* storage can be unavailable */ }
-    }
-  }
-
-  function loadStoredFundLibrary() {
-    try {
-      const stored = JSON.parse(localStorage.getItem(FUND_LIBRARY_STORAGE_KEY) || "[]");
-      return Array.isArray(stored) ? stored : [];
-    } catch {
-      return [];
-    }
   }
 
   function fuzzyScore(query, fund) {
@@ -3008,8 +2963,7 @@ body.presentation-mode .strategy-table input:disabled {
   function renderFundDataStatus(message = "") {
     const el = $("fundDataStatus");
     if (!el) return;
-    const imported = state.fundLibrary.length - FUND_LIBRARY_SEED.length;
-    el.textContent = message || `${state.fundLibrary.length} AFL iFAST funds loaded${imported > 0 ? `, ${imported} imported` : ""}.`;
+    el.textContent = message || `${state.fundLibrary.length} AFL iFAST funds loaded.`;
   }
 
   function setSelectedFund(fund) {
@@ -3219,76 +3173,9 @@ body.presentation-mode .strategy-table input:disabled {
     recalc();
   }
 
-  function parseCsv(text) {
-    const rows = [];
-    let row = [];
-    let cell = "";
-    let quoted = false;
-    for (let i = 0; i < text.length; i += 1) {
-      const ch = text[i];
-      const next = text[i + 1];
-      if (ch === '"' && quoted && next === '"') {
-        cell += '"';
-        i += 1;
-      } else if (ch === '"') {
-        quoted = !quoted;
-      } else if (ch === "," && !quoted) {
-        row.push(cell.trim());
-        cell = "";
-      } else if ((ch === "\n" || ch === "\r") && !quoted) {
-        if (ch === "\r" && next === "\n") i += 1;
-        row.push(cell.trim());
-        if (row.some((value) => value !== "")) rows.push(row);
-        row = [];
-        cell = "";
-      } else {
-        cell += ch;
-      }
-    }
-    row.push(cell.trim());
-    if (row.some((value) => value !== "")) rows.push(row);
-    if (rows.length < 2) return [];
-    const headers = rows[0];
-    return rows.slice(1).map((values) => Object.fromEntries(headers.map((header, index) => [header, values[index] || ""])));
-  }
-
-  function parseFundImport(text) {
-    const trimmed = text.trim();
-    if (!trimmed) return [];
-    try {
-      const parsed = JSON.parse(trimmed);
-      if (Array.isArray(parsed)) return parsed;
-      if (Array.isArray(parsed.fundSelectorResultTableDisplayList)) return parsed.fundSelectorResultTableDisplayList;
-      if (Array.isArray(parsed.rows)) return parsed.rows;
-      if (Array.isArray(parsed.funds)) return parsed.funds;
-      if (Array.isArray(parsed.data)) return parsed.data;
-    } catch {
-      return parseCsv(trimmed);
-    }
-    return [];
-  }
-
-  function importFundDataFromText(text) {
-    const rows = parseFundImport(text).map((row) => normalizeFund(row, "Imported")).filter(Boolean);
-    if (!rows.length) {
-      window.alert("No valid fund rows found.");
-      return;
-    }
-    mergeFundLibrary(rows, true);
-    renderFundDataStatus(`${rows.length} fund row${rows.length === 1 ? "" : "s"} imported.`);
-    renderFundSuggestions();
-  }
-
-  async function loadFundDataFile(file) {
-    if (!file) return;
-    importFundDataFromText(await file.text());
-    fields.fundDataFile.value = "";
-  }
-
   function initFundBuilder() {
     state.fundLibrary = [];
     mergeFundLibrary(FUND_LIBRARY_SEED.map((fund) => ({ ...fund, source: fund.source || "AFL iFAST library" })));
-    mergeFundLibrary(loadStoredFundLibrary());
     renderFundDataStatus();
     renderSelectedFundPreview();
     renderFundPortfolioTable();
@@ -4648,7 +4535,7 @@ body.presentation-mode .strategy-table input:disabled {
         <li>Fixed deposit incremental mode places the keyed FD amount annually for the selected variation's premium term.</li>
         <li>Fund management charges are not deducted by default because fund prices are already net of management charges.</li>
         <li>Fund Builder derives NAV growth as (1 + total return) / (1 + dividend yield) - 1, then applies the weighted portfolio result into the editable strategy rows.</li>
-        <li>The default fund library is built from AFL rows marked iFAST = Yes and matched against the iFAST GM fund selector; imported rows replace or extend it locally.</li>
+        <li>The default fund library is built from AFL rows marked iFAST = Yes and hydrated from iFAST GM factsheets: total return uses since-inception CAGR where available, dividend uses latest annualised yield, and NAV growth is derived.</li>
         <li>Inflation toggle discounts displayed amounts only — model inputs and percentages remain in nominal terms.</li>
       </ul>
     `;
@@ -5001,9 +4888,6 @@ body.presentation-mode .strategy-table input:disabled {
       state.fundPortfolio = [];
       renderFundPortfolioTable();
     });
-    fields.importFundData.addEventListener("click", () => importFundDataFromText(fields.fundImportData.value));
-    fields.loadFundData.addEventListener("click", () => fields.fundDataFile.click());
-    fields.fundDataFile.addEventListener("change", () => loadFundDataFile(fields.fundDataFile.files[0]));
     $("copyMainStrategy").addEventListener("click", copyMainStrategyToCompare);
     $("autofillPremiums").addEventListener("click", () => {
       autofillPremiums();
