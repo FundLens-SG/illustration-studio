@@ -1201,6 +1201,24 @@ input[type="range"]::-moz-range-thumb {
   box-shadow: inset 4px 0 0 var(--gold);
 }
 
+.data-table tbody tr.partial-access-row td {
+  background: #fff7e6 !important;
+  box-shadow: inset 0 1px 0 rgba(167, 133, 61, 0.32), inset 0 -1px 0 rgba(167, 133, 61, 0.32);
+}
+
+.data-table tbody tr.partial-access-row td:first-child {
+  box-shadow: inset 4px 0 0 var(--amber), inset 0 1px 0 rgba(167, 133, 61, 0.32), inset 0 -1px 0 rgba(167, 133, 61, 0.32);
+}
+
+.data-table tbody tr.full-cashout-row td {
+  background: #eef8f3 !important;
+  box-shadow: inset 0 1px 0 rgba(47, 107, 93, 0.3), inset 0 -1px 0 rgba(47, 107, 93, 0.3);
+}
+
+.data-table tbody tr.full-cashout-row td:first-child {
+  box-shadow: inset 4px 0 0 var(--green), inset 0 1px 0 rgba(47, 107, 93, 0.3), inset 0 -1px 0 rgba(47, 107, 93, 0.3);
+}
+
 .data-table tbody tr.partial-window td:first-child {
   border-left: 4px solid var(--amber);
   padding-left: 6px;
@@ -1326,6 +1344,64 @@ input[type="range"]::-moz-range-thumb {
   background: var(--surface);
   color: var(--ink);
 }
+
+.projection-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.projection-options .toggle {
+  min-height: 38px;
+  border-radius: 999px;
+  padding: 7px 12px;
+}
+
+.projection-access-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.access-legend-card {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 8px 10px;
+  align-items: start;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+}
+
+.access-legend-card strong,
+.access-legend-card span:last-child {
+  grid-column: 2;
+}
+
+.access-legend-card strong {
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.access-legend-card span:last-child {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.legend-swatch {
+  grid-row: 1 / span 2;
+  width: 12px;
+  height: 100%;
+  min-height: 34px;
+  border-radius: 2px;
+}
+
+.legend-swatch.partial { background: var(--amber); }
+.legend-swatch.full { background: var(--green); }
 
 /* ===== PRESENTATION MODE ===== */
 body.presentation-mode {
@@ -1679,6 +1755,14 @@ body.presentation-mode .strategy-table input:disabled {
     flex: 0 0 auto;
     max-width: 82px;
     text-align: right;
+  }
+
+  .projection-options {
+    justify-content: flex-start;
+  }
+
+  .projection-options .toggle {
+    flex: 1 1 180px;
   }
 
   .chart-legend {
@@ -2071,14 +2155,18 @@ body.presentation-mode .strategy-table input:disabled {
             <p class="eyebrow">Client View</p>
             <h2>Annual Projection</h2>
           </div>
-          <div class="view-toggle" role="group" aria-label="Projection view">
-            <button type="button" id="annualMilestoneBtn" class="view-toggle-btn active">Milestones</button>
-            <button type="button" id="annualFullBtn" class="view-toggle-btn">All years</button>
+          <div class="projection-options">
+            <label class="toggle"><input id="annualDividendMonthly" type="checkbox" /> Dividend credited / month</label>
+            <div class="view-toggle" role="group" aria-label="Projection view">
+              <button type="button" id="annualMilestoneBtn" class="view-toggle-btn active">Milestones</button>
+              <button type="button" id="annualFullBtn" class="view-toggle-btn">All years</button>
+            </div>
           </div>
         </div>
         <div class="table-wrap output-wrap">
           <table id="annualTable" class="data-table"></table>
         </div>
+        <div id="annualAccessLegend" class="projection-access-legend" aria-live="polite"></div>
       </section>
 
       <section class="notes-section" aria-label="Scenario notes">
@@ -2966,6 +3054,7 @@ body.presentation-mode .strategy-table input:disabled {
     "fundFilterDividend", "fundFilterNonDividend",
     "addFundSelection", "fundApplyFromYear", "fundApplyDividendMode",
     "fundDividendOnly", "applyPortfolioAssumptions", "clearPortfolioFunds",
+    "annualDividendMonthly",
   ];
 
   function $(id) { return document.getElementById(id); }
@@ -4795,6 +4884,48 @@ body.presentation-mode .strategy-table input:disabled {
     return "";
   }
 
+  function projectionAccessRows(result, variant) {
+    const partialStart = variant.partialLimitStartYear || 6;
+    const partialRow = model.partialWithdrawalAllowed(variant, partialStart)
+      ? result.annual[partialStart - 1]
+      : null;
+    const fullYear = variant.mipYears + 1;
+    const fullRow = result.annual[fullYear - 1] || null;
+    return {
+      partialStartYear: partialRow ? partialStart : null,
+      partialRow,
+      fullCashoutYear: fullRow ? fullYear : null,
+      fullRow,
+    };
+  }
+
+  function renderAnnualAccessLegend(access, valueWrapper) {
+    const legend = $("annualAccessLegend");
+    if (!legend) return;
+    const items = [];
+    if (access.partialRow) {
+      items.push({
+        kind: "partial",
+        title: "Partial withdrawal access starts",
+        detail: `Year ${access.partialStartYear}, age ${access.partialRow.age}: allowable partial withdrawal ${valueWrapper(access.partialRow.partialWithdrawalLimit || 0, access.partialStartYear)}.`,
+      });
+    }
+    if (access.fullRow) {
+      items.push({
+        kind: "full",
+        title: "Full cashout available",
+        detail: `Year ${access.fullCashoutYear}, age ${access.fullRow.age}: 100% drawdown access based on account value ${valueWrapper(access.fullRow.accountValue || 0, access.fullCashoutYear)}.`,
+      });
+    }
+    legend.innerHTML = items.map((item) => `
+      <div class="access-legend-card">
+        <i class="legend-swatch ${item.kind}" aria-hidden="true"></i>
+        <strong>${htmlEscape(item.title)}</strong>
+        <span>${htmlEscape(item.detail)}</span>
+      </div>
+    `).join("");
+  }
+
   function renderAnnualTable() {
     const result = state.results.custom;
     const settings = currentSettings();
@@ -4804,6 +4935,8 @@ body.presentation-mode .strategy-table input:disabled {
     const compareResult = state.results.customCompare;
     const variant = result.variant;
     const totalYears = result.annual.length;
+    const access = projectionAccessRows(result, variant);
+    const monthlyDividends = Boolean(fields.annualDividendMonthly && fields.annualDividendMonthly.checked);
 
     const milestoneOnly = state.annualView === "milestone";
     const annualRows = milestoneOnly
@@ -4825,6 +4958,7 @@ body.presentation-mode .strategy-table input:disabled {
       const adjusted = inflationActive() ? discount(v, year) : v;
       return money(adjusted, settings.currency);
     };
+    renderAnnualAccessLegend(access, valueWrapper);
 
     $("annualTable").innerHTML = `
       <thead>
@@ -4833,9 +4967,9 @@ body.presentation-mode .strategy-table input:disabled {
           <th class="col-time">Age</th>
           <th class="col-premium">Premium paid</th>
           <th class="col-bonus">Year 1 bonuses</th>
-          <th class="col-income">Dividend credited</th>
+          <th class="col-income">${monthlyDividends ? "Dividend credited / month" : "Dividend credited / year"}</th>
           <th class="col-income">Cash dividends received</th>
-          <th class="col-income">Total dividends reinvested</th>
+          <th class="col-value">Total dividends reinvested</th>
           ${hasDividendWithdrawals ? '<th class="col-withdrawal">Dividend withdrawal</th>' : ''}
           ${hasPartialWithdrawals ? '<th class="col-withdrawal">Partial withdrawal</th>' : ''}
           <th class="col-value">Account value</th>
@@ -4852,17 +4986,20 @@ body.presentation-mode .strategy-table input:disabled {
           const fdRow = fdAnnual ? fdAnnual[row.year - 1] : null;
           const milestoneCls = milestoneOnly ? milestoneLabel(row.year, settings, variant, totalYears) : "";
           const classes = [rowClassForYear(variant, row.year)];
+          if (access.partialStartYear === row.year) classes.push("partial-access-row");
+          if (access.fullCashoutYear === row.year) classes.push("full-cashout-row");
           if (state.highlightYear === row.year) classes.push("year-highlight");
           if (milestoneCls) classes.push("milestone");
+          const dividendCreditedValue = monthlyDividends ? row.grossDividends / 12 : row.grossDividends;
           return `
           <tr class="${classes.filter(Boolean).join(" ")}" data-year="${row.year}" ${milestoneCls ? `data-milestone="${milestoneCls}"` : ""}>
             <td class="col-time">${row.year}</td>
             <td class="col-time">${row.age}</td>
             <td class="col-premium">${valueWrapper(row.premiums + row.topUps, row.year)}</td>
             <td class="col-bonus">${row.year === 1 ? valueWrapper(row.bonuses, row.year) : "-"}</td>
-            <td class="col-income">${valueWrapper(row.grossDividends, row.year)}</td>
+            <td class="col-income">${valueWrapper(dividendCreditedValue, row.year)}</td>
             <td class="col-income">${valueWrapper(row.cashDividends, row.year)}</td>
-            <td class="col-income">${valueWrapper(row.totalReinvestedDividends, row.year)}</td>
+            <td class="col-value">${valueWrapper(row.totalReinvestedDividends, row.year)}</td>
             ${hasDividendWithdrawals ? `<td class="col-withdrawal">${valueWrapper(row.dividendWithdrawals, row.year)}</td>` : ""}
             ${hasPartialWithdrawals ? `<td class="col-withdrawal">${valueWrapper(row.partialWithdrawals, row.year)}</td>` : ""}
             <td class="col-value">${valueWrapper(row.accountValue, row.year)}</td>
@@ -4956,6 +5093,7 @@ body.presentation-mode .strategy-table input:disabled {
         compareReinvest: fields.compareReinvest.checked,
         compareFd: fields.compareFd.checked,
         annualView: state.annualView,
+        annualDividendMonthly: Boolean(fields.annualDividendMonthly && fields.annualDividendMonthly.checked),
         deltaMode: state.deltaMode,
         fundDividendOnly: fields.fundDividendOnly.checked,
         inflationAdjust: fields.inflationAdjust.checked,
@@ -4991,6 +5129,7 @@ body.presentation-mode .strategy-table input:disabled {
         fields.compareReinvest.checked = Boolean(payload.view.compareReinvest);
         fields.compareFd.checked = Boolean(payload.view.compareFd);
         if (payload.view.annualView) state.annualView = payload.view.annualView;
+        if (payload.view.annualDividendMonthly !== undefined && fields.annualDividendMonthly) fields.annualDividendMonthly.checked = Boolean(payload.view.annualDividendMonthly);
         if (payload.view.deltaMode) state.deltaMode = payload.view.deltaMode;
         if (payload.view.fundDividendOnly !== undefined) fields.fundDividendOnly.checked = Boolean(payload.view.fundDividendOnly);
         if (payload.view.inflationAdjust !== undefined) fields.inflationAdjust.checked = Boolean(payload.view.inflationAdjust);
@@ -5318,6 +5457,7 @@ body.presentation-mode .strategy-table input:disabled {
       state.annualView = "full";
       renderAnnualTable();
     });
+    fields.annualDividendMonthly.addEventListener("change", renderAnnualTable);
 
     // Delta mode toggle
     $("deltaToggle").addEventListener("click", () => {
