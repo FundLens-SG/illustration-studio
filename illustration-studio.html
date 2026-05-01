@@ -813,6 +813,22 @@ dd {
 
 .fund-search-wrap {
   position: relative;
+  display: grid;
+  gap: 7px;
+}
+
+.fund-search-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fund-search-filters .toggle {
+  min-height: 30px;
+  padding: 5px 9px;
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .fund-suggestions {
@@ -1750,11 +1766,15 @@ body.presentation-mode .strategy-table input:disabled {
         </div>
 
         <div class="fund-builder-grid">
-          <label class="fund-search-wrap">
-            Fund name or code
+          <div class="fund-search-wrap">
+            <label for="fundSearch">Fund name or code</label>
             <input id="fundSearch" type="search" autocomplete="off" placeholder="Manulife..." />
+            <div class="fund-search-filters" role="group" aria-label="Fund search filters">
+              <label class="toggle"><input id="fundFilterDividend" type="checkbox" /> Show dividend funds only</label>
+              <label class="toggle"><input id="fundFilterNonDividend" type="checkbox" /> Show non-dividend funds only</label>
+            </div>
             <div id="fundSuggestions" class="fund-suggestions" hidden></div>
-          </label>
+          </div>
           <label>
             Category
             <select id="fundCategory">
@@ -2802,6 +2822,7 @@ body.presentation-mode .strategy-table input:disabled {
     "inflationAdjust", "inflationRate", "scenarioNotes",
     "historicalStartYear", "historicalDividendBoost",
     "fundSearch", "fundSuggestions", "fundCategory", "fundAllocation",
+    "fundFilterDividend", "fundFilterNonDividend",
     "addFundSelection", "fundApplyFromYear", "fundApplyDividendMode",
     "fundDividendOnly", "applyPortfolioAssumptions", "clearPortfolioFunds",
   ];
@@ -2969,12 +2990,35 @@ body.presentation-mode .strategy-table input:disabled {
     };
   }
 
+  function hasCurrencyToken(value, token) {
+    return new RegExp(`(^|[^A-Z])${token}([^A-Z]|$)`, "i").test(String(value || ""));
+  }
+
+  function isUsdOnlyFund(fund) {
+    const currency = String(fund.currency || "").toUpperCase();
+    const name = String(fund.name || "");
+    const hasUsd = hasCurrencyToken(name, "USD") || /\bU\$\b/i.test(name);
+    const hasSgd = hasCurrencyToken(name, "SGD") || /\bS\$\b/i.test(name);
+    return currency === "USD" || (hasUsd && !hasSgd);
+  }
+
   function mergeFundLibrary(additions) {
     const byId = new Map(state.fundLibrary.map((fund) => [fund.id, fund]));
-    additions.map((item) => normalizeFund(item, item.source || "Imported")).filter(Boolean).forEach((fund) => {
+    additions.map((item) => normalizeFund(item, item.source || "Imported")).filter((fund) => fund && !isUsdOnlyFund(fund)).forEach((fund) => {
       byId.set(fund.id, { ...(byId.get(fund.id) || {}), ...fund });
     });
     state.fundLibrary = Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  function fundHasDividend(fund) {
+    return Number(fund.dividendYield) > 0.000001;
+  }
+
+  function fundMatchesDividendFilter(fund) {
+    const dividendOnly = Boolean(fields.fundFilterDividend && fields.fundFilterDividend.checked);
+    const nonDividendOnly = Boolean(fields.fundFilterNonDividend && fields.fundFilterNonDividend.checked);
+    if (dividendOnly === nonDividendOnly) return true;
+    return dividendOnly ? fundHasDividend(fund) : !fundHasDividend(fund);
   }
 
   function fuzzyScore(query, fund) {
@@ -2998,7 +3042,7 @@ body.presentation-mode .strategy-table input:disabled {
   function searchFunds(query) {
     return state.fundLibrary
       .map((fund) => ({ fund, score: fuzzyScore(query, fund) }))
-      .filter((item) => item.score >= 0)
+      .filter((item) => item.score >= 0 && fundMatchesDividendFilter(item.fund))
       .sort((a, b) => b.score - a.score)
       .slice(0, 10)
       .map((item) => item.fund);
@@ -3009,8 +3053,8 @@ body.presentation-mode .strategy-table input:disabled {
     if (!el) return;
     const addedFunds = state.fundLibrary.filter((fund) => !String(fund.source || "").includes("AFL")).length;
     el.textContent = message || (addedFunds
-      ? `${state.fundLibrary.length} iFAST funds loaded (${state.fundLibrary.length - addedFunds} AFL, ${addedFunds} added).`
-      : `${state.fundLibrary.length} AFL iFAST funds loaded.`);
+      ? `${state.fundLibrary.length} non-USD iFAST funds loaded (${state.fundLibrary.length - addedFunds} AFL, ${addedFunds} added).`
+      : `${state.fundLibrary.length} non-USD AFL iFAST funds loaded.`);
   }
 
   function fundDividendOnlyActive() {
@@ -4601,7 +4645,7 @@ body.presentation-mode .strategy-table input:disabled {
         <li>Fund management charges are not deducted by default because fund prices are already net of management charges.</li>
         <li>Fund Builder derives NAV growth as (1 + total return) / (1 + dividend yield) - 1, then applies the weighted portfolio result into the editable strategy rows unless Dividend only is selected.</li>
         <li>Dividend only applies the weighted annualised dividend yield and dividend mode, while leaving the strategy NAV growth inputs for advisor judgement.</li>
-        <li>The default fund library starts from AFL rows marked iFAST = Yes plus requested iFAST additions; total return uses since-inception CAGR where available, dividend uses latest annualised yield, and NAV growth is derived.</li>
+        <li>The default fund library starts from AFL rows marked iFAST = Yes plus requested iFAST additions, with USD-only share classes removed; total return uses since-inception CAGR where available, dividend uses latest annualised yield, and NAV growth is derived.</li>
         <li>Inflation toggle discounts displayed amounts only — model inputs and percentages remain in nominal terms.</li>
       </ul>
     `;
@@ -4946,6 +4990,13 @@ body.presentation-mode .strategy-table input:disabled {
         event.preventDefault();
         setSelectedFund(first);
       }
+    });
+    [fields.fundFilterDividend, fields.fundFilterNonDividend].forEach((filter) => {
+      filter.addEventListener("change", () => {
+        if (state.selectedFund && !fundMatchesDividendFilter(state.selectedFund)) state.selectedFund = null;
+        renderSelectedFundPreview();
+        renderFundSuggestions();
+      });
     });
     document.addEventListener("click", (event) => {
       if (!event.target.closest(".fund-search-wrap") && fields.fundSuggestions) fields.fundSuggestions.hidden = true;
