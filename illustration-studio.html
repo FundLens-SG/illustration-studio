@@ -2719,6 +2719,7 @@ body.presentation-mode .strategy-table input:disabled {
 })(typeof window !== "undefined" ? window : globalThis);
 
     </script>
+    <script src="fund-library-afl.js"></script>
     <script>
 (function () {
   "use strict";
@@ -2737,7 +2738,7 @@ body.presentation-mode .strategy-table input:disabled {
     selectedFund: null,
   };
 
-  const FUND_LIBRARY_SEED = [
+  const FUND_LIBRARY_SEED = Array.isArray(window.AFL_FUND_LIBRARY) && window.AFL_FUND_LIBRARY.length ? window.AFL_FUND_LIBRARY : [
     { code: "MAM019", name: "Manulife Asia Pacific Investment Grade Bond A MDis SGD", currency: "SGD", sector: "Fixed Income / Asia ex Japan", currentNav: 0.861, navDate: "2026-04-29", totalReturn: 0.008, returnPeriod: "5Y", dividendYield: 0.04294077 },
     { code: "MAM021", name: "Manulife Global Asset Allocation - Growth A MDis SGD", currency: "SGD", sector: "Asset Allocation / Global", currentNav: 0.679, navDate: "2026-04-29", totalReturn: 0.0026, returnPeriod: "5Y", dividendYield: 0.0445891 },
     { code: "MAM022", name: "Manulife Global Asset Allocation - Growth A MDis SGD-H", currency: "SGD", sector: "Asset Allocation / Global", currentNav: 0.605, navDate: "2026-04-29", totalReturn: -0.0054, returnPeriod: "5Y", dividendYield: 0.04476694 },
@@ -2910,6 +2911,7 @@ body.presentation-mode .strategy-table input:disabled {
     const code = String(firstDefined(raw, [
       "code", "fundInfoSedolnumber", "sedolnumber", "ticker", "tickerCode", "Ticker Code", "Product Code",
     ]) || name).trim();
+    const id = String(firstDefined(raw, ["id", "fundId", "libraryId"]) || code || name).trim();
     const dividendYield = normalizeRate(firstDefined(raw, [
       "dividendYield", "indicatedGrossDividendYield", "grossDividendYield", "Dividend Yield", "Indicated Gross Dividend Yield (%)", "Dividend %",
     ])) ?? 0;
@@ -2941,7 +2943,7 @@ body.presentation-mode .strategy-table input:disabled {
     if (navGrowth === null) navGrowth = deriveNavGrowth(totalReturn, dividendYield);
     if (totalReturn === null) totalReturn = impliedTotalReturn(navGrowth, dividendYield);
     return {
-      id: code || name,
+      id,
       code,
       name,
       currency: String(firstDefined(raw, ["currency", "fundInfoFundCurrencyCode", "Currency"]) || "").trim(),
@@ -3007,7 +3009,7 @@ body.presentation-mode .strategy-table input:disabled {
     const el = $("fundDataStatus");
     if (!el) return;
     const imported = state.fundLibrary.length - FUND_LIBRARY_SEED.length;
-    el.textContent = message || `${state.fundLibrary.length} funds loaded${imported > 0 ? `, ${imported} imported` : ""}.`;
+    el.textContent = message || `${state.fundLibrary.length} AFL iFAST funds loaded${imported > 0 ? `, ${imported} imported` : ""}.`;
   }
 
   function setSelectedFund(fund) {
@@ -3285,7 +3287,7 @@ body.presentation-mode .strategy-table input:disabled {
 
   function initFundBuilder() {
     state.fundLibrary = [];
-    mergeFundLibrary(FUND_LIBRARY_SEED.map((fund) => ({ ...fund, source: "iFAST GM seed" })));
+    mergeFundLibrary(FUND_LIBRARY_SEED.map((fund) => ({ ...fund, source: fund.source || "AFL iFAST library" })));
     mergeFundLibrary(loadStoredFundLibrary());
     renderFundDataStatus();
     renderSelectedFundPreview();
@@ -4646,7 +4648,7 @@ body.presentation-mode .strategy-table input:disabled {
         <li>Fixed deposit incremental mode places the keyed FD amount annually for the selected variation's premium term.</li>
         <li>Fund management charges are not deducted by default because fund prices are already net of management charges.</li>
         <li>Fund Builder derives NAV growth as (1 + total return) / (1 + dividend yield) - 1, then applies the weighted portfolio result into the editable strategy rows.</li>
-        <li>The starter fund library is a Manulife subset parsed from iFAST GM public fund-selector fields; imported rows replace or extend it locally.</li>
+        <li>The default fund library is built from AFL rows marked iFAST = Yes and matched against the iFAST GM fund selector; imported rows replace or extend it locally.</li>
         <li>Inflation toggle discounts displayed amounts only — model inputs and percentages remain in nominal terms.</li>
       </ul>
     `;
