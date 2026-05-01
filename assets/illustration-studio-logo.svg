@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Illustration Studio logo</title>
+  <desc id="desc">A navy mark with a gold projection curve and blue and green portfolio bars.</desc>
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="#0f1d2d"/>
+  <rect x="7" y="7" width="50" height="50" rx="9" fill="none" stroke="#d8c895" stroke-width="2"/>
+  <path d="M16 43.5c5.2-12.2 12.8-18.2 22.5-18.2 4.8 0 8.5-1.7 11.5-5.3" fill="none" stroke="#d8c895" stroke-width="4" stroke-linecap="round"/>
+  <path d="M16 43.5c5.2-12.2 12.8-18.2 22.5-18.2" fill="none" stroke="#f5edd4" stroke-width="1.35" stroke-linecap="round" opacity="0.9"/>
+  <circle cx="50" cy="20" r="4" fill="#d8c895"/>
+  <rect x="16" y="38" width="7" height="10" rx="2" fill="#2b6f9f"/>
+  <rect x="27" y="32" width="7" height="16" rx="2" fill="#2a8066"/>
+  <rect x="38" y="27" width="7" height="21" rx="2" fill="#e0b24f"/>
+  <path d="M17 49h31" stroke="#f5edd4" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+</svg>
