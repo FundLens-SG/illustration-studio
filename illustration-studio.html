@@ -48,6 +48,10 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   color: var(--ink);
@@ -55,6 +59,7 @@ body {
   font-size: 14px;
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 button,
@@ -1127,7 +1132,10 @@ input[type="range"]::-moz-range-thumb {
 
 /* ===== TABLES ===== */
 .table-wrap {
+  min-width: 0;
+  max-width: 100%;
   overflow: auto;
+  contain: inline-size;
   border: 1px solid var(--line);
   border-radius: 4px;
   background: #fff;
@@ -1378,17 +1386,26 @@ body.presentation-mode .strategy-table input:disabled {
 }
 
 .usage-banner strong {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
   color: #6b4d10;
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .usage-banner span {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
   color: #6b5828;
   font-weight: 600;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 /* ===== DISCLAIMERS ===== */
@@ -1550,12 +1567,91 @@ body.presentation-mode .strategy-table input:disabled {
 }
 
 @media (max-width: 760px) {
-  main {
-    width: calc(100vw - 18px);
-    margin-top: 9px;
+  body {
+    font-size: 13px;
   }
 
-  .topbar { padding: 18px; }
+  main {
+    width: calc(100vw - 18px);
+    margin: 9px auto 34px;
+  }
+
+  .topbar {
+    min-height: 0;
+    padding: 18px 20px 20px;
+    gap: 14px;
+  }
+
+  .brand-lockup {
+    gap: 14px;
+  }
+
+  .brand-mark {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+    border-radius: 11px;
+  }
+
+  h1 {
+    max-width: 10ch;
+    font-size: 30px;
+    line-height: 1.03;
+  }
+
+  .source-strip {
+    justify-content: flex-start;
+  }
+
+  .source-strip span {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .usage-banner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: calc(100vw - 18px);
+    margin-top: 8px;
+    padding: 12px;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .usage-banner > * {
+    min-width: 0;
+  }
+
+  .usage-banner strong {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .usage-banner span {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .controls,
+  .chart-panel,
+  .fund-builder-section,
+  .strategy-section,
+  .detail-section,
+  .source-notes,
+  .notes-section {
+    padding: 16px;
+  }
+
+  .toggle-row {
+    align-items: stretch;
+  }
+
+  .toggle-row .toggle {
+    flex: 1 1 160px;
+    min-width: 0;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
 
   .control-grid,
   .fund-builder-grid,
@@ -1571,6 +1667,37 @@ body.presentation-mode .strategy-table input:disabled {
 
   .hero-headline strong {
     font-size: 36px;
+  }
+
+  .panel-heading {
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .panel-heading span {
+    flex: 0 0 auto;
+    max-width: 82px;
+    text-align: right;
+  }
+
+  .chart-legend {
+    display: grid;
+    gap: 9px;
+    margin: 0 0 10px;
+    font-size: 11.5px;
+  }
+
+  .chart-legend i {
+    width: 18px;
+  }
+
+  canvas#valueChart {
+    height: 420px;
+  }
+
+  .chart-hint {
+    font-size: 11px;
   }
 
   .comparison-card strong {
@@ -1590,7 +1717,7 @@ body.presentation-mode .strategy-table input:disabled {
         </div>
       </div>
       <div class="source-strip">
-        <span>Updated to Apr 2026</span>
+        <span>Updated: Apr 2026</span>
       </div>
     </header>
     <button id="exitPresentation" class="exit-presentation" type="button" hidden>Exit presentation</button>
@@ -4295,7 +4422,8 @@ body.presentation-mode .strategy-table input:disabled {
     const ctx = canvas.getContext("2d");
     const ratio = window.devicePixelRatio || 1;
     const cssWidth = canvas.clientWidth || 1100;
-    const cssHeight = 380;
+    const compactChart = cssWidth < 560;
+    const cssHeight = compactChart ? 420 : 380;
     canvas.width = Math.round(cssWidth * ratio);
     canvas.height = Math.round(cssHeight * ratio);
     canvas.style.height = `${cssHeight}px`;
@@ -4303,7 +4431,9 @@ body.presentation-mode .strategy-table input:disabled {
 
     const width = cssWidth;
     const height = cssHeight;
-    const pad = { top: 28, right: 26, bottom: 44, left: 78 };
+    const pad = compactChart
+      ? { top: 28, right: 14, bottom: 52, left: 58 }
+      : { top: 28, right: 26, bottom: 44, left: 78 };
 
     const allValues = [
       ...series.cumulativePaid,
@@ -4461,7 +4591,7 @@ body.presentation-mode .strategy-table input:disabled {
 
     // Y axis labels
     ctx.fillStyle = "#736a5b";
-    ctx.font = "12px Arial";
+    ctx.font = compactChart ? "11px Arial" : "12px Arial";
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
     for (let i = 0; i <= 4; i += 1) {
@@ -4473,7 +4603,7 @@ body.presentation-mode .strategy-table input:disabled {
     // X axis labels — critical milestone years get a bold callout, regular spaced
     // labels fill in around them and skip when they would collide.
     const drawnXs = [];
-    const minGap = 26;
+    const minGap = compactChart ? 40 : 26;
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
 
@@ -4484,13 +4614,13 @@ body.presentation-mode .strategy-table input:disabled {
         if (drawnXs.some((dx) => Math.abs(dx - x) < minGap)) return;
         drawnXs.push(x);
         ctx.fillStyle = "#5a4a23";
-        ctx.font = "bold 12px Arial";
+        ctx.font = compactChart ? "bold 11px Arial" : "bold 12px Arial";
         ctx.fillText(`Y${m.year}`, x, height - pad.bottom + 12);
       });
 
     ctx.fillStyle = "#736a5b";
-    ctx.font = "12px Arial";
-    const step = Math.max(1, Math.ceil(labels.length / 10));
+    ctx.font = compactChart ? "11px Arial" : "12px Arial";
+    const step = Math.max(1, Math.ceil(labels.length / (compactChart ? 5 : 10)));
     labels.forEach((label, i) => {
       if (i % step !== 0 && i !== labels.length - 1) return;
       const x = xAt(i);
@@ -4505,7 +4635,7 @@ body.presentation-mode .strategy-table input:disabled {
       const x = xAt(idx);
       const y = yAt(series.selected.values[idx]);
       ctx.beginPath();
-      ctx.arc(x, y, 5.5, 0, Math.PI * 2);
+      ctx.arc(x, y, compactChart ? 5 : 5.5, 0, Math.PI * 2);
       ctx.fillStyle = "#fff";
       ctx.fill();
       ctx.strokeStyle = goldStroke;
@@ -4513,12 +4643,14 @@ body.presentation-mode .strategy-table input:disabled {
       ctx.stroke();
 
       // Show event label above the dot only for critical milestones to keep the chart calm.
-      if (m.kind === "critical") {
+      if (m.kind === "critical" && (!compactChart || m.year === labels.length)) {
         ctx.fillStyle = "#5a4a23";
         ctx.font = "10px Arial";
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
-        ctx.fillText(m.label, x, y - 10);
+        const labelWidth = ctx.measureText(m.label).width;
+        const labelX = Math.max(pad.left + labelWidth / 2, Math.min(width - pad.right - labelWidth / 2, x));
+        ctx.fillText(m.label, labelX, y - 10);
       }
     });
   }
