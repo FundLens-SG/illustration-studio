@@ -143,7 +143,6 @@ main {
 .chart-panel,
 .strategy-section,
 .detail-section,
-.fund-blend-section,
 .source-notes,
 .notes-section {
   border: 1px solid var(--line);
@@ -771,7 +770,6 @@ dd {
 /* ===== STRATEGY / DETAIL / NOTES SECTIONS ===== */
 .strategy-section,
 .detail-section,
-.fund-blend-section,
 .source-notes,
 .notes-section {
   margin-top: 16px;
@@ -812,106 +810,6 @@ dd {
   letter-spacing: 0;
   line-height: 1.4;
 }
-
-.fund-blend-tools {
-  align-items: end;
-}
-
-.fund-blend-tools label {
-  min-width: 160px;
-}
-
-.fund-source-label {
-  flex: 2 1 360px;
-}
-
-.fund-import-label {
-  flex: 1 1 280px;
-}
-
-.fund-import-label textarea {
-  min-height: 40px;
-  height: 40px;
-}
-
-.fund-status {
-  flex: 1 1 220px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.35;
-}
-
-.fund-status.warning { color: var(--red); }
-
-.fund-status.ok { color: var(--green); }
-
-.fund-summary {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(130px, 1fr));
-  gap: 10px;
-  margin: 0 0 14px;
-}
-
-.fund-metric {
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  padding: 10px 12px;
-  background: var(--surface-2);
-}
-
-.fund-metric dt {
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.fund-metric dd {
-  color: var(--ink);
-  font-size: 17px;
-}
-
-.fund-metric.core { border-left: 4px solid var(--blue); }
-
-.fund-metric.satellite { border-left: 4px solid var(--green); }
-
-.fund-table input,
-.fund-table select {
-  min-width: 92px;
-  height: 34px;
-  min-height: 34px;
-  padding: 5px 8px;
-}
-
-.fund-table input[type="number"] {
-  text-align: right;
-}
-
-.fund-table .fund-name-input {
-  min-width: 180px;
-  text-align: left;
-}
-
-.fund-table .fund-source-input {
-  min-width: 180px;
-  text-align: left;
-}
-
-.fund-table tr.fund-core td:first-child {
-  border-left: 4px solid var(--blue);
-  padding-left: 6px;
-}
-
-.fund-table tr.fund-satellite td:first-child {
-  border-left: 4px solid var(--green);
-  padding-left: 6px;
-}
-
-.data-table .col-core { background: #f0f5f8; }
-
-.data-table .col-satellite { background: #eff7f3; }
 
 .sensitivity-tools .slider-label {
   min-width: 220px;
@@ -1175,7 +1073,6 @@ body.presentation-mode {
 }
 
 body.presentation-mode .controls,
-body.presentation-mode .fund-blend-section,
 body.presentation-mode .strategy-section,
 body.presentation-mode .source-notes,
 body.presentation-mode .notes-section,
@@ -1593,47 +1490,6 @@ body.presentation-mode .strategy-table input:disabled {
       <section class="status-row" aria-label="Model status">
         <div id="checks" class="checks"></div>
         <div id="assumptions" class="assumptions"></div>
-      </section>
-
-      <section class="fund-blend-section" aria-label="Fund allocation blend">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">Fund Blend</p>
-            <h2>Core And Satellite Allocation</h2>
-          </div>
-          <div class="premium-note" id="fundBlendNote"></div>
-        </div>
-        <div class="bulk-tools fund-blend-tools" aria-label="Fund source and blend actions">
-          <label class="fund-source-label">
-            Fund source URL
-            <input id="fundSourceUrl" type="url" placeholder="https://..." />
-          </label>
-          <button id="fetchFundSource" type="button">Fetch source</button>
-          <label class="fund-import-label">
-            JSON / CSV import
-            <textarea id="fundImportText" rows="1" placeholder="name,category,allocation,totalReturn,dividendYield"></textarea>
-          </label>
-          <button id="importFundData" type="button">Import</button>
-          <button id="addFundRow" type="button">Add fund</button>
-          <label>
-            Apply from year
-            <input id="fundApplyFromYear" type="number" min="1" max="99" step="1" value="1" />
-          </label>
-          <label>
-            Dividend mode
-            <select id="fundApplyDividendMode">
-              <option value="keep" selected>Keep existing</option>
-              <option value="reinvest">Reinvest</option>
-              <option value="payout">Payout</option>
-            </select>
-          </label>
-          <button id="applyFundBlend" type="button">Apply blend</button>
-          <span class="fund-status" id="fundSourceStatus"></span>
-        </div>
-        <dl class="fund-summary" id="fundBlendSummary"></dl>
-        <div class="table-wrap">
-          <table id="fundBlendTable" class="data-table fund-table"></table>
-        </div>
       </section>
 
       <section class="strategy-section" aria-label="Strategy inputs">
@@ -2559,7 +2415,6 @@ body.presentation-mode .strategy-table input:disabled {
   const state = {
     strategy: [],
     compareStrategy: [],
-    fundRows: [],
     results: null,
     annualView: "milestone", // "milestone" | "full"
     deltaMode: "amount", // "amount" | "percent"
@@ -2578,7 +2433,6 @@ body.presentation-mode .strategy-table input:disabled {
     "compareBulkNavReturn", "compareBulkDividendYield", "compareBulkDividendMode", "compareBulkFromYear",
     "inflationAdjust", "inflationRate", "scenarioNotes",
     "historicalStartYear", "historicalDividendBoost",
-    "fundSourceUrl", "fundImportText", "fundApplyFromYear", "fundApplyDividendMode",
   ];
 
   function $(id) { return document.getElementById(id); }
@@ -2614,11 +2468,6 @@ body.presentation-mode .strategy-table input:disabled {
   }
 
   function pctInput(input) { return numberValue(input) / 100; }
-
-  function valueNum(value, fallback = 0) {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : fallback;
-  }
 
   function projectionYearsFromAge(age) {
     return Math.max(1, 99 - Math.max(0, Math.min(98, Math.round(Number(age) || 0))));
@@ -2778,372 +2627,6 @@ body.presentation-mode .strategy-table input:disabled {
     }
     const final = annual[annual.length - 1] || { contributions: 0, value: 0 };
     return { annual, final: { ...final, gain: final.value - final.contributions } };
-  }
-
-  // ===== FUND BLEND =====
-  function blankFundRow(category = "Core") {
-    return {
-      name: "",
-      category,
-      allocation: 0,
-      totalReturn: 0,
-      dividendYield: 0,
-      source: "",
-    };
-  }
-
-  function defaultFundRows() {
-    return [blankFundRow("Core"), blankFundRow("Satellite")];
-  }
-
-  function htmlEscape(value) {
-    return String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;");
-  }
-
-  function cleanHeader(value) {
-    return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-  }
-
-  function parseNumberish(value) {
-    if (value === null || value === undefined) return 0;
-    if (typeof value === "number") return Number.isFinite(value) ? value : 0;
-    const parsed = Number(String(value).replace(/[%,$\s]/g, ""));
-    return Number.isFinite(parsed) ? parsed : 0;
-  }
-
-  function parseRateLike(value) {
-    if (value === null || value === undefined || value === "") return 0;
-    const hasPercent = typeof value === "string" && value.includes("%");
-    const parsed = parseNumberish(value);
-    if (hasPercent || Math.abs(parsed) > 1) return parsed / 100;
-    return parsed;
-  }
-
-  function normalizeFundCategory(value) {
-    return String(value || "").toLowerCase().startsWith("sat") ? "Satellite" : "Core";
-  }
-
-  function derivedNavGrowth(totalReturn, dividendYield) {
-    const denominator = 1 + valueNum(dividendYield);
-    if (denominator <= 0) return null;
-    return (1 + valueNum(totalReturn)) / denominator - 1;
-  }
-
-  function rateCell(value) {
-    return value === null || value === undefined || Number.isNaN(value) ? "n.m." : percent(value, 2);
-  }
-
-  function fundRowFromRecord(record) {
-    const keys = Object.keys(record || {});
-    const pick = (...names) => {
-      const normalized = names.map(cleanHeader);
-      const exact = keys.find((key) => normalized.includes(cleanHeader(key)));
-      if (exact !== undefined) return record[exact];
-      const loose = keys.find((key) => normalized.some((name) => cleanHeader(key).includes(name)));
-      return loose === undefined ? undefined : record[loose];
-    };
-    return {
-      name: String(pick("name", "fund", "fundName", "ticker") || "").trim(),
-      category: normalizeFundCategory(pick("category", "bucket", "sleeve")),
-      allocation: parseRateLike(pick("allocation", "weight", "weighting", "alloc")),
-      totalReturn: parseRateLike(pick("totalReturn", "historicalReturn", "annualizedReturn", "annualisedReturn", "return", "performance")),
-      dividendYield: parseRateLike(pick("dividendYield", "latestDividendYield", "annualizedDividendYield", "annualisedDividendYield", "yield", "distributionYield")),
-      source: String(pick("source", "url", "link") || "").trim(),
-    };
-  }
-
-  function parseCsvLine(line, delimiter) {
-    const cells = [];
-    let current = "";
-    let quoted = false;
-    for (let i = 0; i < line.length; i += 1) {
-      const ch = line[i];
-      if (ch === '"') {
-        if (quoted && line[i + 1] === '"') {
-          current += '"';
-          i += 1;
-        } else {
-          quoted = !quoted;
-        }
-      } else if (ch === delimiter && !quoted) {
-        cells.push(current.trim());
-        current = "";
-      } else {
-        current += ch;
-      }
-    }
-    cells.push(current.trim());
-    return cells;
-  }
-
-  function rowsFromDelimitedText(text) {
-    const lines = String(text || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-    if (lines.length < 2) return [];
-    const delimiter = lines[0].includes("\t") ? "\t" : ",";
-    const headers = parseCsvLine(lines[0], delimiter);
-    return lines.slice(1).map((line) => {
-      const cells = parseCsvLine(line, delimiter);
-      return headers.reduce((row, header, index) => {
-        row[header] = cells[index] || "";
-        return row;
-      }, {});
-    }).map(fundRowFromRecord).filter((row) => row.name || row.allocation || row.totalReturn || row.dividendYield);
-  }
-
-  function rowsFromHtmlTable(text) {
-    const doc = new DOMParser().parseFromString(text, "text/html");
-    const tables = Array.from(doc.querySelectorAll("table"));
-    for (const table of tables) {
-      const matrix = Array.from(table.querySelectorAll("tr")).map((tr) => (
-        Array.from(tr.querySelectorAll("th,td")).map((cell) => cell.textContent.trim())
-      )).filter((row) => row.length);
-      if (matrix.length < 2) continue;
-      const headerJoined = matrix[0].map(cleanHeader).join("|");
-      if (!headerJoined.includes("fund") && !headerJoined.includes("name")) continue;
-      if (!headerJoined.includes("return") && !headerJoined.includes("yield")) continue;
-      const parsed = rowsFromDelimitedText(matrix.map((row) => row.join("\t")).join("\n"));
-      if (parsed.length) return parsed;
-    }
-    return [];
-  }
-
-  function rowsFromJson(value) {
-    const list = Array.isArray(value)
-      ? value
-      : (value && (value.funds || value.rows || value.data || value.items || value.results));
-    if (!Array.isArray(list)) return [];
-    return list.map(fundRowFromRecord).filter((row) => row.name || row.allocation || row.totalReturn || row.dividendYield);
-  }
-
-  function parseFundSourceText(text) {
-    const trimmed = String(text || "").trim();
-    if (!trimmed) return [];
-    try {
-      const parsed = rowsFromJson(JSON.parse(trimmed));
-      if (parsed.length) return parsed;
-    } catch {
-      // Not JSON; try HTML or delimited text below.
-    }
-    if (trimmed.startsWith("<")) {
-      const htmlRows = rowsFromHtmlTable(trimmed);
-      if (htmlRows.length) return htmlRows;
-    }
-    return rowsFromDelimitedText(trimmed);
-  }
-
-  function readFundBlendTable() {
-    const table = $("fundBlendTable");
-    if (!table) return state.fundRows.length ? state.fundRows : defaultFundRows();
-    const rows = Array.from(table.querySelectorAll("tbody tr")).map((tr) => ({
-      name: tr.querySelector('[data-field="name"]')?.value.trim() || "",
-      category: normalizeFundCategory(tr.querySelector('[data-field="category"]')?.value),
-      allocation: parseNumberish(tr.querySelector('[data-field="allocation"]')?.value) / 100,
-      totalReturn: parseNumberish(tr.querySelector('[data-field="totalReturn"]')?.value) / 100,
-      dividendYield: parseNumberish(tr.querySelector('[data-field="dividendYield"]')?.value) / 100,
-      source: tr.querySelector('[data-field="source"]')?.value.trim() || "",
-    }));
-    return rows.length ? rows : defaultFundRows();
-  }
-
-  function calculateFundBlend(rows) {
-    const buckets = {
-      Core: { allocation: 0, totalReturn: 0, dividendYield: 0 },
-      Satellite: { allocation: 0, totalReturn: 0, dividendYield: 0 },
-    };
-    const total = rows.reduce((acc, row) => {
-      const allocation = Math.max(0, valueNum(row.allocation));
-      const totalReturn = valueNum(row.totalReturn);
-      const dividendYield = valueNum(row.dividendYield);
-      const category = normalizeFundCategory(row.category);
-      acc.allocation += allocation;
-      acc.totalReturn += allocation * totalReturn;
-      acc.dividendYield += allocation * dividendYield;
-      buckets[category].allocation += allocation;
-      buckets[category].totalReturn += allocation * totalReturn;
-      buckets[category].dividendYield += allocation * dividendYield;
-      return acc;
-    }, { allocation: 0, totalReturn: 0, dividendYield: 0 });
-    total.derivedNavGrowth = derivedNavGrowth(total.totalReturn, total.dividendYield);
-    total.buckets = buckets;
-    return total;
-  }
-
-  function setFundStatus(message, tone = "") {
-    const el = $("fundSourceStatus");
-    if (!el) return;
-    el.textContent = message || "";
-    el.className = `fund-status ${tone}`.trim();
-  }
-
-  function renderFundBlendSummary() {
-    const rows = readFundBlendTable();
-    const blend = calculateFundBlend(rows);
-    $("fundBlendNote").textContent = Math.abs(blend.allocation - 1) <= 0.0001
-      ? "Allocation balanced"
-      : `Allocation ${percent(blend.allocation, 1)}`;
-    $("fundBlendSummary").innerHTML = `
-      <div class="fund-metric"><dt>Allocation</dt><dd>${percent(blend.allocation, 1)}</dd></div>
-      <div class="fund-metric"><dt>Total return</dt><dd>${rateCell(blend.totalReturn)}</dd></div>
-      <div class="fund-metric"><dt>Dividend yield</dt><dd>${rateCell(blend.dividendYield)}</dd></div>
-      <div class="fund-metric"><dt>Derived NAV</dt><dd>${rateCell(blend.derivedNavGrowth)}</dd></div>
-      <div class="fund-metric core"><dt>Core return</dt><dd>${rateCell(blend.buckets.Core.totalReturn)}</dd></div>
-      <div class="fund-metric satellite"><dt>Satellite return</dt><dd>${rateCell(blend.buckets.Satellite.totalReturn)}</dd></div>
-    `;
-  }
-
-  function renderFundBlendTable() {
-    const rows = state.fundRows.length ? state.fundRows : defaultFundRows();
-    state.fundRows = rows;
-    $("fundBlendTable").innerHTML = `
-      <thead>
-        <tr>
-          <th class="col-value">Fund</th>
-          <th class="col-value">Category</th>
-          <th class="col-premium">Allocation %</th>
-          <th class="col-growth">Historical return %</th>
-          <th class="col-income">Dividend yield %</th>
-          <th class="col-growth">Derived NAV %</th>
-          <th class="col-total">Weighted return</th>
-          <th class="col-income">Weighted dividend</th>
-          <th class="col-value">Source</th>
-          <th class="col-charge">Remove</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows.map((row, index) => {
-          const category = normalizeFundCategory(row.category);
-          const rowNav = derivedNavGrowth(row.totalReturn, row.dividendYield);
-          const className = category === "Satellite" ? "fund-satellite" : "fund-core";
-          return `
-            <tr class="${className}" data-index="${index}">
-              <td class="col-value"><input class="fund-name-input" data-field="name" value="${htmlEscape(row.name)}" /></td>
-              <td class="${category === "Satellite" ? "col-satellite" : "col-core"}">
-                <select data-field="category">
-                  <option value="Core" ${category === "Core" ? "selected" : ""}>Core</option>
-                  <option value="Satellite" ${category === "Satellite" ? "selected" : ""}>Satellite</option>
-                </select>
-              </td>
-              <td class="col-premium"><input data-field="allocation" type="number" min="0" max="100" step="0.1" value="${roundInput(row.allocation * 100, 2)}" /></td>
-              <td class="col-growth"><input data-field="totalReturn" type="number" step="0.1" value="${roundInput(row.totalReturn * 100, 2)}" /></td>
-              <td class="col-income"><input data-field="dividendYield" type="number" step="0.1" value="${roundInput(row.dividendYield * 100, 2)}" /></td>
-              <td class="col-growth">${rateCell(rowNav)}</td>
-              <td class="col-total">${rateCell(valueNum(row.allocation) * valueNum(row.totalReturn))}</td>
-              <td class="col-income">${rateCell(valueNum(row.allocation) * valueNum(row.dividendYield))}</td>
-              <td class="col-value"><input class="fund-source-input" data-field="source" value="${htmlEscape(row.source)}" /></td>
-              <td class="col-charge"><button type="button" data-action="remove-fund">Remove</button></td>
-            </tr>
-          `;
-        }).join("")}
-      </tbody>
-    `;
-    $("fundBlendTable").querySelectorAll("input").forEach((input) => {
-      input.addEventListener("input", () => {
-        state.fundRows = readFundBlendTable();
-        renderFundBlendSummary();
-      });
-    });
-    $("fundBlendTable").querySelectorAll("select").forEach((select) => {
-      select.addEventListener("change", () => {
-        state.fundRows = readFundBlendTable();
-        renderFundBlendTable();
-      });
-    });
-    $("fundBlendTable").querySelectorAll('[data-action="remove-fund"]').forEach((button) => {
-      button.addEventListener("click", () => {
-        state.fundRows = readFundBlendTable();
-        const index = Number(button.closest("tr").dataset.index);
-        state.fundRows.splice(index, 1);
-        if (!state.fundRows.length) state.fundRows = defaultFundRows();
-        renderFundBlendTable();
-      });
-    });
-    renderFundBlendSummary();
-  }
-
-  function addFundRow() {
-    state.fundRows = readFundBlendTable();
-    state.fundRows.push(blankFundRow("Satellite"));
-    renderFundBlendTable();
-  }
-
-  function importFundData() {
-    const rows = parseFundSourceText(fields.fundImportText.value);
-    if (!rows.length) {
-      setFundStatus("No fund rows found", "warning");
-      return;
-    }
-    state.fundRows = rows;
-    renderFundBlendTable();
-    setFundStatus(`${rows.length} fund rows imported`, "ok");
-  }
-
-  async function fetchFundSource() {
-    const url = fields.fundSourceUrl.value.trim();
-    if (!url) {
-      setFundStatus("Enter a source URL", "warning");
-      return;
-    }
-    setFundStatus("Fetching source...");
-    try {
-      const response = await fetch(url, { cache: "no-store" });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const rows = parseFundSourceText(await response.text());
-      if (!rows.length) throw new Error("No structured rows found");
-      state.fundRows = rows.map((row) => ({ ...row, source: row.source || url }));
-      renderFundBlendTable();
-      setFundStatus(`${rows.length} fund rows fetched`, "ok");
-    } catch {
-      setFundStatus("Fetch blocked or source format not recognised. Paste JSON/CSV instead.", "warning");
-    }
-  }
-
-  function applyFundBlendToStrategy() {
-    state.fundRows = readFundBlendTable();
-    const blend = calculateFundBlend(state.fundRows);
-    if (!Number.isFinite(blend.derivedNavGrowth) || !Number.isFinite(blend.dividendYield)) {
-      setFundStatus("Blend rates are not usable", "warning");
-      return;
-    }
-    const fromYear = Math.max(1, Math.min(99, Math.round(numberValue(fields.fundApplyFromYear) || 1)));
-    const dividendMode = fields.fundApplyDividendMode.value;
-    state.strategy = readStrategyTable();
-    ensureStrategyLength();
-    state.strategy.forEach((row) => {
-      if (row.year < fromYear) return;
-      row.navReturn = blend.derivedNavGrowth;
-      row.dividendYield = blend.dividendYield;
-      if (dividendMode !== "keep") row.dividendMode = dividendMode;
-    });
-    fields.bulkFromYear.value = fromYear;
-    fields.bulkNavReturn.value = roundInput(blend.derivedNavGrowth * 100, 2);
-    fields.bulkDividendYield.value = roundInput(blend.dividendYield * 100, 2);
-    syncSliderReadouts();
-    renderStrategyTable();
-    recalc();
-    setFundStatus(`Applied ${rateCell(blend.derivedNavGrowth)} NAV and ${rateCell(blend.dividendYield)} dividend`, "ok");
-  }
-
-  function currentFundBlendPayload() {
-    return {
-      sourceUrl: fields.fundSourceUrl ? fields.fundSourceUrl.value.trim() : "",
-      applyFromYear: fields.fundApplyFromYear ? numberValue(fields.fundApplyFromYear) : 1,
-      applyDividendMode: fields.fundApplyDividendMode ? fields.fundApplyDividendMode.value : "keep",
-      rows: readFundBlendTable(),
-    };
-  }
-
-  function applyFundBlendPayload(payload = {}) {
-    if (fields.fundSourceUrl) fields.fundSourceUrl.value = payload.sourceUrl || "";
-    if (fields.fundApplyFromYear && payload.applyFromYear !== undefined) fields.fundApplyFromYear.value = payload.applyFromYear;
-    if (fields.fundApplyDividendMode && payload.applyDividendMode) fields.fundApplyDividendMode.value = payload.applyDividendMode;
-    state.fundRows = Array.isArray(payload.rows) && payload.rows.length
-      ? payload.rows.map(fundRowFromRecord)
-      : defaultFundRows();
-    renderFundBlendTable();
   }
 
   // ===== VARIANT POPULATION =====
@@ -4342,8 +3825,6 @@ body.presentation-mode .strategy-table input:disabled {
         <li>Compare-with scenario uses its own selected variation, premium and editable strategy table, and auto-fills required basic-premium years to that variation.</li>
         <li>All-dividends-reinvested comparison keeps the advisor's other strategy rows, but sets dividend mode to reinvest and dividend drawdowns to zero.</li>
         <li>Fixed deposit incremental mode places the keyed FD amount annually for the selected variation's premium term.</li>
-        <li>Fund Blend derives forward NAV growth as (1 + weighted total return) / (1 + weighted dividend yield) - 1, then applies the dividend yield separately.</li>
-        <li>Direct Manulife iFUNDS fetch depends on browser access and CORS. If the source blocks fetch, paste a JSON/CSV/table export from the screener or factsheet data.</li>
         <li>Fund management charges are not deducted by default because fund prices are already net of management charges.</li>
         <li>Inflation toggle discounts displayed amounts only — model inputs and percentages remain in nominal terms.</li>
       </ul>
@@ -4387,7 +3868,6 @@ body.presentation-mode .strategy-table input:disabled {
       comparison: currentComparisonSettings(),
       strategy: readStrategyTable(),
       compareStrategy: fields.compareCustom.checked ? readStrategyTable("compareStrategyTable") : state.compareStrategy,
-      fundBlend: currentFundBlendPayload(),
       view: {
         showAdvisorDetails: fields.showAdvisorDetails.checked,
         compareCustom: fields.compareCustom.checked,
@@ -4438,7 +3918,6 @@ body.presentation-mode .strategy-table input:disabled {
       enforceComparePremiumMinimum(true);
       state.strategy = payload.strategy || [];
       state.compareStrategy = payload.compareStrategy || [];
-      applyFundBlendPayload(payload.fundBlend || {});
       autofillPremiums();
       autofillComparePremiums();
       renderStrategyTable();
@@ -4632,11 +4111,6 @@ body.presentation-mode .strategy-table input:disabled {
       recalc();
     });
     fields.fdFundingMode.addEventListener("change", recalc);
-    $("addFundRow").addEventListener("click", addFundRow);
-    $("importFundData").addEventListener("click", importFundData);
-    $("fetchFundSource").addEventListener("click", fetchFundSource);
-    $("applyFundBlend").addEventListener("click", applyFundBlendToStrategy);
-    fields.fundApplyFromYear.addEventListener("input", renderFundBlendSummary);
     fields.compareCustom.addEventListener("change", () => {
       if (fields.compareCustom.checked && !state.compareStrategy.length) {
         fields.compareAnnualizedPremium.value = fields.annualizedPremium.value;
@@ -4736,7 +4210,6 @@ body.presentation-mode .strategy-table input:disabled {
     bindChartEvents();
     populateHistoricalStartYears();
     syncSliderReadouts();
-    renderFundBlendTable();
     if (loadScenarioFromHash()) {
       recalc();
     } else if (loadEmbeddedScenario()) {
