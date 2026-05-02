@@ -4942,6 +4942,31 @@ body.presentation-mode .strategy-table input:disabled {
     ["child", "New child"],
     ["home", "Purchase home"],
   ];
+  const MAX_LIFE_STAGE_WITHDRAWALS = 2;
+
+  function selectedLifeStageEventKeys() {
+    const valid = new Set(LIFE_STAGE_EVENTS.map(([key]) => key));
+    return (state.lifeStageEvents || [])
+      .filter((key) => valid.has(key))
+      .slice(0, MAX_LIFE_STAGE_WITHDRAWALS);
+  }
+
+  function lifeStageDrawdownSchedule(remainingCapital, selectedCount) {
+    const count = Math.max(0, Math.min(MAX_LIFE_STAGE_WITHDRAWALS, selectedCount || 0));
+    let capitalBase = Math.max(0, remainingCapital || 0);
+    const drawdowns = [];
+    for (let index = 0; index < count; index += 1) {
+      const amount = capitalBase * 0.2;
+      drawdowns.push(amount);
+      capitalBase = Math.max(0, capitalBase - amount);
+    }
+    return {
+      drawdowns,
+      nextDrawdown: capitalBase * 0.2,
+      total: drawdowns.reduce((sum, amount) => sum + amount, 0),
+      remainingCapital: capitalBase,
+    };
+  }
 
   function projectionAccessRows(result, variant) {
     const partialStart = variant.partialLimitStartYear || 6;
@@ -4969,7 +4994,6 @@ body.presentation-mode .strategy-table input:disabled {
     const capitalNet = Math.max(0, capitalGross - capitalCharge);
     const dividendAccess = Math.max(0, row.dividendWithdrawalLimit || row.reinvestedDividendBasis || 0);
     const remainingCapital = Math.max(0, capitalAccount - capitalGross);
-    const lifeStageGross = remainingCapital * 0.2;
     const totalCash = capitalNet + dividendAccess;
     const premiumBase = Math.max(0, (row.totalBasicPaid || 0) + (row.totalTopUps || 0));
     return {
@@ -4980,7 +5004,6 @@ body.presentation-mode .strategy-table input:disabled {
       capitalNet,
       dividendAccess,
       remainingCapital,
-      lifeStageGross,
       totalCash,
       premiumBase,
       premiumPercent: premiumBase > 0 ? totalCash / premiumBase : 0,
@@ -5006,8 +5029,10 @@ body.presentation-mode .strategy-table input:disabled {
     const legend = $("annualAccessLegend");
     if (!legend) return;
     const items = [];
-    const selectedLifeEvents = new Set(state.lifeStageEvents || []);
-    const lifeStageSelected = selectedLifeEvents.size > 0;
+    const selectedLifeEventKeys = selectedLifeStageEventKeys();
+    if (selectedLifeEventKeys.length !== (state.lifeStageEvents || []).length) state.lifeStageEvents = selectedLifeEventKeys;
+    const selectedLifeEvents = new Set(selectedLifeEventKeys);
+    const lifeStageSelected = selectedLifeEventKeys.length > 0;
     if (access.partialRow) {
       const breakdown = accessBreakdown(access.partialRow, access.partialStartYear, variant);
       items.push({
@@ -5023,18 +5048,26 @@ body.presentation-mode .strategy-table input:disabled {
         `,
       });
       if (supportsLifeStageWithdrawal(variant)) {
-        const totalWithLifeStage = breakdown.capitalNet + breakdown.dividendAccess + (lifeStageSelected ? breakdown.lifeStageGross : 0);
+        const lifeStage = lifeStageDrawdownSchedule(breakdown.remainingCapital, selectedLifeEventKeys.length);
+        const totalWithLifeStage = breakdown.capitalNet + breakdown.dividendAccess + lifeStage.total;
+        const lifeStageLines = lifeStageSelected
+          ? lifeStage.drawdowns.map((amount, index) => `
+              <div class="access-line"><span>${index === 0 ? "1st" : "2nd"} life-stage drawdown (${index === 0 ? "20%" : "20% of remaining"})</span><b>${valueWrapper(amount, access.partialStartYear, 3)}</b></div>
+            `).join("")
+          : `<div class="access-line"><span>20% drawdown on remaining capital</span><b>${valueWrapper(lifeStage.nextDrawdown, access.partialStartYear, 3)}</b></div>`;
         items.push({
           kind: "life-stage",
           title: "Life-stage withdrawal",
           body: `
             <div class="access-lines">
-              <div class="access-line"><span>20% drawdown on remaining capital</span><b>${valueWrapper(breakdown.lifeStageGross, access.partialStartYear, 3)}</b></div>
+              ${lifeStageLines}
             </div>
             <div class="life-stage-events">
-              ${LIFE_STAGE_EVENTS.map(([key, label]) => `
-                <label class="toggle"><input type="checkbox" data-life-stage-event="${key}" ${selectedLifeEvents.has(key) ? "checked" : ""} /> ${label}</label>
-              `).join("")}
+              ${LIFE_STAGE_EVENTS.map(([key, label]) => {
+                const checked = selectedLifeEvents.has(key);
+                const disabled = !checked && selectedLifeEventKeys.length >= MAX_LIFE_STAGE_WITHDRAWALS;
+                return `<label class="toggle"><input type="checkbox" data-life-stage-event="${key}" ${checked ? "checked" : ""} ${disabled ? "disabled" : ""} /> ${label}</label>`;
+              }).join("")}
             </div>
             ${lifeStageSelected ? `
               <div class="access-lines">
@@ -5069,10 +5102,19 @@ body.presentation-mode .strategy-table input:disabled {
     `).join("");
     legend.querySelectorAll("[data-life-stage-event]").forEach((input) => {
       input.addEventListener("change", () => {
-        const selected = new Set(state.lifeStageEvents || []);
-        if (input.checked) selected.add(input.dataset.lifeStageEvent);
+        const selected = new Set(selectedLifeStageEventKeys());
+        if (input.checked) {
+          if (!selected.has(input.dataset.lifeStageEvent) && selected.size >= MAX_LIFE_STAGE_WITHDRAWALS) {
+            input.checked = false;
+            return;
+          }
+          selected.add(input.dataset.lifeStageEvent);
+        }
         else selected.delete(input.dataset.lifeStageEvent);
-        state.lifeStageEvents = Array.from(selected);
+        state.lifeStageEvents = LIFE_STAGE_EVENTS
+          .map(([key]) => key)
+          .filter((key) => selected.has(key))
+          .slice(0, MAX_LIFE_STAGE_WITHDRAWALS);
         renderAnnualTable();
       });
     });
