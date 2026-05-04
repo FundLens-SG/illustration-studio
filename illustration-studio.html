@@ -8,6 +8,52 @@
     <meta name="theme-color" content="#0f1d2d" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet" />
+    <!-- ckgtools cross-tool activity log: when this app is served from
+         ckgtools.com/tools/illustration/, the same-origin localStorage
+         carries the hub Supabase session, so the same anon-key client
+         picks it up automatically. Anon key is public-safe by design. -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script>
+      (function () {
+        try {
+          var SB_URL = 'https://cbqbvctnrfbxjscgirpn.supabase.co';
+          var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNicWJ2Y3RucmZieGpzY2dpcnBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3ODcxMDAsImV4cCI6MjA5MzM2MzEwMH0.OFqwlvZslsibwTN2qgfmIREAI9Bel-BKGnM7D2HV2sM';
+          var sb = window.supabase && window.supabase.createClient(SB_URL, SB_ANON, {
+            auth: { persistSession: true, autoRefreshToken: true, flowType: 'pkce' }
+          });
+          if (!sb) return;
+          window._ckgSupabase = sb;
+          window.ckgTrackIllustration = async function (payload) {
+            try {
+              var u = (await sb.auth.getUser()).data.user;
+              if (!u) return;
+              var settings = (payload && payload.settings) || {};
+              var name = (settings.variantKey || 'Illustration') + ' · ' +
+                         ((settings.annualizedPremium || 0) | 0) + ' ' + (settings.currency || '');
+              var ts = (payload && payload.savedAt) || new Date().toISOString();
+              var err = (await sb.from('tool_activity_events').insert({
+                user_id: u.id,
+                tool_id: 'illustration_studio',
+                action: 'illustration_generated',
+                entity_type: 'illustration',
+                entity_id: 'ill_' + (settings.variantKey || 'unknown') + '_' + ts,
+                entity_name: name.trim(),
+                status: 'completed',
+                actor_name: u.email || null,
+                metadata: {
+                  variantKey: settings.variantKey || null,
+                  annualizedPremium: settings.annualizedPremium || null,
+                  startAge: settings.startAge || null,
+                  currency: settings.currency || null,
+                  paymentFrequency: settings.paymentFrequency || null
+                }
+              })).error;
+              if (err && err.code !== '23505') console.warn('[CkgActivity] illustration_generated:', err.message);
+            } catch (_e) { /* never block on tracking */ }
+          };
+        } catch (_e) { /* never block app boot on tracking init */ }
+      })();
+    </script>
     <style>
 :root {
   --ink: #101a28;
@@ -5505,6 +5551,9 @@ body { padding-top: var(--ckg-strip-h) !important; }
     const html = buildCurrentDocumentHtml(payload);
     const date = new Date().toISOString().slice(0, 10);
     downloadText(`illustration-studio-${payload.settings.variantKey}-${date}.html`, html, "text/html;charset=utf-8");
+    // Cross-tool activity log (ckgtools landing): one event per
+    // finalized illustration. No-op when not signed into the hub.
+    try { window.ckgTrackIllustration && window.ckgTrackIllustration(payload); } catch (_e) {}
   }
 
   function extractScenarioPayload(text) {
