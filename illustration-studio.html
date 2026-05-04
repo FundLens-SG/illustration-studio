@@ -5,2177 +5,1890 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Illustration Studio</title>
     <link rel="icon" type="image/svg+xml" href="assets/illustration-studio-logo.svg" />
-    <meta name="theme-color" content="#fafafa" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <meta name="theme-color" content="#0f1d2d" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet" />
     <style>
-/* =========================================================================
-   ILLUSTRATION STUDIO · QUIET MODERN
-   Design system: light by default, dark via [data-theme="dark"] on <html>
-   ========================================================================= */
-
 :root {
-  /* Surfaces */
-  --d-paper: #fafafa;
-  --d-paper-2: #f3f3f1;
-  --d-paper-3: #ffffff;
+  --ink: #101a28;
+  --ink-soft: #2a3548;
+  --muted: #69727d;
+  --bg: #f2f4f4;
+  --surface: #ffffff;
+  --surface-2: #f7f8f7;
+  --line: #d2d6d3;
+  --line-dark: #a9987d;
+  --navy: #0e1f33;
+  --navy-2: #162b45;
+  /* Brand accent — CKG brass. Vars kept as --gold* for backward compat. */
+  --gold: #d6a87a;
+  --gold-dark: #c0925f;
+  --gold-soft: #f4ecdf;
+  --gold-glow: rgba(214, 168, 122, 0.20);
+  --blue: #284f73;
+  --blue-soft: #f0f5f8;
+  --green: #2f6b5d;
+  --green-soft: #eff7f3;
+  --amber: #8a6f2a;
+  --amber-soft: #f7f1df;
+  --red: #9f3d35;
+  --red-soft: #f8eeee;
 
-  /* Ink */
-  --d-ink: #1a1d22;
-  --d-ink-2: #454a51;
-  --d-ink-3: #7a7f87;
-  --d-ink-4: #a4a8ae;
+  /* Composition palette - reserved meanings */
+  --c-paid: #5a6b80;        /* Premium paid in - cool, capital base */
+  --c-bonus: #d6a87a;        /* Bonuses - CKG brass */
+  --c-dividend: #2f6b5d;     /* Dividends accrued - teal/green growth */
+  --c-growth: #284f73;       /* NAV growth - navy blue */
+  --c-benchmark: #b7a173;    /* Benchmark line - warm muted */
+  --c-selected: #0e1f33;     /* Selected line - navy */
+  --c-delta-pos: #d6a87a;    /* Positive delta - CKG brass */
+  --c-delta-neg: #9f3d35;    /* Negative delta - red */
 
-  /* Rules */
-  --d-rule: #e5e5e3;
-  --d-rule-soft: #eeeeec;
-
-  /* Brand accents */
-  --d-brass: #b58a52;
-  --d-brass-2: #8e6936;
-  --d-brass-soft: #fcf6ec;
-
-  /* States */
-  --d-pos: #3f8a73;
-  --d-neg: #a14a42;
-  --d-warn: #b8862a;
-
-  /* Reserved data palette (preserved for chart JS that calls getComputedStyle) */
-  --c-paid: #5a6b80;
-  --c-bonus: #c9a268;
-  --c-dividend: #2f6b5d;
-  --c-growth: #284f73;
-  --c-benchmark: #b7a173;
-  --c-selected: #0e1f33;
-  --c-delta-pos: #c9a268;
-  --c-delta-neg: #9f3d35;
-
-  /* Type */
-  --sans: "Geist", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --mono: "Geist Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-
-  /* Geometry */
-  --r-1: 4px;
-  --r-2: 6px;
-  --r-3: 8px;
-
-  /* Layout */
-  --rail-w: 256px;
-  --topbar-h: 60px;
-  --sticky-h: 64px;
-
-  font-family: var(--sans);
-  color-scheme: light;
+  font-family: "Geist", "Segoe UI", system-ui, -apple-system, Arial, Helvetica, sans-serif;
 }
 
-[data-theme="dark"] {
-  --d-paper: #16181c;
-  --d-paper-2: #111316;
-  --d-paper-3: #1c1f23;
-  --d-ink: #e7e5df;
-  --d-ink-2: #aaa8a2;
-  --d-ink-3: #7a7872;
-  --d-ink-4: #55534e;
-  --d-rule: rgba(231, 229, 223, 0.10);
-  --d-rule-soft: rgba(231, 229, 223, 0.05);
-  --d-brass: #d6a87a;
-  --d-brass-2: #c19268;
-  --d-brass-soft: rgba(214, 168, 122, 0.08);
-  --d-pos: #7ab39a;
-  --d-neg: #d97a72;
-  --d-warn: #e0b65c;
-
-  --c-paid: #8893a4;
-  --c-bonus: #d6a87a;
-  --c-dividend: #5fb09a;
-  --c-growth: #5e8db8;
-  --c-benchmark: #c9b48a;
-  --c-selected: #ece6dd;
-  --c-delta-pos: #d6a87a;
-  --c-delta-neg: #d97a72;
-
-  color-scheme: dark;
+* {
+  box-sizing: border-box;
 }
 
-/* ----- Resets ----- */
-
-* { box-sizing: border-box; }
-
-html { background: var(--d-paper); }
+html {
+  overflow-x: hidden;
+}
 
 body {
   margin: 0;
-  background: var(--d-paper);
-  color: var(--d-ink);
-  font-family: var(--sans);
-  font-size: 13.5px;
-  line-height: 1.5;
+  color: var(--ink);
+  background: var(--bg);
+  font-size: 14px;
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font: inherit;
-  color: inherit;
 }
 
-[hidden] { display: none !important; }
-
-h1, h2, h3, h4, p, ul { margin: 0; padding: 0; }
-ul { list-style: none; }
-a { color: inherit; text-decoration: none; }
-
-::selection { background: var(--d-brass-soft); color: var(--d-ink); }
-
-/* ----- Topbar ----- */
+[hidden] {
+  display: none !important;
+}
 
 .topbar {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 28px;
-  padding: 14px 32px;
-  background: var(--d-paper-3);
-  border-bottom: 1px solid var(--d-rule);
-  position: sticky;
-  top: 0;
-  z-index: 5;
-}
-
-.lockup { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.lockup img { width: 32px; height: 32px; border-radius: var(--r-2); display: block; }
-.lockup .eb {
-  font-family: var(--mono);
-  font-size: 9.5px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--d-ink-3);
-  font-weight: 500;
-}
-.lockup h1 {
-  font-size: 16px;
-  font-weight: 500;
-  letter-spacing: -0.005em;
-  color: var(--d-ink);
-  line-height: 1.4;
-  margin-top: 1px;
-}
-
-.crumbs {
-  display: flex;
-  gap: 22px;
-  font-size: 12.5px;
-  color: var(--d-ink-3);
-}
-.crumbs button {
-  background: transparent;
-  border: 0;
-  border-bottom: 1.5px solid transparent;
-  padding: 4px 0;
-  color: inherit;
-  font-size: inherit;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: 400;
-}
-.crumbs button:hover { color: var(--d-ink-2); }
-.crumbs button.on {
-  color: var(--d-ink);
-  border-bottom-color: var(--d-brass);
-}
-
-.topbar-actions { display: flex; gap: 6px; align-items: center; }
-
-.theme {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11.5px;
-  color: var(--d-ink-3);
-  padding: 4px 10px;
-  border: 1px solid var(--d-rule);
-  border-radius: 999px;
-  background: transparent;
-  cursor: pointer;
-  font-family: inherit;
-}
-.theme:hover { border-color: var(--d-ink-3); color: var(--d-ink-2); }
-
-/* ----- Buttons (unified) ----- */
-
-.btn,
-button:where(.btn-default) {
-  height: 30px;
-  padding: 0 12px;
-  background: transparent;
-  border: 1px solid var(--d-rule);
-  color: var(--d-ink-2);
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: var(--r-2);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: inherit;
-  transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
-}
-.btn:hover {
-  border-color: var(--d-ink-3);
-  color: var(--d-ink);
-}
-.btn.primary,
-.btn--primary {
-  background: var(--d-ink);
-  border-color: var(--d-ink);
-  color: var(--d-paper-3);
-}
-.btn.primary:hover,
-.btn--primary:hover {
-  background: var(--d-ink-2);
-  border-color: var(--d-ink-2);
-}
-.btn.brass {
-  background: var(--d-brass);
-  border-color: var(--d-brass);
-  color: #fff;
-}
-.btn:disabled, .btn[disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ----- Sticky scenario summary ----- */
-
-.summary {
-  position: sticky;
-  top: var(--topbar-h);
-  z-index: 4;
-  display: grid;
-  grid-template-columns: 1.3fr repeat(5, 1fr);
-  background: var(--d-paper-3);
-  border-bottom: 1px solid var(--d-rule);
-}
-.summary > div {
-  padding: 12px 20px;
-  border-right: 1px solid var(--d-rule-soft);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-.summary > div:last-child { border-right: 0; }
-.summary .lab {
-  font-size: 10.5px;
-  color: var(--d-ink-3);
-  letter-spacing: 0.02em;
-}
-.summary .v {
-  font-family: var(--mono);
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--d-ink);                /* ink default — never red */
-  letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums lining-nums;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-/* Only the Projected cell takes the brass accent. */
-.summary .v.brass { color: var(--d-brass-2); }
-/* Status cell: green pulse + 14px label, no other "high-emphasis" colors. */
-.summary .status-cell .v { color: var(--d-pos); font-size: 14px; }
-.summary .sm {
-  font-size: 11px;
-  color: var(--d-ink-3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.summary .pulse {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--d-pos);
-  display: inline-block;
-  margin-right: 6px;
-  vertical-align: middle;
-}
-.status-cell .v.warn { color: var(--d-warn); }
-
-/* ----- Usage banner ----- */
-
-.usage-banner {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 32px;
-  background: var(--d-paper-2);
-  border-bottom: 1px solid var(--d-rule);
-  font-size: 11.5px;
-  color: var(--d-ink-3);
-}
-.usage-banner strong {
-  color: var(--d-ink-2);
-  font-weight: 500;
-  letter-spacing: 0.02em;
-}
-
-/* ----- Page grid ----- */
-
-.page {
-  display: grid;
-  grid-template-columns: var(--rail-w) minmax(0, 1fr);
-  align-items: start;
-}
-
-@media (max-width: 1100px) {
-  :root { --rail-w: 240px; }
-  .summary { grid-template-columns: 1fr 1fr 1fr; }
-  .summary > div:nth-child(n+4) { border-top: 1px solid var(--d-rule-soft); }
-}
-@media (max-width: 820px) {
-  .page { grid-template-columns: 1fr; }
-  .console { border-right: 0; border-bottom: 1px solid var(--d-rule); }
-  .summary { grid-template-columns: 1fr 1fr; }
-}
-
-/* ----- Console rail (left) ----- */
-
-.console {
-  position: sticky;
-  top: calc(var(--topbar-h) + var(--sticky-h));
-  align-self: start;
-  max-height: calc(100vh - var(--topbar-h) - var(--sticky-h));
-  overflow-y: auto;
-  padding: 24px 22px 32px;
-  background: var(--d-paper);
-  border-right: 1px solid var(--d-rule);
-}
-.console::-webkit-scrollbar { width: 8px; }
-.console::-webkit-scrollbar-track { background: transparent; }
-.console::-webkit-scrollbar-thumb {
-  background: var(--d-rule);
-  border-radius: 4px;
-}
-
-.console h4 {
-  font-size: 11px;
-  color: var(--d-ink-3);
-  margin: 0 0 10px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-.console h4:not(:first-child) { margin-top: 24px; }
-
-.console .field { display: grid; gap: 6px; margin-bottom: 10px; }
-.console .field .lab { font-size: 11px; color: var(--d-ink-3); }
-.console .field input,
-.console .field select {
-  width: 100%;
-  height: 32px;
-  padding: 0 10px;
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-2);
-  color: var(--d-ink);
-  font-size: 12.5px;
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums lining-nums;
-  outline: none;
-  transition: border-color 120ms ease, background 120ms ease;
-}
-.console .field select { font-family: var(--sans); }
-.console .field input:focus,
-.console .field select:focus {
-  border-color: var(--d-ink-3);
-  background: var(--d-paper-3);
-}
-.console .field input.invalid-input {
-  border-color: var(--d-neg);
-  background: var(--d-paper-3);
-}
-
-.console .field-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.console .toggles { display: flex; flex-direction: column; gap: 1px; }
-.console .tg {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 10px;
-  border-radius: var(--r-2);
-  color: var(--d-ink-2);
-  font-size: 12.5px;
-  cursor: pointer;
-  user-select: none;
-  position: relative;
-}
-.console .tg:hover { background: var(--d-paper-2); }
-.console .tg input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  width: 0; height: 0;
-  pointer-events: none;
-}
-.console .tg .sw {
-  width: 26px;
-  height: 14px;
-  border-radius: 999px;
-  background: var(--d-rule);
-  position: relative;
-  transition: background 140ms ease;
-  flex: 0 0 auto;
-}
-.console .tg .sw::after {
-  content: "";
-  position: absolute;
-  top: 1px;
-  left: 1px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--d-paper-3);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-  transition: left 140ms ease;
-}
-.console .tg.on { color: var(--d-ink); }
-.console .tg.on .sw { background: var(--d-ink); }
-.console .tg.on .sw::after { left: 13px; }
-
-.console .sub {
-  margin: 8px 4px 16px;
-  padding: 12px;
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-2);
-  background: var(--d-paper-3);
-  display: grid;
-  gap: 8px;
-}
-.console .sub .field { margin-bottom: 0; }
-.console .sub .note {
-  font-size: 11px;
-  color: var(--d-ink-3);
-  line-height: 1.45;
-}
-
-.console .actions {
-  display: grid;
-  gap: 6px;
-  padding-top: 6px;
-}
-.console .actions .btn { width: 100%; justify-content: flex-start; height: 32px; }
-
-.console .nav {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  padding-top: 10px;
-  border-top: 1px solid var(--d-rule);
-  margin-top: 14px;
-}
-.console .nav a {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 7px 10px;
-  border-radius: var(--r-2);
-  font-size: 12.5px;
-  color: var(--d-ink-3);
-  cursor: pointer;
-}
-.console .nav a:hover { background: var(--d-paper-2); color: var(--d-ink-2); }
-.console .nav a.on { color: var(--d-ink); background: var(--d-paper-2); }
-.console .nav a .num {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  color: var(--d-ink-4);
-  font-variant-numeric: tabular-nums;
-}
-
-/* ----- Main column ----- */
-
-.main {
-  padding: 32px 40px 64px;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-/* ----- Hero ----- */
-
-.hero {
-  display: grid;
-  grid-template-columns: 1.3fr 1fr;
-  gap: 48px;
-  align-items: end;
-  padding-bottom: 32px;
-  border-bottom: 1px solid var(--d-rule);
-}
-.hero .hero-headline { min-width: 0; }
-.hero .eyebrow,
-.hero .eb {
-  display: block;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--d-ink-3);
-  margin-bottom: 16px;
-  font-weight: 500;
-}
-.hero .hero-num,
-#heroTotal {
-  display: block;
-  font-family: var(--sans);
-  font-weight: 300;
-  font-size: 72px;
-  line-height: 1;
-  letter-spacing: -0.025em;
-  color: var(--d-ink);
-  font-variant-numeric: tabular-nums lining-nums;
-}
-.hero .hero-caption,
-#heroCaption {
-  display: block;
-  font-size: 14px;
-  color: var(--d-ink-2);
-  margin: 16px 0 0;
-  max-width: 540px;
-  line-height: 1.55;
-}
-.hero .composition { display: none; } /* the composition moves into the duo below */
-
-.hero-side {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--d-rule);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-3);
-  overflow: hidden;
-}
-.hero-side .row {
-  background: var(--d-paper);
-  padding: 13px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-.hero-side .lab { font-size: 11px; color: var(--d-ink-3); }
-.hero-side .val {
-  font-family: var(--mono);
-  font-size: 17px;
-  color: var(--d-ink);
-  font-variant-numeric: tabular-nums lining-nums;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.hero-side .val.brass { color: var(--d-brass-2); }
-.hero-side .val.pos { color: var(--d-pos); }
-.hero-side .val.neg { color: var(--d-neg); }
-
-/* ----- Comparison hero (when "Compare with" is on) ----- */
-
-.comparison-hero {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 0;
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-3);
-  overflow: hidden;
-}
-.comparison-card {
-  padding: 22px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-.comparison-card .eyebrow {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--d-ink-3);
-  font-weight: 500;
-}
-.comparison-card strong {
-  font-family: var(--sans);
-  font-weight: 300;
-  font-size: 32px;
-  letter-spacing: -0.02em;
-  color: var(--d-ink);
-  font-variant-numeric: tabular-nums lining-nums;
-}
-.comparison-card.primary strong { color: var(--d-brass-2); }
-.comparison-card small {
-  font-size: 12px;
-  color: var(--d-ink-3);
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-}
-.comparison-delta {
-  align-self: stretch;
-  padding: 22px 28px;
-  background: var(--d-paper-2);
-  border-left: 1px solid var(--d-rule);
-  border-right: 1px solid var(--d-rule);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.comparison-delta .delta-label {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--d-ink-3);
-  font-weight: 500;
-}
-.comparison-delta .delta-amount {
-  font-family: var(--mono);
-  font-size: 22px;
-  font-weight: 500;
-  color: var(--d-pos);
-  font-variant-numeric: tabular-nums lining-nums;
-}
-.comparison-delta .delta-amount.is-negative { color: var(--d-neg); }
-.comparison-delta .delta-toggle {
-  height: 24px;
-  padding: 0 10px;
-  font-size: 11px;
-  background: transparent;
-  border: 1px solid var(--d-rule);
-  border-radius: 999px;
-  color: var(--d-ink-3);
-  cursor: pointer;
-  font-family: inherit;
-}
-.comparison-delta .delta-toggle:hover {
-  color: var(--d-ink);
-  border-color: var(--d-ink-3);
-}
-
-/* ----- Generic panel ----- */
-
-.panel {
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-3);
-  padding: 22px 24px;
-}
-.panel-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-.panel-head h3,
-.panel-head h2 {
-  font-size: 14px;
-  font-weight: 500;
-  margin: 0;
-  color: var(--d-ink);
-}
-.panel-head .meta {
-  font-size: 11.5px;
-  color: var(--d-ink-3);
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-}
-
-/* ----- Duo: composition + benefit ----- */
-
-.duo {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
   gap: 24px;
-}
-@media (max-width: 980px) {
-  .duo { grid-template-columns: 1fr; }
-  .hero { grid-template-columns: 1fr; }
-}
-
-.composition-bar {
-  display: flex;
-  height: 10px;
-  border-radius: 4px;
-  overflow: hidden;
-  background: var(--d-paper-2);
-  margin-bottom: 18px;
-}
-.composition-bar > * { display: block; height: 100%; }
-.composition-bar .seg {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0;            /* hide the inner % text — keep tooltip via title attr */
-  color: rgba(255,255,255,0.85);
-  white-space: nowrap;
+  min-height: 116px;
+  padding: 28px 40px;
+  color: #fff;
+  background: var(--navy);
+  border-bottom: 3px solid var(--gold);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08), 0 16px 36px rgba(16, 26, 40, 0.16);
 }
 
-.composition-legend {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 24px;
-}
-.composition-legend li {
-  display: grid;
-  grid-template-columns: 10px 1fr;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--d-rule-soft);
-}
-.composition-legend li:nth-last-child(-n+2) { border-bottom: 0; }
-.composition-legend i {
-  width: 10px; height: 10px;
-  border-radius: 2px;
-  display: inline-block;
-}
-.composition-legend li > div {
+.brand-lockup {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
+  align-items: center;
+  gap: 16px;
   min-width: 0;
 }
-.composition-legend li > div > span {
-  font-size: 12.5px;
-  color: var(--d-ink-2);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.composition-legend li > div > strong {
-  font-family: var(--mono);
-  font-size: 12.5px;
-  color: var(--d-ink);
-  font-variant-numeric: tabular-nums lining-nums;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.composition-legend .legend-trail {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
-  white-space: nowrap;
-}
-.composition-legend .legend-trail .pct {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  color: var(--d-ink-3);
-  font-variant-numeric: tabular-nums lining-nums;
-  min-width: 28px;
-  text-align: right;
+
+.brand-mark {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  display: block;
+  border-radius: 13px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
 }
 
-.benefit {
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-3);
-  padding: 22px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  justify-content: center;
+.brand-copy {
+  min-width: 0;
 }
-.benefit .eyebrow {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--d-ink-3);
-  font-weight: 500;
-}
-.benefit .big {
-  font-family: var(--sans);
-  font-weight: 300;
-  font-size: 56px;
-  line-height: 1;
-  color: var(--d-brass-2);
-  letter-spacing: -0.02em;
-  margin: 4px 0 8px;
-  font-variant-numeric: tabular-nums lining-nums;
-}
-.benefit h2,
-.benefit h3 {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--d-ink);
+
+h1, h2, p {
   margin: 0;
 }
-.benefit p {
-  font-size: 12.5px;
-  color: var(--d-ink-2);
-  line-height: 1.5;
+
+h1 {
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.05;
 }
 
-/* ----- Chart panel ----- */
-
-.chart-panel {
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-3);
-  overflow: hidden;
-}
-.chart-panel .panel-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 16px;
-  padding: 22px 26px 16px;
-  border-bottom: 1px solid var(--d-rule);
-}
-.chart-panel .panel-heading h2,
-.chart-panel .panel-heading h3 {
-  font-size: 14px;
-  font-weight: 500;
-  margin: 0;
-  color: var(--d-ink);
-}
-.chart-panel .panel-heading > span,
-#chartEndLabel {
-  font-size: 11.5px;
-  color: var(--d-ink-3);
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-}
-
-.chart-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  padding: 14px 26px 0;
-  font-size: 11.5px;
-  color: var(--d-ink-3);
-}
-.chart-legend > * {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.chart-legend i {
-  display: inline-block;
-  width: 16px;
-  height: 2px;
-  background: currentColor;
-}
-.chart-legend i.dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: currentColor;
-}
-.chart-legend i.area {
-  width: 14px;
-  height: 8px;
-  border-radius: 1px;
-  background: currentColor;
-  opacity: 0.32;
-}
-
-.chart-stage {
-  position: relative;
-  padding: 14px 26px 22px;
-}
-#valueChart {
-  width: 100%;
-  height: auto;
-  max-width: 100%;
-  display: block;
-}
-
-.chart-tooltip {
-  position: absolute;
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-2);
-  padding: 10px 12px;
-  font-size: 11.5px;
-  color: var(--d-ink);
-  pointer-events: none;
-  z-index: 3;
-  min-width: 180px;
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.10);
-  font-variant-numeric: tabular-nums;
-}
-.chart-tooltip table { border-collapse: collapse; width: 100%; }
-.chart-tooltip td { padding: 2px 0; vertical-align: middle; }
-.chart-tooltip td:last-child {
-  text-align: right;
-  font-family: var(--mono);
-  padding-left: 12px;
-}
-.chart-tooltip i {
-  display: inline-block;
-  width: 8px; height: 8px;
-  border-radius: 2px;
-  margin-right: 6px;
-  vertical-align: middle;
-}
-.chart-tooltip .tt-title {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--d-ink-3);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 6px;
-}
-.chart-hint {
-  padding: 0 26px 18px;
-  font-size: 11px;
-  color: var(--d-ink-3);
-}
-
-/* Chart footer: 4-cell summary band */
-.chart-foot {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border-top: 1px solid var(--d-rule);
-  background: var(--d-paper-3);
-}
-.chart-foot:empty { display: none; }
-.chart-foot > div {
-  padding: 14px 22px;
-  border-right: 1px solid var(--d-rule-soft);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-.chart-foot > div:last-child { border-right: 0; }
-.chart-foot .lab {
-  font-size: 11px;
-  color: var(--d-ink-3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.chart-foot .val {
-  font-family: var(--mono);
-  font-size: 15px;
-  color: var(--d-ink);
-  font-variant-numeric: tabular-nums lining-nums;
-  letter-spacing: -0.01em;
-}
-.chart-foot .val.brass { color: var(--d-brass-2); font-weight: 500; }
-.chart-foot .val.pos { color: var(--d-pos); }
-.chart-foot .val.neg { color: var(--d-neg); }
-@media (max-width: 720px) {
-  .chart-foot { grid-template-columns: 1fr 1fr; }
-  .chart-foot > div:nth-child(2) { border-right: 0; }
-  .chart-foot > div:nth-child(-n+2) { border-bottom: 1px solid var(--d-rule-soft); }
-}
-
-/* ----- Status row ----- */
-
-.status-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-3);
-  overflow: hidden;
-}
-.status-row .checks,
-.status-row .assumptions {
-  padding: 16px 22px;
-  font-size: 12px;
-  color: var(--d-ink-2);
-}
-.status-row .checks { border-right: 1px solid var(--d-rule); }
-.status-row h3,
-.status-row strong {
-  display: block;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--d-ink-3);
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-.status-row ul li {
-  padding: 4px 0;
-  font-size: 12px;
-}
-.status-row ul li.ok::before {
-  content: "·";
-  color: var(--d-pos);
-  font-weight: 700;
-  margin-right: 8px;
-}
-.status-row ul li.warn::before {
-  content: "!";
-  color: var(--d-warn);
-  font-weight: 700;
-  margin-right: 8px;
-}
-
-/* ----- Section headings inside panels ----- */
-
-.section-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 16px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-.section-heading .eyebrow,
-.section-heading p.eyebrow {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--d-ink-3);
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-.section-heading h2 {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--d-ink);
-}
-.section-heading .premium-note,
-.section-heading .fund-data-note {
-  font-size: 11.5px;
-  color: var(--d-ink-3);
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-}
-.strategy-section-actions {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-.section-heading .premium-note .warn,
-.section-heading .premium-note small {
-  display: block;
-  margin-top: 2px;
-}
-
-/* ----- Fund builder ----- */
-
-.fund-builder-section {
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-3);
-  padding: 22px 24px;
-}
-.fund-builder-grid {
-  display: grid;
-  grid-template-columns: 2.4fr 1fr 1fr auto;
-  gap: 12px;
-  align-items: end;
-  margin-bottom: 16px;
-}
-.fund-builder-grid label {
-  display: grid;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--d-ink-3);
-}
-.fund-builder-grid input,
-.fund-builder-grid select {
-  height: 32px;
-  padding: 0 10px;
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-2);
-  color: var(--d-ink);
-  font-size: 12.5px;
-  font-family: var(--sans);
-  outline: none;
-}
-.fund-builder-grid input.is-mono,
-.fund-builder-grid input[type="number"] {
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-}
-.fund-builder-grid input:focus,
-.fund-builder-grid select:focus {
-  border-color: var(--d-ink-3);
-}
-.fund-builder-grid button {
-  height: 32px;
-  padding: 0 14px;
-  background: var(--d-ink);
-  border: 1px solid var(--d-ink);
-  color: var(--d-paper-3);
-  border-radius: var(--r-2);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  font-family: inherit;
-}
-.fund-builder-grid button:hover { background: var(--d-ink-2); border-color: var(--d-ink-2); }
-
-.fund-search-wrap { position: relative; }
-.fund-search-filters {
-  display: flex;
-  gap: 14px;
-  margin-top: 6px;
-  font-size: 11px;
-  color: var(--d-ink-3);
-}
-.fund-search-filters .toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.fund-search-filters input[type="checkbox"] { accent-color: var(--d-ink); }
-
-.fund-suggestions {
-  position: absolute;
-  z-index: 6;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  max-height: 320px;
-  overflow-y: auto;
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-2);
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.12);
-}
-.fund-suggestions .fund-suggestion {
-  display: block;
-  width: 100%;
-  text-align: left;
-  background: transparent;
-  border: 0;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--d-rule-soft);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 12.5px;
-  color: var(--d-ink);
-}
-.fund-suggestions .fund-suggestion:hover { background: var(--d-paper-2); }
-.fund-suggestions .fund-suggestion:last-child { border-bottom: 0; }
-.fund-suggestions .fund-suggestion-meta {
-  display: block;
-  margin-top: 2px;
-  font-size: 11px;
-  color: var(--d-ink-3);
-  font-family: var(--mono);
-}
-
-.fund-preview {
-  background: var(--d-paper-2);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-2);
-  padding: 12px 14px;
-  margin-bottom: 16px;
-  font-size: 12px;
-  color: var(--d-ink-2);
-  display: grid;
-  gap: 4px;
-}
-.fund-preview:empty { display: none; }
-.fund-preview strong { color: var(--d-ink); font-weight: 500; }
-.fund-preview .fund-meta {
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-  font-size: 11.5px;
-  color: var(--d-ink-3);
-}
-
-.fund-builder-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: end;
-  margin-bottom: 16px;
-}
-.fund-builder-actions label {
-  display: grid;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--d-ink-3);
-}
-.fund-builder-actions input,
-.fund-builder-actions select {
-  height: 32px;
-  padding: 0 10px;
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-2);
-  color: var(--d-ink);
-  font-size: 12.5px;
-  font-family: var(--sans);
-  outline: none;
-}
-.fund-builder-actions .toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--d-ink-2);
-}
-.fund-builder-actions button {
-  height: 32px;
-  padding: 0 12px;
-  background: transparent;
-  border: 1px solid var(--d-rule);
-  color: var(--d-ink-2);
-  border-radius: var(--r-2);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  font-family: inherit;
-}
-.fund-builder-actions button:hover { border-color: var(--d-ink-3); color: var(--d-ink); }
-
-.fund-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 0;
-  background: var(--d-rule);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-2);
-  overflow: hidden;
-  margin-bottom: 18px;
-}
-.fund-summary-card {
-  background: var(--d-paper-3);
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-.fund-summary-card small {
-  font-size: 11px;
-  color: var(--d-ink-3);
-}
-.fund-summary-card strong {
-  font-family: var(--mono);
+h2 {
   font-size: 16px;
-  font-weight: 500;
-  color: var(--d-ink);
-  font-variant-numeric: tabular-nums lining-nums;
-}
-.fund-summary-card.core strong { color: var(--d-ink); }
-.fund-summary-card.satellite strong { color: var(--d-ink); }
-.fund-summary-card.fund-nav-projection strong { color: var(--d-brass-2); }
-@media (max-width: 1100px) {
-  .fund-summary-grid { grid-template-columns: repeat(3, 1fr); }
-  .fund-summary-grid > div { border-bottom: 1px solid var(--d-rule); }
-}
-@media (max-width: 720px) {
-  .fund-summary-grid { grid-template-columns: 1fr 1fr; }
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
-/* ----- Tables (shared) ----- */
-
-.table-wrap {
-  overflow-x: auto;
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-2);
-  background: var(--d-paper-3);
-}
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12.5px;
-  font-variant-numeric: tabular-nums lining-nums;
-  font-family: var(--mono);
-}
-.data-table th {
-  text-align: left;
-  padding: 10px 14px;
-  font-size: 11px;
-  color: var(--d-ink-3);
-  font-weight: 500;
-  background: var(--d-paper);
-  border-bottom: 1px solid var(--d-rule);
-  white-space: nowrap;
-  font-family: var(--sans);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-.data-table td {
-  padding: 9px 14px;
-  border-bottom: 1px solid var(--d-rule-soft);
-  color: var(--d-ink-2);
-  vertical-align: middle;
-}
-.data-table tr:last-child td { border-bottom: 0; }
-.data-table th.right,
-.data-table td.right { text-align: right; }
-.data-table td.label,
-.data-table td.text { font-family: var(--sans); }
-.data-table td.strong,
-.data-table td .v {
-  color: var(--d-ink);
-  font-weight: 500;
-}
-.data-table tr.milestone td,
-.data-table tr.is-milestone td {
-  background: var(--d-brass-soft);
-}
-/* Default: hide non-milestone strategy rows. The "All years" toggle
-   on the strategy section adds .show-all to the body to reveal them. */
-#strategyTable tr.is-secondary-year { display: none; }
-body.show-all-strategy #strategyTable tr.is-secondary-year { display: table-row; }
-#compareStrategyTable tr.is-secondary-year { display: none; }
-body.show-all-strategy #compareStrategyTable tr.is-secondary-year { display: table-row; }
-.data-table tr.is-active td,
-.data-table tr.highlight td {
-  background: var(--d-paper-2);
-  box-shadow: inset 3px 0 0 var(--d-brass);
-}
-.data-table input,
-.data-table select {
-  width: 100%;
-  height: 28px;
-  padding: 0 8px;
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-1);
-  color: var(--d-ink);
-  font-size: 12px;
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums lining-nums;
-  outline: none;
-}
-.data-table select { font-family: var(--sans); }
-.data-table input:focus,
-.data-table select:focus { border-color: var(--d-ink-3); }
-
-/* Strategy table — text-like inputs (chrome only on hover/focus) so the
-   table reads like a quiet ledger, matching the Quiet Modern reference. */
-.strategy-table input.strategy-input,
-.strategy-table select.strategy-select {
-  background: transparent;
-  border-color: transparent;
-  padding: 0 6px;
-  text-align: right;
-  height: 24px;
-  font-size: 12.5px;
-  color: var(--d-ink);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums lining-nums;
-}
-.strategy-table select.strategy-select {
-  text-align: left;
-  font-weight: 400;
-  color: var(--d-ink-2);
-  appearance: none;
-  -webkit-appearance: none;
-  padding-right: 14px;
-  background-image: linear-gradient(45deg, transparent 50%, var(--d-ink-3) 50%),
-                    linear-gradient(135deg, var(--d-ink-3) 50%, transparent 50%);
-  background-position: calc(100% - 9px) 50%, calc(100% - 5px) 50%;
-  background-size: 4px 4px, 4px 4px;
-  background-repeat: no-repeat;
-}
-.strategy-table tr:hover input.strategy-input,
-.strategy-table tr:hover select.strategy-select {
-  border-color: var(--d-rule);
-  background: var(--d-paper);
-}
-.strategy-table input.strategy-input:focus,
-.strategy-table select.strategy-select:focus {
-  border-color: var(--d-ink-3);
-  background: var(--d-paper);
-}
-.strategy-table input.strategy-input:disabled {
-  color: var(--d-ink-4);
-  cursor: not-allowed;
-}
-.strategy-table input.strategy-input:disabled::placeholder { color: var(--d-ink-4); }
-
-/* Strategy / annual table cells — quieter colour by default, brighter for
-   the "headlining" v-spans (year, NAV %, value). */
-.strategy-table td,
-.strategy-table th {
-  padding: 9px 12px;
-  font-size: 12px;
-}
-.strategy-table td.col-time {
-  color: var(--d-ink-2);
-  font-family: var(--mono);
-}
-.strategy-table td.col-time .v { color: var(--d-ink); font-weight: 500; }
-.strategy-table td.col-premium { color: var(--d-ink-2); font-family: var(--mono); }
-.strategy-table td.col-value { color: var(--d-ink); font-family: var(--mono); }
-.strategy-table td.col-value .v { color: var(--d-ink); font-weight: 500; }
-.strategy-table tr.is-milestone td.col-value .v { color: var(--d-brass-2); }
-.data-table button {
-  height: 24px;
-  padding: 0 8px;
-  background: transparent;
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-1);
-  color: var(--d-ink-2);
-  font-size: 11px;
-  cursor: pointer;
-  font-family: inherit;
-}
-.data-table button:hover { border-color: var(--d-ink-3); color: var(--d-ink); }
-
-/* ----- Strategy section ----- */
-
-.strategy-section {
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-3);
-  overflow: hidden;
-}
-.strategy-section .section-heading {
-  margin: 0;
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--d-rule);
-  background: var(--d-paper);
-}
-.strategy-section .table-wrap {
-  border: 0;
-  border-radius: 0;
-}
-
-.bulk-tools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: end;
-  padding: 14px 24px;
-  border-top: 1px solid var(--d-rule);
-  background: var(--d-paper);
-}
-.bulk-tools.sensitivity-tools { padding-bottom: 14px; }
-.bulk-tools label {
-  display: grid;
-  gap: 4px;
-  font-size: 11px;
-  color: var(--d-ink-3);
-  flex: 0 0 auto;
-}
-.bulk-tools .slider-label {
-  min-width: 200px;
-  flex: 1 1 200px;
-}
-.bulk-tools .slider-label > span {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  color: var(--d-ink-3);
-}
-.bulk-tools .slider-label strong {
-  color: var(--d-ink);
-  font-weight: 500;
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-}
-.bulk-tools input[type="range"] {
-  width: 100%;
-  accent-color: var(--d-ink);
-  height: 18px;
-}
-.bulk-tools input[type="number"],
-.bulk-tools select {
-  height: 32px;
-  min-width: 120px;
-  padding: 0 10px;
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-2);
-  color: var(--d-ink);
-  font-size: 12.5px;
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-  outline: none;
-}
-.bulk-tools select { font-family: var(--sans); }
-.bulk-tools .toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--d-ink-2);
-  height: 32px;
-}
-.bulk-tools button {
-  height: 32px;
-  padding: 0 12px;
-  background: transparent;
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-2);
-  color: var(--d-ink-2);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-}
-.bulk-tools button:hover { border-color: var(--d-ink-3); color: var(--d-ink); }
-.bulk-tools .historical-note {
-  font-size: 11px;
-  color: var(--d-ink-3);
-}
-
-/* Inline bulk-edit dock at the bottom of the strategy table.
-   Quiet Modern: 3-column dock — NAV slider, Dividend slider, rest. */
-.strategy-section .strat-bulk {
-  border-top: 1px solid var(--d-rule);
-  border-bottom: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 18px;
-  align-items: end;
-  padding: 14px 24px;
-  background: var(--d-paper);
-}
-.strategy-section .strat-bulk .slider-label { min-width: 0; }
-.strategy-section .strat-bulk-rest {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 10px;
-}
-@media (max-width: 980px) {
-  .strategy-section .strat-bulk { grid-template-columns: 1fr 1fr; }
-  .strategy-section .strat-bulk .strat-bulk-rest { grid-column: 1 / -1; }
-}
-
-/* Historical S&P backfill — secondary action behind a disclosure */
-.historical-details {
-  border-top: 1px solid var(--d-rule);
-  background: var(--d-paper);
-}
-.historical-details > summary {
-  list-style: none;
-  cursor: pointer;
-  padding: 12px 24px;
-  font-size: 11.5px;
-  color: var(--d-ink-3);
-  font-family: var(--mono);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  user-select: none;
-}
-.historical-details > summary::before {
-  content: "▸";
-  display: inline-block;
-  margin-right: 8px;
-  font-family: var(--sans);
-  transition: transform 120ms ease;
-}
-.historical-details[open] > summary::before { transform: rotate(90deg); }
-.historical-details > summary:hover { color: var(--d-ink-2); }
-.historical-details > summary::-webkit-details-marker { display: none; }
-.historical-details .historical-tools {
-  border-top: 1px solid var(--d-rule-soft);
-  padding: 14px 24px;
-}
-.field-status {
-  display: block;
-  color: var(--d-neg);
+.eyebrow {
+  margin-bottom: 6px;
+  color: #d8c895;
   font-size: 10px;
-  font-weight: 500;
-  margin-top: 2px;
-}
-
-/* ----- Annual / detail ----- */
-
-.detail-section {
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-3);
-  overflow: hidden;
-}
-.detail-section .section-heading {
-  margin: 0;
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--d-rule);
-  background: var(--d-paper);
-}
-.detail-section .table-wrap {
-  border: 0;
-  border-radius: 0;
-}
-.projection-options {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-.projection-options .toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--d-ink-2);
-}
-.view-toggle {
-  display: inline-flex;
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-2);
-  overflow: hidden;
-}
-.view-toggle-btn {
-  height: 28px;
-  padding: 0 12px;
-  background: transparent;
-  border: 0;
-  color: var(--d-ink-3);
-  font-size: 11.5px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-}
-.view-toggle-btn:hover { color: var(--d-ink-2); }
-.view-toggle-btn.active {
-  background: var(--d-ink);
-  color: var(--d-paper-3);
-}
-
-.projection-access-legend {
-  padding: 10px 24px;
-  font-size: 11px;
-  color: var(--d-ink-3);
-  border-top: 1px solid var(--d-rule);
-  background: var(--d-paper);
-}
-.projection-access-legend:empty { display: none; }
-
-/* ----- Notes / source / disclaimers ----- */
-
-.notes-section,
-.source-notes,
-.disclaimers {
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-3);
-  padding: 22px 24px;
-}
-.notes-section .section-heading { margin-bottom: 12px; }
-.notes-section textarea {
-  width: 100%;
-  min-height: 88px;
-  padding: 10px 12px;
-  background: var(--d-paper);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-2);
-  color: var(--d-ink);
-  font-family: var(--sans);
-  font-size: 13px;
-  resize: vertical;
-  outline: none;
-  line-height: 1.5;
-}
-.notes-section textarea:focus { border-color: var(--d-ink-3); }
-.notes-section .caption-note {
-  font-size: 11px;
-  color: var(--d-ink-3);
-}
-
-.source-notes h2,
-.disclaimers h2 {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
+  font-weight: 700;
   text-transform: uppercase;
-  color: var(--d-ink-3);
-  font-weight: 500;
-  margin-bottom: 12px;
+  letter-spacing: 0.04em;
 }
-.source-notes p,
-.source-notes div,
-.disclaimers li {
-  font-size: 12.5px;
-  color: var(--d-ink-2);
-  line-height: 1.6;
-}
-.disclaimers ul {
-  display: grid;
+
+.source-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
 }
-.disclaimers li strong { color: var(--d-ink); font-weight: 500; }
 
-/* ----- Toggle styling for inline labels (bulk tools etc) ----- */
-
-label.toggle.compact-toggle {
-  height: auto;
+.source-strip span {
+  border: 1px solid rgba(216, 200, 149, 0.45);
+  border-radius: 999px;
+  padding: 8px 12px;
+  color: #f5edd4;
+  background: rgba(255, 255, 255, 0.035);
+  white-space: nowrap;
 }
-
-/* ----- Exit presentation button ----- */
 
 .exit-presentation {
   position: fixed;
   right: 18px;
   bottom: 18px;
   z-index: 20;
-  background: var(--d-ink);
-  color: var(--d-paper-3);
-  border: 1px solid var(--d-ink);
-  border-radius: var(--r-2);
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+  border-color: rgba(216, 200, 149, 0.7);
+  color: #f7ecd0;
+  background: rgba(19, 36, 58, 0.95);
+  box-shadow: 0 10px 30px rgba(19, 36, 58, 0.22);
 }
 
-/* ----- Presentation mode ----- */
-
-body.presentation-mode .topbar,
-body.presentation-mode .console,
-body.presentation-mode .usage-banner,
-body.presentation-mode .strategy-section,
-body.presentation-mode #compareStrategySection,
-body.presentation-mode .fund-builder-section,
-body.presentation-mode .notes-section,
-body.presentation-mode .source-notes {
-  display: none !important;
-}
-body.presentation-mode .page {
-  grid-template-columns: 1fr;
-}
-body.presentation-mode .main {
-  padding: 32px 56px 64px;
-  max-width: 1320px;
-  margin: 0 auto;
-}
-body.presentation-mode .summary {
-  position: static;
-}
-body.presentation-mode .exit-presentation { display: inline-flex; }
-
-/* ----- Print ----- */
-
-@media print {
-  :root { --d-paper: #fff; --d-paper-2: #fff; --d-paper-3: #fff; }
-  body { background: #fff; color: #000; font-size: 11.5px; }
-  .topbar, .console, .usage-banner, .exit-presentation,
-  .summary { position: static !important; }
-  .console, .topbar-actions, .usage-banner { display: none !important; }
-  .page { grid-template-columns: 1fr !important; }
-  .main { padding: 0 !important; gap: 16px !important; }
-  .panel, .chart-panel, .strategy-section, .detail-section,
-  .notes-section, .source-notes, .disclaimers, .benefit, .fund-builder-section {
-    box-shadow: none !important;
-    page-break-inside: avoid;
-    border: 1px solid #ddd !important;
-  }
-  .summary { border: 1px solid #ddd !important; }
-  #valueChart { max-width: 100%; height: auto !important; }
+main {
+  width: min(1460px, calc(100vw - 42px));
+  margin: 22px auto 46px;
 }
 
-/* ----- CKG Suite Strip — global cross-tool nav ----- */
-:root { --ckg-strip-h: 34px; }
-.ckg-suite-strip {
-  position: sticky;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--ckg-strip-h);
-  background: #0a0a0a;
-  border-bottom: 1px solid rgba(214, 179, 106, 0.20);
-  display: flex;
-  align-items: center;
-  padding: 0 18px;
-  z-index: 10;
-  box-sizing: border-box;
-}
-.ckg-suite-strip-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 11px;
-  background: transparent;
-  border: 1px solid rgba(214, 179, 106, 0.32);
-  border-radius: 999px;
-  color: #d6b36a;
-  text-decoration: none;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  line-height: 1;
-  font-family: var(--sans);
-  transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
-}
-.ckg-suite-strip-back:hover {
-  background: rgba(214, 179, 106, 0.10);
-  border-color: rgba(214, 179, 106, 0.6);
-  color: #f4f1e8;
-}
-.ckg-suite-strip-back:focus-visible { outline: 2px solid #d6b36a; outline-offset: 2px; }
-.ckg-suite-strip-back svg { width: 11px; height: 11px; flex-shrink: 0; }
-.ckg-suite-strip-crumb {
-  margin-left: 16px;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(244, 241, 232, 0.58);
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.ckg-suite-strip-crumb .muted { color: rgba(244, 241, 232, 0.36); }
-.ckg-suite-strip-crumb .sep { margin: 0 8px; opacity: 0.5; }
-@media (max-width: 640px) {
-  .ckg-suite-strip { padding: 0 12px; }
-  .ckg-suite-strip-crumb { display: none; }
-}
-@media print {
-  .ckg-suite-strip { display: none; }
-}
-.topbar { top: var(--ckg-strip-h); }
-.summary { top: calc(var(--ckg-strip-h) + var(--topbar-h)); }
-.console {
-  top: calc(var(--ckg-strip-h) + var(--topbar-h) + var(--sticky-h));
-  max-height: calc(100vh - var(--ckg-strip-h) - var(--topbar-h) - var(--sticky-h));
+.controls,
+.status-row,
+.chart-panel,
+.fund-builder-section,
+.strategy-section,
+.detail-section,
+.source-notes,
+.notes-section {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  box-shadow: 0 18px 42px rgba(16, 26, 40, 0.06);
 }
 
-/* ----- Width cap on wide screens — keeps the layout from sprawling ----- */
-.topbar,
-.summary,
-.usage-banner {
-  max-width: 1440px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.page {
-  max-width: 1440px;
-  margin: 0 auto;
+.controls {
+  padding: 22px;
+  border-top: 3px solid rgba(167, 133, 61, 0.65);
 }
 
-/* ----- Compactness pass — tighter gaps and paddings on the main column ----- */
-.main {
-  padding: 24px 36px 56px;
-  gap: 22px;
-}
-.hero { padding-bottom: 24px; gap: 36px; }
-.hero .hero-num,
-#heroTotal { font-size: 64px; }
-.hero .hero-caption,
-#heroCaption { margin-top: 12px; line-height: 1.5; }
-.hero .eyebrow,
-.hero .eb { margin-bottom: 12px; }
-.hero-side .row { padding: 11px 14px; }
-.hero-side .val { font-size: 16px; }
-
-.duo { gap: 20px; }
-.panel { padding: 18px 20px; }
-.panel-head { margin-bottom: 12px; }
-.composition-bar { margin-bottom: 14px; }
-.composition-legend li { padding: 6px 0; }
-.benefit { padding: 18px 20px; }
-.benefit .big { font-size: 48px; margin: 2px 0 6px; }
-
-.chart-panel .panel-heading { padding: 16px 20px 12px; }
-.chart-legend { padding: 12px 20px 0; }
-.chart-stage { padding: 10px 20px 16px; }
-.chart-foot > div { padding: 11px 18px; }
-.chart-foot .val { font-size: 14px; }
-
-.strategy-section .section-heading { padding: 14px 20px; }
-.strategy-section .strat-bulk { padding: 12px 20px; }
-.data-table th, .data-table td { padding: 8px 12px; }
-
-.notes-section, .source-notes, .disclaimers { padding: 18px 20px; }
-.fund-builder-section { padding: 18px 20px; }
-
-/* ----- Variant Facts strip (Working tab, between chart and strategy) ----- */
-
-.variant-facts {
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-3);
-  padding: 0;
+.control-grid {
   display: grid;
-  grid-template-columns: auto repeat(7, 1fr);
-  align-items: stretch;
-  overflow: hidden;
-}
-.variant-facts > .vf-eyebrow {
-  background: var(--d-paper);
-  border-right: 1px solid var(--d-rule);
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--d-ink-3);
-  font-weight: 500;
-  white-space: nowrap;
-}
-.variant-facts > .vf-cell {
-  padding: 10px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  border-right: 1px solid var(--d-rule-soft);
-  min-width: 0;
-}
-.variant-facts > .vf-cell:last-child { border-right: 0; }
-.variant-facts .vf-lab {
-  font-size: 10.5px;
-  color: var(--d-ink-3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.variant-facts .vf-val {
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--d-ink);
-  font-variant-numeric: tabular-nums lining-nums;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-}
-.variant-facts .vf-val.brass { color: var(--d-brass-2); }
-@media (max-width: 1100px) {
-  .variant-facts { grid-template-columns: repeat(4, 1fr); }
-  .variant-facts > .vf-eyebrow { display: none; }
-  .variant-facts > .vf-cell:nth-child(n+5) { border-top: 1px solid var(--d-rule-soft); }
-}
-@media (max-width: 640px) {
-  .variant-facts { grid-template-columns: repeat(2, 1fr); }
-}
-
-/* ----- Output tab: style #checks and #assumptions as proper data cards ----- */
-
-.status-row {
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 20px;
-  padding: 0;
-  overflow: visible;
-}
-.status-row .checks,
-.status-row .assumptions {
-  background: var(--d-paper-3);
-  border: 1px solid var(--d-rule);
-  border-radius: var(--r-3);
-  padding: 18px 20px;
-}
-.status-row .checks { border-right: 1px solid var(--d-rule); }
-.status-row h3,
-.status-row strong {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--d-ink-3);
-  font-weight: 500;
-  margin: 0 0 12px;
-}
-.status-row p {
-  font-size: 12.5px;
-  color: var(--d-ink-2);
-  line-height: 1.55;
-  margin: 0 0 8px;
-}
-.status-row dl,
-.status-row .assumptions > div {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 6px 16px;
-  font-family: var(--mono);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums lining-nums;
-}
-.status-row .assumptions strong {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--d-ink-3);
-  font-weight: 500;
-  display: block;
-  margin: 12px 0 8px;
-}
-.status-row .assumptions strong:first-child { margin-top: 0; }
-@media (max-width: 820px) {
-  .status-row { grid-template-columns: 1fr; }
-}
-
-/* ----- Misc ----- */
-
-.brand-mark { display: none; } /* superseded by .lockup img */
-
-/* Compatibility: keep existing chart "panel-heading" hooks working */
-.panel-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  grid-template-columns: repeat(5, minmax(160px, 1fr));
   gap: 16px;
 }
 
-/* ----- Compatibility: dynamically-rendered classes ----- */
+label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
 
-/* Legacy generic <label class="toggle"> safety net (life-stage events,
-   inline filter chips) — used in places where there's no container scope. */
-label.toggle {
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #cabcaa;
+  border-radius: 4px;
+  padding: 8px 11px;
+  color: var(--ink);
+  background: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+textarea {
+  min-height: 84px;
+  resize: vertical;
+  font-family: inherit;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+input.invalid-input {
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
+.field-status {
+  color: var(--red);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+input:focus,
+select:focus,
+button:focus,
+textarea:focus {
+  outline: 2px solid rgba(154, 122, 47, 0.25);
+  outline-offset: 1px;
+  border-color: var(--gold);
+}
+
+.toggle-row,
+.action-row,
+.bulk-tools,
+.advisor-settings,
+.benchmark-settings {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 11px;
+  margin-top: 16px;
+}
+
+.toggle {
+  display: inline-flex;
+  grid-template-columns: none;
+  align-items: center;
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 7px 11px;
+  color: #3f4855;
+  background: var(--surface-2);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.toggle input {
+  width: auto;
+  min-height: auto;
+  margin: 0 7px 0 0;
+  accent-color: var(--gold-dark);
+}
+
+.action-row select {
+  max-width: 340px;
+}
+
+button {
+  min-height: 40px;
+  border: 1px solid var(--line-dark);
+  border-radius: 4px;
+  padding: 8px 14px;
+  color: var(--navy);
+  background: #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+button:hover {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+}
+
+#startPresentation {
+  border-color: var(--gold-dark);
+  color: #fff;
+  background: var(--navy-2);
+}
+
+#startPresentation:hover {
+  background: var(--navy);
+}
+
+#copyShareLink.copied {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.advisor-settings,
+.benchmark-settings {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.advisor-settings label,
+.benchmark-settings label,
+.bulk-tools label {
+  min-width: 140px;
+  max-width: 220px;
+}
+
+.compact-toggle {
+  max-width: none;
+  align-self: end;
+}
+
+.caption-note {
+  flex: 1 1 240px;
+  align-self: end;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ===== HERO SECTION ===== */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1.1fr);
+  align-items: center;
+  gap: 36px;
+  margin-top: 16px;
+  padding: 28px 32px;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--gold);
+  border-radius: 4px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbf8f1 100%);
+  box-shadow: 0 22px 48px rgba(16, 26, 40, 0.07);
+}
+
+.hero-headline .eyebrow {
+  color: var(--muted);
+}
+
+.hero-headline strong {
+  display: block;
+  margin-top: 8px;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 56px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.hero-caption {
+  margin-top: 14px;
+  max-width: 36ch;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.composition {
+  display: grid;
+  gap: 16px;
+}
+
+.composition-bar {
+  display: flex;
+  width: 100%;
+  height: 28px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(16, 26, 40, 0.08);
+  background: #ece8e0;
+}
+
+.composition-bar .seg {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  padding: 0 8px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: filter 0.15s ease;
+}
+
+.composition-bar .seg:hover {
+  filter: brightness(1.08);
+}
+
+.composition-bar .seg.compact-label { color: rgba(255,255,255,0); }
+
+.composition-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.composition-legend li {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.composition-legend i {
+  width: 12px;
+  height: 12px;
+  margin-top: 4px;
+  border-radius: 2px;
+  display: block;
+}
+
+.composition-legend span {
+  display: block;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.composition-legend strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== COMPARISON HERO ===== */
+.comparison-hero {
+  display: grid;
+  grid-template-columns: 1fr minmax(180px, 0.6fr) 1fr;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  box-shadow: 0 18px 42px rgba(16, 26, 40, 0.06);
+  overflow: hidden;
+}
+
+.comparison-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 26px 28px;
+  background: var(--surface);
+}
+
+.comparison-card.primary {
+  border-top: 4px solid var(--navy);
+}
+
+.comparison-card.secondary {
+  border-top: 4px solid var(--c-benchmark);
+  background: linear-gradient(180deg, #fdfbf6 0%, #faf6ec 100%);
+}
+
+.comparison-card .eyebrow {
+  color: var(--muted);
+}
+
+.comparison-card strong {
+  display: block;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.comparison-card small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.comparison-delta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px;
+  color: #fff;
+  background: linear-gradient(180deg, var(--gold) 0%, var(--gold-dark) 100%);
+  text-align: center;
+  position: relative;
+}
+
+.comparison-delta.negative {
+  background: linear-gradient(180deg, #b56158 0%, #8a3d35 100%);
+}
+
+.comparison-delta::before,
+.comparison-delta::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border: 14px solid transparent;
+  transform: translateY(-50%);
+}
+
+.comparison-delta::before {
+  left: -14px;
+  border-right-color: var(--gold);
+  border-left: 0;
+}
+
+.comparison-delta::after {
+  right: -14px;
+  border-left-color: var(--gold-dark);
+  border-right: 0;
+}
+
+.comparison-delta.negative::before { border-right-color: #b56158; }
+.comparison-delta.negative::after { border-left-color: #8a3d35; }
+
+.delta-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.delta-amount {
+  display: block;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.05;
+}
+
+.delta-toggle {
+  margin-top: 6px;
+  min-height: 28px;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.delta-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* ===== BENEFIT HIGHLIGHT ===== */
+.benefit-highlight {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(300px, auto) minmax(280px, 0.88fr);
+  gap: 24px;
+  align-items: center;
+  margin-top: 16px;
+  padding: 24px 28px;
+  border: 1px solid rgba(167, 133, 61, 0.48);
+  border-top: 4px solid var(--gold);
+  border-radius: 4px;
+  color: #f8f1dc;
+  background: var(--navy);
+  box-shadow: 0 20px 44px rgba(16, 26, 40, 0.16);
+}
+
+.benefit-highlight h2 { color: #ffffff; }
+
+.benefit-highlight strong {
+  display: block;
+  justify-self: center;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.05;
+  color: #ffffff;
+  text-align: center;
+}
+
+.benefit-highlight p:last-child {
+  max-width: 380px;
+  margin-left: auto;
+  color: #d8dfdf;
+}
+
+/* ===== CHART ===== */
+.chart-grid { margin-top: 16px; }
+
+.chart-panel {
+  min-width: 0;
+  padding: 22px 24px;
+  border-top: 3px solid rgba(167, 133, 61, 0.5);
+}
+
+.chart-stage {
+  position: relative;
+  width: 100%;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: -4px 0 14px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chart-legend span {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
-  color: var(--d-ink-2);
-  cursor: pointer;
-  user-select: none;
 }
-label.toggle input[type="checkbox"] {
-  width: auto;
-  min-height: auto;
-  margin: 0;
-  accent-color: var(--d-ink);
-}
-label.toggle input[type="checkbox"]:disabled { accent-color: var(--d-ink-4); }
 
-/* Life-stage event chooser inside annual access legend */
-.life-stage-events {
+.chart-legend i {
+  width: 22px;
+  height: 3px;
+  border-radius: 999px;
+}
+
+.chart-legend i.dashed {
+  height: 0;
+  border-top: 3px dashed var(--line-color, #74808f);
+  background: transparent !important;
+}
+
+.chart-legend i.area {
+  height: 12px;
+  border-radius: 2px;
+  opacity: 0.45;
+}
+
+.chart-hint {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+canvas#valueChart {
+  width: 100%;
+  height: 380px;
+  display: block;
+  cursor: crosshair;
+}
+
+.chart-tooltip {
+  position: absolute;
+  z-index: 5;
+  min-width: 200px;
+  max-width: 280px;
+  padding: 10px 12px;
+  border: 1px solid rgba(16, 26, 40, 0.12);
+  border-radius: 4px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 14px 28px rgba(16, 26, 40, 0.14);
+  font-size: 12px;
+  pointer-events: none;
+  transform: translate(12px, 12px);
+}
+
+.chart-tooltip h4 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.chart-tooltip dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+}
+
+.chart-tooltip dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 11.5px;
+}
+
+.chart-tooltip dt i {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+}
+
+.chart-tooltip dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== HEADINGS ===== */
+.panel-heading,
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2ddd2;
+}
+
+.panel-heading span,
+.premium-note {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ===== STATUS ===== */
+.status-row {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.68fr) minmax(520px, 1.32fr);
+  margin-top: 16px;
+}
+
+.checks, .assumptions { padding: 18px 20px; }
+
+.checks { border-right: 1px solid var(--line); }
+
+.checks.ok { background: #f3faf6; }
+
+.checks.review { background: var(--amber-soft); }
+
+.checks strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.checks span {
+  color: #46515e;
+  line-height: 1.45;
+}
+
+.assumptions dl {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(110px, 1fr));
+  gap: 14px;
+  margin: 12px 0 0;
+}
+
+dt {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+dd {
+  margin: 2px 0 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== STRATEGY / DETAIL / NOTES SECTIONS ===== */
+.strategy-section,
+.fund-builder-section,
+.detail-section,
+.source-notes,
+.notes-section {
+  margin-top: 16px;
+  padding: 22px;
+}
+
+.fund-builder-section {
+  border-top: 3px solid rgba(40, 79, 115, 0.45);
+}
+
+.fund-builder-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.6fr) 160px 140px auto;
+  gap: 14px;
+  align-items: end;
+}
+
+.fund-search-wrap {
+  position: relative;
+  display: grid;
+  gap: 7px;
+}
+
+.fund-search-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px 14px;
-  padding: 8px 0;
+  gap: 8px;
 }
 
-/* Access lines (inside #annualAccessLegend tooltips) */
-.access-lines {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 4px 0;
+.fund-search-filters .toggle {
+  min-height: 30px;
+  padding: 5px 9px;
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: 0;
 }
+
+.fund-suggestions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 12;
+  max-height: 260px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 16px 30px rgba(16, 26, 40, 0.16);
+}
+
+.fund-suggestion {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  min-height: 0;
+  border: 0;
+  border-bottom: 1px solid #eee7dc;
+  border-radius: 0;
+  padding: 10px 12px;
+  color: var(--ink);
+  text-align: left;
+  background: #fff;
+}
+
+.fund-suggestion:hover,
+.fund-suggestion.active {
+  background: var(--blue-soft);
+}
+
+.fund-suggestion strong {
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.fund-suggestion span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.fund-preview {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) repeat(4, minmax(110px, auto));
+  gap: 10px;
+  align-items: stretch;
+  margin-top: 14px;
+}
+
+.fund-preview-item,
+.fund-summary-card {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 11px 12px;
+  background: var(--surface-2);
+}
+
+.fund-preview-item small,
+.fund-summary-card small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fund-preview-item strong,
+.fund-summary-card strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fund-preview-name strong {
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.fund-builder-section.dividend-only .fund-nav-projection {
+  display: none;
+}
+
+.fund-builder-section.dividend-only .fund-preview {
+  grid-template-columns: minmax(220px, 1fr) repeat(2, minmax(110px, auto));
+}
+
+.fund-builder-section.dividend-only .fund-summary-grid {
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+}
+
+.fund-builder-actions {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 11px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface-2);
+}
+
+.fund-builder-actions label {
+  min-width: 140px;
+}
+
+.fund-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(140px, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.fund-summary-card.core {
+  background: #eef5fb;
+  border-color: #9eb8ce;
+}
+
+.fund-summary-card.satellite {
+  background: #eef8f3;
+  border-color: #9bc7b5;
+}
+
+.fund-category-pill {
+  display: inline-flex;
+  align-items: center;
+  min-width: 84px;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.fund-category-pill.core {
+  color: #173a5d;
+  background: #dbeaf5;
+}
+
+.fund-category-pill.satellite {
+  color: #235c4d;
+  background: #daf0e6;
+}
+
+.fund-table .col-core { background: #edf6fc; }
+
+.fund-table .col-satellite { background: #edf8f3; }
+
+.fund-table tbody tr.core td:first-child {
+  border-left: 4px solid var(--blue);
+  padding-left: 6px;
+}
+
+.fund-table tbody tr.satellite td:first-child {
+  border-left: 4px solid var(--green);
+  padding-left: 6px;
+}
+
+.fund-table input,
+.fund-table select {
+  min-width: 86px;
+  height: 34px;
+  min-height: 34px;
+  padding: 5px 8px;
+  text-align: right;
+}
+
+.fund-table select {
+  min-width: 118px;
+  text-align: left;
+}
+
+.fund-table button {
+  min-height: 30px;
+  padding: 4px 9px;
+}
+
+.fund-data-note {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.notes-section .section-heading {
+  align-items: flex-end;
+}
+
+.notes-section .caption-note {
+  flex: 0 0 auto;
+}
+
+.bulk-tools {
+  align-items: end;
+  padding: 14px;
+  margin: 0 0 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.historical-tools {
+  background: linear-gradient(180deg, #fbf6e8 0%, #f7eeda 100%);
+  border-color: rgba(167, 133, 61, 0.4);
+}
+
+.historical-tools label { min-width: 150px; }
+
+.historical-note {
+  flex: 1 1 240px;
+  align-self: end;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+.sensitivity-tools .slider-label {
+  min-width: 220px;
+  max-width: 260px;
+  flex: 1 1 220px;
+}
+
+.slider-label span {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.slider-label strong {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  min-height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold-soft) 0%, var(--gold) 100%);
+  box-shadow: inset 0 1px 2px rgba(16, 26, 40, 0.1);
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--navy);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(16, 26, 40, 0.3);
+  cursor: grab;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--navy);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(16, 26, 40, 0.3);
+  cursor: grab;
+}
+
+/* ===== TABLES ===== */
+.table-wrap {
+  min-width: 0;
+  max-width: 100%;
+  overflow: auto;
+  contain: inline-size;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  position: relative;
+}
+
+.strategy-wrap { max-height: 520px; }
+
+.output-wrap { max-height: 720px; }
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+}
+
+.data-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  height: 38px;
+  border-bottom: 1px solid #cfc2ad;
+  padding: 9px 10px;
+  color: #243246;
+  text-align: right;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+  background-clip: padding-box;
+  box-shadow: 0 1px 0 #cfc2ad, 0 3px 8px rgba(16, 26, 40, 0.08);
+}
+
+.data-table th:first-child,
+.data-table td:first-child {
+  text-align: left;
+}
+
+.data-table td {
+  border-bottom: 1px solid #eee7dc;
+  padding: 9px 10px;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.data-table tbody tr:hover td {
+  filter: brightness(0.985);
+}
+
+.data-table tbody tr.year-highlight td {
+  background: var(--gold-soft) !important;
+  box-shadow: inset 4px 0 0 var(--gold);
+}
+
+.data-table tbody tr.partial-access-row td {
+  background: #fff7e6 !important;
+  box-shadow: inset 0 1px 0 rgba(167, 133, 61, 0.32), inset 0 -1px 0 rgba(167, 133, 61, 0.32);
+}
+
+.data-table tbody tr.partial-access-row td:first-child {
+  box-shadow: inset 4px 0 0 var(--amber), inset 0 1px 0 rgba(167, 133, 61, 0.32), inset 0 -1px 0 rgba(167, 133, 61, 0.32);
+}
+
+.data-table tbody tr.full-cashout-row td {
+  background: #eef8f3 !important;
+  box-shadow: inset 0 1px 0 rgba(47, 107, 93, 0.3), inset 0 -1px 0 rgba(47, 107, 93, 0.3);
+}
+
+.data-table tbody tr.full-cashout-row td:first-child {
+  box-shadow: inset 4px 0 0 var(--green), inset 0 1px 0 rgba(47, 107, 93, 0.3), inset 0 -1px 0 rgba(47, 107, 93, 0.3);
+}
+
+.data-table tbody tr.partial-window td:first-child {
+  border-left: 4px solid var(--amber);
+  padding-left: 6px;
+}
+
+.data-table tbody tr.full-withdrawal-window td:first-child {
+  border-left: 4px solid var(--green);
+  padding-left: 6px;
+}
+
+.data-table tbody tr.milestone td:first-child::after {
+  content: attr(data-milestone);
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--gold-dark);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
+.data-table .col-time { background: #f4f0e8; }
+
+.data-table .col-premium { background: #f6f0e4; }
+
+.data-table .col-bonus { background: #fbf6e8; }
+
+.data-table .col-growth,
+.input-growth { background: #f3f7fa; }
+
+.data-table .col-income,
+.input-income { background: #f3faf6; }
+
+.data-table .col-withdrawal,
+.input-withdrawal { background: #f8f2e4; }
+
+.data-table .col-value { background: #f1f3f5; }
+
+.data-table .col-total {
+  background: #e6edf4;
+  border-left: 2px solid #8ea6ba;
+  border-right: 1px solid #c2cfda;
+  color: #0e263d;
+  font-weight: 700;
+}
+
+.data-table .col-benchmark {
+  background: #f4edda;
+  border-left: 2px solid #b79a59;
+  color: #2b2414;
+  font-weight: 700;
+}
+
+.data-table .col-compare {
+  background: #f3ecd7;
+  border-left: 2px solid #b79a59;
+  color: #2f2510;
+  font-weight: 700;
+}
+
+.data-table .col-charge,
+.input-charge { background: var(--red-soft); }
+
+.strategy-table input,
+.strategy-table select {
+  min-width: 96px;
+  height: 34px;
+  min-height: 34px;
+  padding: 5px 8px;
+  text-align: right;
+}
+
+.strategy-table select {
+  min-width: 110px;
+  text-align: left;
+}
+
+.strategy-table input:disabled {
+  color: #9ca3af;
+  background: #f2f2f0;
+}
+
+.premium-cell,
+.allowable-cell,
+.allowable-dividend-cell {
+  color: #394454;
+  font-weight: 700;
+}
+
+/* ===== VIEW TOGGLE ===== */
+.view-toggle {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px;
+  background: var(--surface-2);
+}
+
+.view-toggle-btn {
+  min-height: 30px;
+  padding: 4px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  box-shadow: none;
+}
+
+.view-toggle-btn.active {
+  background: var(--navy);
+  color: #fff;
+}
+
+.view-toggle-btn:hover:not(.active) {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.projection-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.projection-options .toggle {
+  min-height: 38px;
+  border-radius: 999px;
+  padding: 7px 12px;
+}
+
+.projection-access-legend {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.access-legend-card {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 6px 10px;
+  align-items: start;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+}
+
+.access-legend-card strong,
+.access-lines,
+.life-stage-events {
+  grid-column: 2;
+}
+
+.access-legend-card strong {
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.access-lines {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
 .access-line {
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  font-size: 12px;
-  color: var(--d-ink-2);
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
+  border-top: 1px solid rgba(210, 214, 211, 0.7);
+  padding-top: 4px;
 }
-.access-line span { color: var(--d-ink-3); font-family: var(--sans); }
+
+.access-line:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
 .access-line b {
-  color: var(--d-ink);
-  font-weight: 500;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.access-line.access-total {
-  border-top: 1px solid var(--d-rule-soft);
-  padding-top: 6px;
-  margin-top: 4px;
+
+.access-total {
+  color: var(--ink);
+  font-weight: 800;
 }
-.access-line.access-total b { color: var(--d-brass-2); }
 
-/* Composition bar inner segment — title attr provides tooltip */
-.composition-bar .seg.compact-label { font-size: 0; }
-
-/* Strategy / fund table cell with negative withdrawal indicator */
-.data-table td.is-negative,
-.data-table td .is-negative { color: var(--d-neg); }
-.data-table td.is-positive,
-.data-table td .is-positive { color: var(--d-pos); }
-
-/* Compare strategy section visual differentiation */
-#compareStrategySection .section-heading { background: var(--d-paper-2); }
-
-/* Status row check item (li) defaults */
-.status-row ul { display: flex; flex-direction: column; gap: 0; }
-
-/* Hidden nav anchor used for sub-section jump targets */
-.anchor-target { display: block; height: 0; visibility: hidden; }
-
-/* Anchor offset so scrollIntoView lands below the sticky topbar+summary */
-section[id] { scroll-margin-top: 140px; }
-html { scroll-behavior: smooth; }
-
-/* ----- Tab filtering -----
-   The breadcrumb tabs in the topbar set data-active-tab on <body>; sections
-   that don't belong to the active tab collapse via display:none. Sections
-   without a data-tab attribute remain visible across tabs (status row,
-   sticky summary, source notes, disclaimers). */
-[data-tab] { display: none; }
-body[data-active-tab="working"] [data-tab~="working"],
-body[data-active-tab="funds"] [data-tab~="funds"],
-body[data-active-tab="compare"] [data-tab~="compare"],
-body[data-active-tab="output"] [data-tab~="output"],
-body[data-active-tab="notes"] [data-tab~="notes"] {
-  display: revert;
+.life-stage-events {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
 }
-/* Re-assert the duo / chart-panel grid display when on Working */
-body[data-active-tab="working"] section.duo[data-tab~="working"] { display: grid; }
-body[data-active-tab="working"] section.hero[data-tab~="working"] { display: grid; }
-body[data-active-tab="working"] section.status-row[data-tab~="working"] { display: grid; }
-body[data-active-tab="working"] aside.variant-facts[data-tab~="working"] { display: grid; }
-body[data-active-tab="output"] section.status-row[data-tab~="output"] { display: grid; }
 
-/* Compare-with toggle still gates the comparison panels via [hidden]; tab
-   filtering composes — when the Compare tab is active but the toggle is off,
-   the panels stay hidden by their attribute. Show a placeholder instead. */
-.compare-empty,
-.funds-empty,
-.output-empty,
-.notes-empty {
+.life-stage-events .toggle {
+  min-height: 30px;
+  padding: 5px 9px;
+  font-size: 11px;
+}
+
+.legend-swatch {
+  grid-row: 1 / span 2;
+  width: 12px;
+  height: 100%;
+  min-height: 34px;
+  border-radius: 2px;
+}
+
+.legend-swatch.partial { background: var(--amber); }
+.legend-swatch.full { background: var(--green); }
+.legend-swatch.life-stage { background: var(--blue); }
+
+/* ===== PRESENTATION MODE ===== */
+body.presentation-mode {
+  background: #f2f4f4;
+}
+
+body.presentation-mode .controls,
+body.presentation-mode .fund-builder-section,
+body.presentation-mode .strategy-section,
+body.presentation-mode .source-notes,
+body.presentation-mode .notes-section,
+body.presentation-mode .status-row {
   display: none;
-  background: var(--d-paper-3);
-  border: 1px dashed var(--d-rule);
-  border-radius: var(--r-3);
-  padding: 32px 28px;
-  text-align: center;
-  color: var(--d-ink-3);
-  font-size: 13px;
-  line-height: 1.55;
 }
-.compare-empty strong, .funds-empty strong, .output-empty strong, .notes-empty strong {
+
+body.presentation-mode main {
+  width: min(1500px, calc(100vw - 48px));
+}
+
+body.presentation-mode .topbar {
+  padding: 30px 42px;
+}
+
+body.presentation-mode h1 {
+  font-size: 34px;
+}
+
+body.presentation-mode .detail-section .section-heading select {
+  display: none;
+}
+
+body.presentation-mode .hero,
+body.presentation-mode .comparison-hero,
+body.presentation-mode .chart-panel,
+body.presentation-mode .detail-section {
+  box-shadow: 0 16px 36px rgba(19, 36, 58, 0.06);
+}
+
+body.presentation-mode .strategy-table input:disabled {
+  opacity: 0.8;
+}
+
+/* ===== USAGE BANNER ===== */
+.usage-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  width: min(1460px, calc(100vw - 42px));
+  margin: 16px auto 0;
+  padding: 10px 18px;
+  border: 1px solid rgba(167, 133, 61, 0.55);
+  border-left: 4px solid var(--gold);
+  border-radius: 4px;
+  background: linear-gradient(180deg, #fdf6e3 0%, #f7edd0 100%);
+  color: #5a4a23;
+  font-size: 12.5px;
+}
+
+.usage-banner strong {
   display: block;
-  color: var(--d-ink);
-  font-weight: 500;
-  margin-bottom: 4px;
-  font-size: 14px;
+  min-width: 0;
+  max-width: 100%;
+  color: #6b4d10;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
-/* Hide the in-tab "Jump to" rail on tabs that have only a single section */
-body[data-active-tab="funds"] .console .nav,
-body[data-active-tab="compare"] .console .nav,
-body[data-active-tab="output"] .console .nav,
-body[data-active-tab="notes"] .console .nav,
-body[data-active-tab="funds"] .console h4.jump-heading,
-body[data-active-tab="compare"] .console h4.jump-heading,
-body[data-active-tab="output"] .console h4.jump-heading,
-body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
+.usage-banner span {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  color: #6b5828;
+  font-weight: 600;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 
-/* Print: remove sticky positioning on console anchors */
+/* ===== DISCLAIMERS ===== */
+.disclaimers {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  padding: 22px;
+  margin-top: 16px;
+  box-shadow: 0 18px 42px rgba(16, 26, 40, 0.06);
+  color: #46515e;
+}
+
+.disclaimers h2 {
+  margin-bottom: 10px;
+}
+
+.disclaimers ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.disclaimers li {
+  margin: 8px 0;
+  line-height: 1.55;
+  font-size: 12.5px;
+}
+
+.disclaimers strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* ===== SOURCE NOTES ===== */
+.source-notes { color: #394454; }
+
+.source-notes h2 { margin-bottom: 8px; }
+
+.source-notes ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.source-notes li { margin: 5px 0; }
+
+/* ===== PRINT ===== */
 @media print {
-  .anchor-target { display: none; }
-}
-    </style>
-  </head>
-  <body data-quiet-modern data-active-tab="working">
+  @page { size: A4 landscape; margin: 12mm; }
 
+  body { background: #fff; }
+
+  .controls,
+  .fund-builder-section,
+  .strategy-section,
+  .source-notes,
+  .notes-section,
+  .status-row,
+  .exit-presentation,
+  .chart-hint,
+  .view-toggle,
+  .delta-toggle,
+  .action-row,
+  .toggle-row {
+    display: none !important;
+  }
+
+  main { width: 100% !important; margin: 0 !important; }
+
+  .topbar { box-shadow: none; padding: 14px 20px; }
+
+  .hero, .comparison-hero, .chart-panel, .detail-section, .benefit-highlight {
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  .usage-banner {
+    width: 100% !important;
+    margin: 0 0 8mm !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    background: #fbf3da !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .disclaimers {
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    page-break-before: auto;
+  }
+
+  .disclaimers li { font-size: 10.5px; }
+
+  .data-table { font-size: 11px; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1120px) {
+  .topbar,
+  .status-row,
+  .benefit-highlight,
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .comparison-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-delta {
+    border-radius: 0;
+    padding: 14px;
+  }
+
+  .comparison-delta::before,
+  .comparison-delta::after {
+    display: none;
+  }
+
+  .benefit-highlight strong {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .benefit-highlight p:last-child {
+    margin-left: 0;
+  }
+
+  .source-strip { justify-content: flex-start; }
+
+  .brand-mark {
+    width: 50px;
+    height: 50px;
+    flex-basis: 50px;
+  }
+
+  .control-grid {
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+  }
+
+  .fund-builder-grid,
+  .fund-preview,
+  .fund-summary-grid {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+
+  .checks {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .assumptions dl {
+    grid-template-columns: repeat(4, minmax(100px, 1fr));
+  }
+
+  .hero-headline strong { font-size: 44px; }
+}
+
+@media (max-width: 760px) {
+  body {
+    font-size: 13px;
+  }
+
+  main {
+    width: calc(100vw - 18px);
+    margin: 9px auto 34px;
+  }
+
+  .topbar {
+    min-height: 0;
+    padding: 18px 20px 20px;
+    gap: 14px;
+  }
+
+  .brand-lockup {
+    gap: 14px;
+  }
+
+  .brand-mark {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+    border-radius: 11px;
+  }
+
+  h1 {
+    max-width: 10ch;
+    font-size: 30px;
+    line-height: 1.03;
+  }
+
+  .source-strip {
+    justify-content: flex-start;
+  }
+
+  .source-strip span {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .usage-banner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: calc(100vw - 18px);
+    margin-top: 8px;
+    padding: 12px;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .usage-banner > * {
+    min-width: 0;
+  }
+
+  .usage-banner strong {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .usage-banner span {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .controls,
+  .chart-panel,
+  .fund-builder-section,
+  .strategy-section,
+  .detail-section,
+  .source-notes,
+  .notes-section {
+    padding: 16px;
+  }
+
+  .toggle-row {
+    align-items: stretch;
+  }
+
+  .toggle-row .toggle {
+    flex: 1 1 160px;
+    min-width: 0;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  .control-grid,
+  .fund-builder-grid,
+  .fund-preview,
+  .fund-summary-grid,
+  .assumptions dl {
+    grid-template-columns: 1fr;
+  }
+
+  .source-strip span {
+    white-space: normal;
+  }
+
+  .hero-headline strong {
+    font-size: 36px;
+  }
+
+  .panel-heading {
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .panel-heading span {
+    flex: 0 0 auto;
+    max-width: 82px;
+    text-align: right;
+  }
+
+  .projection-options {
+    justify-content: flex-start;
+  }
+
+  .projection-options .toggle {
+    flex: 1 1 180px;
+  }
+
+  .chart-legend {
+    display: grid;
+    gap: 9px;
+    margin: 0 0 10px;
+    font-size: 11.5px;
+  }
+
+  .chart-legend i {
+    width: 18px;
+  }
+
+  canvas#valueChart {
+    height: 420px;
+  }
+
+  .chart-hint {
+    font-size: 11px;
+  }
+
+  .comparison-card strong {
+    font-size: 28px;
+  }
+}
+
+/* ===== CKG Suite Strip — global cross-tool nav ===== */
+:root { --ckg-strip-h: 36px; }
+@media (max-width: 640px) { :root { --ckg-strip-h: 44px; } }
+body { padding-top: var(--ckg-strip-h) !important; }
+.ckg-suite-strip {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: var(--ckg-strip-h);
+  background: #0a0a0a;
+  border-bottom: 1px solid rgba(214, 168, 122, 0.18);
+  display: flex; align-items: center;
+  padding: 0 14px;
+  font-family: "Geist", "Inter", "Segoe UI", system-ui, sans-serif;
+  z-index: 999999;
+  box-sizing: border-box;
+}
+.ckg-suite-strip-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid rgba(214, 168, 122, 0.32);
+  border-radius: 999px;
+  color: #d6a87a;
+  text-decoration: none;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  transition: all 150ms ease-out;
+  min-height: 28px;
+}
+.ckg-suite-strip-back:hover {
+  background: rgba(214, 168, 122, 0.10);
+  border-color: rgba(214, 168, 122, 0.6);
+  color: #f4f1e8;
+  transform: translateY(-1px);
+}
+.ckg-suite-strip-back:focus-visible { outline: 2px solid #d6a87a; outline-offset: 2px; }
+.ckg-suite-strip-back svg { width: 11px; height: 11px; flex-shrink: 0; }
+.ckg-suite-strip-crumb {
+  margin-left: 16px;
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10.5px; letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(244, 241, 232, 0.58);
+  flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ckg-suite-strip-crumb .muted { color: rgba(244, 241, 232, 0.36); }
+.ckg-suite-strip-crumb .sep { margin: 0 8px; opacity: 0.5; }
+@media (max-width: 640px) {
+  .ckg-suite-strip { padding: 0 10px; }
+  .ckg-suite-strip-crumb { display: none; }
+  .ckg-suite-strip-back { min-height: 32px; padding: 8px 14px; font-size: 12px; }
+}
+</style>
+  </head>
+  <body>
     <div class="ckg-suite-strip" role="navigation" aria-label="CKG suite">
       <a href="https://ckgtools.com/" class="ckg-suite-strip-back" aria-label="Back to CKG suite">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="6" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -2183,288 +1896,173 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
       </a>
       <span class="ckg-suite-strip-crumb"><span class="muted">Suite</span><span class="sep">/</span>Illustration Studio</span>
     </div>
-
     <header class="topbar">
-      <div class="lockup">
-        <img src="assets/illustration-studio-logo.svg" alt="" />
-        <div>
-          <div class="eb">CKG · Private Client</div>
+      <div class="brand-lockup">
+        <img class="brand-mark" src="assets/illustration-studio-logo.svg" alt="" />
+        <div class="brand-copy">
+          <p class="eyebrow">Private Client Illustration</p>
           <h1>Illustration Studio</h1>
         </div>
       </div>
-      <nav class="crumbs" aria-label="Tabs">
-        <button type="button" class="on" data-tab-target="working">Working</button>
-        <button type="button" data-tab-target="funds">Funds</button>
-        <button type="button" data-tab-target="compare">Compare</button>
-        <button type="button" data-tab-target="output">Output</button>
-        <button type="button" data-tab-target="notes">Notes</button>
-      </nav>
-      <div class="topbar-actions">
-        <button id="themeToggle" class="theme" type="button" aria-pressed="false" title="Toggle dark mode">○ Light</button>
-        <button id="saveHtmlScenario" class="btn" type="button">Save</button>
-        <button id="copyShareLink" class="btn" type="button" title="Copy a share link with the current scenario encoded">Share</button>
-        <button id="startPresentation" class="btn primary" type="button">Presentation</button>
+      <div class="source-strip">
+        <span>Updated: Apr 2026</span>
       </div>
     </header>
-
     <button id="exitPresentation" class="exit-presentation" type="button" hidden>Exit presentation</button>
 
-    <div class="summary" aria-label="Scenario summary">
-      <div>
-        <span class="lab">Variant</span>
-        <span class="v" id="sumVariant">—</span>
-        <span class="sm" id="sumVariantSub">—</span>
-      </div>
-      <div>
-        <span class="lab">Annual premium</span>
-        <span class="v" id="sumPremium">—</span>
-        <span class="sm" id="sumPremiumSub">—</span>
-      </div>
-      <div>
-        <span class="lab">Age window</span>
-        <span class="v" id="sumAge">—</span>
-        <span class="sm" id="sumAgeSub">—</span>
-      </div>
-      <div>
-        <span class="lab">Projected</span>
-        <span class="v brass" id="sumProjected">—</span>
-        <span class="sm" id="sumProjectedSub">—</span>
-      </div>
-      <div>
-        <span class="lab">IRR</span>
-        <span class="v" id="sumIrr">—</span>
-        <span class="sm" id="sumIrrSub">—</span>
-      </div>
-      <div class="status-cell">
-        <span class="lab">Status</span>
-        <span class="v" id="sumStatus"><span class="pulse"></span>Live</span>
-        <span class="sm" id="sumStatusSub">—</span>
-      </div>
-    </div>
-
     <div class="usage-banner" role="note">
-      <strong>For educational purposes only · Not for distribution.</strong>
+      <strong>For educational purposes only · Not for distribution</strong>
       <span>Internal advisor working tool. Not an offer, solicitation or recommendation.</span>
     </div>
 
-    <div class="page">
-
-      <aside class="console" aria-label="Model controls">
-
-        <h4>Model</h4>
-        <div class="field">
-          <span class="lab">Variant</span>
-          <select id="variantKey"></select>
-        </div>
-        <div class="field-pair">
-          <div class="field">
-            <span class="lab">Currency</span>
+    <main>
+      <section class="controls" aria-label="Model controls">
+        <div class="control-grid">
+          <label>
+            Variant
+            <select id="variantKey"></select>
+          </label>
+          <label>
+            Currency
             <select id="currency">
               <option>SGD</option>
               <option>USD</option>
             </select>
-          </div>
-          <div class="field">
-            <span class="lab">Payment</span>
+          </label>
+          <label>
+            Payment mode
             <select id="paymentFrequency">
               <option value="Annual">Annual</option>
               <option value="SemiAnnual">Semi-Annual</option>
               <option value="Quarterly">Quarterly</option>
               <option value="Monthly">Monthly</option>
             </select>
-          </div>
-        </div>
-        <div class="field">
-          <span class="lab">Annualised basic premium</span>
-          <input id="annualizedPremium" type="number" min="0" step="100" value="100000" />
-        </div>
-        <div class="field">
-          <span class="lab">Age last birthday</span>
-          <input id="startAge" type="number" min="0" max="98" step="1" value="62" />
-        </div>
-
-        <h4>Bonuses</h4>
-        <div class="toggles" id="bonusToggles">
-          <label class="tg on">
-            <span>Welcome bonus</span>
-            <input id="includeWelcome" type="checkbox" checked />
-            <span class="sw" aria-hidden="true"></span>
           </label>
-          <label class="tg on">
-            <span>Annual premium bonus</span>
-            <input id="includeAnnualBonus" type="checkbox" checked />
-            <span class="sw" aria-hidden="true"></span>
+          <label>
+            Annualised basic premium
+            <input id="annualizedPremium" type="number" min="0" step="100" value="100000" />
           </label>
-          <label class="tg on">
-            <span>Loyalty bonus</span>
-            <input id="includeLoyalty" type="checkbox" checked />
-            <span class="sw" aria-hidden="true"></span>
+          <label>
+            Age last birthday
+            <input id="startAge" type="number" min="0" max="98" step="1" value="62" />
           </label>
         </div>
 
-        <h4>View</h4>
-        <div class="toggles" id="viewToggles">
-          <label class="tg">
-            <span>Compare with variant</span>
-            <input id="compareCustom" type="checkbox" />
-            <span class="sw" aria-hidden="true"></span>
-          </label>
-          <label class="tg">
-            <span>All dividends reinvested</span>
-            <input id="compareReinvest" type="checkbox" />
-            <span class="sw" aria-hidden="true"></span>
-          </label>
-          <label class="tg">
-            <span>FD benchmark</span>
-            <input id="compareFd" type="checkbox" />
-            <span class="sw" aria-hidden="true"></span>
-          </label>
-          <label class="tg">
-            <span>Today's dollars</span>
-            <input id="inflationAdjust" type="checkbox" />
-            <span class="sw" aria-hidden="true"></span>
-          </label>
-          <label class="tg">
-            <span>PI 1.25% deduction</span>
-            <input id="deductPiFundMgmt" type="checkbox" />
-            <span class="sw" aria-hidden="true"></span>
-          </label>
-          <label class="tg">
-            <span>Advisor details</span>
-            <input id="showAdvisorDetails" type="checkbox" />
-            <span class="sw" aria-hidden="true"></span>
-          </label>
+        <div class="toggle-row" role="group" aria-label="Bonus and benchmark toggles">
+          <label class="toggle"><input id="includeWelcome" type="checkbox" checked /> Welcome Bonus</label>
+          <label class="toggle"><input id="includeAnnualBonus" type="checkbox" checked /> Annual Premium Bonus</label>
+          <label class="toggle"><input id="includeLoyalty" type="checkbox" checked /> Loyalty Bonus</label>
+          <label class="toggle"><input id="compareCustom" type="checkbox" /> Compare with</label>
+          <label class="toggle"><input id="compareReinvest" type="checkbox" /> Compare all dividends reinvested</label>
+          <label class="toggle"><input id="compareFd" type="checkbox" /> Compare fixed deposit</label>
+          <label class="toggle"><input id="inflationAdjust" type="checkbox" /> Show in today's dollars</label>
+          <label class="toggle"><input id="deductPiFundMgmt" type="checkbox" /> PI 1.25% fund-charge deduction</label>
+          <label class="toggle"><input id="showAdvisorDetails" type="checkbox" /> Advisor details</label>
         </div>
 
-        <div id="inflationSettings" class="sub" hidden>
-          <div class="field">
-            <span class="lab">Inflation rate %</span>
+        <div id="inflationSettings" class="benchmark-settings" hidden>
+          <label>
+            Inflation rate %
             <input id="inflationRate" type="number" min="0" max="20" step="0.1" value="2.5" />
-          </div>
-          <p class="note">All headline figures and the chart will discount future amounts to today's purchasing power.</p>
+          </label>
+          <p class="caption-note">All headline figures and the chart will discount future amounts to today's purchasing power.</p>
         </div>
 
-        <div id="fdSettings" class="sub" hidden>
-          <div class="field">
-            <span class="lab">Fixed deposit rate %</span>
+        <div id="fdSettings" class="benchmark-settings" hidden>
+          <label>
+            Fixed deposit rate %
             <input id="fdRate" type="number" min="0" max="20" step="0.05" value="3" />
-          </div>
-          <div class="field">
-            <span class="lab">FD funding style</span>
+          </label>
+          <label>
+            FD funding style
             <select id="fdFundingMode">
               <option value="single">Single sum today</option>
               <option value="incremental" selected>Annual incremental sum</option>
             </select>
-          </div>
-          <div class="field">
-            <span class="lab">FD amount</span>
+          </label>
+          <label>
+            FD amount
             <input id="fdAmount" type="number" min="0" step="100" value="100000" />
-          </div>
-          <label class="tg" style="margin: 0;">
-            <span>Compound interest</span>
-            <input id="fdCompound" type="checkbox" checked />
-            <span class="sw" aria-hidden="true"></span>
+          </label>
+          <label class="toggle compact-toggle"><input id="fdCompound" type="checkbox" checked /> Compound interest</label>
+        </div>
+
+        <div id="compareSettings" class="benchmark-settings compare-settings" hidden>
+          <label>
+            Compare variation
+            <select id="compareVariantKey"></select>
+          </label>
+          <label>
+            Compare annual premium
+            <input id="compareAnnualizedPremium" type="number" min="0" step="100" value="100000" />
+          </label>
+          <button id="copyMainStrategy" type="button">Copy selected strategy</button>
+        </div>
+
+        <div class="action-row">
+          <button id="saveHtmlScenario" type="button">Save HTML</button>
+          <button id="loadHtmlScenario" type="button">Load HTML</button>
+          <input id="loadScenarioFile" type="file" accept=".html,text/html,.json,application/json" hidden />
+          <button id="copyShareLink" type="button" title="Copy a share link with the current scenario encoded">Copy share link</button>
+          <button id="startPresentation" type="button">Presentation mode</button>
+          <button id="printScenario" type="button">Print / save PDF</button>
+          <button id="exportAnnual" type="button">Export annual CSV</button>
+          <button id="exportMonthly" type="button">Export monthly CSV</button>
+        </div>
+
+        <div id="advisorSettings" class="advisor-settings" hidden>
+          <label>
+            Admin after MIP override
+            <input id="adminAfterOverride" type="number" min="0" max="10" step="0.01" placeholder="Product default" />
           </label>
         </div>
+      </section>
 
-        <div id="compareSettings" class="sub" hidden>
-          <div class="field">
-            <span class="lab">Compare variation</span>
-            <select id="compareVariantKey"></select>
-          </div>
-          <div class="field">
-            <span class="lab">Compare annual premium</span>
-            <input id="compareAnnualizedPremium" type="number" min="0" step="100" value="100000" />
-          </div>
-          <button id="copyMainStrategy" class="btn" type="button">Copy selected strategy</button>
+      <!-- HERO: single big number + composition bar -->
+      <section id="heroSummary" class="hero" aria-label="Projected wealth summary">
+        <div class="hero-headline">
+          <p class="eyebrow"><span id="heroLabel">Projected wealth</span> at <span id="heroEndAge">age 99</span></p>
+          <strong id="heroTotal">S$0</strong>
+          <p class="hero-caption" id="heroCaption"></p>
         </div>
-
-        <div id="advisorSettings" class="sub" hidden>
-          <div class="field">
-            <span class="lab">Admin after MIP override</span>
-            <input id="adminAfterOverride" type="number" min="0" max="10" step="0.01" placeholder="Product default" />
-          </div>
+        <div class="composition">
+          <div class="composition-bar" id="compositionBar" role="img" aria-label="Composition of projected wealth"></div>
+          <ul class="composition-legend" id="compositionLegend"></ul>
         </div>
+      </section>
 
-        <h4>Actions</h4>
-        <div class="actions">
-          <button id="loadHtmlScenario" class="btn" type="button">Load scenario</button>
-          <input id="loadScenarioFile" type="file" accept=".html,text/html,.json,application/json" hidden />
-          <button id="printScenario" class="btn" type="button">Print / save PDF</button>
-          <button id="exportAnnual" class="btn" type="button">Export annual CSV</button>
-          <button id="exportMonthly" class="btn" type="button">Export monthly CSV</button>
+      <!-- COMPARISON HERO: two big cards + a center delta band -->
+      <section id="comparisonHero" class="comparison-hero" aria-label="Headline comparison" hidden>
+        <article class="comparison-card primary">
+          <p class="eyebrow" id="cmpPrimaryLabel">Selected strategy</p>
+          <strong id="cmpPrimaryValue">S$0</strong>
+          <small id="cmpPrimaryDetail"></small>
+        </article>
+        <div class="comparison-delta" id="comparisonDelta">
+          <span class="delta-label" id="cmpDeltaLabel">Difference</span>
+          <strong class="delta-amount" id="cmpDeltaAmount">S$0</strong>
+          <button type="button" class="delta-toggle" id="deltaToggle">Show as %</button>
         </div>
+        <article class="comparison-card secondary">
+          <p class="eyebrow" id="cmpSecondaryLabel">Benchmark</p>
+          <strong id="cmpSecondaryValue">S$0</strong>
+          <small id="cmpSecondaryDetail"></small>
+        </article>
+      </section>
 
-        <h4 class="jump-heading">Jump to</h4>
-        <nav class="nav" aria-label="Sections within tab">
-          <a class="on" data-jump-target="summary"><span>Summary</span><span class="num">01</span></a>
-          <a data-jump-target="composition"><span>Composition</span><span class="num">02</span></a>
-          <a data-jump-target="projection"><span>Projection</span><span class="num">03</span></a>
-          <a data-jump-target="strategy"><span>Strategy</span><span class="num">04</span></a>
-        </nav>
-      </aside>
-
-      <main class="main">
-
-        <section id="summary" class="hero" data-tab="working" aria-label="Projected wealth summary">
-          <div id="heroSummary" class="hero-headline">
-            <span class="eyebrow"><span id="heroLabel">Projected wealth</span> at <span id="heroEndAge">age 99</span></span>
-            <strong id="heroTotal" class="hero-num">S$0</strong>
-            <span id="heroCaption" class="hero-caption"></span>
-          </div>
-          <div class="hero-side">
-            <div class="row"><span class="lab">IRR · selected</span><span class="val brass" id="heroIrr">—</span></div>
-            <div class="row"><span class="lab">Crossover age</span><span class="val" id="heroCrossover">—</span></div>
-            <div class="row"><span class="lab">Premium paid</span><span class="val" id="heroPremPaid">—</span></div>
-            <div class="row"><span class="lab">Δ vs benchmark</span><span class="val pos" id="heroDelta">—</span></div>
-            <div class="row"><span class="lab">Bonuses + dividends</span><span class="val" id="heroBonusDiv">—</span></div>
-            <div class="row"><span class="lab">Death &amp; TI</span><span class="val">101%</span></div>
-          </div>
-        </section>
-
-        <div class="compare-empty" data-tab="compare" id="compareEmpty">
-          <strong>Comparison not active</strong>
-          Toggle <em>Compare with variant</em> in the console to see two policies side by side, or <em>FD benchmark</em> for the cash-vs-policy view.
+      <section class="benefit-highlight" aria-label="Legacy protection benefit">
+        <div>
+          <p class="eyebrow">Legacy Protection</p>
+          <h2>Death and Terminal Illness Benefit</h2>
         </div>
+        <strong>101% Capital Protected</strong>
+        <p>A clear protection floor for clients and beneficiaries alongside the investment strategy.</p>
+      </section>
 
-        <section id="comparisonHero" class="comparison-hero" data-tab="compare" aria-label="Headline comparison" hidden>
-          <article class="comparison-card primary">
-            <p class="eyebrow" id="cmpPrimaryLabel">Selected strategy</p>
-            <strong id="cmpPrimaryValue">S$0</strong>
-            <small id="cmpPrimaryDetail"></small>
-          </article>
-          <div class="comparison-delta" id="comparisonDelta">
-            <span class="delta-label" id="cmpDeltaLabel">Difference</span>
-            <strong class="delta-amount" id="cmpDeltaAmount">S$0</strong>
-            <button type="button" class="delta-toggle" id="deltaToggle">Show as %</button>
-          </div>
-          <article class="comparison-card secondary">
-            <p class="eyebrow" id="cmpSecondaryLabel">Benchmark</p>
-            <strong id="cmpSecondaryValue">S$0</strong>
-            <small id="cmpSecondaryDetail"></small>
-          </article>
-        </section>
-
-        <section id="composition" class="duo" data-tab="working" aria-label="Composition and legacy">
-          <div class="panel">
-            <div class="panel-head">
-              <h3>Composition of projected wealth</h3>
-              <span class="meta" id="compositionMeta">—</span>
-            </div>
-            <div class="composition-bar" id="compositionBar" role="img" aria-label="Composition of projected wealth"></div>
-            <ul class="composition-legend" id="compositionLegend"></ul>
-          </div>
-          <div class="benefit" aria-label="Legacy protection benefit">
-            <span class="eyebrow">Legacy Protection</span>
-            <span class="big">101%</span>
-            <h3>Death &amp; Terminal Illness Benefit</h3>
-            <p>Capital-protected floor at 101% of total premium paid, alongside the investment strategy.</p>
-          </div>
-        </section>
-
-        <section id="projection" class="chart-panel" data-tab="working" aria-label="Projection chart">
+      <section class="chart-grid" aria-label="Charts">
+        <div class="chart-panel">
           <div class="panel-heading">
-            <h2>Projected client value &amp; benchmark</h2>
+            <h2>Projected Client Value And Benchmark</h2>
             <span id="chartEndLabel"></span>
           </div>
           <div id="chartLegend" class="chart-legend"></div>
@@ -2472,269 +2070,240 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
             <canvas id="valueChart" width="1100" height="380"></canvas>
             <div id="chartTooltip" class="chart-tooltip" hidden></div>
           </div>
-          <div id="chartFoot" class="chart-foot" aria-label="Chart summary"></div>
-        </section>
+          <p class="chart-hint">Hover any year for a breakdown. Click a year to highlight it in the projection table below.</p>
+        </div>
+      </section>
 
-        <!-- Status row (variant spec + checks) lives at the top of the Output
-             tab. Useful for advisors auditing assumptions; the headline
-             charges/bonuses live on the Working tab in the Variant Facts
-             strip below the chart. -->
-        <section class="status-row" data-tab="output" aria-label="Model status">
-          <div id="checks" class="checks"></div>
-          <div id="assumptions" class="assumptions"></div>
-        </section>
+      <section class="status-row" aria-label="Model status">
+        <div id="checks" class="checks"></div>
+        <div id="assumptions" class="assumptions"></div>
+      </section>
 
-        <!-- Variant facts: charges, bonuses, key rules. Sits between the
-             chart and strategy on the Working tab. -->
-        <aside class="variant-facts" data-tab="working" aria-label="Variant facts">
-          <div class="vf-eyebrow">Variant facts</div>
-          <div class="vf-cell"><span class="vf-lab">MIP</span><span class="vf-val" id="vfMip">—</span></div>
-          <div class="vf-cell"><span class="vf-lab">Premium term</span><span class="vf-val" id="vfPremTerm">—</span></div>
-          <div class="vf-cell"><span class="vf-lab">Admin during / after</span><span class="vf-val" id="vfAdmin">—</span></div>
-          <div class="vf-cell"><span class="vf-lab">Welcome bonus</span><span class="vf-val brass" id="vfWelcome">—</span></div>
-          <div class="vf-cell"><span class="vf-lab">Annual premium bonus</span><span class="vf-val" id="vfAnnualBonus">—</span></div>
-          <div class="vf-cell"><span class="vf-lab">Loyalty bonus</span><span class="vf-val" id="vfLoyalty">—</span></div>
-          <div class="vf-cell"><span class="vf-lab">Policy fee</span><span class="vf-val" id="vfPolicyFee">—</span></div>
-        </aside>
+      <section id="fundBuilderSection" class="fund-builder-section" aria-label="Fund portfolio builder">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Fund Builder</p>
+            <h2>Core And Satellite Portfolio</h2>
+          </div>
+          <div id="fundDataStatus" class="fund-data-note"></div>
+        </div>
 
-        <section id="fundBuilderSection" class="fund-builder-section" data-tab="funds" aria-labelledby="portfolio">
-          <a id="portfolio" tabindex="-1" class="anchor-target"></a>
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Fund Builder</p>
-              <h2>Core &amp; Satellite Portfolio</h2>
+        <div class="fund-builder-grid">
+          <div class="fund-search-wrap">
+            <label for="fundSearch">Fund name or code</label>
+            <input id="fundSearch" type="search" autocomplete="off" placeholder="Manulife..." />
+            <div class="fund-search-filters" role="group" aria-label="Fund search filters">
+              <label class="toggle"><input id="fundFilterDividend" type="checkbox" /> Show dividend funds only</label>
+              <label class="toggle"><input id="fundFilterNonDividend" type="checkbox" /> Show non-dividend funds only</label>
             </div>
-            <div id="fundDataStatus" class="fund-data-note"></div>
+            <div id="fundSuggestions" class="fund-suggestions" hidden></div>
           </div>
+          <label>
+            Category
+            <select id="fundCategory">
+              <option value="core">Core</option>
+              <option value="satellite">Satellite</option>
+            </select>
+          </label>
+          <label>
+            Allocation %
+            <input id="fundAllocation" type="number" min="0" max="100" step="0.1" value="100" />
+          </label>
+          <button id="addFundSelection" type="button">Add fund</button>
+        </div>
 
-          <div class="fund-builder-grid">
-            <div class="fund-search-wrap">
-              <label for="fundSearch">Fund name or code</label>
-              <input id="fundSearch" type="search" autocomplete="off" placeholder="Manulife..." />
-              <div class="fund-search-filters" role="group" aria-label="Fund search filters">
-                <label class="toggle"><input id="fundFilterDividend" type="checkbox" /> Dividend funds only</label>
-                <label class="toggle"><input id="fundFilterNonDividend" type="checkbox" /> Non-dividend only</label>
-              </div>
-              <div id="fundSuggestions" class="fund-suggestions" hidden></div>
-            </div>
-            <label>
-              Category
-              <select id="fundCategory">
-                <option value="core">Core</option>
-                <option value="satellite">Satellite</option>
-              </select>
-            </label>
-            <label>
-              Allocation %
-              <input id="fundAllocation" type="number" min="0" max="100" step="0.1" value="100" />
-            </label>
-            <button id="addFundSelection" type="button">Add fund</button>
-          </div>
+        <div id="selectedFundPreview" class="fund-preview" aria-live="polite"></div>
 
-          <div id="selectedFundPreview" class="fund-preview" aria-live="polite"></div>
+        <div class="fund-builder-actions">
+          <label>
+            Apply from year
+            <input id="fundApplyFromYear" type="number" min="1" max="99" step="1" value="1" />
+          </label>
+          <label>
+            Dividend mode
+            <select id="fundApplyDividendMode">
+              <option value="none">None</option>
+              <option value="reinvest" selected>Reinvest</option>
+              <option value="payout">Payout</option>
+            </select>
+          </label>
+          <label class="toggle"><input id="fundDividendOnly" type="checkbox" /> Dividend only</label>
+          <button id="applyPortfolioAssumptions" type="button">Apply portfolio return</button>
+          <button id="clearPortfolioFunds" type="button">Clear portfolio</button>
+        </div>
 
-          <div class="fund-builder-actions">
-            <label>
-              Apply from year
-              <input id="fundApplyFromYear" type="number" min="1" max="99" step="1" value="1" />
-            </label>
-            <label>
-              Dividend mode
-              <select id="fundApplyDividendMode">
-                <option value="none">None</option>
-                <option value="reinvest" selected>Reinvest</option>
-                <option value="payout">Payout</option>
-              </select>
-            </label>
-            <label class="toggle"><input id="fundDividendOnly" type="checkbox" /> Dividend only</label>
-            <button id="applyPortfolioAssumptions" type="button">Apply portfolio return</button>
-            <button id="clearPortfolioFunds" type="button">Clear portfolio</button>
+        <div class="fund-summary-grid" aria-label="Portfolio weighted return summary">
+          <div class="fund-summary-card core">
+            <small>Core allocation</small>
+            <strong id="fundCoreAllocation">0.0%</strong>
           </div>
+          <div class="fund-summary-card satellite">
+            <small>Satellite allocation</small>
+            <strong id="fundSatelliteAllocation">0.0%</strong>
+          </div>
+          <div class="fund-summary-card fund-nav-projection">
+            <small>Weighted total return</small>
+            <strong id="fundWeightedReturn">0.0%</strong>
+          </div>
+          <div class="fund-summary-card">
+            <small>Dividend yield</small>
+            <strong id="fundAverageDividend">0.0%</strong>
+          </div>
+          <div class="fund-summary-card">
+            <small>Weighted dividend yield</small>
+            <strong id="fundWeightedDividend">0.0%</strong>
+          </div>
+          <div class="fund-summary-card fund-nav-projection">
+            <small>Derived NAV growth</small>
+            <strong id="fundDerivedNav">0.0%</strong>
+          </div>
+        </div>
 
-          <div class="fund-summary-grid" aria-label="Portfolio weighted return summary">
-            <div class="fund-summary-card core">
-              <small>Core allocation</small>
-              <strong id="fundCoreAllocation">0.0%</strong>
-            </div>
-            <div class="fund-summary-card satellite">
-              <small>Satellite allocation</small>
-              <strong id="fundSatelliteAllocation">0.0%</strong>
-            </div>
-            <div class="fund-summary-card fund-nav-projection">
-              <small>Weighted total return</small>
-              <strong id="fundWeightedReturn">0.0%</strong>
-            </div>
-            <div class="fund-summary-card">
-              <small>Dividend yield</small>
-              <strong id="fundAverageDividend">0.0%</strong>
-            </div>
-            <div class="fund-summary-card">
-              <small>Weighted dividend yield</small>
-              <strong id="fundWeightedDividend">0.0%</strong>
-            </div>
-            <div class="fund-summary-card fund-nav-projection">
-              <small>Derived NAV growth</small>
-              <strong id="fundDerivedNav">0.0%</strong>
-            </div>
-          </div>
+        <div class="table-wrap">
+          <table id="fundPortfolioTable" class="data-table fund-table"></table>
+        </div>
 
-          <div class="table-wrap">
-            <table id="fundPortfolioTable" class="data-table fund-table"></table>
-          </div>
-        </section>
+      </section>
 
-        <section id="strategy" class="strategy-section" data-tab="working" aria-label="Strategy inputs">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Editable Strategy</p>
-              <h2>Returns, dividends &amp; withdrawals</h2>
-            </div>
-            <div class="strategy-section-actions">
-              <div class="premium-note" id="premiumNote"></div>
-              <div class="view-toggle" role="group" aria-label="Strategy view">
-                <button type="button" id="strategyMilestonesBtn" class="view-toggle-btn active">Milestones</button>
-                <button type="button" id="strategyAllBtn" class="view-toggle-btn">All years</button>
-              </div>
-            </div>
+      <section class="strategy-section" aria-label="Strategy inputs">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Editable Strategy</p>
+            <h2>Returns, Dividends And Withdrawals</h2>
           </div>
-          <div class="table-wrap strategy-wrap">
-            <table id="strategyTable" class="data-table strategy-table"></table>
-          </div>
-          <div class="bulk-tools sensitivity-tools strat-bulk" aria-label="Bulk strategy actions">
-            <label class="slider-label">
-              <span>NAV growth <strong id="bulkNavReturnReadout">0.0%</strong></span>
-              <input id="bulkNavReturn" type="range" min="-5" max="15" step="0.25" value="0" />
-            </label>
-            <label class="slider-label">
-              <span>Dividend rate <strong id="bulkDividendYieldReadout">6.0%</strong></span>
-              <input id="bulkDividendYield" type="range" min="0" max="12" step="0.25" value="6" />
-            </label>
-            <div class="strat-bulk-rest">
-              <label>
-                Dividend mode
-                <select id="bulkDividendMode">
-                  <option value="none">None</option>
-                  <option value="reinvest" selected>Reinvest</option>
-                  <option value="payout">Payout</option>
-                </select>
-              </label>
-              <label>
-                <span id="bulkFromLabel">From year</span>
-                <input id="bulkFromYear" type="number" min="1" max="99" step="1" value="1" />
-                <small id="bulkFromStatus" class="field-status" hidden>Invalid</small>
-              </label>
-              <label class="toggle"><input id="bulkFromAge" type="checkbox" /> From age</label>
-              <button id="applyBulkBelow" type="button">Apply ↓</button>
-              <button id="autofillPremiums" type="button">Reset</button>
-            </div>
-          </div>
-          <details class="historical-details">
-            <summary>Apply historical S&amp;P 500 backfill</summary>
-            <div class="bulk-tools historical-tools" aria-label="Historical scenario">
-              <label>
-                Backfill from
-                <select id="historicalStartYear"></select>
-              </label>
-              <label>
-                Add dividend yield %
-                <input id="historicalDividendBoost" type="number" min="0" max="10" step="0.1" value="2" title="S&P data is price-only; add the long-run S&P dividend yield to approximate total return." />
-              </label>
-              <button id="applyHistoricalSp500" type="button">Apply S&amp;P 500 history</button>
-              <span class="historical-note" id="historicalReadout"></span>
-            </div>
-          </details>
-        </section>
+          <div class="premium-note" id="premiumNote"></div>
+        </div>
+        <div class="bulk-tools sensitivity-tools" aria-label="Bulk strategy actions">
+          <label class="slider-label">
+            <span>NAV growth <strong id="bulkNavReturnReadout">0.0%</strong></span>
+            <input id="bulkNavReturn" type="range" min="-5" max="15" step="0.25" value="0" />
+          </label>
+          <label class="slider-label">
+            <span>Dividend rate <strong id="bulkDividendYieldReadout">6.0%</strong></span>
+            <input id="bulkDividendYield" type="range" min="0" max="12" step="0.25" value="6" />
+          </label>
+          <label>
+            Dividend mode
+            <select id="bulkDividendMode">
+              <option value="none">None</option>
+              <option value="reinvest" selected>Reinvest</option>
+              <option value="payout">Payout</option>
+            </select>
+          </label>
+          <label>
+            <span id="bulkFromLabel">From year</span>
+            <input id="bulkFromYear" type="number" min="1" max="99" step="1" value="1" />
+            <small id="bulkFromStatus" class="field-status" hidden>Invalid</small>
+          </label>
+          <label class="toggle"><input id="bulkFromAge" type="checkbox" /> From age</label>
+          <button id="applyBulkBelow" type="button">Apply to rows below</button>
+          <button id="autofillPremiums" type="button">Reset required premiums</button>
+        </div>
+        <div class="bulk-tools historical-tools" aria-label="Historical scenario">
+          <label>
+            Backfill from
+            <select id="historicalStartYear"></select>
+          </label>
+          <label>
+            Add dividend yield %
+            <input id="historicalDividendBoost" type="number" min="0" max="10" step="0.1" value="2" title="S&P data is price-only; add the long-run S&P dividend yield to approximate total return." />
+          </label>
+          <button id="applyHistoricalSp500" type="button">Apply S&amp;P 500 history</button>
+          <span class="historical-note" id="historicalReadout"></span>
+        </div>
+        <div class="table-wrap strategy-wrap">
+          <table id="strategyTable" class="data-table strategy-table"></table>
+        </div>
+      </section>
 
-        <section id="compareStrategySection" class="strategy-section compare-workings" data-tab="compare" aria-label="Comparison strategy inputs" hidden>
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Editable Comparison</p>
-              <h2>Compare with strategy</h2>
-            </div>
-            <div class="premium-note" id="comparePremiumNote"></div>
+      <section id="compareStrategySection" class="strategy-section compare-workings" aria-label="Comparison strategy inputs" hidden>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Editable Comparison</p>
+            <h2>Compare With Strategy</h2>
           </div>
-          <div class="bulk-tools sensitivity-tools" aria-label="Comparison bulk strategy actions">
-            <label class="slider-label">
-              <span>NAV growth <strong id="compareBulkNavReturnReadout">0.0%</strong></span>
-              <input id="compareBulkNavReturn" type="range" min="-5" max="15" step="0.25" value="0" />
-            </label>
-            <label class="slider-label">
-              <span>Dividend rate <strong id="compareBulkDividendYieldReadout">6.0%</strong></span>
-              <input id="compareBulkDividendYield" type="range" min="0" max="12" step="0.25" value="6" />
-            </label>
-            <label>
-              Dividend mode
-              <select id="compareBulkDividendMode">
-                <option value="none">None</option>
-                <option value="reinvest" selected>Reinvest</option>
-                <option value="payout">Payout</option>
-              </select>
-            </label>
-            <label>
-              From year
-              <input id="compareBulkFromYear" type="number" min="1" max="99" step="1" value="1" />
-            </label>
-            <button id="applyCompareBulkBelow" type="button">Apply ↓</button>
-            <button id="resetComparePremiums" type="button">Reset comparison premiums</button>
-          </div>
-          <div class="table-wrap strategy-wrap">
-            <table id="compareStrategyTable" class="data-table strategy-table"></table>
-          </div>
-        </section>
+          <div class="premium-note" id="comparePremiumNote"></div>
+        </div>
+        <div class="bulk-tools sensitivity-tools" aria-label="Comparison bulk strategy actions">
+          <label class="slider-label">
+            <span>NAV growth <strong id="compareBulkNavReturnReadout">0.0%</strong></span>
+            <input id="compareBulkNavReturn" type="range" min="-5" max="15" step="0.25" value="0" />
+          </label>
+          <label class="slider-label">
+            <span>Dividend rate <strong id="compareBulkDividendYieldReadout">6.0%</strong></span>
+            <input id="compareBulkDividendYield" type="range" min="0" max="12" step="0.25" value="6" />
+          </label>
+          <label>
+            Dividend mode
+            <select id="compareBulkDividendMode">
+              <option value="none">None</option>
+              <option value="reinvest" selected>Reinvest</option>
+              <option value="payout">Payout</option>
+            </select>
+          </label>
+          <label>
+            From year
+            <input id="compareBulkFromYear" type="number" min="1" max="99" step="1" value="1" />
+          </label>
+          <button id="applyCompareBulkBelow" type="button">Apply to rows below</button>
+          <button id="resetComparePremiums" type="button">Reset comparison premiums</button>
+        </div>
+        <div class="table-wrap strategy-wrap">
+          <table id="compareStrategyTable" class="data-table strategy-table"></table>
+        </div>
+      </section>
 
-        <section id="output" class="detail-section" data-tab="output" aria-label="Annual projection">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Client View</p>
-              <h2>Annual projection</h2>
-            </div>
-            <div class="projection-options">
-              <label class="toggle"><input id="annualDividendMonthly" type="checkbox" /> Dividend credited / month</label>
-              <div class="view-toggle" role="group" aria-label="Projection view">
-                <button type="button" id="annualMilestoneBtn" class="view-toggle-btn active">Milestones</button>
-                <button type="button" id="annualFullBtn" class="view-toggle-btn">All years</button>
-              </div>
+      <section class="detail-section" aria-label="Outputs">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Client View</p>
+            <h2>Annual Projection</h2>
+          </div>
+          <div class="projection-options">
+            <label class="toggle"><input id="annualDividendMonthly" type="checkbox" /> Dividend credited / month</label>
+            <div class="view-toggle" role="group" aria-label="Projection view">
+              <button type="button" id="annualMilestoneBtn" class="view-toggle-btn active">Milestones</button>
+              <button type="button" id="annualFullBtn" class="view-toggle-btn">All years</button>
             </div>
           </div>
-          <div class="table-wrap output-wrap">
-            <table id="annualTable" class="data-table"></table>
+        </div>
+        <div class="table-wrap output-wrap">
+          <table id="annualTable" class="data-table"></table>
+        </div>
+        <div id="annualAccessLegend" class="projection-access-legend" aria-live="polite"></div>
+      </section>
+
+      <section class="notes-section" aria-label="Scenario notes">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Advisor Working Notes</p>
+            <h2>Scenario Notes</h2>
           </div>
-          <div id="annualAccessLegend" class="projection-access-legend" aria-live="polite"></div>
-        </section>
+          <small class="caption-note">Saved with the scenario when you export HTML or copy the share link.</small>
+        </div>
+        <textarea id="scenarioNotes" rows="3" placeholder="Notes about goals, risk preferences, drawdown plans — travel with the scenario when shared or saved."></textarea>
+      </section>
 
-        <section id="notes" class="notes-section" data-tab="notes" aria-label="Scenario notes">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Advisor Working Notes</p>
-              <h2>Scenario notes</h2>
-            </div>
-            <small class="caption-note">Saved with the scenario when you export HTML or copy the share link.</small>
-          </div>
-          <textarea id="scenarioNotes" rows="3" placeholder="Notes about goals, risk preferences, drawdown plans — travel with the scenario when shared or saved."></textarea>
-        </section>
+      <section class="source-notes" aria-label="Source notes">
+        <h2>Source Notes</h2>
+        <div id="sourceNotes"></div>
+      </section>
 
-        <section class="source-notes" aria-label="Source notes">
-          <h2>Source notes</h2>
-          <div id="sourceNotes"></div>
-        </section>
-
-        <section class="disclaimers" aria-label="Important disclaimers">
-          <h2>Important disclaimers</h2>
-          <ul>
-            <li><strong>Educational purpose only.</strong> This illustration is prepared for educational and discussion purposes between an advisor and client. It is not an offer, solicitation or recommendation to buy or sell any financial product, and is not for distribution or reproduction without authorisation.</li>
-            <li><strong>Not financial advice.</strong> Information shown does not constitute investment, tax or legal advice. Clients should consult a licensed financial advisor and consider their own objectives, financial situation and needs before making any investment decision.</li>
-            <li><strong>Investment risk.</strong> The underlying assets are invested in funds whose values are subject to market fluctuations. Investments carry risks, including the possible loss of the principal amount invested. The value of units in the underlying funds, and any income from them, may rise as well as fall.</li>
-            <li><strong>Non-guaranteed projections.</strong> Projected account values, total values, dividends and bonuses shown here are illustrative only, based on the NAV growth and dividend rates entered for each year. They are not guaranteed and may differ materially from actual future performance. Past performance of any fund is not necessarily indicative of future performance.</li>
-            <li><strong>Bonuses and dividends.</strong> Welcome Bonus, Annual Premium Bonus, Loyalty Bonus and dividend payouts are subject to the policy's terms — including premium payment conditions and the actual performance of the underlying funds — and are not guaranteed.</li>
-            <li><strong>Charges.</strong> Projections are net of the admin and partial-withdrawal charges modelled here. The product is subject to other fees and charges set out in the policy contract and product summary, including but not limited to fund management charges, surrender charges and applicable deductions.</li>
-            <li><strong>Currency risk.</strong> Where the policy currency differs from the client's reference currency, projected outcomes may be affected by exchange rate fluctuations.</li>
-            <li><strong>Capital protection.</strong> The "101% Capital Protected" feature applies only to the Death and Terminal Illness Benefit as defined in the policy contract. Surrender value is not guaranteed and, particularly during the early policy years, may be less than total premiums paid.</li>
-            <li><strong>Source documents prevail.</strong> Please refer to the policy contract, product summary and fund factsheets for the full terms, conditions, charges and risk disclosures. In the event of any discrepancy, those documents prevail over this illustration.</li>
-          </ul>
-        </section>
-
-      </main>
-    </div>
+      <section class="disclaimers" aria-label="Important disclaimers">
+        <h2>Important Disclaimers</h2>
+        <ul>
+          <li><strong>Educational purpose only.</strong> This illustration is prepared for educational and discussion purposes between an advisor and client. It is not an offer, solicitation or recommendation to buy or sell any financial product, and is not for distribution or reproduction without authorisation.</li>
+          <li><strong>Not financial advice.</strong> Information shown does not constitute investment, tax or legal advice. Clients should consult a licensed financial advisor and consider their own objectives, financial situation and needs before making any investment decision.</li>
+          <li><strong>Investment risk.</strong> The underlying assets are invested in funds whose values are subject to market fluctuations. Investments carry risks, including the possible loss of the principal amount invested. The value of units in the underlying funds, and any income from them, may rise as well as fall.</li>
+          <li><strong>Non-guaranteed projections.</strong> Projected account values, total values, dividends and bonuses shown here are illustrative only, based on the NAV growth and dividend rates entered for each year. They are not guaranteed and may differ materially from actual future performance. Past performance of any fund is not necessarily indicative of future performance.</li>
+          <li><strong>Bonuses and dividends.</strong> Welcome Bonus, Annual Premium Bonus, Loyalty Bonus and dividend payouts are subject to the policy's terms — including premium payment conditions and the actual performance of the underlying funds — and are not guaranteed.</li>
+          <li><strong>Charges.</strong> Projections are net of the admin and partial-withdrawal charges modelled here. The product is subject to other fees and charges set out in the policy contract and product summary, including but not limited to fund management charges, surrender charges and applicable deductions.</li>
+          <li><strong>Currency risk.</strong> Where the policy currency differs from the client's reference currency, projected outcomes may be affected by exchange rate fluctuations.</li>
+          <li><strong>Capital protection.</strong> The "101% Capital Protected" feature applies only to the Death and Terminal Illness Benefit as defined in the policy contract. Surrender value is not guaranteed and, particularly during the early policy years, may be less than total premiums paid.</li>
+          <li><strong>Source documents prevail.</strong> Please refer to the policy contract, product summary and fund factsheets for the full terms, conditions, charges and risk disclosures. In the event of any discrepancy, those documents prevail over this illustration.</li>
+        </ul>
+      </section>
+    </main>
 
     <script>
 (function (root) {
@@ -4376,17 +3945,10 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
     recalc();
   }
 
-  // Default-visible rows in the editable strategy table. Other rows are
-  // hidden by CSS until the user toggles "All years".
-  const STRATEGY_MILESTONE_YEARS = new Set([1, 2, 3, 5, 7, 9, 11, 13, 15, 18, 20, 25, 30, 37]);
-  function rowClassForYear(variant, year, totalYears = 37) {
-    const classes = [];
-    if (model.partialWithdrawalAllowed(variant, year) && year <= variant.mipYears) classes.push("partial-window");
-    if (year === variant.mipYears + 1) classes.push("full-withdrawal-window");
-    const isLastYear = year === totalYears;
-    if (!STRATEGY_MILESTONE_YEARS.has(year) && !isLastYear) classes.push("is-secondary-year");
-    if (year === 1 || year === variant.mipYears || year === variant.mipYears + 1 || isLastYear) classes.push("is-milestone");
-    return classes.join(" ");
+  function rowClassForYear(variant, year) {
+    if (model.partialWithdrawalAllowed(variant, year) && year <= variant.mipYears) return "partial-window";
+    if (year === variant.mipYears + 1) return "full-withdrawal-window";
+    return "";
   }
 
   function renderStrategyTable() {
@@ -4410,36 +3972,25 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
   function renderStrategyTableFor(tableId, rows, settings, target) {
     const showAdvisor = fields.showAdvisorDetails.checked;
     const table = $(tableId);
-    // Pull the projected total-value series so we can render the Value column
-    // without the row HTML having to know about state.results.
-    const annualValues = (() => {
-      const r = state.results || {};
-      const source = target === "compare" ? r.customCompare : r.custom;
-      if (!source || !source.annual) return null;
-      const out = {};
-      source.annual.forEach((row) => { out[row.year] = row.totalValue; });
-      return out;
-    })();
     table.innerHTML = `
       <thead>
         <tr>
           <th class="col-time">Yr</th>
           <th class="col-time">Age</th>
-          <th class="col-premium right">Premium</th>
-          ${showAdvisor ? '<th class="col-premium right">Top-up</th>' : ''}
-          <th class="col-growth right">NAV %</th>
-          <th class="col-income right">Div %</th>
-          <th class="col-income">Mode</th>
-          ${showAdvisor ? '<th class="col-withdrawal right" title="Allowable dividend drawdown">Allow div</th>' : ''}
-          ${showAdvisor ? '<th class="col-withdrawal right">Div w/d</th>' : ''}
-          ${showAdvisor ? '<th class="col-withdrawal right" title="Allowable partial withdrawal">Allow partial</th>' : ''}
-          <th class="col-withdrawal right">Withdraw</th>
-          ${showAdvisor ? '<th class="col-charge right">Optional deduction</th>' : ''}
-          <th class="col-value right">Value</th>
+          <th class="col-premium">Premium</th>
+          ${showAdvisor ? '<th class="col-premium">Top-up</th>' : ''}
+          <th class="col-growth">NAV growth %</th>
+          <th class="col-income">Dividend %</th>
+          <th class="col-income">Dividend mode</th>
+          <th class="col-withdrawal">Allowable dividend drawdown</th>
+          <th class="col-withdrawal">Dividend withdrawal</th>
+          <th class="col-withdrawal">Allowable partial</th>
+          <th class="col-withdrawal">Partial withdrawal</th>
+          ${showAdvisor ? '<th class="col-charge">Optional deduction</th>' : ''}
         </tr>
       </thead>
       <tbody>
-        ${rows.map((row) => strategyRowHtml({ ...row, totalYears: rows.length, projectedValue: annualValues ? annualValues[row.year] : null }, settings, showAdvisor, target)).join("")}
+        ${rows.map((row) => strategyRowHtml(row, settings, showAdvisor, target)).join("")}
       </tbody>
     `;
     table.querySelectorAll("input,select").forEach((el) => {
@@ -4453,8 +4004,7 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
     const mode = row.dividendMode || "none";
     const variant = model.VARIANTS[settings.variantKey];
     const canWithdraw = model.partialWithdrawalAllowed(variant, row.year);
-    const totalYears = Number.isFinite(row.totalYears) ? row.totalYears : 37;
-    const rowClass = rowClassForYear(variant, row.year, totalYears);
+    const rowClass = rowClassForYear(variant, row.year);
     const dividendCellClass = target === "compare" ? "compare-allowable-dividend-cell" : "allowable-dividend-cell";
     const partialCellClass = target === "compare" ? "compare-allowable-cell" : "allowable-cell";
     const rowTitle = rowClass === "partial-window"
@@ -4462,47 +4012,26 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
       : rowClass === "full-withdrawal-window"
         ? "First year with no surrender charge"
         : "";
-    // Compact-format helpers for the Working-tab basic view.
-    const sym = model.currencySymbol(settings.currency);
-    const compact = (v) => {
-      const n = Number(v) || 0;
-      const abs = Math.abs(n);
-      const sign = n < 0 ? "-" : "";
-      if (abs >= 1_000_000) return `${sign}${sym}${(abs / 1_000_000).toFixed(2).replace(/\.?0+$/, "")}M`;
-      if (abs >= 1000) return `${sign}${sym}${Math.round(abs / 1000)}K`;
-      return `${sign}${sym}${Math.round(abs)}`;
-    };
-    const compactK = (v) => {
-      const n = Number(v) || 0;
-      if (n === 0) return "—";
-      return `${n < 0 ? "−" : ""}${Math.round(Math.abs(n) / 1000)}k`;
-    };
-    // The basic-view "Withdraw" column shows the SUM of the row's dividend +
-    // partial withdrawal as compact display; advisor view exposes both.
-    const totalWithdraw = (Number(row.dividendWithdrawal) || 0) + (Number(row.partialWithdrawal) || 0);
     return `
       <tr class="${rowClass}" title="${rowTitle}" data-year="${row.year}" data-basic-premium="${roundInput(row.basicPremium)}">
-        <td class="col-time"><span class="v">${row.year}</span></td>
+        <td class="col-time">${row.year}</td>
         <td class="col-time">${age}</td>
-        <td class="col-premium right premium-cell">${row.basicPremium ? compactK(row.basicPremium) : "—"}</td>
-        ${showAdvisor ? `<td class="col-premium right"><input data-field="topUp" type="number" min="0" step="100" value="${roundInput(row.topUp)}" /></td>` : ""}
-        <td class="col-growth right"><input class="input-growth strategy-input" data-field="navReturn" type="number" step="0.1" value="${roundInput(row.navReturn * 100, 2)}" /></td>
-        <td class="col-income right"><input class="input-income strategy-input" data-field="dividendYield" type="number" step="0.1" value="${roundInput(row.dividendYield * 100, 2)}" /></td>
+        <td class="col-premium premium-cell">${row.basicPremium ? money(row.basicPremium, settings.currency) : "-"}</td>
+        ${showAdvisor ? `<td class="col-premium"><input data-field="topUp" type="number" min="0" step="100" value="${roundInput(row.topUp)}" /></td>` : ""}
+        <td class="col-growth"><input class="input-growth" data-field="navReturn" type="number" step="0.1" value="${roundInput(row.navReturn * 100, 2)}" /></td>
+        <td class="col-income"><input class="input-income" data-field="dividendYield" type="number" step="0.1" value="${roundInput(row.dividendYield * 100, 2)}" /></td>
         <td class="col-income">
-          <select class="input-income strategy-select" data-field="dividendMode">
-            <option value="none" ${mode === "none" ? "selected" : ""}>—</option>
+          <select class="input-income" data-field="dividendMode">
+            <option value="none" ${mode === "none" ? "selected" : ""}>None</option>
             <option value="reinvest" ${mode === "reinvest" ? "selected" : ""}>Reinvest</option>
             <option value="payout" ${mode === "payout" ? "selected" : ""}>Payout</option>
           </select>
         </td>
-        ${showAdvisor ? `<td class="col-withdrawal right ${dividendCellClass}" data-year="${row.year}">—</td>` : ""}
-        ${showAdvisor ? `<td class="col-withdrawal right"><input class="input-withdrawal" data-field="dividendWithdrawal" type="number" min="0" step="100" value="${roundInput(row.dividendWithdrawal)}" disabled /></td>` : ""}
-        ${showAdvisor ? `<td class="col-withdrawal right ${partialCellClass}" data-year="${row.year}">${canWithdraw ? "Calculating" : "—"}</td>` : ""}
-        <td class="col-withdrawal right">
-          <input class="input-withdrawal strategy-input" data-field="partialWithdrawal" type="number" min="0" step="100" value="${roundInput(row.partialWithdrawal)}" ${canWithdraw ? "" : "disabled"} placeholder="—" title="${canWithdraw ? "Partial withdrawal" : "Not yet allowed"}" />
-        </td>
-        ${showAdvisor ? `<td class="col-charge right"><input class="input-charge" data-field="optionalDeduction" type="number" min="0" step="100" value="${roundInput(row.optionalDeduction)}" /></td>` : ""}
-        <td class="col-value right">${row.projectedValue != null ? `<span class="v">${compact(row.projectedValue)}</span>` : "—"}</td>
+        <td class="col-withdrawal ${dividendCellClass}" data-year="${row.year}">-</td>
+        <td class="col-withdrawal"><input class="input-withdrawal" data-field="dividendWithdrawal" type="number" min="0" step="100" value="${roundInput(row.dividendWithdrawal)}" disabled /></td>
+        <td class="col-withdrawal ${partialCellClass}" data-year="${row.year}">${canWithdraw ? "Calculating" : "-"}</td>
+        <td class="col-withdrawal"><input class="input-withdrawal" data-field="partialWithdrawal" type="number" min="0" step="100" value="${roundInput(row.partialWithdrawal)}" ${canWithdraw ? "" : "disabled"} /></td>
+        ${showAdvisor ? `<td class="col-charge"><input class="input-charge" data-field="optionalDeduction" type="number" min="0" step="100" value="${roundInput(row.optionalDeduction)}" /></td>` : ""}
       </tr>
     `;
   }
@@ -4793,10 +4322,6 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
     renderSourceNotes();
     updateStrategyReadouts(results.custom);
     if (results.customCompare) updateStrategyReadouts(results.customCompare, "compareStrategyTable", currentCompareSettings(settings), "compare");
-    // Notify overlay (Quiet Modern shell) that a projection has rendered.
-    try {
-      window.dispatchEvent(new CustomEvent("ckg:projection-rendered", { detail: { results, settings } }));
-    } catch (e) { /* ignore */ }
   }
 
   function renderChecks(result) {
@@ -4900,18 +4425,15 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
       return `<div class="seg ${compact}" style="width:${pct.toFixed(2)}%; background:${s.color}" title="${s.label}: ${money(s.value, settings.currency)}">${pct >= 6 ? Math.round(pct) + "%" : ""}</div>`;
     }).join("");
 
-    $("compositionLegend").innerHTML = segs.map((s) => {
-      const pct = positiveSum > 0 ? Math.round((Math.max(0, s.value) / positiveSum) * 100) : 0;
-      return `
+    $("compositionLegend").innerHTML = segs.map((s) => `
       <li>
         <i style="background:${s.color}"></i>
         <div>
           <span>${s.label}</span>
-          <span class="legend-trail"><strong>${money(s.value, settings.currency)}</strong><span class="pct">${pct}%</span></span>
+          <strong>${money(s.value, settings.currency)}</strong>
         </div>
       </li>
-    `;
-    }).join("");
+    `).join("");
   }
 
   // ===== COMPARISON HERO =====
@@ -5026,7 +4548,7 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
     if (results.customCompare) {
       benchmarks.push({
         name: `${results.customCompare.variant.label} total value`,
-        color: "var(--d-ink-3)",   // muted ink — neutral, doesn't clash with FD's khaki
+        color: "var(--c-benchmark)",
         values: apply(results.customCompare.annual.map((row) => row.totalValue)),
         kind: "compare",
       });
@@ -5042,7 +4564,7 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
     if (results.fixedDeposit) {
       benchmarks.push({
         name: "Fixed deposit",
-        color: "var(--c-benchmark)",   // warm khaki — distinct from --c-dividend (teal)
+        color: "var(--c-dividend)",
         values: apply(results.fixedDeposit.annual.map((row) => row.value)),
         kind: "fd",
       });
@@ -5085,79 +4607,27 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
     const hasCashReceived = annual.some((row) => (row.cashDividends + row.cashWithdrawals) > 0);
     $("chartEndLabel").textContent = `End age ${settings.startAge + annual.length}`;
 
-    // Legend — Quiet Modern restraint: only the selected line and the
-    // primary benchmark (if any). No "capital paid", no milestone, no
-    // account-only entry; those shapes still draw on the canvas but don't
-    // crowd the legend.
+    // Legend
     const legendItems = [];
+    legendItems.push({ name: "Capital paid in", color: "var(--c-paid)", swatch: "line" });
+    legendItems.push({ name: "Investment growth (filled)", color: "var(--c-growth)", swatch: "area" });
     legendItems.push({ name: series.selected.name, color: "var(--c-selected)", swatch: "line" });
-    if (series.benchmarks.length) {
-      const primary = series.benchmarks[0];
-      legendItems.push({ name: primary.name, color: primary.color, swatch: "dashed" });
+    if (hasCashReceived && !results.customCompare) {
+      legendItems.push({ name: series.account.name, color: "#74808f", swatch: "dashed" });
+    }
+    series.benchmarks.forEach((b) => legendItems.push({ name: b.name, color: b.color, swatch: "line" }));
+    if (series.milestones.length) {
+      legendItems.push({ name: "Milestones", color: "var(--c-bonus)", swatch: "dot" });
     }
 
     $("chartLegend").innerHTML = legendItems.map((item) => {
+      if (item.swatch === "area") return `<span><i class="area" style="background:${item.color}"></i>${item.name}</span>`;
       if (item.swatch === "dashed") return `<span><i class="dashed" style="--line-color:${item.color}; background:${item.color}"></i>${item.name}</span>`;
+      if (item.swatch === "dot") return `<span><i style="background:${item.color}; height:9px; width:9px; border-radius:50%"></i>${item.name}</span>`;
       return `<span><i style="background:${item.color}"></i>${item.name}</span>`;
     }).join("");
 
     drawChart(series, settings);
-    renderChartFooter(results, series, settings);
-  }
-
-  // Quiet Modern: 4-cell footer below the chart panel.
-  function renderChartFooter(results, series, settings) {
-    const foot = $("chartFoot");
-    if (!foot) return;
-    const finalSelected = series.selected.values[series.selected.values.length - 1] || 0;
-    const benchmark = series.benchmarks[0];
-    const finalBench = benchmark ? benchmark.values[benchmark.values.length - 1] || 0 : null;
-    const delta = finalBench !== null ? finalSelected - finalBench : null;
-    const endAge = settings.startAge + series.selected.values.length;
-
-    // Crossover age — first year selected exceeds primary benchmark; if no
-    // benchmark, surrender breakeven against cumulative premiums.
-    let crossover = null;
-    let leadFromStart = false;
-    if (benchmark) {
-      for (let i = 0; i < series.selected.values.length; i += 1) {
-        if (series.selected.values[i] > benchmark.values[i]) { crossover = i + 1; break; }
-      }
-      if (crossover === 1 && series.selected.values[0] > benchmark.values[0]) leadFromStart = true;
-    } else {
-      const annual = results.custom.annual;
-      let cumPaid = 0;
-      for (let i = 0; i < annual.length; i += 1) {
-        cumPaid += (annual[i].premiums || 0) + (annual[i].topUps || 0);
-        const surrender = (annual[i].surrenderValue || 0) + (annual[i].cashDividends || 0) + (annual[i].cashWithdrawals || 0);
-        if (surrender >= cumPaid && cumPaid > 0) { crossover = annual[i].year; break; }
-      }
-    }
-
-    const cells = [
-      {
-        lab: `Age ${endAge} · selected`,
-        val: money(finalSelected, settings.currency),
-        cls: "brass",
-      },
-      benchmark
-        ? { lab: `Age ${endAge} · ${benchmark.kind === "fd" ? "FD bench" : benchmark.kind === "compare" ? "compare" : "bench"}`, val: money(finalBench, settings.currency) }
-        : { lab: `Age ${endAge} · benchmark`, val: "—" },
-      benchmark
-        ? { lab: "Δ vs benchmark", val: `${delta >= 0 ? "+" : ""}${money(delta, settings.currency)}`, cls: delta >= 0 ? "pos" : "neg" }
-        : { lab: "Δ vs benchmark", val: "—" },
-      {
-        lab: benchmark ? "Crossover age" : "Surrender breakeven",
-        val: crossover ? `age ${settings.startAge + crossover}${leadFromStart ? "*" : ""}` : "never",
-      },
-    ];
-
-    foot.innerHTML = cells.map((c) => `
-      <div>
-        <div class="lab">${c.lab}</div>
-        <div class="val ${c.cls || ""}">${c.val}</div>
-      </div>
-    `).join("");
   }
 
   function resolveColor(token) {
@@ -5204,8 +4674,8 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
 
     state.chartGeometry = { pad, width, height, xAt, yAt, labels, count: labels.length };
 
-    // Background grid — Quiet Modern: 5 evenly spaced soft-rule lines
-    ctx.strokeStyle = resolveColor("var(--d-rule-soft)") || "#eeeeec";
+    // Background grid
+    ctx.strokeStyle = "#eee8dc";
     ctx.lineWidth = 1;
     for (let i = 0; i <= 4; i += 1) {
       const value = min + ((max - min) * i) / 4;
@@ -5231,38 +4701,65 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
       ctx.setLineDash([]);
     }
 
-    // Quiet Modern chart: gradient fill under selected, dashed benchmark,
-    // solid selected line, single brass end-of-line marker. No cumulative-
-    // paid line, no investment-growth area, no comparison-gap fills.
+    // Investment growth area: between cumulative paid and selected total
+    const goldStroke = resolveColor("var(--c-bonus)");
+    const goldGlow = "rgba(167, 133, 61, 0.18)";
     const navyStroke = resolveColor("var(--c-selected)");
+    const grayPaid = resolveColor("var(--c-paid)");
     const accountColor = "#74808f";
 
-    // Selected gradient area (top stop 0.14 alpha, bottom 0)
-    const grad = ctx.createLinearGradient(0, pad.top, 0, height - pad.bottom);
-    const navyRgb = navyStroke.startsWith("#")
-      ? `${parseInt(navyStroke.slice(1, 3), 16)}, ${parseInt(navyStroke.slice(3, 5), 16)}, ${parseInt(navyStroke.slice(5, 7), 16)}`
-      : "14, 31, 51";
-    grad.addColorStop(0, `rgba(${navyRgb}, 0.14)`);
-    grad.addColorStop(1, `rgba(${navyRgb}, 0)`);
-    ctx.fillStyle = grad;
+    ctx.fillStyle = goldGlow;
     ctx.beginPath();
-    series.selected.values.forEach((v, i) => {
+    series.cumulativePaid.forEach((v, i) => {
       const x = xAt(i);
       const y = yAt(v);
       if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
-    ctx.lineTo(xAt(series.selected.values.length - 1), height - pad.bottom);
-    ctx.lineTo(xAt(0), height - pad.bottom);
+    for (let i = series.selected.values.length - 1; i >= 0; i -= 1) {
+      ctx.lineTo(xAt(i), yAt(series.selected.values[i]));
+    }
     ctx.closePath();
     ctx.fill();
 
-    // Primary benchmark (dashed, 1.5px)
+    // Cumulative paid line
+    ctx.strokeStyle = grayPaid;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([2, 4]);
+    ctx.beginPath();
+    series.cumulativePaid.forEach((v, i) => {
+      const x = xAt(i);
+      const y = yAt(v);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Comparison gap fill (selected vs first benchmark)
     if (series.benchmarks.length) {
       const benchmark = series.benchmarks[0];
       const benchColor = resolveColor(benchmark.color);
+      // Fill between selected and benchmark — gold if selected ahead, red soft if behind
+      for (let i = 0; i < series.selected.values.length - 1; i += 1) {
+        const x1 = xAt(i);
+        const x2 = xAt(i + 1);
+        const sA = series.selected.values[i];
+        const sB = series.selected.values[i + 1];
+        const bA = benchmark.values[i];
+        const bB = benchmark.values[i + 1];
+        const ahead = (sA + sB) / 2 >= (bA + bB) / 2;
+        ctx.fillStyle = ahead ? "rgba(167, 133, 61, 0.12)" : "rgba(159, 61, 53, 0.10)";
+        ctx.beginPath();
+        ctx.moveTo(x1, yAt(sA));
+        ctx.lineTo(x2, yAt(sB));
+        ctx.lineTo(x2, yAt(bB));
+        ctx.lineTo(x1, yAt(bA));
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Benchmark line
       ctx.strokeStyle = benchColor;
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([3, 4]);
+      ctx.lineWidth = 2.2;
       ctx.beginPath();
       benchmark.values.forEach((v, i) => {
         const x = xAt(i);
@@ -5270,14 +4767,13 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       });
       ctx.stroke();
-      ctx.setLineDash([]);
     }
 
-    // Additional benchmarks (subtle dashed lines, lighter)
+    // Additional benchmarks beyond first
     series.benchmarks.slice(1).forEach((b) => {
       ctx.strokeStyle = resolveColor(b.color);
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([2, 6]);
+      ctx.lineWidth = 2;
+      ctx.setLineDash(b.dash || []);
       ctx.beginPath();
       b.values.forEach((v, i) => {
         const x = xAt(i);
@@ -5288,9 +4784,24 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
       ctx.setLineDash([]);
     });
 
-    // Selected line (2px, drawn last for prominence)
+    // Account-only (when comparing reinvest is off and no compare-with)
+    if (series.account && !series.benchmarks.some((b) => b.kind === "compare")) {
+      ctx.strokeStyle = accountColor;
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash(series.account.dash || []);
+      ctx.beginPath();
+      series.account.values.forEach((v, i) => {
+        const x = xAt(i);
+        const y = yAt(v);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Selected line (drawn last for prominence)
     ctx.strokeStyle = navyStroke;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.8;
     ctx.beginPath();
     series.selected.values.forEach((v, i) => {
       const x = xAt(i);
@@ -5299,11 +4810,9 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
     });
     ctx.stroke();
 
-    // Y-axis labels (mono, muted)
-    const inkMuted = resolveColor("var(--d-ink-3)") || "#7a7f87";
-    const monoFamily = `"Geist Mono", "JetBrains Mono", ui-monospace, monospace`;
-    ctx.fillStyle = inkMuted;
-    ctx.font = `${compactChart ? 10 : 11}px ${monoFamily}`;
+    // Y axis labels
+    ctx.fillStyle = "#736a5b";
+    ctx.font = compactChart ? "11px Arial" : "12px Arial";
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
     for (let i = 0; i <= 4; i += 1) {
@@ -5312,39 +4821,59 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
       ctx.fillText(compactMoney(value, settings.currency), pad.left - 10, y);
     }
 
-    // X-axis: 5 age labels at 0%, 25%, 50%, 75%, 100% of the horizon
-    const startAge = settings.startAge || 62;
-    const endAge = startAge + labels.length;
-    const ageMarks = [
-      startAge,
-      Math.round(startAge + (endAge - startAge) * 0.25),
-      Math.round(startAge + (endAge - startAge) * 0.5),
-      Math.round(startAge + (endAge - startAge) * 0.75),
-      endAge - 1,
-    ];
+    // X axis labels — critical milestone years get a bold callout, regular spaced
+    // labels fill in around them and skip when they would collide.
+    const drawnXs = [];
+    const minGap = compactChart ? 40 : 26;
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-    ctx.fillStyle = inkMuted;
-    ctx.font = `${compactChart ? 10 : 11}px ${monoFamily}`;
-    ageMarks.forEach((age) => {
-      const yearIdx = Math.max(0, Math.min(labels.length - 1, age - startAge - 1));
-      const x = xAt(yearIdx);
-      ctx.fillText(`${age}`, x, height - pad.bottom + 10);
+
+    series.milestones
+      .filter((m) => m.kind === "critical")
+      .forEach((m) => {
+        const x = xAt(m.year - 1);
+        if (drawnXs.some((dx) => Math.abs(dx - x) < minGap)) return;
+        drawnXs.push(x);
+        ctx.fillStyle = "#5a4a23";
+        ctx.font = compactChart ? "bold 11px Arial" : "bold 12px Arial";
+        ctx.fillText(`Y${m.year}`, x, height - pad.bottom + 12);
+      });
+
+    ctx.fillStyle = "#736a5b";
+    ctx.font = compactChart ? "11px Arial" : "12px Arial";
+    const step = Math.max(1, Math.ceil(labels.length / (compactChart ? 5 : 10)));
+    labels.forEach((label, i) => {
+      if (i % step !== 0 && i !== labels.length - 1) return;
+      const x = xAt(i);
+      if (drawnXs.some((dx) => Math.abs(dx - x) < minGap)) return;
+      drawnXs.push(x);
+      ctx.fillText(label, x, height - pad.bottom + 12);
     });
 
-    // Single end-of-line marker: 4px brass circle with paper stroke
-    const lastIdx = series.selected.values.length - 1;
-    const lastX = xAt(lastIdx);
-    const lastY = yAt(series.selected.values[lastIdx]);
-    const brass = resolveColor("var(--d-brass)") || "#b58a52";
-    const paper = resolveColor("var(--d-paper-3)") || "#ffffff";
-    ctx.beginPath();
-    ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
-    ctx.fillStyle = brass;
-    ctx.fill();
-    ctx.strokeStyle = paper;
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    // Milestone markers
+    series.milestones.forEach((m) => {
+      const idx = m.year - 1;
+      const x = xAt(idx);
+      const y = yAt(series.selected.values[idx]);
+      ctx.beginPath();
+      ctx.arc(x, y, compactChart ? 5 : 5.5, 0, Math.PI * 2);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.strokeStyle = goldStroke;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Show event label above the dot only for critical milestones to keep the chart calm.
+      if (m.kind === "critical" && (!compactChart || m.year === labels.length)) {
+        ctx.fillStyle = "#5a4a23";
+        ctx.font = "10px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        const labelWidth = ctx.measureText(m.label).width;
+        const labelX = Math.max(pad.left + labelWidth / 2, Math.min(width - pad.right - labelWidth / 2, x));
+        ctx.fillText(m.label, labelX, y - 10);
+      }
+    });
   }
 
   // ===== CHART INTERACTION =====
@@ -6226,531 +5755,6 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
   document.addEventListener("DOMContentLoaded", init);
 })();
 
-    </script>
-
-    <script>
-// =====================================================================
-// QUIET MODERN OVERLAY
-// Theme toggle, console-toggle visuals, sticky-summary mirror, scroll-spy.
-// Lives outside the simulator IIFE; reads DOM only.
-// =====================================================================
-(function () {
-  "use strict";
-
-  const root = document.documentElement;
-  const $ = (id) => document.getElementById(id);
-
-  // ---------- Theme toggle ----------
-  const THEME_KEY = "ckg-illustration-theme";
-  const themeBtn = $("themeToggle");
-  function applyTheme(t) {
-    if (t === "dark") root.setAttribute("data-theme", "dark");
-    else root.removeAttribute("data-theme");
-    if (themeBtn) {
-      themeBtn.textContent = t === "dark" ? "● Dark" : "○ Light";
-      themeBtn.setAttribute("aria-pressed", t === "dark" ? "true" : "false");
-    }
-    document.querySelector('meta[name="theme-color"]')?.setAttribute(
-      "content",
-      t === "dark" ? "#16181c" : "#fafafa"
-    );
-  }
-  let savedTheme = "light";
-  try { savedTheme = localStorage.getItem(THEME_KEY) || "light"; } catch (e) {}
-  applyTheme(savedTheme);
-  if (themeBtn) {
-    themeBtn.addEventListener("click", () => {
-      const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
-      applyTheme(next);
-      try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
-      // Trigger re-render of canvas chart (it reads CSS variables on render).
-      window.dispatchEvent(new CustomEvent("ckg:theme-changed", { detail: { theme: next } }));
-    });
-  }
-
-  // ---------- Sync .tg.on with checkbox state ----------
-  function syncToggle(label) {
-    const input = label.querySelector('input[type="checkbox"]');
-    if (!input) return;
-    label.classList.toggle("on", !!input.checked);
-  }
-  document.querySelectorAll(".console .tg").forEach((label) => {
-    syncToggle(label);
-    const input = label.querySelector('input[type="checkbox"]');
-    if (input) input.addEventListener("change", () => syncToggle(label));
-  });
-
-  // ---------- Sticky summary mirror ----------
-  function fmtNumber(n, currency) {
-    if (!Number.isFinite(n)) return "—";
-    const sym = currency === "USD" ? "US$" : "S$";
-    if (Math.abs(n) >= 1_000_000) return `${sym}${(n / 1_000_000).toFixed(2)}M`;
-    if (Math.abs(n) >= 1000) return `${sym}${(n / 1000).toLocaleString(undefined, { maximumFractionDigits: 0 })}K`;
-    return `${sym}${Math.round(n).toLocaleString()}`;
-  }
-  function plainNumber(input) {
-    const v = Number(input?.value);
-    return Number.isFinite(v) ? v : 0;
-  }
-
-  function variantInfo() {
-    const variants = window.IRModel && window.IRModel.VARIANTS;
-    const key = $("variantKey")?.value;
-    if (!variants || !key || !variants[key]) return { key: key || "—", label: "—", mipYears: 0 };
-    return { key, label: variants[key].label, mipYears: variants[key].mipYears, shortfallYears: variants[key].shortfallYears };
-  }
-
-  function refreshSummary() {
-    const v = variantInfo();
-    const currency = $("currency")?.value || "SGD";
-    const payment = $("paymentFrequency")?.value || "Annual";
-    const premium = plainNumber($("annualizedPremium"));
-    const startAge = plainNumber($("startAge"));
-    const endAge = 99;
-    const horizon = Math.max(1, endAge - startAge);
-
-    const sumVariant = $("sumVariant");
-    if (sumVariant) sumVariant.textContent = v.key || "—";
-    const sumVariantSub = $("sumVariantSub");
-    if (sumVariantSub) sumVariantSub.textContent = `${v.label} · ${currency} · ${payment}`;
-
-    const sumPremium = $("sumPremium");
-    if (sumPremium) sumPremium.textContent = premium ? premium.toLocaleString() : "—";
-    const sumPremiumSub = $("sumPremiumSub");
-    if (sumPremiumSub) {
-      const yrs = v.shortfallYears || v.mipYears || 0;
-      const total = premium * (yrs || 0);
-      const totalLabel = total ? ` · ${fmtNumber(total, currency)} total` : "";
-      sumPremiumSub.textContent = `${currency === "USD" ? "US$" : "S$"}${premium.toLocaleString()} × ${yrs || "—"} yrs${totalLabel}`;
-    }
-
-    const sumAge = $("sumAge");
-    if (sumAge) sumAge.textContent = startAge ? `${startAge} → ${endAge}` : "—";
-    const sumAgeSub = $("sumAgeSub");
-    if (sumAgeSub) sumAgeSub.textContent = `${horizon}-year horizon`;
-
-    // Projected: mirror from heroTotal text (already formatted)
-    const heroTotalEl = $("heroTotal");
-    const sumProjected = $("sumProjected");
-    if (sumProjected && heroTotalEl) sumProjected.textContent = heroTotalEl.textContent || "—";
-    const sumProjectedSub = $("sumProjectedSub");
-    if (sumProjectedSub) {
-      const heroEnd = $("heroEndAge");
-      sumProjectedSub.textContent = heroEnd ? `at ${heroEnd.textContent}` : "—";
-    }
-
-    // IRR: parse from heroCaption text (e.g. "From S$X contributed at 5.84% IRR.")
-    const captionEl = $("heroCaption");
-    const sumIrr = $("sumIrr");
-    if (sumIrr && captionEl) {
-      const match = (captionEl.textContent || "").match(/(-?\d+\.?\d*)\s*%\s*IRR/i);
-      sumIrr.textContent = match ? `${match[1]}%` : "—";
-    }
-    const sumIrrSub = $("sumIrrSub");
-    if (sumIrrSub) {
-      if ($("compareFd")?.checked) {
-        const rate = plainNumber($("fdRate"));
-        sumIrrSub.textContent = rate ? `vs FD ${rate.toFixed(2)}%` : "vs FD";
-      } else {
-        sumIrrSub.textContent = "annualised";
-      }
-    }
-
-    // Status: count warnings from #checks
-    const checks = $("checks");
-    const sumStatus = $("sumStatus");
-    const sumStatusSub = $("sumStatusSub");
-    if (checks && sumStatus) {
-      const warnings = checks.querySelectorAll(".warn, .warning, [data-warn], li.warn").length;
-      sumStatus.classList.remove("warn");
-      if (warnings > 0) {
-        sumStatus.innerHTML = `<span class="pulse" style="background: var(--d-warn);"></span>${warnings} warning${warnings > 1 ? "s" : ""}`;
-        sumStatus.style.color = "var(--d-warn)";
-      } else {
-        sumStatus.innerHTML = `<span class="pulse"></span>Live`;
-        sumStatus.style.color = "var(--d-pos)";
-      }
-      if (sumStatusSub) {
-        const okCount = checks.querySelectorAll("li.ok, li").length;
-        sumStatusSub.textContent = `${okCount} checks · ${warnings} warning${warnings === 1 ? "" : "s"}`;
-      }
-    }
-
-    refreshHeroSide(currency, premium, v);
-  }
-
-  function refreshHeroSide(currency, premium, v) {
-    // IRR
-    const captionEl = $("heroCaption");
-    const heroIrr = $("heroIrr");
-    if (heroIrr && captionEl) {
-      const match = (captionEl.textContent || "").match(/(-?\d+\.?\d*)\s*%\s*IRR/i);
-      heroIrr.textContent = match ? `${match[1]}%` : "—";
-    }
-
-    // Premium paid (best estimate from inputs)
-    const heroPremPaid = $("heroPremPaid");
-    if (heroPremPaid) {
-      const yrs = v.shortfallYears || v.mipYears || 0;
-      const total = premium * yrs;
-      heroPremPaid.textContent = total ? fmtNumber(total, currency) : "—";
-    }
-
-    // Bonuses + dividends from composition legend
-    const bonusDivEl = $("heroBonusDiv");
-    if (bonusDivEl) {
-      const legendItems = document.querySelectorAll("#compositionLegend li");
-      let total = 0;
-      legendItems.forEach((li) => {
-        const labelEl = li.querySelector("span");
-        const valueEl = li.querySelector("strong");
-        if (!labelEl || !valueEl) return;
-        const labelText = (labelEl.textContent || "").toLowerCase();
-        if (/bonus|dividend/.test(labelText)) {
-          const numMatch = (valueEl.textContent || "").replace(/[^0-9.\-]/g, "");
-          const value = Number(numMatch);
-          if (Number.isFinite(value)) total += value;
-        }
-      });
-      bonusDivEl.textContent = total > 0 ? fmtNumber(total, currency) : "—";
-    }
-
-    // Δ vs benchmark from comparison hero
-    const deltaEl = $("heroDelta");
-    if (deltaEl) {
-      const cmpDelta = $("cmpDeltaAmount");
-      const cmpVisible = !$("comparisonHero")?.hidden;
-      if (cmpVisible && cmpDelta) {
-        deltaEl.textContent = cmpDelta.textContent || "—";
-        const isNeg = cmpDelta.classList.contains("is-negative");
-        deltaEl.classList.toggle("pos", !isNeg);
-        deltaEl.classList.toggle("neg", isNeg);
-      } else {
-        deltaEl.textContent = "—";
-        deltaEl.classList.remove("pos", "neg");
-      }
-    }
-
-    // Crossover age — populated by ckg:projection-rendered listener below.
-  }
-
-  // Listen for projection-rendered events from the simulator to compute the
-  // crossover age (first age at which the selected line exceeds the active
-  // benchmark line). Sets #heroCrossover and #sumStatusSub if applicable.
-  function computeAndShowCrossover(results) {
-    const crossEl = $("heroCrossover");
-    if (!crossEl || !results || !results.custom) return;
-
-    const selected = results.custom.annual;
-    if (!selected.length) {
-      crossEl.textContent = "—";
-      return;
-    }
-
-    // Pick the most informative benchmark. Priority: comparison variant first
-    // (apples-to-apples between two policies), then FD (the common talking
-    // point), then reinvest. If none are active, fall back to surrender
-    // breakeven against cumulative premiums.
-    let bench = null;
-    let benchLabel = "";
-    if (results.customCompare && results.customCompare.annual && results.customCompare.annual.length) {
-      bench = results.customCompare.annual.map((row) => row.totalValue);
-      benchLabel = `vs ${results.customCompare.variant.label}`;
-    } else if (results.fixedDeposit && results.fixedDeposit.annual && results.fixedDeposit.annual.length) {
-      bench = results.fixedDeposit.annual.map((row) => row.value);
-      benchLabel = "vs FD";
-    } else if (results.reinvest && results.reinvest.annual && results.reinvest.annual.length) {
-      bench = results.reinvest.annual.map((row) => row.totalValue);
-      benchLabel = "vs reinvest";
-    }
-
-    // Crossover semantics:
-    //   - With an active benchmark: when the chart's selected line first
-    //     exceeds the benchmark line (totalValue vs bench, matching the chart).
-    //   - Without a benchmark ("surrender breakeven"): when the SURRENDER
-    //     value (cash-out-able) first exceeds cumulative premiums paid.
-    //     More honest than totalValue, which jumps above premiums on day one
-    //     thanks to the Welcome Bonus but isn't liquid.
-    const startAge = plainNumber($("startAge"));
-    let crossYear = null;
-    let crossKind = "";
-    let leadFromStart = false;
-    if (bench) {
-      const len = Math.min(selected.length, bench.length);
-      // Detect "lead from start" — selected was above on year 1 already.
-      if (len && selected[0].totalValue > bench[0]) leadFromStart = true;
-      for (let i = 0; i < len; i += 1) {
-        if (selected[i].totalValue > bench[i]) { crossYear = selected[i].year; break; }
-      }
-      crossKind = benchLabel;
-    } else {
-      let cumPaid = 0;
-      for (let i = 0; i < selected.length; i += 1) {
-        cumPaid += (selected[i].premiums || 0) + (selected[i].topUps || 0);
-        const surrender = (selected[i].surrenderValue || 0) + (selected[i].cashDividends || 0) + (selected[i].cashWithdrawals || 0);
-        if (surrender >= cumPaid && cumPaid > 0) { crossYear = selected[i].year; break; }
-      }
-      crossKind = "surrender breakeven";
-    }
-
-    if (crossYear == null) {
-      crossEl.textContent = "never";
-      crossEl.title = bench
-        ? `Selected stays below ${crossKind} across the full projection horizon.`
-        : "Surrender value never reaches premiums paid within the horizon.";
-      return;
-    }
-    if (leadFromStart && bench) {
-      // Year-1 lead is technically a "crossover" but visually unhelpful — call
-      // it out so the advisor knows the lead is from welcome-bonus head start.
-      crossEl.textContent = `from age ${startAge + crossYear}`;
-      crossEl.title = `Selected leads ${crossKind} from year ${crossYear} — head start from Welcome Bonus.`;
-    } else {
-      crossEl.textContent = `age ${startAge + crossYear}`;
-      crossEl.title = `Selected exceeds ${crossKind} from year ${crossYear}.`;
-    }
-  }
-  window.addEventListener("ckg:projection-rendered", (e) => {
-    const results = e.detail && e.detail.results;
-    computeAndShowCrossover(results);
-    populateVariantFacts(results, e.detail && e.detail.settings);
-  });
-
-  // ---------- Variant facts strip (Working tab) ----------
-  function populateVariantFacts(results, settings) {
-    const variants = window.IRModel && window.IRModel.VARIANTS;
-    const key = $("variantKey")?.value;
-    const variant = variants && key ? variants[key] : null;
-    if (!variant) return;
-    const set = (id, text) => { const el = $(id); if (el) el.textContent = text; };
-    set("vfMip", `${variant.mipYears} yrs`);
-    set("vfPremTerm", `${variant.shortfallYears} yrs`);
-    set("vfAdmin", `${(variant.adminDuring * 100).toFixed(2).replace(/\.?0+$/, "")}% / ${(variant.adminAfter * 100).toFixed(2).replace(/\.?0+$/, "")}%`);
-    // Welcome bonus rate at the actual premium amount (band-aware)
-    const premium = Number($("annualizedPremium")?.value) || 0;
-    const welcome = window.IRModel.welcomeRate(variant, premium) * 100;
-    set("vfWelcome", `${welcome.toFixed(welcome >= 10 ? 0 : 1)}%`);
-    set("vfAnnualBonus", variant.annualPremiumBonusRate ? `${(variant.annualPremiumBonusRate * 100).toFixed(1).replace(/\.0$/, "")}%` : "—");
-    set("vfLoyalty", variant.loyaltyRate ? `${(variant.loyaltyRate * 100).toFixed(1).replace(/\.0$/, "")}%` : "—");
-    // Policy fee — only applies in a certain band
-    const fee = window.IRModel.policyFeeMonthly(variant, premium, null);
-    if (fee > 0) {
-      const sym = window.IRModel.currencySymbol($("currency")?.value || "SGD");
-      set("vfPolicyFee", `${sym}${fee}/mo`);
-    } else {
-      set("vfPolicyFee", "None");
-    }
-  }
-  // First-paint population (in case projection-rendered hasn't fired yet)
-  setTimeout(() => populateVariantFacts(null, null), 200);
-  $("variantKey")?.addEventListener("change", () => populateVariantFacts(null, null));
-  $("annualizedPremium")?.addEventListener("input", () => populateVariantFacts(null, null));
-
-  // Run summary refresh on key input changes + after every render.
-  ["variantKey", "currency", "paymentFrequency", "annualizedPremium", "startAge",
-   "compareCustom", "compareFd", "compareReinvest", "fdRate"].forEach((id) => {
-    const el = $(id);
-    if (!el) return;
-    el.addEventListener("change", () => setTimeout(refreshSummary, 0));
-    el.addEventListener("input", () => setTimeout(refreshSummary, 0));
-  });
-
-  // Watch the hero number for any update, then mirror to the summary.
-  const heroTotalEl = $("heroTotal");
-  if (heroTotalEl && "MutationObserver" in window) {
-    const mo = new MutationObserver(() => refreshSummary());
-    mo.observe(heroTotalEl, { childList: true, characterData: true, subtree: true });
-  }
-  // Also watch composition legend (changes when render runs)
-  const legendEl = $("compositionLegend");
-  if (legendEl && "MutationObserver" in window) {
-    const mo2 = new MutationObserver(() => refreshSummary());
-    mo2.observe(legendEl, { childList: true, characterData: true, subtree: true });
-  }
-  // Watch the comparison delta so the hero-side Δ cell stays current.
-  const cmpDeltaEl = $("cmpDeltaAmount");
-  if (cmpDeltaEl && "MutationObserver" in window) {
-    const mo3 = new MutationObserver(() => refreshSummary());
-    mo3.observe(cmpDeltaEl, { childList: true, characterData: true, subtree: true });
-  }
-  // Watch the comparison hero's hidden attribute (toggled by Compare-with).
-  const cmpHero = $("comparisonHero");
-  if (cmpHero && "MutationObserver" in window) {
-    const mo4 = new MutationObserver(() => refreshSummary());
-    mo4.observe(cmpHero, { attributes: true, attributeFilter: ["hidden"] });
-  }
-
-  // Update composition meta when legend renders
-  if (legendEl && "MutationObserver" in window) {
-    const compMeta = $("compositionMeta");
-    const compMo = new MutationObserver(() => {
-      if (!compMeta) return;
-      const heroTotal = $("heroTotal")?.textContent || "—";
-      const components = legendEl.querySelectorAll("li").length;
-      compMeta.textContent = components
-        ? `${heroTotal} · ${components} component${components === 1 ? "" : "s"}`
-        : "—";
-    });
-    compMo.observe(legendEl, { childList: true, subtree: true, characterData: true });
-  }
-
-  // First-paint refresh
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", refreshSummary);
-  } else {
-    setTimeout(refreshSummary, 50);
-    setTimeout(refreshSummary, 300); // catch late simulator init
-  }
-
-  // ---------- Smooth-scroll Jump-to + Crumbs ----------
-  function stickyOffset() {
-    const topbar = document.querySelector(".topbar");
-    const summary = document.querySelector(".summary");
-    return (topbar ? topbar.offsetHeight : 60) + (summary ? summary.offsetHeight : 64) + 12;
-  }
-  function jumpTo(targetId) {
-    const target = document.getElementById(targetId);
-    if (!target) return;
-    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - stickyOffset());
-    // Use whatever animates if supported; otherwise jump.
-    if (typeof window.scrollTo === "function") {
-      try { window.scrollTo({ top, left: 0, behavior: "smooth" }); }
-      catch (e) { window.scrollTo(0, top); }
-    } else {
-      document.documentElement.scrollTop = top;
-    }
-    // Snap fallback: if the browser silently ignored the smooth animation
-    // (some headless / older environments), force the position after a tick.
-    setTimeout(() => {
-      if (Math.abs(window.scrollY - top) > 4) {
-        window.scrollTo(0, top);
-      }
-    }, 700);
-  }
-  document.querySelectorAll("[data-jump-target]").forEach((el) => {
-    el.addEventListener("click", (e) => {
-      e.preventDefault();
-      jumpTo(el.dataset.jumpTarget);
-    });
-  });
-
-  // ---------- Tab filtering ----------
-  // Crumb tabs set body[data-active-tab]; CSS hides sections that don't match.
-  // When the Compare tab is selected and Compare-with isn't toggled, show the
-  // comparison-empty placeholder instead.
-  function refreshCompareEmpty() {
-    const empty = document.getElementById("compareEmpty");
-    if (!empty) return;
-    const onCompareTab = document.body.getAttribute("data-active-tab") === "compare";
-    const cmpHidden = document.getElementById("comparisonHero")?.hidden ?? true;
-    const stratHidden = document.getElementById("compareStrategySection")?.hidden ?? true;
-    empty.style.display = (onCompareTab && cmpHidden && stratHidden) ? "block" : "none";
-  }
-  function setActiveTab(tab) {
-    if (!tab) return;
-    document.body.setAttribute("data-active-tab", tab);
-    document.querySelectorAll(".crumbs button").forEach((b) => {
-      b.classList.toggle("on", b.dataset.tabTarget === tab);
-    });
-    refreshCompareEmpty();
-    // Recompute chart on tab change since canvas layout shifts.
-    setTimeout(() => window.dispatchEvent(new Event("resize")), 0);
-    // Scroll to top of main column so the user sees the start of the tab.
-    window.scrollTo(0, 0);
-    try { localStorage.setItem("ckg-illustration-tab", tab); } catch (e) {}
-  }
-  document.querySelectorAll("[data-tab-target]").forEach((el) => {
-    el.addEventListener("click", (e) => {
-      e.preventDefault();
-      setActiveTab(el.dataset.tabTarget);
-    });
-  });
-  // Restore last active tab (if any).
-  try {
-    const saved = localStorage.getItem("ckg-illustration-tab");
-    if (saved && ["working", "funds", "compare", "output", "notes"].includes(saved)) {
-      setActiveTab(saved);
-    }
-  } catch (e) {}
-  // Whenever Compare-with toggle changes, recompute the empty placeholder.
-  document.getElementById("compareCustom")?.addEventListener("change", () => {
-    setTimeout(refreshCompareEmpty, 50);
-  });
-  document.getElementById("compareFd")?.addEventListener("change", () => {
-    setTimeout(refreshCompareEmpty, 50);
-  });
-
-  // ---------- Strategy table view toggle (Milestones / All years) ----------
-  const strategyMilestonesBtn = $("strategyMilestonesBtn");
-  const strategyAllBtn = $("strategyAllBtn");
-  function setStrategyView(mode) {
-    document.body.classList.toggle("show-all-strategy", mode === "all");
-    strategyMilestonesBtn?.classList.toggle("active", mode === "milestones");
-    strategyAllBtn?.classList.toggle("active", mode === "all");
-  }
-  strategyMilestonesBtn?.addEventListener("click", () => setStrategyView("milestones"));
-  strategyAllBtn?.addEventListener("click", () => setStrategyView("all"));
-
-  // Scroll-spy: highlight the active jump-to nav item
-  const sections = ["summary", "projection", "composition", "portfolio", "strategy", "output", "notes"]
-    .map((id) => document.getElementById(id))
-    .filter(Boolean);
-  if (sections.length && "IntersectionObserver" in window) {
-    const navLinks = document.querySelectorAll("[data-jump-target]");
-    const setActive = (id) => {
-      navLinks.forEach((l) => l.classList.toggle("on", l.dataset.jumpTarget === id));
-    };
-    let lastActive = null;
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && entry.intersectionRatio > 0.2) {
-          if (entry.target.id !== lastActive) {
-            lastActive = entry.target.id;
-            setActive(entry.target.id);
-          }
-        }
-      });
-    }, { rootMargin: "-20% 0px -50% 0px", threshold: [0.2, 0.5] });
-    sections.forEach((s) => io.observe(s));
-  }
-
-  // ---------- Re-render canvas chart on theme change ----------
-  // The chart resolves CSS variables on render. Force a redraw after theme flip
-  // by dispatching a window resize event (the simulator listens for that).
-  window.addEventListener("ckg:theme-changed", () => {
-    window.dispatchEvent(new Event("resize"));
-  });
-
-  // ---------- Keep canvas pixel buffer matched to its container ----------
-  // The simulator sets `canvas.width = clientWidth * dpr` on draw, but it draws
-  // once at first paint when the layout may not be final. Watch BOTH the chart
-  // stage AND the canvas itself (the canvas's CSS width can change without the
-  // stage resizing) and trigger a re-render so the chart never gets blurry.
-  const chartStage = document.querySelector(".chart-stage");
-  const chartCanvas = document.getElementById("valueChart");
-  if ("ResizeObserver" in window) {
-    let lastW = 0;
-    const ro = new ResizeObserver(() => {
-      const w = chartCanvas ? chartCanvas.clientWidth : (chartStage ? chartStage.clientWidth : 0);
-      if (Math.abs(w - lastW) > 2) {
-        lastW = w;
-        window.dispatchEvent(new Event("resize"));
-      }
-    });
-    if (chartStage) ro.observe(chartStage);
-    if (chartCanvas) ro.observe(chartCanvas);
-  }
-  // Also re-render once after fonts load (fallback for browsers without RO)
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => {
-      window.dispatchEvent(new Event("resize"));
-    });
-  }
-  window.addEventListener("load", () => {
-    setTimeout(() => window.dispatchEvent(new Event("resize")), 50);
-  });
-
-})();
     </script>
   </body>
 </html>
