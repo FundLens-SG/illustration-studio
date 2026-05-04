@@ -1,0 +1,6 @@
+# Local dev tooling (Claude Code launch configs, worktrees, transcripts)
+.claude/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
