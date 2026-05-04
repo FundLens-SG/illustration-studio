@@ -4240,6 +4240,10 @@ html { scroll-behavior: smooth; }
     renderSourceNotes();
     updateStrategyReadouts(results.custom);
     if (results.customCompare) updateStrategyReadouts(results.customCompare, "compareStrategyTable", currentCompareSettings(settings), "compare");
+    // Notify overlay (Quiet Modern shell) that a projection has rendered.
+    try {
+      window.dispatchEvent(new CustomEvent("ckg:projection-rendered", { detail: { results, settings } }));
+    } catch (e) { /* ignore */ }
   }
 
   function renderChecks(result) {
@@ -5878,8 +5882,88 @@ html { scroll-behavior: smooth; }
       }
     }
 
-    // Crossover age — not currently surfaced by simulator; leave dash
+    // Crossover age — populated by ckg:projection-rendered listener below.
   }
+
+  // Listen for projection-rendered events from the simulator to compute the
+  // crossover age (first age at which the selected line exceeds the active
+  // benchmark line). Sets #heroCrossover and #sumStatusSub if applicable.
+  function computeAndShowCrossover(results) {
+    const crossEl = $("heroCrossover");
+    if (!crossEl || !results || !results.custom) return;
+
+    const selected = results.custom.annual;
+    if (!selected.length) {
+      crossEl.textContent = "—";
+      return;
+    }
+
+    // Pick the most informative benchmark. Priority: comparison variant first
+    // (apples-to-apples between two policies), then FD (the common talking
+    // point), then reinvest. If none are active, fall back to surrender
+    // breakeven against cumulative premiums.
+    let bench = null;
+    let benchLabel = "";
+    if (results.customCompare && results.customCompare.annual && results.customCompare.annual.length) {
+      bench = results.customCompare.annual.map((row) => row.totalValue);
+      benchLabel = `vs ${results.customCompare.variant.label}`;
+    } else if (results.fixedDeposit && results.fixedDeposit.annual && results.fixedDeposit.annual.length) {
+      bench = results.fixedDeposit.annual.map((row) => row.value);
+      benchLabel = "vs FD";
+    } else if (results.reinvest && results.reinvest.annual && results.reinvest.annual.length) {
+      bench = results.reinvest.annual.map((row) => row.totalValue);
+      benchLabel = "vs reinvest";
+    }
+
+    // Crossover semantics:
+    //   - With an active benchmark: when the chart's selected line first
+    //     exceeds the benchmark line (totalValue vs bench, matching the chart).
+    //   - Without a benchmark ("surrender breakeven"): when the SURRENDER
+    //     value (cash-out-able) first exceeds cumulative premiums paid.
+    //     More honest than totalValue, which jumps above premiums on day one
+    //     thanks to the Welcome Bonus but isn't liquid.
+    const startAge = plainNumber($("startAge"));
+    let crossYear = null;
+    let crossKind = "";
+    let leadFromStart = false;
+    if (bench) {
+      const len = Math.min(selected.length, bench.length);
+      // Detect "lead from start" — selected was above on year 1 already.
+      if (len && selected[0].totalValue > bench[0]) leadFromStart = true;
+      for (let i = 0; i < len; i += 1) {
+        if (selected[i].totalValue > bench[i]) { crossYear = selected[i].year; break; }
+      }
+      crossKind = benchLabel;
+    } else {
+      let cumPaid = 0;
+      for (let i = 0; i < selected.length; i += 1) {
+        cumPaid += (selected[i].premiums || 0) + (selected[i].topUps || 0);
+        const surrender = (selected[i].surrenderValue || 0) + (selected[i].cashDividends || 0) + (selected[i].cashWithdrawals || 0);
+        if (surrender >= cumPaid && cumPaid > 0) { crossYear = selected[i].year; break; }
+      }
+      crossKind = "surrender breakeven";
+    }
+
+    if (crossYear == null) {
+      crossEl.textContent = "never";
+      crossEl.title = bench
+        ? `Selected stays below ${crossKind} across the full projection horizon.`
+        : "Surrender value never reaches premiums paid within the horizon.";
+      return;
+    }
+    if (leadFromStart && bench) {
+      // Year-1 lead is technically a "crossover" but visually unhelpful — call
+      // it out so the advisor knows the lead is from welcome-bonus head start.
+      crossEl.textContent = `from age ${startAge + crossYear}`;
+      crossEl.title = `Selected leads ${crossKind} from year ${crossYear} — head start from Welcome Bonus.`;
+    } else {
+      crossEl.textContent = `age ${startAge + crossYear}`;
+      crossEl.title = `Selected exceeds ${crossKind} from year ${crossYear}.`;
+    }
+  }
+  window.addEventListener("ckg:projection-rendered", (e) => {
+    computeAndShowCrossover(e.detail && e.detail.results);
+  });
 
   // Run summary refresh on key input changes + after every render.
   ["variantKey", "currency", "paymentFrequency", "annualizedPremium", "startAge",
