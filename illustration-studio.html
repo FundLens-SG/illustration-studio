@@ -61,7 +61,7 @@
   --r-3: 8px;
 
   /* Layout */
-  --rail-w: 264px;
+  --rail-w: 256px;
   --topbar-h: 60px;
   --sticky-h: 64px;
 
@@ -273,18 +273,19 @@ button:where(.btn-default) {
 }
 .summary .v {
   font-family: var(--mono);
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 500;
-  color: var(--d-ink);
+  color: var(--d-ink);                /* ink default — never red */
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums lining-nums;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Only the Projected cell takes the brass accent. */
 .summary .v.brass { color: var(--d-brass-2); }
-.summary .v.pos { color: var(--d-pos); }
-.summary .v.neg { color: var(--d-neg); }
+/* Status cell: green pulse + 14px label, no other "high-emphasis" colors. */
+.summary .status-cell .v { color: var(--d-pos); font-size: 14px; }
 .summary .sm {
   font-size: 11px;
   color: var(--d-ink-3);
@@ -301,7 +302,6 @@ button:where(.btn-default) {
   margin-right: 6px;
   vertical-align: middle;
 }
-.status-cell .v { font-size: 14px; color: var(--d-pos); }
 .status-cell .v.warn { color: var(--d-warn); }
 
 /* ----- Usage banner ----- */
@@ -929,6 +929,46 @@ button:where(.btn-default) {
   color: var(--d-ink-3);
 }
 
+/* Chart footer: 4-cell summary band */
+.chart-foot {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--d-rule);
+  background: var(--d-paper-3);
+}
+.chart-foot:empty { display: none; }
+.chart-foot > div {
+  padding: 14px 22px;
+  border-right: 1px solid var(--d-rule-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.chart-foot > div:last-child { border-right: 0; }
+.chart-foot .lab {
+  font-size: 11px;
+  color: var(--d-ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chart-foot .val {
+  font-family: var(--mono);
+  font-size: 15px;
+  color: var(--d-ink);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.01em;
+}
+.chart-foot .val.brass { color: var(--d-brass-2); font-weight: 500; }
+.chart-foot .val.pos { color: var(--d-pos); }
+.chart-foot .val.neg { color: var(--d-neg); }
+@media (max-width: 720px) {
+  .chart-foot { grid-template-columns: 1fr 1fr; }
+  .chart-foot > div:nth-child(2) { border-right: 0; }
+  .chart-foot > div:nth-child(-n+2) { border-bottom: 1px solid var(--d-rule-soft); }
+}
+
 /* ----- Status row ----- */
 
 .status-row {
@@ -1006,6 +1046,12 @@ button:where(.btn-default) {
   color: var(--d-ink-3);
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
+}
+.strategy-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 .section-heading .premium-note .warn,
 .section-heading .premium-note small {
@@ -1274,6 +1320,12 @@ button:where(.btn-default) {
 .data-table tr.is-milestone td {
   background: var(--d-brass-soft);
 }
+/* Default: hide non-milestone strategy rows. The "All years" toggle
+   on the strategy section adds .show-all to the body to reveal them. */
+#strategyTable tr.is-secondary-year { display: none; }
+body.show-all-strategy #strategyTable tr.is-secondary-year { display: table-row; }
+#compareStrategyTable tr.is-secondary-year { display: none; }
+body.show-all-strategy #compareStrategyTable tr.is-secondary-year { display: table-row; }
 .data-table tr.is-active td,
 .data-table tr.highlight td {
   background: var(--d-paper-2);
@@ -1405,6 +1457,61 @@ button:where(.btn-default) {
 .bulk-tools .historical-note {
   font-size: 11px;
   color: var(--d-ink-3);
+}
+
+/* Inline bulk-edit dock at the bottom of the strategy table.
+   Quiet Modern: 3-column dock — NAV slider, Dividend slider, rest. */
+.strategy-section .strat-bulk {
+  border-top: 1px solid var(--d-rule);
+  border-bottom: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 18px;
+  align-items: end;
+  padding: 14px 24px;
+  background: var(--d-paper);
+}
+.strategy-section .strat-bulk .slider-label { min-width: 0; }
+.strategy-section .strat-bulk-rest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+}
+@media (max-width: 980px) {
+  .strategy-section .strat-bulk { grid-template-columns: 1fr 1fr; }
+  .strategy-section .strat-bulk .strat-bulk-rest { grid-column: 1 / -1; }
+}
+
+/* Historical S&P backfill — secondary action behind a disclosure */
+.historical-details {
+  border-top: 1px solid var(--d-rule);
+  background: var(--d-paper);
+}
+.historical-details > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 24px;
+  font-size: 11.5px;
+  color: var(--d-ink-3);
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  user-select: none;
+}
+.historical-details > summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 8px;
+  font-family: var(--sans);
+  transition: transform 120ms ease;
+}
+.historical-details[open] > summary::before { transform: rotate(90deg); }
+.historical-details > summary:hover { color: var(--d-ink-2); }
+.historical-details > summary::-webkit-details-marker { display: none; }
+.historical-details .historical-tools {
+  border-top: 1px solid var(--d-rule-soft);
+  padding: 14px 24px;
 }
 .field-status {
   display: block;
@@ -1693,13 +1800,66 @@ label.toggle input[type="checkbox"]:disabled { accent-color: var(--d-ink-4); }
 section[id] { scroll-margin-top: 140px; }
 html { scroll-behavior: smooth; }
 
+/* ----- Tab filtering -----
+   The breadcrumb tabs in the topbar set data-active-tab on <body>; sections
+   that don't belong to the active tab collapse via display:none. Sections
+   without a data-tab attribute remain visible across tabs (status row,
+   sticky summary, source notes, disclaimers). */
+[data-tab] { display: none; }
+body[data-active-tab="working"] [data-tab~="working"],
+body[data-active-tab="funds"] [data-tab~="funds"],
+body[data-active-tab="compare"] [data-tab~="compare"],
+body[data-active-tab="output"] [data-tab~="output"],
+body[data-active-tab="notes"] [data-tab~="notes"] {
+  display: revert;
+}
+/* Re-assert the duo / chart-panel grid display when on Working */
+body[data-active-tab="working"] section.duo[data-tab~="working"] { display: grid; }
+body[data-active-tab="working"] section.hero[data-tab~="working"] { display: grid; }
+body[data-active-tab="working"] section.status-row[data-tab~="working"] { display: grid; }
+
+/* Compare-with toggle still gates the comparison panels via [hidden]; tab
+   filtering composes — when the Compare tab is active but the toggle is off,
+   the panels stay hidden by their attribute. Show a placeholder instead. */
+.compare-empty,
+.funds-empty,
+.output-empty,
+.notes-empty {
+  display: none;
+  background: var(--d-paper-3);
+  border: 1px dashed var(--d-rule);
+  border-radius: var(--r-3);
+  padding: 32px 28px;
+  text-align: center;
+  color: var(--d-ink-3);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.compare-empty strong, .funds-empty strong, .output-empty strong, .notes-empty strong {
+  display: block;
+  color: var(--d-ink);
+  font-weight: 500;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+/* Hide the in-tab "Jump to" rail on tabs that have only a single section */
+body[data-active-tab="funds"] .console .nav,
+body[data-active-tab="compare"] .console .nav,
+body[data-active-tab="output"] .console .nav,
+body[data-active-tab="notes"] .console .nav,
+body[data-active-tab="funds"] .console h4.jump-heading,
+body[data-active-tab="compare"] .console h4.jump-heading,
+body[data-active-tab="output"] .console h4.jump-heading,
+body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
+
 /* Print: remove sticky positioning on console anchors */
 @media print {
   .anchor-target { display: none; }
 }
     </style>
   </head>
-  <body data-quiet-modern>
+  <body data-quiet-modern data-active-tab="working">
 
     <header class="topbar">
       <div class="lockup">
@@ -1709,12 +1869,12 @@ html { scroll-behavior: smooth; }
           <h1>Illustration Studio</h1>
         </div>
       </div>
-      <nav class="crumbs" aria-label="Sections">
-        <button type="button" class="on" data-jump="summary">Working</button>
-        <button type="button" data-jump="projection">Projection</button>
-        <button type="button" data-jump="strategy">Strategy</button>
-        <button type="button" data-jump="output">Output</button>
-        <button type="button" data-jump="notes">Notes</button>
+      <nav class="crumbs" aria-label="Tabs">
+        <button type="button" class="on" data-tab-target="working">Working</button>
+        <button type="button" data-tab-target="funds">Funds</button>
+        <button type="button" data-tab-target="compare">Compare</button>
+        <button type="button" data-tab-target="output">Output</button>
+        <button type="button" data-tab-target="notes">Notes</button>
       </nav>
       <div class="topbar-actions">
         <button id="themeToggle" class="theme" type="button" aria-pressed="false" title="Toggle dark mode">○ Light</button>
@@ -1912,21 +2072,18 @@ html { scroll-behavior: smooth; }
           <button id="exportMonthly" class="btn" type="button">Export monthly CSV</button>
         </div>
 
-        <h4>Jump to</h4>
-        <nav class="nav" aria-label="Page sections">
+        <h4 class="jump-heading">Jump to</h4>
+        <nav class="nav" aria-label="Sections within tab">
           <a class="on" data-jump-target="summary"><span>Summary</span><span class="num">01</span></a>
-          <a data-jump-target="projection"><span>Projection</span><span class="num">02</span></a>
-          <a data-jump-target="composition"><span>Composition</span><span class="num">03</span></a>
-          <a data-jump-target="portfolio"><span>Portfolio</span><span class="num">04</span></a>
-          <a data-jump-target="strategy"><span>Strategy</span><span class="num">05</span></a>
-          <a data-jump-target="output"><span>Annual output</span><span class="num">06</span></a>
-          <a data-jump-target="notes"><span>Notes</span><span class="num">07</span></a>
+          <a data-jump-target="composition"><span>Composition</span><span class="num">02</span></a>
+          <a data-jump-target="projection"><span>Projection</span><span class="num">03</span></a>
+          <a data-jump-target="strategy"><span>Strategy</span><span class="num">04</span></a>
         </nav>
       </aside>
 
       <main class="main">
 
-        <section id="summary" class="hero" aria-label="Projected wealth summary">
+        <section id="summary" class="hero" data-tab="working" aria-label="Projected wealth summary">
           <div id="heroSummary" class="hero-headline">
             <span class="eyebrow"><span id="heroLabel">Projected wealth</span> at <span id="heroEndAge">age 99</span></span>
             <strong id="heroTotal" class="hero-num">S$0</strong>
@@ -1942,7 +2099,12 @@ html { scroll-behavior: smooth; }
           </div>
         </section>
 
-        <section id="comparisonHero" class="comparison-hero" aria-label="Headline comparison" hidden>
+        <div class="compare-empty" data-tab="compare" id="compareEmpty">
+          <strong>Comparison not active</strong>
+          Toggle <em>Compare with variant</em> in the console to see two policies side by side, or <em>FD benchmark</em> for the cash-vs-policy view.
+        </div>
+
+        <section id="comparisonHero" class="comparison-hero" data-tab="compare" aria-label="Headline comparison" hidden>
           <article class="comparison-card primary">
             <p class="eyebrow" id="cmpPrimaryLabel">Selected strategy</p>
             <strong id="cmpPrimaryValue">S$0</strong>
@@ -1960,7 +2122,7 @@ html { scroll-behavior: smooth; }
           </article>
         </section>
 
-        <section id="composition" class="duo" aria-label="Composition and legacy">
+        <section id="composition" class="duo" data-tab="working" aria-label="Composition and legacy">
           <div class="panel">
             <div class="panel-head">
               <h3>Composition of projected wealth</h3>
@@ -1977,7 +2139,7 @@ html { scroll-behavior: smooth; }
           </div>
         </section>
 
-        <section id="projection" class="chart-panel" aria-label="Projection chart">
+        <section id="projection" class="chart-panel" data-tab="working" aria-label="Projection chart">
           <div class="panel-heading">
             <h2>Projected client value &amp; benchmark</h2>
             <span id="chartEndLabel"></span>
@@ -1987,15 +2149,15 @@ html { scroll-behavior: smooth; }
             <canvas id="valueChart" width="1100" height="380"></canvas>
             <div id="chartTooltip" class="chart-tooltip" hidden></div>
           </div>
-          <p class="chart-hint">Hover any year for a breakdown. Click a year to highlight it in the projection table below.</p>
+          <div id="chartFoot" class="chart-foot" aria-label="Chart summary"></div>
         </section>
 
-        <section class="status-row" aria-label="Model status">
+        <section class="status-row" data-tab="working" aria-label="Model status">
           <div id="checks" class="checks"></div>
           <div id="assumptions" class="assumptions"></div>
         </section>
 
-        <section id="fundBuilderSection" class="fund-builder-section" aria-labelledby="portfolio">
+        <section id="fundBuilderSection" class="fund-builder-section" data-tab="funds" aria-labelledby="portfolio">
           <a id="portfolio" tabindex="-1" class="anchor-target"></a>
           <div class="section-heading">
             <div>
@@ -2081,15 +2243,24 @@ html { scroll-behavior: smooth; }
           </div>
         </section>
 
-        <section id="strategy" class="strategy-section" aria-label="Strategy inputs">
+        <section id="strategy" class="strategy-section" data-tab="working" aria-label="Strategy inputs">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Editable Strategy</p>
               <h2>Returns, dividends &amp; withdrawals</h2>
             </div>
-            <div class="premium-note" id="premiumNote"></div>
+            <div class="strategy-section-actions">
+              <div class="premium-note" id="premiumNote"></div>
+              <div class="view-toggle" role="group" aria-label="Strategy view">
+                <button type="button" id="strategyMilestonesBtn" class="view-toggle-btn active">Milestones</button>
+                <button type="button" id="strategyAllBtn" class="view-toggle-btn">All years</button>
+              </div>
+            </div>
           </div>
-          <div class="bulk-tools sensitivity-tools" aria-label="Bulk strategy actions">
+          <div class="table-wrap strategy-wrap">
+            <table id="strategyTable" class="data-table strategy-table"></table>
+          </div>
+          <div class="bulk-tools sensitivity-tools strat-bulk" aria-label="Bulk strategy actions">
             <label class="slider-label">
               <span>NAV growth <strong id="bulkNavReturnReadout">0.0%</strong></span>
               <input id="bulkNavReturn" type="range" min="-5" max="15" step="0.25" value="0" />
@@ -2098,41 +2269,43 @@ html { scroll-behavior: smooth; }
               <span>Dividend rate <strong id="bulkDividendYieldReadout">6.0%</strong></span>
               <input id="bulkDividendYield" type="range" min="0" max="12" step="0.25" value="6" />
             </label>
-            <label>
-              Dividend mode
-              <select id="bulkDividendMode">
-                <option value="none">None</option>
-                <option value="reinvest" selected>Reinvest</option>
-                <option value="payout">Payout</option>
-              </select>
-            </label>
-            <label>
-              <span id="bulkFromLabel">From year</span>
-              <input id="bulkFromYear" type="number" min="1" max="99" step="1" value="1" />
-              <small id="bulkFromStatus" class="field-status" hidden>Invalid</small>
-            </label>
-            <label class="toggle"><input id="bulkFromAge" type="checkbox" /> From age</label>
-            <button id="applyBulkBelow" type="button">Apply ↓</button>
-            <button id="autofillPremiums" type="button">Reset required premiums</button>
+            <div class="strat-bulk-rest">
+              <label>
+                Dividend mode
+                <select id="bulkDividendMode">
+                  <option value="none">None</option>
+                  <option value="reinvest" selected>Reinvest</option>
+                  <option value="payout">Payout</option>
+                </select>
+              </label>
+              <label>
+                <span id="bulkFromLabel">From year</span>
+                <input id="bulkFromYear" type="number" min="1" max="99" step="1" value="1" />
+                <small id="bulkFromStatus" class="field-status" hidden>Invalid</small>
+              </label>
+              <label class="toggle"><input id="bulkFromAge" type="checkbox" /> From age</label>
+              <button id="applyBulkBelow" type="button">Apply ↓</button>
+              <button id="autofillPremiums" type="button">Reset</button>
+            </div>
           </div>
-          <div class="bulk-tools historical-tools" aria-label="Historical scenario">
-            <label>
-              Backfill from
-              <select id="historicalStartYear"></select>
-            </label>
-            <label>
-              Add dividend yield %
-              <input id="historicalDividendBoost" type="number" min="0" max="10" step="0.1" value="2" title="S&P data is price-only; add the long-run S&P dividend yield to approximate total return." />
-            </label>
-            <button id="applyHistoricalSp500" type="button">Apply S&amp;P 500 history</button>
-            <span class="historical-note" id="historicalReadout"></span>
-          </div>
-          <div class="table-wrap strategy-wrap">
-            <table id="strategyTable" class="data-table strategy-table"></table>
-          </div>
+          <details class="historical-details">
+            <summary>Apply historical S&amp;P 500 backfill</summary>
+            <div class="bulk-tools historical-tools" aria-label="Historical scenario">
+              <label>
+                Backfill from
+                <select id="historicalStartYear"></select>
+              </label>
+              <label>
+                Add dividend yield %
+                <input id="historicalDividendBoost" type="number" min="0" max="10" step="0.1" value="2" title="S&P data is price-only; add the long-run S&P dividend yield to approximate total return." />
+              </label>
+              <button id="applyHistoricalSp500" type="button">Apply S&amp;P 500 history</button>
+              <span class="historical-note" id="historicalReadout"></span>
+            </div>
+          </details>
         </section>
 
-        <section id="compareStrategySection" class="strategy-section compare-workings" aria-label="Comparison strategy inputs" hidden>
+        <section id="compareStrategySection" class="strategy-section compare-workings" data-tab="compare" aria-label="Comparison strategy inputs" hidden>
           <div class="section-heading">
             <div>
               <p class="eyebrow">Editable Comparison</p>
@@ -2169,7 +2342,7 @@ html { scroll-behavior: smooth; }
           </div>
         </section>
 
-        <section id="output" class="detail-section" aria-label="Annual projection">
+        <section id="output" class="detail-section" data-tab="output" aria-label="Annual projection">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Client View</p>
@@ -2189,7 +2362,7 @@ html { scroll-behavior: smooth; }
           <div id="annualAccessLegend" class="projection-access-legend" aria-live="polite"></div>
         </section>
 
-        <section id="notes" class="notes-section" aria-label="Scenario notes">
+        <section id="notes" class="notes-section" data-tab="notes" aria-label="Scenario notes">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Advisor Working Notes</p>
@@ -3863,10 +4036,17 @@ html { scroll-behavior: smooth; }
     recalc();
   }
 
-  function rowClassForYear(variant, year) {
-    if (model.partialWithdrawalAllowed(variant, year) && year <= variant.mipYears) return "partial-window";
-    if (year === variant.mipYears + 1) return "full-withdrawal-window";
-    return "";
+  // Default-visible rows in the editable strategy table. Other rows are
+  // hidden by CSS until the user toggles "All years".
+  const STRATEGY_MILESTONE_YEARS = new Set([1, 2, 3, 5, 7, 9, 11, 13, 15, 18, 20, 25, 30, 37]);
+  function rowClassForYear(variant, year, totalYears = 37) {
+    const classes = [];
+    if (model.partialWithdrawalAllowed(variant, year) && year <= variant.mipYears) classes.push("partial-window");
+    if (year === variant.mipYears + 1) classes.push("full-withdrawal-window");
+    const isLastYear = year === totalYears;
+    if (!STRATEGY_MILESTONE_YEARS.has(year) && !isLastYear) classes.push("is-secondary-year");
+    if (year === 1 || year === variant.mipYears || year === variant.mipYears + 1 || isLastYear) classes.push("is-milestone");
+    return classes.join(" ");
   }
 
   function renderStrategyTable() {
@@ -3908,7 +4088,7 @@ html { scroll-behavior: smooth; }
         </tr>
       </thead>
       <tbody>
-        ${rows.map((row) => strategyRowHtml(row, settings, showAdvisor, target)).join("")}
+        ${rows.map((row) => strategyRowHtml({ ...row, totalYears: rows.length }, settings, showAdvisor, target)).join("")}
       </tbody>
     `;
     table.querySelectorAll("input,select").forEach((el) => {
@@ -3922,7 +4102,8 @@ html { scroll-behavior: smooth; }
     const mode = row.dividendMode || "none";
     const variant = model.VARIANTS[settings.variantKey];
     const canWithdraw = model.partialWithdrawalAllowed(variant, row.year);
-    const rowClass = rowClassForYear(variant, row.year);
+    const totalYears = Number.isFinite(row.totalYears) ? row.totalYears : 37;
+    const rowClass = rowClassForYear(variant, row.year, totalYears);
     const dividendCellClass = target === "compare" ? "compare-allowable-dividend-cell" : "allowable-dividend-cell";
     const partialCellClass = target === "compare" ? "compare-allowable-cell" : "allowable-cell";
     const rowTitle = rowClass === "partial-window"
@@ -4529,27 +4710,79 @@ html { scroll-behavior: smooth; }
     const hasCashReceived = annual.some((row) => (row.cashDividends + row.cashWithdrawals) > 0);
     $("chartEndLabel").textContent = `End age ${settings.startAge + annual.length}`;
 
-    // Legend
+    // Legend — Quiet Modern restraint: only the selected line and the
+    // primary benchmark (if any). No "capital paid", no milestone, no
+    // account-only entry; those shapes still draw on the canvas but don't
+    // crowd the legend.
     const legendItems = [];
-    legendItems.push({ name: "Capital paid in", color: "var(--c-paid)", swatch: "line" });
-    legendItems.push({ name: "Investment growth (filled)", color: "var(--c-growth)", swatch: "area" });
     legendItems.push({ name: series.selected.name, color: "var(--c-selected)", swatch: "line" });
-    if (hasCashReceived && !results.customCompare) {
-      legendItems.push({ name: series.account.name, color: "#74808f", swatch: "dashed" });
-    }
-    series.benchmarks.forEach((b) => legendItems.push({ name: b.name, color: b.color, swatch: "line" }));
-    if (series.milestones.length) {
-      legendItems.push({ name: "Milestones", color: "var(--c-bonus)", swatch: "dot" });
+    if (series.benchmarks.length) {
+      const primary = series.benchmarks[0];
+      legendItems.push({ name: primary.name, color: primary.color, swatch: "dashed" });
     }
 
     $("chartLegend").innerHTML = legendItems.map((item) => {
-      if (item.swatch === "area") return `<span><i class="area" style="background:${item.color}"></i>${item.name}</span>`;
       if (item.swatch === "dashed") return `<span><i class="dashed" style="--line-color:${item.color}; background:${item.color}"></i>${item.name}</span>`;
-      if (item.swatch === "dot") return `<span><i style="background:${item.color}; height:9px; width:9px; border-radius:50%"></i>${item.name}</span>`;
       return `<span><i style="background:${item.color}"></i>${item.name}</span>`;
     }).join("");
 
     drawChart(series, settings);
+    renderChartFooter(results, series, settings);
+  }
+
+  // Quiet Modern: 4-cell footer below the chart panel.
+  function renderChartFooter(results, series, settings) {
+    const foot = $("chartFoot");
+    if (!foot) return;
+    const finalSelected = series.selected.values[series.selected.values.length - 1] || 0;
+    const benchmark = series.benchmarks[0];
+    const finalBench = benchmark ? benchmark.values[benchmark.values.length - 1] || 0 : null;
+    const delta = finalBench !== null ? finalSelected - finalBench : null;
+    const endAge = settings.startAge + series.selected.values.length;
+
+    // Crossover age — first year selected exceeds primary benchmark; if no
+    // benchmark, surrender breakeven against cumulative premiums.
+    let crossover = null;
+    let leadFromStart = false;
+    if (benchmark) {
+      for (let i = 0; i < series.selected.values.length; i += 1) {
+        if (series.selected.values[i] > benchmark.values[i]) { crossover = i + 1; break; }
+      }
+      if (crossover === 1 && series.selected.values[0] > benchmark.values[0]) leadFromStart = true;
+    } else {
+      const annual = results.custom.annual;
+      let cumPaid = 0;
+      for (let i = 0; i < annual.length; i += 1) {
+        cumPaid += (annual[i].premiums || 0) + (annual[i].topUps || 0);
+        const surrender = (annual[i].surrenderValue || 0) + (annual[i].cashDividends || 0) + (annual[i].cashWithdrawals || 0);
+        if (surrender >= cumPaid && cumPaid > 0) { crossover = annual[i].year; break; }
+      }
+    }
+
+    const cells = [
+      {
+        lab: `Age ${endAge} · selected`,
+        val: money(finalSelected, settings.currency),
+        cls: "brass",
+      },
+      benchmark
+        ? { lab: `Age ${endAge} · ${benchmark.kind === "fd" ? "FD bench" : benchmark.kind === "compare" ? "compare" : "bench"}`, val: money(finalBench, settings.currency) }
+        : { lab: `Age ${endAge} · benchmark`, val: "—" },
+      benchmark
+        ? { lab: "Δ vs benchmark", val: `${delta >= 0 ? "+" : ""}${money(delta, settings.currency)}`, cls: delta >= 0 ? "pos" : "neg" }
+        : { lab: "Δ vs benchmark", val: "—" },
+      {
+        lab: benchmark ? "Crossover age" : "Surrender breakeven",
+        val: crossover ? `age ${settings.startAge + crossover}${leadFromStart ? "*" : ""}` : "never",
+      },
+    ];
+
+    foot.innerHTML = cells.map((c) => `
+      <div>
+        <div class="lab">${c.lab}</div>
+        <div class="val ${c.cls || ""}">${c.val}</div>
+      </div>
+    `).join("");
   }
 
   function resolveColor(token) {
@@ -4596,8 +4829,8 @@ html { scroll-behavior: smooth; }
 
     state.chartGeometry = { pad, width, height, xAt, yAt, labels, count: labels.length };
 
-    // Background grid
-    ctx.strokeStyle = "#eee8dc";
+    // Background grid — Quiet Modern: 5 evenly spaced soft-rule lines
+    ctx.strokeStyle = resolveColor("var(--d-rule-soft)") || "#eeeeec";
     ctx.lineWidth = 1;
     for (let i = 0; i <= 4; i += 1) {
       const value = min + ((max - min) * i) / 4;
@@ -4623,65 +4856,38 @@ html { scroll-behavior: smooth; }
       ctx.setLineDash([]);
     }
 
-    // Investment growth area: between cumulative paid and selected total
-    const goldStroke = resolveColor("var(--c-bonus)");
-    const goldGlow = "rgba(167, 133, 61, 0.18)";
+    // Quiet Modern chart: gradient fill under selected, dashed benchmark,
+    // solid selected line, single brass end-of-line marker. No cumulative-
+    // paid line, no investment-growth area, no comparison-gap fills.
     const navyStroke = resolveColor("var(--c-selected)");
-    const grayPaid = resolveColor("var(--c-paid)");
     const accountColor = "#74808f";
 
-    ctx.fillStyle = goldGlow;
+    // Selected gradient area (top stop 0.14 alpha, bottom 0)
+    const grad = ctx.createLinearGradient(0, pad.top, 0, height - pad.bottom);
+    const navyRgb = navyStroke.startsWith("#")
+      ? `${parseInt(navyStroke.slice(1, 3), 16)}, ${parseInt(navyStroke.slice(3, 5), 16)}, ${parseInt(navyStroke.slice(5, 7), 16)}`
+      : "14, 31, 51";
+    grad.addColorStop(0, `rgba(${navyRgb}, 0.14)`);
+    grad.addColorStop(1, `rgba(${navyRgb}, 0)`);
+    ctx.fillStyle = grad;
     ctx.beginPath();
-    series.cumulativePaid.forEach((v, i) => {
+    series.selected.values.forEach((v, i) => {
       const x = xAt(i);
       const y = yAt(v);
       if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
-    for (let i = series.selected.values.length - 1; i >= 0; i -= 1) {
-      ctx.lineTo(xAt(i), yAt(series.selected.values[i]));
-    }
+    ctx.lineTo(xAt(series.selected.values.length - 1), height - pad.bottom);
+    ctx.lineTo(xAt(0), height - pad.bottom);
     ctx.closePath();
     ctx.fill();
 
-    // Cumulative paid line
-    ctx.strokeStyle = grayPaid;
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([2, 4]);
-    ctx.beginPath();
-    series.cumulativePaid.forEach((v, i) => {
-      const x = xAt(i);
-      const y = yAt(v);
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Comparison gap fill (selected vs first benchmark)
+    // Primary benchmark (dashed, 1.5px)
     if (series.benchmarks.length) {
       const benchmark = series.benchmarks[0];
       const benchColor = resolveColor(benchmark.color);
-      // Fill between selected and benchmark — gold if selected ahead, red soft if behind
-      for (let i = 0; i < series.selected.values.length - 1; i += 1) {
-        const x1 = xAt(i);
-        const x2 = xAt(i + 1);
-        const sA = series.selected.values[i];
-        const sB = series.selected.values[i + 1];
-        const bA = benchmark.values[i];
-        const bB = benchmark.values[i + 1];
-        const ahead = (sA + sB) / 2 >= (bA + bB) / 2;
-        ctx.fillStyle = ahead ? "rgba(167, 133, 61, 0.12)" : "rgba(159, 61, 53, 0.10)";
-        ctx.beginPath();
-        ctx.moveTo(x1, yAt(sA));
-        ctx.lineTo(x2, yAt(sB));
-        ctx.lineTo(x2, yAt(bB));
-        ctx.lineTo(x1, yAt(bA));
-        ctx.closePath();
-        ctx.fill();
-      }
-
-      // Benchmark line
       ctx.strokeStyle = benchColor;
-      ctx.lineWidth = 2.2;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 4]);
       ctx.beginPath();
       benchmark.values.forEach((v, i) => {
         const x = xAt(i);
@@ -4689,13 +4895,14 @@ html { scroll-behavior: smooth; }
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       });
       ctx.stroke();
+      ctx.setLineDash([]);
     }
 
-    // Additional benchmarks beyond first
+    // Additional benchmarks (subtle dashed lines, lighter)
     series.benchmarks.slice(1).forEach((b) => {
       ctx.strokeStyle = resolveColor(b.color);
-      ctx.lineWidth = 2;
-      ctx.setLineDash(b.dash || []);
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([2, 6]);
       ctx.beginPath();
       b.values.forEach((v, i) => {
         const x = xAt(i);
@@ -4706,24 +4913,9 @@ html { scroll-behavior: smooth; }
       ctx.setLineDash([]);
     });
 
-    // Account-only (when comparing reinvest is off and no compare-with)
-    if (series.account && !series.benchmarks.some((b) => b.kind === "compare")) {
-      ctx.strokeStyle = accountColor;
-      ctx.lineWidth = 1.6;
-      ctx.setLineDash(series.account.dash || []);
-      ctx.beginPath();
-      series.account.values.forEach((v, i) => {
-        const x = xAt(i);
-        const y = yAt(v);
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
-
-    // Selected line (drawn last for prominence)
+    // Selected line (2px, drawn last for prominence)
     ctx.strokeStyle = navyStroke;
-    ctx.lineWidth = 2.8;
+    ctx.lineWidth = 2;
     ctx.beginPath();
     series.selected.values.forEach((v, i) => {
       const x = xAt(i);
@@ -4732,9 +4924,11 @@ html { scroll-behavior: smooth; }
     });
     ctx.stroke();
 
-    // Y axis labels
-    ctx.fillStyle = "#736a5b";
-    ctx.font = compactChart ? "11px Arial" : "12px Arial";
+    // Y-axis labels (mono, muted)
+    const inkMuted = resolveColor("var(--d-ink-3)") || "#7a7f87";
+    const monoFamily = `"Geist Mono", "JetBrains Mono", ui-monospace, monospace`;
+    ctx.fillStyle = inkMuted;
+    ctx.font = `${compactChart ? 10 : 11}px ${monoFamily}`;
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
     for (let i = 0; i <= 4; i += 1) {
@@ -4743,59 +4937,39 @@ html { scroll-behavior: smooth; }
       ctx.fillText(compactMoney(value, settings.currency), pad.left - 10, y);
     }
 
-    // X axis labels — critical milestone years get a bold callout, regular spaced
-    // labels fill in around them and skip when they would collide.
-    const drawnXs = [];
-    const minGap = compactChart ? 40 : 26;
+    // X-axis: 5 age labels at 0%, 25%, 50%, 75%, 100% of the horizon
+    const startAge = settings.startAge || 62;
+    const endAge = startAge + labels.length;
+    const ageMarks = [
+      startAge,
+      Math.round(startAge + (endAge - startAge) * 0.25),
+      Math.round(startAge + (endAge - startAge) * 0.5),
+      Math.round(startAge + (endAge - startAge) * 0.75),
+      endAge - 1,
+    ];
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-
-    series.milestones
-      .filter((m) => m.kind === "critical")
-      .forEach((m) => {
-        const x = xAt(m.year - 1);
-        if (drawnXs.some((dx) => Math.abs(dx - x) < minGap)) return;
-        drawnXs.push(x);
-        ctx.fillStyle = "#5a4a23";
-        ctx.font = compactChart ? "bold 11px Arial" : "bold 12px Arial";
-        ctx.fillText(`Y${m.year}`, x, height - pad.bottom + 12);
-      });
-
-    ctx.fillStyle = "#736a5b";
-    ctx.font = compactChart ? "11px Arial" : "12px Arial";
-    const step = Math.max(1, Math.ceil(labels.length / (compactChart ? 5 : 10)));
-    labels.forEach((label, i) => {
-      if (i % step !== 0 && i !== labels.length - 1) return;
-      const x = xAt(i);
-      if (drawnXs.some((dx) => Math.abs(dx - x) < minGap)) return;
-      drawnXs.push(x);
-      ctx.fillText(label, x, height - pad.bottom + 12);
+    ctx.fillStyle = inkMuted;
+    ctx.font = `${compactChart ? 10 : 11}px ${monoFamily}`;
+    ageMarks.forEach((age) => {
+      const yearIdx = Math.max(0, Math.min(labels.length - 1, age - startAge - 1));
+      const x = xAt(yearIdx);
+      ctx.fillText(`${age}`, x, height - pad.bottom + 10);
     });
 
-    // Milestone markers
-    series.milestones.forEach((m) => {
-      const idx = m.year - 1;
-      const x = xAt(idx);
-      const y = yAt(series.selected.values[idx]);
-      ctx.beginPath();
-      ctx.arc(x, y, compactChart ? 5 : 5.5, 0, Math.PI * 2);
-      ctx.fillStyle = "#fff";
-      ctx.fill();
-      ctx.strokeStyle = goldStroke;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // Show event label above the dot only for critical milestones to keep the chart calm.
-      if (m.kind === "critical" && (!compactChart || m.year === labels.length)) {
-        ctx.fillStyle = "#5a4a23";
-        ctx.font = "10px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "bottom";
-        const labelWidth = ctx.measureText(m.label).width;
-        const labelX = Math.max(pad.left + labelWidth / 2, Math.min(width - pad.right - labelWidth / 2, x));
-        ctx.fillText(m.label, labelX, y - 10);
-      }
-    });
+    // Single end-of-line marker: 4px brass circle with paper stroke
+    const lastIdx = series.selected.values.length - 1;
+    const lastX = xAt(lastIdx);
+    const lastY = yAt(series.selected.values[lastIdx]);
+    const brass = resolveColor("var(--d-brass)") || "#b58a52";
+    const paper = resolveColor("var(--d-paper-3)") || "#ffffff";
+    ctx.beginPath();
+    ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+    ctx.fillStyle = brass;
+    ctx.fill();
+    ctx.strokeStyle = paper;
+    ctx.lineWidth = 2;
+    ctx.stroke();
   }
 
   // ===== CHART INTERACTION =====
@@ -6052,14 +6226,63 @@ html { scroll-behavior: smooth; }
       jumpTo(el.dataset.jumpTarget);
     });
   });
-  document.querySelectorAll("[data-jump]").forEach((el) => {
+
+  // ---------- Tab filtering ----------
+  // Crumb tabs set body[data-active-tab]; CSS hides sections that don't match.
+  // When the Compare tab is selected and Compare-with isn't toggled, show the
+  // comparison-empty placeholder instead.
+  function refreshCompareEmpty() {
+    const empty = document.getElementById("compareEmpty");
+    if (!empty) return;
+    const onCompareTab = document.body.getAttribute("data-active-tab") === "compare";
+    const cmpHidden = document.getElementById("comparisonHero")?.hidden ?? true;
+    const stratHidden = document.getElementById("compareStrategySection")?.hidden ?? true;
+    empty.style.display = (onCompareTab && cmpHidden && stratHidden) ? "block" : "none";
+  }
+  function setActiveTab(tab) {
+    if (!tab) return;
+    document.body.setAttribute("data-active-tab", tab);
+    document.querySelectorAll(".crumbs button").forEach((b) => {
+      b.classList.toggle("on", b.dataset.tabTarget === tab);
+    });
+    refreshCompareEmpty();
+    // Recompute chart on tab change since canvas layout shifts.
+    setTimeout(() => window.dispatchEvent(new Event("resize")), 0);
+    // Scroll to top of main column so the user sees the start of the tab.
+    window.scrollTo(0, 0);
+    try { localStorage.setItem("ckg-illustration-tab", tab); } catch (e) {}
+  }
+  document.querySelectorAll("[data-tab-target]").forEach((el) => {
     el.addEventListener("click", (e) => {
       e.preventDefault();
-      jumpTo(el.dataset.jump);
-      document.querySelectorAll(".crumbs button").forEach((b) => b.classList.remove("on"));
-      el.classList.add("on");
+      setActiveTab(el.dataset.tabTarget);
     });
   });
+  // Restore last active tab (if any).
+  try {
+    const saved = localStorage.getItem("ckg-illustration-tab");
+    if (saved && ["working", "funds", "compare", "output", "notes"].includes(saved)) {
+      setActiveTab(saved);
+    }
+  } catch (e) {}
+  // Whenever Compare-with toggle changes, recompute the empty placeholder.
+  document.getElementById("compareCustom")?.addEventListener("change", () => {
+    setTimeout(refreshCompareEmpty, 50);
+  });
+  document.getElementById("compareFd")?.addEventListener("change", () => {
+    setTimeout(refreshCompareEmpty, 50);
+  });
+
+  // ---------- Strategy table view toggle (Milestones / All years) ----------
+  const strategyMilestonesBtn = $("strategyMilestonesBtn");
+  const strategyAllBtn = $("strategyAllBtn");
+  function setStrategyView(mode) {
+    document.body.classList.toggle("show-all-strategy", mode === "all");
+    strategyMilestonesBtn?.classList.toggle("active", mode === "milestones");
+    strategyAllBtn?.classList.toggle("active", mode === "all");
+  }
+  strategyMilestonesBtn?.addEventListener("click", () => setStrategyView("milestones"));
+  strategyAllBtn?.addEventListener("click", () => setStrategyView("all"));
 
   // Scroll-spy: highlight the active jump-to nav item
   const sections = ["summary", "projection", "composition", "portfolio", "strategy", "output", "notes"]
