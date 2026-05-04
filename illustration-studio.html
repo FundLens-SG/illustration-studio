@@ -771,6 +771,20 @@ button:where(.btn-default) {
   font-weight: 500;
   white-space: nowrap;
 }
+.composition-legend .legend-trail {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+.composition-legend .legend-trail .pct {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--d-ink-3);
+  font-variant-numeric: tabular-nums lining-nums;
+  min-width: 28px;
+  text-align: right;
+}
 
 .benefit {
   background: var(--d-paper-3);
@@ -1342,12 +1356,72 @@ body.show-all-strategy #compareStrategyTable tr.is-secondary-year { display: tab
   color: var(--d-ink);
   font-size: 12px;
   font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
   outline: none;
 }
 .data-table select { font-family: var(--sans); }
 .data-table input:focus,
 .data-table select:focus { border-color: var(--d-ink-3); }
+
+/* Strategy table — text-like inputs (chrome only on hover/focus) so the
+   table reads like a quiet ledger, matching the Quiet Modern reference. */
+.strategy-table input.strategy-input,
+.strategy-table select.strategy-select {
+  background: transparent;
+  border-color: transparent;
+  padding: 0 6px;
+  text-align: right;
+  height: 24px;
+  font-size: 12.5px;
+  color: var(--d-ink);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.strategy-table select.strategy-select {
+  text-align: left;
+  font-weight: 400;
+  color: var(--d-ink-2);
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 14px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--d-ink-3) 50%),
+                    linear-gradient(135deg, var(--d-ink-3) 50%, transparent 50%);
+  background-position: calc(100% - 9px) 50%, calc(100% - 5px) 50%;
+  background-size: 4px 4px, 4px 4px;
+  background-repeat: no-repeat;
+}
+.strategy-table tr:hover input.strategy-input,
+.strategy-table tr:hover select.strategy-select {
+  border-color: var(--d-rule);
+  background: var(--d-paper);
+}
+.strategy-table input.strategy-input:focus,
+.strategy-table select.strategy-select:focus {
+  border-color: var(--d-ink-3);
+  background: var(--d-paper);
+}
+.strategy-table input.strategy-input:disabled {
+  color: var(--d-ink-4);
+  cursor: not-allowed;
+}
+.strategy-table input.strategy-input:disabled::placeholder { color: var(--d-ink-4); }
+
+/* Strategy / annual table cells — quieter colour by default, brighter for
+   the "headlining" v-spans (year, NAV %, value). */
+.strategy-table td,
+.strategy-table th {
+  padding: 9px 12px;
+  font-size: 12px;
+}
+.strategy-table td.col-time {
+  color: var(--d-ink-2);
+  font-family: var(--mono);
+}
+.strategy-table td.col-time .v { color: var(--d-ink); font-weight: 500; }
+.strategy-table td.col-premium { color: var(--d-ink-2); font-family: var(--mono); }
+.strategy-table td.col-value { color: var(--d-ink); font-family: var(--mono); }
+.strategy-table td.col-value .v { color: var(--d-ink); font-weight: 500; }
+.strategy-table tr.is-milestone td.col-value .v { color: var(--d-brass-2); }
 .data-table button {
   height: 24px;
   padding: 0 8px;
@@ -2152,7 +2226,10 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
           <div id="chartFoot" class="chart-foot" aria-label="Chart summary"></div>
         </section>
 
-        <section class="status-row" data-tab="working" aria-label="Model status">
+        <!-- Status row (variant spec + checks) lives at the top of the Output
+             tab. Useful for advisors auditing assumptions; not on the Working
+             surface where the corrections doc explicitly excluded it. -->
+        <section class="status-row" data-tab="output" aria-label="Model status">
           <div id="checks" class="checks"></div>
           <div id="assumptions" class="assumptions"></div>
         </section>
@@ -4070,25 +4147,36 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
   function renderStrategyTableFor(tableId, rows, settings, target) {
     const showAdvisor = fields.showAdvisorDetails.checked;
     const table = $(tableId);
+    // Pull the projected total-value series so we can render the Value column
+    // without the row HTML having to know about state.results.
+    const annualValues = (() => {
+      const r = state.results || {};
+      const source = target === "compare" ? r.customCompare : r.custom;
+      if (!source || !source.annual) return null;
+      const out = {};
+      source.annual.forEach((row) => { out[row.year] = row.totalValue; });
+      return out;
+    })();
     table.innerHTML = `
       <thead>
         <tr>
           <th class="col-time">Yr</th>
           <th class="col-time">Age</th>
-          <th class="col-premium">Premium</th>
-          ${showAdvisor ? '<th class="col-premium">Top-up</th>' : ''}
-          <th class="col-growth">NAV growth %</th>
-          <th class="col-income">Dividend %</th>
-          <th class="col-income">Dividend mode</th>
-          <th class="col-withdrawal">Allowable dividend drawdown</th>
-          <th class="col-withdrawal">Dividend withdrawal</th>
-          <th class="col-withdrawal">Allowable partial</th>
-          <th class="col-withdrawal">Partial withdrawal</th>
-          ${showAdvisor ? '<th class="col-charge">Optional deduction</th>' : ''}
+          <th class="col-premium right">Premium</th>
+          ${showAdvisor ? '<th class="col-premium right">Top-up</th>' : ''}
+          <th class="col-growth right">NAV %</th>
+          <th class="col-income right">Div %</th>
+          <th class="col-income">Mode</th>
+          ${showAdvisor ? '<th class="col-withdrawal right" title="Allowable dividend drawdown">Allow div</th>' : ''}
+          ${showAdvisor ? '<th class="col-withdrawal right">Div w/d</th>' : ''}
+          ${showAdvisor ? '<th class="col-withdrawal right" title="Allowable partial withdrawal">Allow partial</th>' : ''}
+          <th class="col-withdrawal right">Withdraw</th>
+          ${showAdvisor ? '<th class="col-charge right">Optional deduction</th>' : ''}
+          <th class="col-value right">Value</th>
         </tr>
       </thead>
       <tbody>
-        ${rows.map((row) => strategyRowHtml({ ...row, totalYears: rows.length }, settings, showAdvisor, target)).join("")}
+        ${rows.map((row) => strategyRowHtml({ ...row, totalYears: rows.length, projectedValue: annualValues ? annualValues[row.year] : null }, settings, showAdvisor, target)).join("")}
       </tbody>
     `;
     table.querySelectorAll("input,select").forEach((el) => {
@@ -4111,26 +4199,47 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
       : rowClass === "full-withdrawal-window"
         ? "First year with no surrender charge"
         : "";
+    // Compact-format helpers for the Working-tab basic view.
+    const sym = model.currencySymbol(settings.currency);
+    const compact = (v) => {
+      const n = Number(v) || 0;
+      const abs = Math.abs(n);
+      const sign = n < 0 ? "-" : "";
+      if (abs >= 1_000_000) return `${sign}${sym}${(abs / 1_000_000).toFixed(2).replace(/\.?0+$/, "")}M`;
+      if (abs >= 1000) return `${sign}${sym}${Math.round(abs / 1000)}K`;
+      return `${sign}${sym}${Math.round(abs)}`;
+    };
+    const compactK = (v) => {
+      const n = Number(v) || 0;
+      if (n === 0) return "—";
+      return `${n < 0 ? "−" : ""}${Math.round(Math.abs(n) / 1000)}k`;
+    };
+    // The basic-view "Withdraw" column shows the SUM of the row's dividend +
+    // partial withdrawal as compact display; advisor view exposes both.
+    const totalWithdraw = (Number(row.dividendWithdrawal) || 0) + (Number(row.partialWithdrawal) || 0);
     return `
       <tr class="${rowClass}" title="${rowTitle}" data-year="${row.year}" data-basic-premium="${roundInput(row.basicPremium)}">
-        <td class="col-time">${row.year}</td>
+        <td class="col-time"><span class="v">${row.year}</span></td>
         <td class="col-time">${age}</td>
-        <td class="col-premium premium-cell">${row.basicPremium ? money(row.basicPremium, settings.currency) : "-"}</td>
-        ${showAdvisor ? `<td class="col-premium"><input data-field="topUp" type="number" min="0" step="100" value="${roundInput(row.topUp)}" /></td>` : ""}
-        <td class="col-growth"><input class="input-growth" data-field="navReturn" type="number" step="0.1" value="${roundInput(row.navReturn * 100, 2)}" /></td>
-        <td class="col-income"><input class="input-income" data-field="dividendYield" type="number" step="0.1" value="${roundInput(row.dividendYield * 100, 2)}" /></td>
+        <td class="col-premium right premium-cell">${row.basicPremium ? compactK(row.basicPremium) : "—"}</td>
+        ${showAdvisor ? `<td class="col-premium right"><input data-field="topUp" type="number" min="0" step="100" value="${roundInput(row.topUp)}" /></td>` : ""}
+        <td class="col-growth right"><input class="input-growth strategy-input" data-field="navReturn" type="number" step="0.1" value="${roundInput(row.navReturn * 100, 2)}" /></td>
+        <td class="col-income right"><input class="input-income strategy-input" data-field="dividendYield" type="number" step="0.1" value="${roundInput(row.dividendYield * 100, 2)}" /></td>
         <td class="col-income">
-          <select class="input-income" data-field="dividendMode">
-            <option value="none" ${mode === "none" ? "selected" : ""}>None</option>
+          <select class="input-income strategy-select" data-field="dividendMode">
+            <option value="none" ${mode === "none" ? "selected" : ""}>—</option>
             <option value="reinvest" ${mode === "reinvest" ? "selected" : ""}>Reinvest</option>
             <option value="payout" ${mode === "payout" ? "selected" : ""}>Payout</option>
           </select>
         </td>
-        <td class="col-withdrawal ${dividendCellClass}" data-year="${row.year}">-</td>
-        <td class="col-withdrawal"><input class="input-withdrawal" data-field="dividendWithdrawal" type="number" min="0" step="100" value="${roundInput(row.dividendWithdrawal)}" disabled /></td>
-        <td class="col-withdrawal ${partialCellClass}" data-year="${row.year}">${canWithdraw ? "Calculating" : "-"}</td>
-        <td class="col-withdrawal"><input class="input-withdrawal" data-field="partialWithdrawal" type="number" min="0" step="100" value="${roundInput(row.partialWithdrawal)}" ${canWithdraw ? "" : "disabled"} /></td>
-        ${showAdvisor ? `<td class="col-charge"><input class="input-charge" data-field="optionalDeduction" type="number" min="0" step="100" value="${roundInput(row.optionalDeduction)}" /></td>` : ""}
+        ${showAdvisor ? `<td class="col-withdrawal right ${dividendCellClass}" data-year="${row.year}">—</td>` : ""}
+        ${showAdvisor ? `<td class="col-withdrawal right"><input class="input-withdrawal" data-field="dividendWithdrawal" type="number" min="0" step="100" value="${roundInput(row.dividendWithdrawal)}" disabled /></td>` : ""}
+        ${showAdvisor ? `<td class="col-withdrawal right ${partialCellClass}" data-year="${row.year}">${canWithdraw ? "Calculating" : "—"}</td>` : ""}
+        <td class="col-withdrawal right">
+          <input class="input-withdrawal strategy-input" data-field="partialWithdrawal" type="number" min="0" step="100" value="${roundInput(row.partialWithdrawal)}" ${canWithdraw ? "" : "disabled"} placeholder="—" title="${canWithdraw ? "Partial withdrawal" : "Not yet allowed"}" />
+        </td>
+        ${showAdvisor ? `<td class="col-charge right"><input class="input-charge" data-field="optionalDeduction" type="number" min="0" step="100" value="${roundInput(row.optionalDeduction)}" /></td>` : ""}
+        <td class="col-value right">${row.projectedValue != null ? `<span class="v">${compact(row.projectedValue)}</span>` : "—"}</td>
       </tr>
     `;
   }
@@ -4528,15 +4637,18 @@ body[data-active-tab="notes"] .console h4.jump-heading { display: none; }
       return `<div class="seg ${compact}" style="width:${pct.toFixed(2)}%; background:${s.color}" title="${s.label}: ${money(s.value, settings.currency)}">${pct >= 6 ? Math.round(pct) + "%" : ""}</div>`;
     }).join("");
 
-    $("compositionLegend").innerHTML = segs.map((s) => `
+    $("compositionLegend").innerHTML = segs.map((s) => {
+      const pct = positiveSum > 0 ? Math.round((Math.max(0, s.value) / positiveSum) * 100) : 0;
+      return `
       <li>
         <i style="background:${s.color}"></i>
         <div>
           <span>${s.label}</span>
-          <strong>${money(s.value, settings.currency)}</strong>
+          <span class="legend-trail"><strong>${money(s.value, settings.currency)}</strong><span class="pct">${pct}%</span></span>
         </div>
       </li>
-    `).join("");
+    `;
+    }).join("");
   }
 
   // ===== COMPARISON HERO =====
