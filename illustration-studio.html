@@ -6,6 +6,8 @@
     <title>Illustration Studio</title>
     <link rel="icon" type="image/svg+xml" href="assets/illustration-studio-logo.svg" />
     <meta name="theme-color" content="#0f1d2d" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet" />
     <style>
 :root {
   --ink: #101a28;
@@ -18,10 +20,11 @@
   --line-dark: #a9987d;
   --navy: #0e1f33;
   --navy-2: #162b45;
-  --gold: #a7853d;
-  --gold-dark: #81652b;
-  --gold-soft: #f4efe4;
-  --gold-glow: rgba(167, 133, 61, 0.18);
+  /* Brand accent — CKG brass. Vars kept as --gold* for backward compat. */
+  --gold: #d6a87a;
+  --gold-dark: #c0925f;
+  --gold-soft: #f4ecdf;
+  --gold-glow: rgba(214, 168, 122, 0.20);
   --blue: #284f73;
   --blue-soft: #f0f5f8;
   --green: #2f6b5d;
@@ -33,15 +36,15 @@
 
   /* Composition palette - reserved meanings */
   --c-paid: #5a6b80;        /* Premium paid in - cool, capital base */
-  --c-bonus: #a7853d;        /* Bonuses - product gold */
+  --c-bonus: #d6a87a;        /* Bonuses - CKG brass */
   --c-dividend: #2f6b5d;     /* Dividends accrued - teal/green growth */
   --c-growth: #284f73;       /* NAV growth - navy blue */
   --c-benchmark: #b7a173;    /* Benchmark line - warm muted */
   --c-selected: #0e1f33;     /* Selected line - navy */
-  --c-delta-pos: #a7853d;    /* Positive delta - gold */
+  --c-delta-pos: #d6a87a;    /* Positive delta - CKG brass */
   --c-delta-neg: #9f3d35;    /* Negative delta - red */
 
-  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+  font-family: "Geist", "Segoe UI", system-ui, -apple-system, Arial, Helvetica, sans-serif;
 }
 
 * {
@@ -111,7 +114,7 @@ h1, h2, p {
 }
 
 h1 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
   font-size: 34px;
   font-weight: 600;
   letter-spacing: 0;
@@ -367,7 +370,7 @@ button:hover {
 .hero-headline strong {
   display: block;
   margin-top: 8px;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
   font-size: 56px;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -498,7 +501,7 @@ button:hover {
 
 .comparison-card strong {
   display: block;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
   font-size: 38px;
   font-weight: 600;
   line-height: 1.05;
@@ -564,7 +567,7 @@ button:hover {
 
 .delta-amount {
   display: block;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
   font-size: 30px;
   font-weight: 600;
   line-height: 1.05;
@@ -609,7 +612,7 @@ button:hover {
 .benefit-highlight strong {
   display: block;
   justify-self: center;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
   font-size: 34px;
   font-weight: 600;
   line-height: 1.05;
