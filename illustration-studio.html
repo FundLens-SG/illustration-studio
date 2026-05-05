@@ -868,9 +868,17 @@ dd {
 
 .fund-builder-grid {
   display: grid;
-  grid-template-columns: minmax(280px, 1.6fr) 160px 140px auto;
+  grid-template-columns: minmax(280px, 1fr) auto;
   gap: 14px;
   align-items: end;
+}
+.fund-builder-grid label .search-hint {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--muted);
+  font-size: 10px;
+  margin-left: 8px;
 }
 
 .fund-search-wrap {
@@ -934,6 +942,129 @@ dd {
 .fund-suggestion span {
   color: var(--muted);
   font-size: 11px;
+}
+
+/* Segmented filter inside the typeahead — replaces the always-on
+   "Show dividend / Show non-dividend" checkboxes. */
+.fund-suggestions .fund-filter-bar {
+  display: flex;
+  gap: 0;
+  padding: 8px 10px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.fund-suggestions .fund-filter-bar .seg {
+  flex: 1;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 8px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  font-family: inherit;
+  transition: background 120ms, color 120ms, border-color 120ms;
+}
+.fund-suggestions .fund-filter-bar .seg + .seg { border-left: 0; }
+.fund-suggestions .fund-filter-bar .seg:first-child { border-radius: 4px 0 0 4px; }
+.fund-suggestions .fund-filter-bar .seg:last-child { border-radius: 0 4px 4px 0; }
+.fund-suggestions .fund-filter-bar .seg.on {
+  background: var(--ink);
+  color: var(--paper-3);
+  border-color: var(--ink);
+}
+.fund-suggestions .fund-filter-bar .seg:hover:not(.on) { color: var(--ink); }
+
+/* "Unallocated %" caption next to the search input. */
+.fund-allocation-hint {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  margin-left: 12px;
+  align-self: end;
+  padding-bottom: 11px;
+}
+.fund-allocation-hint.warn { color: var(--red); }
+.fund-allocation-hint.full { color: var(--green); }
+
+/* Inline Core/Satellite toggle in fund portfolio rows — replaces the
+   <select>. CSS-only segmented look on top of a real <select> element
+   (still works as a control, just styled tighter). */
+.fund-table td select[data-field="category"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: auto;
+  min-width: 120px;
+  padding: 4px 22px 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink-3) 50%),
+                    linear-gradient(135deg, var(--ink-3) 50%, transparent 50%);
+  background-position: calc(100% - 12px) 50%, calc(100% - 8px) 50%;
+  background-size: 4px 4px, 4px 4px;
+  background-repeat: no-repeat;
+}
+.fund-table tr.satellite td select[data-field="category"] {
+  border-color: var(--green);
+  color: var(--green);
+}
+.fund-table tr.core td select[data-field="category"] {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+/* Visually hide elements while keeping IDs reachable for JS hooks. */
+.is-vis-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Strategy-row shimmer — fires whenever a row's projection inputs change,
+   whether from a single-cell edit, a bulk-apply, or apply-portfolio.
+   Brass tint slides L→R then fades. */
+@keyframes strategy-row-flash {
+  0%   { background: rgba(214, 168, 122, 0.00); }
+  18%  { background: rgba(214, 168, 122, 0.28); }
+  100% { background: rgba(214, 168, 122, 0.00); }
+}
+@keyframes strategy-row-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.strategy-table tr.is-flashing td {
+  animation: strategy-row-flash 1100ms ease-out both;
+  position: relative;
+}
+.strategy-table tr.is-flashing td::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(214, 168, 122, 0.25) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: strategy-row-shimmer 900ms ease-out 1;
+  pointer-events: none;
 }
 
 .fund-preview {
@@ -2136,29 +2267,32 @@ body { padding-top: var(--ckg-strip-h) !important; }
 
         <div class="fund-builder-grid">
           <div class="fund-search-wrap">
-            <label for="fundSearch">Fund name or code</label>
-            <input id="fundSearch" type="search" autocomplete="off" placeholder="Manulife..." />
-            <div class="fund-search-filters" role="group" aria-label="Fund search filters">
-              <label class="toggle"><input id="fundFilterDividend" type="checkbox" /> Show dividend funds only</label>
-              <label class="toggle"><input id="fundFilterNonDividend" type="checkbox" /> Show non-dividend funds only</label>
-            </div>
+            <label for="fundSearch">Fund name or code <span class="search-hint">— Enter to add to portfolio</span></label>
+            <input id="fundSearch" type="search" autocomplete="off" placeholder="Manulife…" />
             <div id="fundSuggestions" class="fund-suggestions" hidden></div>
+            <!-- Hidden filter inputs preserved so existing JS bindings keep
+                 working; the visible UI lives inside the typeahead dropdown
+                 as a 3-segment [All / Dividend / No-div] control. -->
+            <input id="fundFilterDividend" type="checkbox" class="is-vis-hidden" tabindex="-1" aria-hidden="true" />
+            <input id="fundFilterNonDividend" type="checkbox" class="is-vis-hidden" tabindex="-1" aria-hidden="true" />
           </div>
-          <label>
-            Category
-            <select id="fundCategory">
-              <option value="core">Core</option>
-              <option value="satellite">Satellite</option>
-            </select>
-          </label>
-          <label>
-            Allocation %
-            <input id="fundAllocation" type="number" min="0" max="100" step="0.1" value="100" />
-          </label>
-          <button id="addFundSelection" type="button">Add fund</button>
+          <span id="fundAllocationHint" class="fund-allocation-hint">100% unallocated</span>
+          <!-- Hidden inputs preserved so existing JS field collector keeps
+               working. Auto-add reads smart defaults: category=core,
+               allocation=remaining-unallocated. Inline-edit in the row. -->
+          <select id="fundCategory" class="is-vis-hidden" tabindex="-1" aria-hidden="true">
+            <option value="core" selected>Core</option>
+            <option value="satellite">Satellite</option>
+          </select>
+          <input id="fundAllocation" type="number" class="is-vis-hidden" tabindex="-1" aria-hidden="true" value="100" />
+          <button id="addFundSelection" type="button" class="is-vis-hidden" tabindex="-1" aria-hidden="true">Add fund</button>
         </div>
 
-        <div id="selectedFundPreview" class="fund-preview" aria-live="polite"></div>
+        <!-- Selected-fund preview is now redundant: typeahead suggestions
+             show the same stats inline ("Total X% · Div Y%"), and the
+             portfolio table shows the full picture once added. Kept in
+             DOM for any code path that still writes to it. -->
+        <div id="selectedFundPreview" class="fund-preview is-vis-hidden" aria-live="polite"></div>
 
         <div class="fund-builder-actions">
           <label>
@@ -3500,6 +3634,51 @@ body { padding-top: var(--ckg-strip-h) !important; }
     renderSelectedFundPreview();
   }
 
+  // Auto-add path: drop the fund directly into the portfolio with a smart
+  // default allocation, skipping the "select → set category → set %  →
+  // click Add" rigmarole. Friction-cut requested by user.
+  function addFundDirectly(fund) {
+    if (!fund) return;
+    const allocations = state.fundPortfolio.map((row) => Math.max(0, Number(row.allocation) || 0));
+    const totalAllocated = allocations.reduce((s, a) => s + a, 0);
+    const isEmpty = state.fundPortfolio.length === 0;
+    const remaining = Math.max(0, 100 - totalAllocated);
+    // 100% if the portfolio is empty; otherwise fill the unallocated slack.
+    // If already at or above 100%, drop the new fund in at 0% so the user
+    // explicitly chooses how to rebalance — no surprise over-allocation.
+    const defaultAllocation = isEmpty ? 100 : (remaining > 0 ? Number(remaining.toFixed(2)) : 0);
+    state.fundPortfolio.push({
+      ...fund,
+      category: "core",
+      allocation: defaultAllocation,
+    });
+    state.selectedFund = null;
+    if (fields.fundSearch) fields.fundSearch.value = "";
+    if (fields.fundSuggestions) fields.fundSuggestions.hidden = true;
+    renderSelectedFundPreview();
+    renderFundPortfolioTable();
+    updateAllocationHint();
+  }
+
+  // Compute the unallocated remainder and reflect it in the caption next
+  // to the search input. Caption flips colour at 0/over/under 100%.
+  function updateAllocationHint() {
+    const el = $("fundAllocationHint");
+    if (!el) return;
+    const total = state.fundPortfolio.reduce((s, r) => s + Math.max(0, Number(r.allocation) || 0), 0);
+    const remaining = 100 - total;
+    el.classList.remove("warn", "full");
+    if (Math.abs(remaining) < 0.05) {
+      el.textContent = "100% allocated";
+      el.classList.add("full");
+    } else if (remaining < 0) {
+      el.textContent = `${(-remaining).toFixed(1)}% over-allocated`;
+      el.classList.add("warn");
+    } else {
+      el.textContent = `${remaining.toFixed(1)}% unallocated`;
+    }
+  }
+
   function renderSelectedFundPreview() {
     const el = $("selectedFundPreview");
     if (!el) return;
@@ -3531,26 +3710,66 @@ body { padding-top: var(--ckg-strip-h) !important; }
     `;
   }
 
+  function currentFundFilterMode() {
+    const div = fields.fundFilterDividend && fields.fundFilterDividend.checked;
+    const non = fields.fundFilterNonDividend && fields.fundFilterNonDividend.checked;
+    if (div && !non) return "div";
+    if (non && !div) return "nodiv";
+    return "all";
+  }
+  function setFundFilterMode(mode) {
+    if (!fields.fundFilterDividend || !fields.fundFilterNonDividend) return;
+    fields.fundFilterDividend.checked = (mode === "div");
+    fields.fundFilterNonDividend.checked = (mode === "nodiv");
+    // Fire change so the existing pipeline re-renders matches.
+    fields.fundFilterDividend.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
   function renderFundSuggestions() {
     const box = fields.fundSuggestions;
     if (!box || !fields.fundSearch) return;
     const query = fields.fundSearch.value.trim();
-    const matches = searchFunds(query);
-    if (!query || !matches.length) {
+    // The filter-bar is contextual to the typeahead — only renders while
+    // the user is actually searching. No always-on chips on the page.
+    const filterMode = currentFundFilterMode();
+    const filterBar = `
+      <div class="fund-filter-bar" role="group" aria-label="Filter funds">
+        <button type="button" class="seg ${filterMode === "all" ? "on" : ""}" data-filter-mode="all">All</button>
+        <button type="button" class="seg ${filterMode === "div" ? "on" : ""}" data-filter-mode="div">Dividend</button>
+        <button type="button" class="seg ${filterMode === "nodiv" ? "on" : ""}" data-filter-mode="nodiv">No-div</button>
+      </div>
+    `;
+    if (!query) {
       box.hidden = true;
       box.innerHTML = "";
       return;
     }
-    box.innerHTML = matches.map((fund) => `
-      <button type="button" class="fund-suggestion" data-id="${htmlEscape(fund.id)}">
-        <strong>${htmlEscape(fund.name)}</strong>
-        <span>${htmlEscape([fund.code, fund.currency, fund.sector].filter(Boolean).join(" / "))}</span>
-      </button>
-    `).join("");
+    const matches = searchFunds(query);
+    const matchesHtml = matches.length
+      ? matches.map((fund) => `
+          <button type="button" class="fund-suggestion" data-id="${htmlEscape(fund.id)}">
+            <strong>${htmlEscape(fund.name)}</strong>
+            <span>${htmlEscape([fund.code, fund.currency, fund.sector].filter(Boolean).join(" / "))} · Total ${percent(fund.totalReturn)} · Div ${percent(fund.dividendYield)}</span>
+          </button>
+        `).join("")
+      : `<div style="padding: 12px 14px; font-size: 12px; color: var(--muted);">No funds match this filter and search. Try a different filter.</div>`;
+    box.innerHTML = filterBar + matchesHtml;
     box.hidden = false;
-    box.querySelectorAll("button").forEach((button) => {
+    box.querySelectorAll("[data-filter-mode]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setFundFilterMode(btn.dataset.filterMode);
+        // Keep the typeahead open after changing filter
+        fields.fundSearch && fields.fundSearch.focus();
+      });
+    });
+    box.querySelectorAll(".fund-suggestion").forEach((button) => {
       button.addEventListener("click", () => {
-        setSelectedFund(state.fundLibrary.find((fund) => fund.id === button.dataset.id));
+        const fund = state.fundLibrary.find((f) => f.id === button.dataset.id);
+        // Auto-add to portfolio (friction-cut). Old "select → review preview
+        // → click Add" path replaced with one click.
+        addFundDirectly(fund);
       });
     });
   }
@@ -3686,6 +3905,7 @@ body { padding-top: var(--ckg-strip-h) !important; }
       });
     });
     renderFundSummary();
+    updateAllocationHint();
   }
 
   function addSelectedFundToPortfolio() {
@@ -3721,6 +3941,7 @@ body { padding-top: var(--ckg-strip-h) !important; }
     fields.bulkDividendMode.value = fields.fundApplyDividendMode.value;
     renderStrategyTable();
     recalc();
+    flashStrategyRows("strategyTable", (yr) => yr >= fromYear);
   }
 
   function initFundBuilder() {
@@ -3729,6 +3950,7 @@ body { padding-top: var(--ckg-strip-h) !important; }
     renderFundDataStatus();
     renderSelectedFundPreview();
     renderFundPortfolioTable();
+    updateAllocationHint();
   }
 
   // ===== INFLATION =====
@@ -4015,6 +4237,23 @@ body { padding-top: var(--ckg-strip-h) !important; }
     updateComparePremiumNote();
   }
 
+  // Briefly highlight strategy rows whose values just changed. The
+  // animation is CSS — JS just toggles the .is-flashing class. Works for
+  // single-cell edits, bulk-applies, S&P backfill, and apply-portfolio.
+  function flashStrategyRows(tableId, predicate) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    table.querySelectorAll("tbody tr[data-year]").forEach((tr) => {
+      const yr = Number(tr.dataset.year);
+      if (!predicate(yr)) return;
+      tr.classList.remove("is-flashing");
+      // restart animation if already playing
+      void tr.offsetWidth;
+      tr.classList.add("is-flashing");
+      setTimeout(() => tr.classList.remove("is-flashing"), 1200);
+    });
+  }
+
   function renderStrategyTableFor(tableId, rows, settings, target) {
     const showAdvisor = fields.showAdvisorDetails.checked;
     const table = $(tableId);
@@ -4042,6 +4281,14 @@ body { padding-top: var(--ckg-strip-h) !important; }
     table.querySelectorAll("input,select").forEach((el) => {
       el.addEventListener("input", recalc);
       el.addEventListener("change", recalc);
+      // Shimmer the row that's being edited so the user can see exactly
+      // which row they just changed.
+      el.addEventListener("input", () => {
+        const tr = el.closest("tr[data-year]");
+        if (!tr) return;
+        const yr = Number(tr.dataset.year);
+        flashStrategyRows(tableId, (y) => y === yr);
+      });
     });
   }
 
@@ -4237,6 +4484,8 @@ body { padding-top: var(--ckg-strip-h) !important; }
     if (!applied) return;
     renderStrategyTable();
     recalc();
+    const fromYear = Math.max(1, Math.round(numberValue(fields.bulkFromYear) || 1));
+    flashStrategyRows("strategyTable", (yr) => yr >= fromYear);
   }
 
   function applyCompareBulkBelow() {
@@ -4290,17 +4539,20 @@ body { padding-top: var(--ckg-strip-h) !important; }
     let appliedCount = 0;
     let firstAppliedYear = null;
     let lastAppliedYear = null;
+    const appliedYears = new Set();
     state.strategy.forEach((row, idx) => {
       const calendarYear = startYear + idx;
       if (data[calendarYear] !== undefined) {
         row.navReturn = data[calendarYear] + dividendBoost;
         appliedCount += 1;
+        appliedYears.add(row.year);
         if (firstAppliedYear === null) firstAppliedYear = calendarYear;
         lastAppliedYear = calendarYear;
       }
     });
     renderStrategyTable();
     recalc();
+    flashStrategyRows("strategyTable", (yr) => appliedYears.has(yr));
     const projection = state.strategy.length;
     const tail = projection - appliedCount;
     const boostText = dividendBoost > 0 ? ` + ${(dividendBoost * 100).toFixed(1)}% dividend yield` : "";
@@ -5701,7 +5953,8 @@ body { padding-top: var(--ckg-strip-h) !important; }
       const first = searchFunds(fields.fundSearch.value)[0];
       if (first) {
         event.preventDefault();
-        setSelectedFund(first);
+        // Enter-to-add: drop the top suggestion straight into the portfolio.
+        addFundDirectly(first);
       }
     });
     [fields.fundFilterDividend, fields.fundFilterNonDividend].forEach((filter) => {
@@ -5729,6 +5982,7 @@ body { padding-top: var(--ckg-strip-h) !important; }
       autofillPremiums();
       renderStrategyTable();
       recalc();
+      flashStrategyRows("strategyTable", () => true);
     });
     $("resetComparePremiums").addEventListener("click", () => {
       autofillComparePremiums();
