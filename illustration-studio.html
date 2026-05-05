@@ -314,153 +314,6 @@ textarea {
    that tries to render it still has fallback styling. */
 .source-strip { display: none; }
 
-/* Print/save PDF modal — two-path chooser between window.print() and
-   the canonical Playwright paper-deck build. Sits above everything
-   when open. Click backdrop, hit Escape, or close button to dismiss. */
-.print-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  color: var(--ink);
-}
-.print-modal[hidden] { display: none; }
-.print-modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(16, 26, 40, 0.55);
-  backdrop-filter: blur(2px);
-}
-.print-modal-card {
-  position: relative;
-  width: min(640px, calc(100% - 32px));
-  max-height: calc(100% - 64px);
-  overflow: auto;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-top: 3px solid var(--gold);
-  border-radius: 6px;
-  box-shadow: 0 32px 80px rgba(16, 26, 40, 0.40);
-}
-.print-modal-head {
-  position: relative;
-  padding: 22px 28px 16px;
-  border-bottom: 1px solid var(--line-soft, #ece8de);
-}
-.print-modal-head .eyebrow {
-  margin: 0 0 4px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.print-modal-head h2 {
-  margin: 0;
-  font-family: "Newsreader", Georgia, "Times New Roman", serif;
-  font-size: 22px;
-  line-height: 1.2;
-  color: var(--ink);
-  font-weight: 600;
-}
-.print-modal-close {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--muted);
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-}
-.print-modal-close:hover { color: var(--ink); border-color: var(--ink); }
-.print-modal-body {
-  padding: 18px 28px 22px;
-  display: grid;
-  gap: 16px;
-}
-.print-option {
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 16px 18px;
-  background: var(--surface-2);
-}
-.print-option-canonical {
-  background: var(--gold-soft, #f4ecdf);
-  border-color: var(--gold);
-}
-.print-option h3 {
-  margin: 0 0 6px;
-  font-size: 14px;
-  color: var(--ink);
-}
-.print-option p {
-  margin: 0 0 10px;
-  color: var(--ink-soft);
-  font-size: 12.5px;
-}
-.print-option-cta {
-  margin-top: 8px;
-  height: 34px;
-  padding: 0 16px;
-  background: var(--ink);
-  color: #fff;
-  border: 1px solid var(--ink);
-  border-radius: 4px;
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-}
-.print-option-canonical .print-option-cta {
-  background: var(--gold);
-  border-color: var(--gold-dark, var(--gold));
-  color: var(--navy);
-  font-weight: 600;
-}
-.print-option-cta:hover { filter: brightness(0.95); }
-.print-cmd-label {
-  margin: 8px 0 4px !important;
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-.print-cmd {
-  margin: 0;
-  padding: 10px 12px;
-  background: #fbfaf3;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
-  font-size: 11.5px;
-  color: var(--ink);
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-.print-cmd code { font: inherit; color: inherit; }
-.print-tip {
-  margin: 10px 0 0 !important;
-  font-size: 11px;
-  color: var(--muted);
-}
-.print-tip code {
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
-  font-size: 11px;
-  background: rgba(255,255,255,0.6);
-  padding: 1px 4px;
-  border-radius: 3px;
-}
-@media print { .print-modal { display: none !important; } }
-
 /* "Autosave found, restore?" banner that drops in once on init, sits
    between the usage strip and the main controls. Dismisses on either
    button OR the user starting to edit anything. */
@@ -2557,7 +2410,12 @@ body.presentation-mode .strategy-table input:disabled {
           </div>
         </details>
         <button id="startPresentation" class="btn btn-primary" type="button">Presentation mode</button>
-        <button id="printScenario" class="btn" type="button">Print / save PDF</button>
+        <!-- Print / save PDF removed from the visible UI per request.
+             The canonical paper deck is generated via the Playwright
+             script (`npm run build:pdf` — see README). The button
+             survives in the DOM as `hidden` so legacy bindings keep
+             working. -->
+        <button id="printScenario" type="button" hidden tabindex="-1" aria-hidden="true">Print / save PDF</button>
         <input id="loadScenarioFile" type="file" accept=".html,text/html,.json,application/json" hidden />
         <!-- Legacy IDs preserved as hidden so existing JS bindings keep
              working. The Save / Open dropdowns above route through them. -->
@@ -2967,36 +2825,6 @@ body.presentation-mode .strategy-table input:disabled {
            keeps existing JS that writes into #sourceNotes from throwing
            on a missing element. -->
       <div id="sourceNotes" hidden aria-hidden="true"></div>
-
-      <!-- Print / save PDF modal — surfaced when the user clicks the
-           topbar Print button. Two paths: a quick browser print (close
-           enough for screenshots / quick reviews) and the canonical
-           paper deck via the Playwright build script. -->
-      <div id="printModal" class="print-modal" hidden role="dialog" aria-modal="true" aria-labelledby="printModalTitle">
-        <div class="print-modal-backdrop" data-print-close></div>
-        <div class="print-modal-card">
-          <header class="print-modal-head">
-            <p class="eyebrow">Print &middot; save PDF</p>
-            <h2 id="printModalTitle">How would you like to print?</h2>
-            <button type="button" class="print-modal-close" data-print-close aria-label="Close">×</button>
-          </header>
-          <div class="print-modal-body">
-            <article class="print-option">
-              <h3>Quick browser print</h3>
-              <p>Opens your browser's print dialog. Fastest path, but the layout depends on your print driver — set <strong>Layout: Landscape</strong> and <strong>Margins: None</strong> for the best result.</p>
-              <button type="button" class="print-option-cta" id="printQuick">Open print dialog</button>
-            </article>
-            <article class="print-option print-option-canonical">
-              <h3>Generate paper-deck PDF (recommended)</h3>
-              <p>Runs a Playwright script that produces a clean A4-landscape paper deck — five pages, real values pulled from this live scenario, brand-correct chrome.</p>
-              <p class="print-cmd-label">Run from a terminal at the project root:</p>
-              <pre class="print-cmd"><code id="printCmd">npm run build:pdf -- --out "Illustration Studio - Paper Printout.pdf"</code></pre>
-              <button type="button" class="print-option-cta" id="printCopyCmd">Copy command</button>
-              <p class="print-tip">First-time setup: <code>npm install &amp;&amp; npx playwright install chromium</code></p>
-            </article>
-          </div>
-        </div>
-      </div>
 
       <section class="disclaimers" aria-label="Important disclaimers">
         <h2>Important Disclaimers</h2>
@@ -6424,6 +6252,87 @@ body.presentation-mode .strategy-table input:disabled {
     try { window.__ckgScenarioName = state.currentScenarioName || ""; } catch (_e) {}
   }
 
+  // ===== PRINT SNAPSHOT =====
+  // Returns the calculated values the paper-deck PDF generator needs,
+  // pulled from `state.results` directly rather than scraping visible
+  // DOM text. Exposed via `window.IllustrationStudioPrint.getSnapshot()`
+  // so `scripts/build-paper-pdf.mjs` can read it after the simulator
+  // has finished computing.
+  function buildPrintSnapshot() {
+    const result = state.results && state.results.custom;
+    if (!result) return null;
+
+    const settings = currentSettings();
+    const variant = result.variant;
+    const annual = result.annual || [];
+    const final = result.final || {};
+    const year1 = annual[0] || {};
+
+    const sum = (key) => annual.reduce((total, row) => total + (Number(row[key]) || 0), 0);
+
+    const welcomeRateValue = model.welcomeRate(variant, settings.annualizedPremium);
+    const welcomeBonusAmount = settings.includeWelcome
+      ? settings.annualizedPremium * welcomeRateValue
+      : 0;
+
+    const annualPremiumBonusAmount =
+      settings.includeAnnualBonus && settings.paymentFrequency === "Annual"
+        ? settings.annualizedPremium * (variant.annualPremiumBonusRate || 0)
+        : 0;
+
+    const charges = {
+      adminCharges: sum("adminCharges"),
+      policyFees: sum("policyFees"),
+      shortfallCharges: sum("shortfallCharges"),
+      coiCharges: sum("coiCharges"),
+      withdrawalCharges: sum("withdrawalCharges"),
+      optionalDeductions: sum("optionalDeductions"),
+    };
+    charges.totalModeledCharges =
+      charges.adminCharges +
+      charges.policyFees +
+      charges.shortfallCharges +
+      charges.coiCharges +
+      charges.withdrawalCharges +
+      charges.optionalDeductions;
+
+    return {
+      settings,
+      variant: {
+        key: settings.variantKey,
+        label: variant.label,
+        mipYears: variant.mipYears,
+        shortfallYears: variant.shortfallYears,
+        adminDuring: variant.adminDuring,
+        adminAfter: result.settings.adminAfter,
+        adminMode: variant.adminMode || "account",
+        annualPremiumBonusRate: variant.annualPremiumBonusRate || 0,
+        loyaltyRate: variant.loyaltyRate || 0,
+        premiumBonusRate: variant.premiumBonusRate || 0,
+        boosterBonusRate: variant.boosterBonusRate || 0,
+        surrenderCharge: variant.surrenderCharge || {},
+        partialCharge: variant.partialCharge || {},
+      },
+      final,
+      annual,
+      bonuses: {
+        welcomeRate: welcomeRateValue,
+        welcomeBonusAmount,
+        annualPremiumBonusAmount,
+        year1Bonuses: year1.bonuses || 0,
+        totalBonuses: final.bonusTotal || 0,
+      },
+      charges,
+      protection: {
+        deathBenefit: final.deathBenefit || 0,
+        surrenderValue: final.surrenderValue || 0,
+        capitalPaid: (final.totalBasicPaid || 0) + (final.totalTopUps || 0),
+      },
+      scenarioName: state.currentScenarioName || "",
+    };
+  }
+  try { window.IllustrationStudioPrint = { getSnapshot: buildPrintSnapshot }; } catch (_e) {}
+
   // Sanitize a free-form scenario name into a filename-safe slice
   // (keeps letters, numbers, spaces, dashes; collapses everything else).
   function _filenameSafe(value) {
@@ -6685,7 +6594,10 @@ body.presentation-mode .strategy-table input:disabled {
       // After leaving presentation mode the canvas needs a redraw at new size
       if (state.results) drawChart(buildChartSeries(state.results), currentSettings());
     });
-    $("printScenario").addEventListener("click", openPrintModal);
+    // Print button is hidden — but if a saved-HTML scenario or external
+    // caller dispatches a click on it, run the legacy window.print()
+    // path so behaviour doesn't silently break.
+    $("printScenario").addEventListener("click", () => window.print());
     $("exportAnnual").addEventListener("click", () => exportCsv("annual"));
     $("exportMonthly").addEventListener("click", () => exportCsv("monthly"));
 
@@ -7058,7 +6970,6 @@ body.presentation-mode .strategy-table input:disabled {
   }
 
   function bindScenarioMenus() {
-    bindPrintModal();
     _driveEnabled = Boolean(_driveClientId());
     // Surface Drive UI affordances only if a client ID is configured.
     if (_driveEnabled) {
@@ -7194,49 +7105,6 @@ body.presentation-mode .strategy-table input:disabled {
         }
       } catch (_e) { /* ignore */ }
     }, 800);
-  }
-
-  // Print / save PDF modal — two paths: window.print() for a quick
-  // browser print, or copy the canonical Playwright command. Closes on
-  // backdrop click, Esc, or close button.
-  function openPrintModal() {
-    const modal = document.getElementById("printModal");
-    if (!modal) { window.print(); return; }
-    modal.hidden = false;
-    document.body.classList.add("print-modal-open");
-    const focusFirst = modal.querySelector("button:not([data-print-close])");
-    focusFirst?.focus();
-  }
-  function closePrintModal() {
-    const modal = document.getElementById("printModal");
-    if (!modal) return;
-    modal.hidden = true;
-    document.body.classList.remove("print-modal-open");
-  }
-  function bindPrintModal() {
-    const modal = document.getElementById("printModal");
-    if (!modal) return;
-    modal.querySelectorAll("[data-print-close]").forEach((el) => el.addEventListener("click", closePrintModal));
-    document.getElementById("printQuick")?.addEventListener("click", () => {
-      closePrintModal();
-      // Defer one frame so the modal teardown doesn't get captured in print
-      requestAnimationFrame(() => window.print());
-    });
-    document.getElementById("printCopyCmd")?.addEventListener("click", async () => {
-      const cmd = document.getElementById("printCmd")?.textContent || "";
-      try {
-        await navigator.clipboard.writeText(cmd);
-        const btn = document.getElementById("printCopyCmd");
-        const original = btn.textContent;
-        btn.textContent = "Copied ✓";
-        setTimeout(() => { btn.textContent = original; }, 1600);
-      } catch (_e) {
-        window.prompt("Copy this command:", cmd);
-      }
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !modal.hidden) closePrintModal();
-    });
   }
 
   // One-time inline banner asking if the user wants to restore the
