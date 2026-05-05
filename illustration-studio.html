@@ -6951,10 +6951,29 @@ body.presentation-mode .strategy-table input:disabled {
     return res;
   }
 
+  // Resolve the visible CKGTools/IllustrationStudio/ folder via the
+  // shared helper. Falls back to appDataFolder if the helper isn't
+  // available (standalone use). Token getter is exposed so the
+  // shared helper can reuse our refresh logic.
+  async function _illusFolderId() {
+    if (!window._ckgGetDriveToken) window._ckgGetDriveToken = _ensureDriveToken;
+    if (window.ckgDriveFolders && typeof window.ckgDriveFolders.ensureToolFolder === "function") {
+      try { return await window.ckgDriveFolders.ensureToolFolder("illustration"); }
+      catch (e) { console.warn("[Illustration] folder helper failed:", e && e.message); }
+    }
+    return null;   // null → caller falls back to appDataFolder
+  }
+
   async function listDriveScenarios() {
     if (!_driveEnabled) return [];
     try {
-      const url = `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name,modifiedTime)&pageSize=100&orderBy=modifiedTime%20desc`;
+      // Prefer visible CKGTools/IllustrationStudio/ folder. Fall back
+      // to legacy appDataFolder if helper unavailable so old saves
+      // don't disappear before the migration runs.
+      const folderId = await _illusFolderId();
+      const url = folderId
+        ? `https://www.googleapis.com/drive/v3/files?spaces=drive&q=${encodeURIComponent(`'${folderId}' in parents and trashed=false`)}&fields=files(id,name,modifiedTime)&pageSize=100&orderBy=modifiedTime%20desc`
+        : `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name,modifiedTime)&pageSize=100&orderBy=modifiedTime%20desc`;
       const res = await _driveFetch(url);
       const data = await res.json();
       return (data.files || [])
@@ -6979,14 +6998,21 @@ body.presentation-mode .strategy-table input:disabled {
     payload._savedName = trimmed;
     payload._driveSync = true;
     const body = JSON.stringify(payload);
-    // Look for an existing file with this name to PATCH instead of POST.
-    const listUrl = `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=${encodeURIComponent(`name='${filename.replace(/'/g, "\\'")}'`)}&fields=files(id)`;
+    // Resolve target folder (visible CKGTools/IllustrationStudio/, with
+    // appDataFolder fallback for standalone use).
+    const folderId = await _illusFolderId();
+    // Look for an existing file with this name (in the visible folder
+    // if available, else legacy appDataFolder) so we can PATCH instead
+    // of POST and don't end up with duplicates per Save.
+    const listUrl = folderId
+      ? `https://www.googleapis.com/drive/v3/files?spaces=drive&q=${encodeURIComponent(`'${folderId}' in parents and name='${filename.replace(/'/g, "\\'")}' and trashed=false`)}&fields=files(id)`
+      : `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=${encodeURIComponent(`name='${filename.replace(/'/g, "\\'")}'`)}&fields=files(id)`;
     const listRes = await _driveFetch(listUrl);
     const list = await listRes.json();
     const existingId = list.files?.[0]?.id;
     const metadata = existingId
       ? { name: filename, mimeType: DRIVE_MIME }
-      : { name: filename, mimeType: DRIVE_MIME, parents: ["appDataFolder"] };
+      : { name: filename, mimeType: DRIVE_MIME, parents: [folderId || "appDataFolder"] };
     const boundary = "ckg" + Math.random().toString(36).slice(2);
     const multipart = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: ${DRIVE_MIME}\r\n\r\n${body}\r\n--${boundary}--`;
     const uploadUrl = existingId
