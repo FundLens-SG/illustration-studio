@@ -285,10 +285,220 @@ textarea {
   color: var(--muted, #888);
   font-style: italic;
 }
+.named-source {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.named-source-drive {
+  background: var(--gold-soft, #f4ecdf);
+  color: var(--gold-dark, #c0925f);
+  border: 1px solid var(--gold, #d6a87a);
+}
+.named-source-local {
+  background: var(--surface-2, #faf7f0);
+  color: var(--muted, #69727d);
+  border: 1px solid var(--line, #d2d6d3);
+}
+.named-save-title { display: block; }
+.action-menu-pop .drive-section { color: var(--gold-dark, #c0925f); }
 
 /* Source-strip removed from the topbar; keep CSS so any cached state
    that tries to render it still has fallback styling. */
 .source-strip { display: none; }
+
+/* Print/save PDF modal — two-path chooser between window.print() and
+   the canonical Playwright paper-deck build. Sits above everything
+   when open. Click backdrop, hit Escape, or close button to dismiss. */
+.print-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--ink);
+}
+.print-modal[hidden] { display: none; }
+.print-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 26, 40, 0.55);
+  backdrop-filter: blur(2px);
+}
+.print-modal-card {
+  position: relative;
+  width: min(640px, calc(100% - 32px));
+  max-height: calc(100% - 64px);
+  overflow: auto;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--gold);
+  border-radius: 6px;
+  box-shadow: 0 32px 80px rgba(16, 26, 40, 0.40);
+}
+.print-modal-head {
+  position: relative;
+  padding: 22px 28px 16px;
+  border-bottom: 1px solid var(--line-soft, #ece8de);
+}
+.print-modal-head .eyebrow {
+  margin: 0 0 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.print-modal-head h2 {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--ink);
+  font-weight: 600;
+}
+.print-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.print-modal-close:hover { color: var(--ink); border-color: var(--ink); }
+.print-modal-body {
+  padding: 18px 28px 22px;
+  display: grid;
+  gap: 16px;
+}
+.print-option {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 16px 18px;
+  background: var(--surface-2);
+}
+.print-option-canonical {
+  background: var(--gold-soft, #f4ecdf);
+  border-color: var(--gold);
+}
+.print-option h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--ink);
+}
+.print-option p {
+  margin: 0 0 10px;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+.print-option-cta {
+  margin-top: 8px;
+  height: 34px;
+  padding: 0 16px;
+  background: var(--ink);
+  color: #fff;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.print-option-canonical .print-option-cta {
+  background: var(--gold);
+  border-color: var(--gold-dark, var(--gold));
+  color: var(--navy);
+  font-weight: 600;
+}
+.print-option-cta:hover { filter: brightness(0.95); }
+.print-cmd-label {
+  margin: 8px 0 4px !important;
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.print-cmd {
+  margin: 0;
+  padding: 10px 12px;
+  background: #fbfaf3;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  color: var(--ink);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.print-cmd code { font: inherit; color: inherit; }
+.print-tip {
+  margin: 10px 0 0 !important;
+  font-size: 11px;
+  color: var(--muted);
+}
+.print-tip code {
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  background: rgba(255,255,255,0.6);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+@media print { .print-modal { display: none !important; } }
+
+/* "Autosave found, restore?" banner that drops in once on init, sits
+   between the usage strip and the main controls. Dismisses on either
+   button OR the user starting to edit anything. */
+.restore-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 32px;
+  background: var(--gold-soft, #f4ecdf);
+  border-bottom: 1px solid var(--gold, #d6a87a);
+  color: var(--ink);
+  font-size: 13px;
+}
+.restore-banner strong { font-weight: 600; }
+.restore-banner-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.restore-banner button {
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--gold-dark, var(--gold));
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.restore-banner-primary {
+  background: var(--gold) !important;
+  border-color: var(--gold-dark, var(--gold)) !important;
+  color: var(--navy) !important;
+  font-weight: 600;
+}
+.restore-banner button:hover { filter: brightness(0.97); }
+@media (max-width: 720px) {
+  .restore-banner { flex-direction: column; align-items: flex-start; gap: 10px; padding: 10px 20px; }
+}
 
 /* Input groups — Policy / Client, eyebrow on the left then 2-3
    labelled fields. Mirrors the .toggle-groups pattern. */
@@ -515,34 +725,12 @@ textarea:focus {
   .toggle-group-label { width: auto; flex-basis: 100%; padding-bottom: 2px; }
 }
 
-/* Action row clusters: same eyebrow-label idea, with a faint vertical
-   rule between clusters to group them visually. */
-.action-row {
-  align-items: center;
-}
-.action-cluster {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-right: 14px;
-  border-right: 1px solid var(--line);
-}
-.action-cluster:last-of-type { border-right: 0; padding-right: 0; }
-.action-cluster-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-right: 2px;
-}
-@media (max-width: 720px) {
-  .action-cluster {
-    border-right: 0;
-    padding-right: 0;
-    flex-wrap: wrap;
-  }
-}
+/* `.action-row` / `.action-cluster` styles dropped — the action row
+   moved into the sticky topbar (`.scenario-actions`) and the in-place
+   `<div class="action-row" hidden>` only carries legacy hidden buttons
+   (#copyShareLink, #exportAnnual, #exportMonthly) so older saved-HTML
+   scenarios that bind to those IDs don't throw. The display:none from
+   the [hidden] attribute is enough; no specific styling needed. */
 
 .toggle {
   display: inline-flex;
@@ -601,11 +789,7 @@ button:hover {
   background: var(--navy);
 }
 
-#copyShareLink.copied {
-  border-color: var(--green);
-  background: var(--green-soft);
-  color: var(--green);
-}
+/* `#copyShareLink.copied` rule removed — share-link button is hidden. */
 
 .advisor-settings,
 .benchmark-settings {
@@ -2350,9 +2534,11 @@ body.presentation-mode .strategy-table input:disabled {
         <details class="action-menu" id="saveMenu">
           <summary class="btn">Save <span class="caret">▾</span></summary>
           <div class="action-menu-pop">
-            <div class="action-menu-section">Drive (browser storage)</div>
+            <div class="action-menu-section">Browser storage</div>
             <button type="button" data-save-action="autosave">Update autosave</button>
             <button type="button" data-save-action="named">Save as new scenario…</button>
+            <div class="action-menu-section drive-section" id="saveDriveHeading" hidden>Google Drive</div>
+            <button type="button" data-save-action="drive" id="saveDriveBtn" hidden>Save to Drive…</button>
             <div class="action-menu-section">File</div>
             <button type="button" data-save-action="disk">Download HTML…</button>
           </div>
@@ -2360,8 +2546,10 @@ body.presentation-mode .strategy-table input:disabled {
         <details class="action-menu" id="openMenu">
           <summary class="btn">Open <span class="caret">▾</span></summary>
           <div class="action-menu-pop">
-            <div class="action-menu-section">Drive (browser storage)</div>
+            <div class="action-menu-section">Browser storage</div>
             <button type="button" data-open-action="autosave" id="openAutosaveBtn">Restore latest autosave</button>
+            <div class="action-menu-section drive-section" id="openDriveHeading" hidden>Google Drive</div>
+            <button type="button" data-open-action="drive-signin" id="openDriveSigninBtn" hidden>Sign in to Google Drive</button>
             <div class="action-menu-section" id="namedSavesHeading" hidden>Saved scenarios</div>
             <ul class="named-saves" id="namedSavesList"></ul>
             <div class="action-menu-section">File</div>
@@ -2779,6 +2967,36 @@ body.presentation-mode .strategy-table input:disabled {
            keeps existing JS that writes into #sourceNotes from throwing
            on a missing element. -->
       <div id="sourceNotes" hidden aria-hidden="true"></div>
+
+      <!-- Print / save PDF modal — surfaced when the user clicks the
+           topbar Print button. Two paths: a quick browser print (close
+           enough for screenshots / quick reviews) and the canonical
+           paper deck via the Playwright build script. -->
+      <div id="printModal" class="print-modal" hidden role="dialog" aria-modal="true" aria-labelledby="printModalTitle">
+        <div class="print-modal-backdrop" data-print-close></div>
+        <div class="print-modal-card">
+          <header class="print-modal-head">
+            <p class="eyebrow">Print &middot; save PDF</p>
+            <h2 id="printModalTitle">How would you like to print?</h2>
+            <button type="button" class="print-modal-close" data-print-close aria-label="Close">×</button>
+          </header>
+          <div class="print-modal-body">
+            <article class="print-option">
+              <h3>Quick browser print</h3>
+              <p>Opens your browser's print dialog. Fastest path, but the layout depends on your print driver — set <strong>Layout: Landscape</strong> and <strong>Margins: None</strong> for the best result.</p>
+              <button type="button" class="print-option-cta" id="printQuick">Open print dialog</button>
+            </article>
+            <article class="print-option print-option-canonical">
+              <h3>Generate paper-deck PDF (recommended)</h3>
+              <p>Runs a Playwright script that produces a clean A4-landscape paper deck — five pages, real values pulled from this live scenario, brand-correct chrome.</p>
+              <p class="print-cmd-label">Run from a terminal at the project root:</p>
+              <pre class="print-cmd"><code id="printCmd">npm run build:pdf -- --out "Illustration Studio - Paper Printout.pdf"</code></pre>
+              <button type="button" class="print-option-cta" id="printCopyCmd">Copy command</button>
+              <p class="print-tip">First-time setup: <code>npm install &amp;&amp; npx playwright install chromium</code></p>
+            </article>
+          </div>
+        </div>
+      </div>
 
       <section class="disclaimers" aria-label="Important disclaimers">
         <h2>Important Disclaimers</h2>
@@ -3595,6 +3813,7 @@ body.presentation-mode .strategy-table input:disabled {
     fundPortfolio: [],
     selectedFund: null,
     lifeStageEvents: [],
+    currentScenarioName: "",  // active named-save title; drives disk filename
   };
 
   const FUND_LIBRARY_SEED = Array.isArray(window.AFL_FUND_LIBRARY) && window.AFL_FUND_LIBRARY.length ? window.AFL_FUND_LIBRARY : [
@@ -6199,11 +6418,34 @@ body.presentation-mode .strategy-table input:disabled {
     URL.revokeObjectURL(url);
   }
 
+  // Reflect the active scenario name onto window so the Playwright PDF
+  // builder can read it and embed it in the cover-page kicker.
+  function _publishScenarioName() {
+    try { window.__ckgScenarioName = state.currentScenarioName || ""; } catch (_e) {}
+  }
+
+  // Sanitize a free-form scenario name into a filename-safe slice
+  // (keeps letters, numbers, spaces, dashes; collapses everything else).
+  function _filenameSafe(value) {
+    return String(value || "")
+      .replace(/[\\/:*?"<>|]/g, "-")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 80);
+  }
+
   function saveHtmlScenario() {
     const payload = currentScenarioPayload();
     const html = buildCurrentDocumentHtml(payload);
     const date = new Date().toISOString().slice(0, 10);
-    downloadText(`illustration-studio-${payload.settings.variantKey}-${date}.html`, html, "text/html;charset=utf-8");
+    // Prefer the active scenario name (from the most recent Save-as / load
+    // of a named save) for the filename, with the variant + date kept as
+    // suffix so two scenarios for the same client stay distinguishable.
+    const niceName = _filenameSafe(state.currentScenarioName);
+    const filename = niceName
+      ? `${niceName} — ${payload.settings.variantKey} ${date}.html`
+      : `illustration-studio-${payload.settings.variantKey}-${date}.html`;
+    downloadText(filename, html, "text/html;charset=utf-8");
     _ckgDirty = false;   // Save HTML cleared the dirty flag
     // Cross-tool activity log (ckgtools landing): one event per
     // finalized illustration. No-op when not signed into the hub.
@@ -6443,7 +6685,7 @@ body.presentation-mode .strategy-table input:disabled {
       // After leaving presentation mode the canvas needs a redraw at new size
       if (state.results) drawChart(buildChartSeries(state.results), currentSettings());
     });
-    $("printScenario").addEventListener("click", () => window.print());
+    $("printScenario").addEventListener("click", openPrintModal);
     $("exportAnnual").addEventListener("click", () => exportCsv("annual"));
     $("exportMonthly").addEventListener("click", () => exportCsv("monthly"));
 
@@ -6547,6 +6789,9 @@ body.presentation-mode .strategy-table input:disabled {
       payload._savedAt = Date.now();
       payload._savedName = trimmed;
       storage.setItem(key, JSON.stringify(payload));
+      // Remember the name so subsequent disk-saves use it as the filename.
+      state.currentScenarioName = trimmed;
+      _publishScenarioName();
       _setAutosaveStatus(`Saved as "${trimmed}"`, "saved");
       renderNamedSavesList();
       return true;
@@ -6563,8 +6808,12 @@ body.presentation-mode .strategy-table input:disabled {
       if (!raw) return false;
       const payload = JSON.parse(raw);
       if (!applyScenarioPayload(payload)) return false;
+      // Loaded a named save → that becomes the active scenario name for
+      // any subsequent disk-save filename + cover-page display.
+      state.currentScenarioName = payload._savedName || name;
+      _publishScenarioName();
       recalc();
-      _setAutosaveStatus(`Loaded "${name}"`, "saved");
+      _setAutosaveStatus(`Loaded "${state.currentScenarioName}"`, "saved");
       return true;
     } catch (_e) { return false; }
   }
@@ -6575,11 +6824,18 @@ body.presentation-mode .strategy-table input:disabled {
     storage.removeItem(NAMED_PREFIX + name);
     renderNamedSavesList();
   }
-  function renderNamedSavesList() {
+  async function renderNamedSavesList() {
     const list = document.getElementById("namedSavesList");
     const heading = document.getElementById("namedSavesHeading");
     if (!list) return;
-    const saves = listNamedSaves();
+    const localSaves = listNamedSaves().map((s) => ({ ...s, source: "local" }));
+    let driveSaves = [];
+    if (_driveEnabled && _driveAccessToken) {
+      // Only auto-list from Drive if we already have a token (don't pop
+      // up a sign-in dialog just from opening the menu).
+      driveSaves = (await listDriveScenarios()).map((s) => ({ ...s, source: "drive" }));
+    }
+    const saves = [...driveSaves, ...localSaves].sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
     if (heading) heading.hidden = saves.length === 0;
     if (!saves.length) {
       list.innerHTML = `<li class="named-saves-empty">No saved scenarios yet.</li>`;
@@ -6589,55 +6845,249 @@ body.presentation-mode .strategy-table input:disabled {
       const subtitle = entry.savedAt
         ? new Date(entry.savedAt).toLocaleString("en-SG", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
         : "";
+      const sourceTag = entry.source === "drive" ? '<span class="named-source named-source-drive" title="Google Drive">Drive</span>' : '<span class="named-source named-source-local" title="Browser only">Local</span>';
+      const dataAttr = entry.source === "drive"
+        ? `data-drive-id="${htmlEscape(entry.id)}" data-named="${htmlEscape(entry.name)}"`
+        : `data-named="${htmlEscape(entry.name)}"`;
+      const deleteAttr = entry.source === "drive"
+        ? `data-drive-delete="${htmlEscape(entry.id)}" data-named-delete="${htmlEscape(entry.name)}"`
+        : `data-named-delete="${htmlEscape(entry.name)}"`;
       return `
         <li>
-          <button type="button" class="named-save-open" data-named="${htmlEscape(entry.name)}">
-            ${htmlEscape(entry.name)}
+          <button type="button" class="named-save-open" ${dataAttr}>
+            <span class="named-save-title">${htmlEscape(entry.name)} ${sourceTag}</span>
             ${subtitle ? `<small>${htmlEscape(subtitle)}</small>` : ""}
           </button>
-          <button type="button" class="named-save-delete" data-named-delete="${htmlEscape(entry.name)}" aria-label="Delete ${htmlEscape(entry.name)}" title="Delete">×</button>
+          <button type="button" class="named-save-delete" ${deleteAttr} aria-label="Delete ${htmlEscape(entry.name)}" title="Delete">×</button>
         </li>
       `;
     }).join("");
     list.querySelectorAll("[data-named]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        loadNamed(btn.dataset.named);
+      btn.addEventListener("click", async () => {
+        const driveId = btn.dataset.driveId;
+        if (driveId) await loadDriveScenario(driveId, btn.dataset.named);
+        else loadNamed(btn.dataset.named);
         document.getElementById("openMenu")?.removeAttribute("open");
       });
     });
     list.querySelectorAll("[data-named-delete]").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
+      btn.addEventListener("click", async (e) => {
         e.stopPropagation();
-        deleteNamed(btn.dataset.namedDelete);
+        const driveId = btn.dataset.driveDelete;
+        if (driveId) await deleteDriveScenario(driveId, btn.dataset.namedDelete);
+        else deleteNamed(btn.dataset.namedDelete);
       });
     });
   }
 
+  // ===== GOOGLE DRIVE (optional) =====
+  // Pluggable Drive sync. Activates only when the page declares a
+  // <meta name="ckg-google-client-id" content="..."> tag. Otherwise the
+  // Save / Open menus stay localStorage-only.
+  // Stores scenarios as JSON files in the app's hidden Drive
+  // `appDataFolder` so they don't pollute the user's main Drive.
+  const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.appdata";
+  const DRIVE_FILE_PREFIX = "ckg-illustration-";
+  const DRIVE_MIME = "application/json";
+  let _driveTokenClient = null;
+  let _driveAccessToken = null;
+  let _driveTokenExpiresAt = 0;
+  let _driveEnabled = false;
+  let _driveScriptLoading = null;
+
+  function _driveClientId() {
+    return document.querySelector('meta[name="ckg-google-client-id"]')?.content?.trim() || "";
+  }
+
+  function _loadGisScript() {
+    if (_driveScriptLoading) return _driveScriptLoading;
+    _driveScriptLoading = new Promise((resolve, reject) => {
+      if (window.google && window.google.accounts && window.google.accounts.oauth2) return resolve();
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("Failed to load Google Identity Services"));
+      document.head.appendChild(script);
+    });
+    return _driveScriptLoading;
+  }
+
+  async function _ensureDriveToken({ interactive = true } = {}) {
+    if (!_driveEnabled) throw new Error("Drive not configured");
+    if (_driveAccessToken && Date.now() < _driveTokenExpiresAt - 30_000) return _driveAccessToken;
+    await _loadGisScript();
+    if (!_driveTokenClient) {
+      _driveTokenClient = window.google.accounts.oauth2.initTokenClient({
+        client_id: _driveClientId(),
+        scope: DRIVE_SCOPE,
+        callback: () => {},   // overridden per request
+      });
+    }
+    return new Promise((resolve, reject) => {
+      _driveTokenClient.callback = (resp) => {
+        if (resp.error) return reject(resp);
+        _driveAccessToken = resp.access_token;
+        _driveTokenExpiresAt = Date.now() + (Number(resp.expires_in || 3600) * 1000);
+        resolve(_driveAccessToken);
+      };
+      try {
+        _driveTokenClient.requestAccessToken({ prompt: interactive ? "consent" : "" });
+      } catch (e) { reject(e); }
+    });
+  }
+
+  async function _driveFetch(url, opts = {}) {
+    const token = await _ensureDriveToken();
+    const res = await fetch(url, {
+      ...opts,
+      headers: { ...(opts.headers || {}), Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => res.statusText);
+      throw new Error(`Drive API ${res.status}: ${txt.slice(0, 200)}`);
+    }
+    return res;
+  }
+
+  async function listDriveScenarios() {
+    if (!_driveEnabled) return [];
+    try {
+      const url = `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name,modifiedTime)&pageSize=100&orderBy=modifiedTime%20desc`;
+      const res = await _driveFetch(url);
+      const data = await res.json();
+      return (data.files || [])
+        .filter((f) => f.name && f.name.startsWith(DRIVE_FILE_PREFIX))
+        .map((f) => ({
+          id: f.id,
+          name: f.name.slice(DRIVE_FILE_PREFIX.length).replace(/\.json$/, ""),
+          savedAt: new Date(f.modifiedTime).getTime(),
+        }));
+    } catch (e) {
+      console.warn("[drive] list failed:", e.message);
+      return [];
+    }
+  }
+
+  async function saveDriveScenario(name) {
+    const trimmed = String(name || "").trim();
+    if (!trimmed) return false;
+    const filename = `${DRIVE_FILE_PREFIX}${trimmed}.json`;
+    const payload = currentScenarioPayload();
+    payload._savedAt = Date.now();
+    payload._savedName = trimmed;
+    payload._driveSync = true;
+    const body = JSON.stringify(payload);
+    // Look for an existing file with this name to PATCH instead of POST.
+    const listUrl = `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=${encodeURIComponent(`name='${filename.replace(/'/g, "\\'")}'`)}&fields=files(id)`;
+    const listRes = await _driveFetch(listUrl);
+    const list = await listRes.json();
+    const existingId = list.files?.[0]?.id;
+    const metadata = existingId
+      ? { name: filename, mimeType: DRIVE_MIME }
+      : { name: filename, mimeType: DRIVE_MIME, parents: ["appDataFolder"] };
+    const boundary = "ckg" + Math.random().toString(36).slice(2);
+    const multipart = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: ${DRIVE_MIME}\r\n\r\n${body}\r\n--${boundary}--`;
+    const uploadUrl = existingId
+      ? `https://www.googleapis.com/upload/drive/v3/files/${existingId}?uploadType=multipart`
+      : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
+    await _driveFetch(uploadUrl, {
+      method: existingId ? "PATCH" : "POST",
+      headers: { "Content-Type": `multipart/related; boundary=${boundary}` },
+      body: multipart,
+    });
+    state.currentScenarioName = trimmed;
+    _publishScenarioName();
+    _setAutosaveStatus(`Saved to Drive as "${trimmed}"`, "saved");
+    renderNamedSavesList();
+    return true;
+  }
+
+  async function loadDriveScenario(fileId, fallbackName) {
+    if (!_driveEnabled) return false;
+    const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+    const res = await _driveFetch(url);
+    const text = await res.text();
+    try {
+      const payload = JSON.parse(text);
+      if (!applyScenarioPayload(payload)) return false;
+      state.currentScenarioName = payload._savedName || fallbackName || "";
+      _publishScenarioName();
+      recalc();
+      _setAutosaveStatus(`Loaded from Drive: "${state.currentScenarioName}"`, "saved");
+      return true;
+    } catch (e) {
+      window.alert(`Drive file is not a valid scenario (${e.message}).`);
+      return false;
+    }
+  }
+
+  async function deleteDriveScenario(fileId, name) {
+    if (!_driveEnabled) return false;
+    if (!window.confirm(`Delete Drive scenario "${name}"? This can't be undone.`)) return false;
+    await _driveFetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, { method: "DELETE" });
+    renderNamedSavesList();
+    return true;
+  }
+
   function bindScenarioMenus() {
+    bindPrintModal();
+    _driveEnabled = Boolean(_driveClientId());
+    // Surface Drive UI affordances only if a client ID is configured.
+    if (_driveEnabled) {
+      ["saveDriveHeading", "saveDriveBtn", "openDriveHeading", "openDriveSigninBtn"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.hidden = false;
+      });
+    }
     // Save dropdown actions
     document.querySelectorAll("[data-save-action]").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         const action = btn.dataset.saveAction;
         if (action === "autosave") {
           writeAutosave("manual");
         } else if (action === "named") {
-          const name = window.prompt("Save this scenario as… (e.g. client name)", "");
+          const defaultName = state.currentScenarioName || "";
+          const name = window.prompt("Save this scenario as… (e.g. client name)", defaultName);
           if (name) saveNamed(name);
         } else if (action === "disk") {
           saveHtmlScenario();
           _setAutosaveStatus("Downloaded HTML", "saved");
+        } else if (action === "drive") {
+          const defaultName = state.currentScenarioName || "";
+          const name = window.prompt("Save to Drive as… (e.g. client name)", defaultName);
+          if (!name) return;
+          try {
+            await saveDriveScenario(name);
+          } catch (e) {
+            window.alert(`Drive save failed: ${e.message || e}`);
+          }
         }
         document.getElementById("saveMenu")?.removeAttribute("open");
       });
     });
     // Open dropdown actions
     document.querySelectorAll("[data-open-action]").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         const action = btn.dataset.openAction;
         if (action === "autosave") {
           if (!loadAutosave()) window.alert("No autosave found in this browser.");
         } else if (action === "disk") {
           fields.loadScenarioFile.click();
+        } else if (action === "drive-signin") {
+          try {
+            await _ensureDriveToken({ interactive: true });
+            await renderNamedSavesList();
+            _setAutosaveStatus("Connected to Drive", "saved");
+            // Hide the Sign-in button once connected; show is taken over
+            // by the named-save list rows.
+            const signinBtn = document.getElementById("openDriveSigninBtn");
+            if (signinBtn) signinBtn.hidden = true;
+          } catch (e) {
+            window.alert(`Drive sign-in cancelled or failed: ${e.message || ""}`);
+          }
+          return;   // keep the Open menu open so the user sees the list
         }
         document.getElementById("openMenu")?.removeAttribute("open");
       });
@@ -6699,18 +7149,112 @@ body.presentation-mode .strategy-table input:disabled {
         el.addEventListener("input", debounced);
         el.addEventListener("change", debounced);
       });
-      // Surface a hint that an autosave is available
+      // Surface a hint that an autosave is available — and offer to
+      // restore it inline (one-time, dismissable). We only prompt when:
+      //   - localStorage holds an autosave with a real timestamp
+      //   - the user didn't load a scenario via #hash or embedded data
+      //   - the user didn't already explicitly load a named save
+      //   - we're on the default preset (the only path init() takes when
+      //     none of the above held)
       try {
         const raw = window.localStorage.getItem(AUTOSAVE_KEY);
         if (raw) {
           const payload = JSON.parse(raw);
-          if (payload._autosavedAt) {
+          if (payload && payload._autosavedAt) {
             const stamp = new Date(payload._autosavedAt).toLocaleTimeString("en-SG", { hour: "2-digit", minute: "2-digit" });
             _setAutosaveStatus("Autosave from " + stamp, "saved");
+            offerAutosaveRestore(payload._autosavedAt);
           }
         }
       } catch (_e) { /* ignore */ }
     }, 800);
+  }
+
+  // Print / save PDF modal — two paths: window.print() for a quick
+  // browser print, or copy the canonical Playwright command. Closes on
+  // backdrop click, Esc, or close button.
+  function openPrintModal() {
+    const modal = document.getElementById("printModal");
+    if (!modal) { window.print(); return; }
+    modal.hidden = false;
+    document.body.classList.add("print-modal-open");
+    const focusFirst = modal.querySelector("button:not([data-print-close])");
+    focusFirst?.focus();
+  }
+  function closePrintModal() {
+    const modal = document.getElementById("printModal");
+    if (!modal) return;
+    modal.hidden = true;
+    document.body.classList.remove("print-modal-open");
+  }
+  function bindPrintModal() {
+    const modal = document.getElementById("printModal");
+    if (!modal) return;
+    modal.querySelectorAll("[data-print-close]").forEach((el) => el.addEventListener("click", closePrintModal));
+    document.getElementById("printQuick")?.addEventListener("click", () => {
+      closePrintModal();
+      // Defer one frame so the modal teardown doesn't get captured in print
+      requestAnimationFrame(() => window.print());
+    });
+    document.getElementById("printCopyCmd")?.addEventListener("click", async () => {
+      const cmd = document.getElementById("printCmd")?.textContent || "";
+      try {
+        await navigator.clipboard.writeText(cmd);
+        const btn = document.getElementById("printCopyCmd");
+        const original = btn.textContent;
+        btn.textContent = "Copied ✓";
+        setTimeout(() => { btn.textContent = original; }, 1600);
+      } catch (_e) {
+        window.prompt("Copy this command:", cmd);
+      }
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !modal.hidden) closePrintModal();
+    });
+  }
+
+  // One-time inline banner asking if the user wants to restore the
+  // autosave from their last visit. Sits below the topbar, just above
+  // the controls, brass-tinted. Dismisses on action OR on the user
+  // editing anything (so we don't keep nagging while they're working).
+  function offerAutosaveRestore(savedAt) {
+    if (document.getElementById("restoreAutosaveBanner")) return;
+    const stamp = new Date(savedAt);
+    const stampText = stamp.toLocaleString("en-SG", {
+      year: "numeric", month: "short", day: "numeric",
+      hour: "2-digit", minute: "2-digit",
+    });
+    const banner = document.createElement("div");
+    banner.id = "restoreAutosaveBanner";
+    banner.className = "restore-banner";
+    banner.setAttribute("role", "status");
+    banner.innerHTML = `
+      <span><strong>Autosave found</strong> from ${htmlEscape(stampText)}. Restore your last working scenario?</span>
+      <div class="restore-banner-actions">
+        <button type="button" data-restore="yes" class="restore-banner-primary">Restore</button>
+        <button type="button" data-restore="no" class="restore-banner-ghost">Start fresh</button>
+      </div>
+    `;
+    const usageBanner = document.querySelector(".usage-banner");
+    if (usageBanner && usageBanner.parentNode) {
+      usageBanner.parentNode.insertBefore(banner, usageBanner.nextSibling);
+    } else {
+      document.body.insertBefore(banner, document.body.firstChild);
+    }
+    const dismiss = () => banner.remove();
+    banner.querySelector('[data-restore="yes"]').addEventListener("click", () => {
+      loadAutosave();
+      dismiss();
+    });
+    banner.querySelector('[data-restore="no"]').addEventListener("click", dismiss);
+    // Auto-dismiss if the user starts typing/changing anything — no nag.
+    const cancelOnEdit = () => {
+      dismiss();
+      document.removeEventListener("input", cancelOnEdit, true);
+      document.removeEventListener("change", cancelOnEdit, true);
+    };
+    document.addEventListener("input", cancelOnEdit, true);
+    document.addEventListener("change", cancelOnEdit, true);
   }
 
   document.addEventListener("DOMContentLoaded", init);

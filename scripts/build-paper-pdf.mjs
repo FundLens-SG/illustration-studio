@@ -124,13 +124,19 @@ function tableHtml(headers, rows) {
 }
 
 function pageShell({ pageNo, totalPages, title, kicker = "Private Client Illustration", body }) {
+  // If the user named their scenario, surface the name in the brand
+  // lockup kicker so the deck reads as "<client> · Private Client
+  // Illustration" instead of generic "Private Client Illustration".
+  const lockupKicker = pageShell.scenarioName
+    ? `${pageShell.scenarioName} · ${kicker}`
+    : kicker;
   return `
     <section class="paper-page">
       <header class="paper-head">
         <div class="paper-lockup">
           <img class="paper-logo" src="${esc(pageShell.logoSrc)}" alt="" />
           <div>
-            <div class="paper-kicker">${esc(kicker)}</div>
+            <div class="paper-kicker">${esc(lockupKicker)}</div>
             <h1>Illustration Studio</h1>
           </div>
         </div>
@@ -151,6 +157,7 @@ function pageShell({ pageNo, totalPages, title, kicker = "Private Client Illustr
 function buildDeckHtml(data) {
   pageShell.logoSrc = data.logoSrc;
   pageShell.generatedAt = data.generatedAt;
+  pageShell.scenarioName = data.scenarioName || "";
 
   const control = Object.fromEntries(data.controls.map((item) => [item.label, item.value]));
   const compValue = (needle) => {
@@ -898,6 +905,15 @@ async function extractData(page) {
       ? "All years"
       : "Milestones";
 
+    // Read the active scenario name (set when the user does Save-as or
+    // loads a named save). Used on the cover-page kicker + the file's
+    // metadata title.
+    let scenarioName = "";
+    try {
+      // app exposes this via window for the PDF builder
+      scenarioName = (window.__ckgScenarioName || "").trim();
+    } catch (_e) {}
+
     return {
       generatedAt: new Date().toLocaleString("en-SG", {
         year: "numeric",
@@ -906,6 +922,7 @@ async function extractData(page) {
         hour: "2-digit",
         minute: "2-digit",
       }),
+      scenarioName,
       logoSrc,
       heroKicker: `${idText("heroLabel") || "Projected wealth"} · ${idText("heroEndAge") || "age 99"}`,
       heroValue: idText("heroTotal"),
