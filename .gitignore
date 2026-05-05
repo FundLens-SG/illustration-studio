@@ -1,6 +1,7 @@
-# Local dev tooling (Claude Code launch configs, worktrees, transcripts)
+node_modules/
+package-lock.json
 .claude/
-
-# Editor / OS
 .DS_Store
 Thumbs.db
+*.pdf
+!Illustration Studio - Paper Printout.pdf

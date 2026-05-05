@@ -123,16 +123,198 @@ textarea {
 }
 
 .topbar {
+  position: sticky;
+  top: var(--ckg-strip-h, 0);
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  min-height: 116px;
-  padding: 28px 40px;
+  min-height: 80px;
+  padding: 14px 32px;
   color: #fff;
   background: var(--navy);
   border-bottom: 3px solid var(--gold);
   box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08), 0 16px 36px rgba(16, 26, 40, 0.16);
+}
+.topbar h1 { font-size: 22px !important; line-height: 1.15 !important; }
+.topbar .brand-mark { width: 44px !important; height: 44px !important; flex-basis: 44px !important; border-radius: 10px !important; }
+.topbar .eyebrow { font-size: 9px !important; }
+
+/* Sticky action strip on the right of the topbar — Save / Open / Pres / Print */
+.scenario-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.scenario-actions .btn {
+  height: 34px;
+  padding: 0 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(216, 200, 149, 0.45);
+  border-radius: 6px;
+  color: #f5edd4;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  list-style: none;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+.scenario-actions .btn::-webkit-details-marker { display: none; }
+.scenario-actions .btn:hover { background: rgba(255,255,255,0.16); border-color: var(--gold); color: #fff; }
+.scenario-actions .btn .caret { font-size: 9px; opacity: 0.85; margin-left: 2px; }
+.scenario-actions .btn-primary {
+  background: var(--gold);
+  border-color: var(--gold-dark, var(--gold));
+  color: var(--navy);
+  font-weight: 600;
+}
+.scenario-actions .btn-primary:hover { background: var(--gold-dark, var(--gold)); }
+.autosave-status {
+  font-family: var(--mono, "Geist Mono", "JetBrains Mono", ui-monospace, monospace);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: rgba(245, 237, 212, 0.55);
+  white-space: nowrap;
+  margin-right: 6px;
+}
+.autosave-status.saved { color: var(--gold); }
+.autosave-status.warn { color: #f3c66c; }
+
+/* Dropdown popover for Save / Open menus. Uses <details> for native
+   click-to-toggle and click-outside-to-close behaviour. */
+.action-menu { position: relative; }
+.action-menu[open] > summary.btn { background: rgba(255,255,255,0.18); border-color: var(--gold); }
+.action-menu-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 240px;
+  max-width: 320px;
+  background: #fff;
+  color: var(--ink, #101a28);
+  border: 1px solid var(--line, #d2d6d3);
+  border-radius: 6px;
+  box-shadow: 0 18px 36px rgba(16, 26, 40, 0.22);
+  padding: 4px 0;
+  z-index: 60;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.action-menu-pop button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--ink, #101a28);
+  cursor: pointer;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.action-menu-pop button:hover { background: var(--blue-soft, #f0f5f8); color: var(--ink, #101a28); }
+.action-menu-pop .action-menu-section {
+  padding: 8px 14px 4px;
+  font-family: var(--mono, "Geist Mono", monospace);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted, #69727d);
+  font-weight: 600;
+}
+.action-menu-pop .action-menu-section:not(:first-child) { border-top: 1px solid var(--line, #d2d6d3); margin-top: 4px; }
+.named-saves {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.named-saves li {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid var(--line-soft, #eee);
+}
+.named-saves li:last-child { border-bottom: 0; }
+.named-saves .named-save-open {
+  flex: 1 1 auto;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.named-saves .named-save-open:hover { background: var(--blue-soft, #f0f5f8); }
+.named-saves .named-save-open small {
+  font-family: var(--mono, monospace);
+  font-size: 10px;
+  color: var(--muted, #69727d);
+}
+.named-saves .named-save-delete {
+  flex: 0 0 auto;
+  background: transparent;
+  border: 0;
+  padding: 8px 12px;
+  color: var(--muted, #888);
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+}
+.named-saves .named-save-delete:hover { color: var(--red, #9f3d35); }
+.named-saves .named-saves-empty {
+  padding: 8px 14px 10px;
+  font-size: 11.5px;
+  color: var(--muted, #888);
+  font-style: italic;
+}
+
+/* Source-strip removed from the topbar; keep CSS so any cached state
+   that tries to render it still has fallback styling. */
+.source-strip { display: none; }
+
+/* Input groups — Policy / Client, eyebrow on the left then 2-3
+   labelled fields. Mirrors the .toggle-groups pattern. */
+.input-groups {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.input-group {
+  display: grid;
+  grid-template-columns: 110px repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+.input-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted, #69727d);
+  padding-bottom: 11px;
+  align-self: end;
+}
+@media (max-width: 720px) {
+  .input-group { grid-template-columns: 1fr 1fr; }
+  .input-group-label { grid-column: 1 / -1; padding-bottom: 0; }
 }
 
 .brand-lockup {
@@ -407,13 +589,15 @@ button:hover {
   background: var(--gold-soft);
 }
 
-#startPresentation {
+/* #startPresentation is now styled by .scenario-actions .btn-primary in
+   the topbar — the legacy navy fill below is overridden by topbar
+   selectors. Kept as a fallback for any non-topbar render path. */
+#startPresentation:not(.scenario-actions #startPresentation) {
   border-color: var(--gold-dark);
   color: #fff;
   background: var(--navy-2);
 }
-
-#startPresentation:hover {
+#startPresentation:not(.scenario-actions #startPresentation):hover {
   background: var(--navy);
 }
 
@@ -2131,8 +2315,36 @@ body { padding-top: var(--ckg-strip-h) !important; }
           <h1>Illustration Studio</h1>
         </div>
       </div>
-      <div class="source-strip">
-        <span>Updated: Apr 2026</span>
+      <div class="scenario-actions" aria-label="Scenario actions">
+        <span class="autosave-status" id="autosaveStatus" aria-live="polite"></span>
+        <details class="action-menu" id="saveMenu">
+          <summary class="btn">Save <span class="caret">▾</span></summary>
+          <div class="action-menu-pop">
+            <div class="action-menu-section">Drive (browser storage)</div>
+            <button type="button" data-save-action="autosave">Update autosave</button>
+            <button type="button" data-save-action="named">Save as new scenario…</button>
+            <div class="action-menu-section">File</div>
+            <button type="button" data-save-action="disk">Download HTML…</button>
+          </div>
+        </details>
+        <details class="action-menu" id="openMenu">
+          <summary class="btn">Open <span class="caret">▾</span></summary>
+          <div class="action-menu-pop">
+            <div class="action-menu-section">Drive (browser storage)</div>
+            <button type="button" data-open-action="autosave" id="openAutosaveBtn">Restore latest autosave</button>
+            <div class="action-menu-section" id="namedSavesHeading" hidden>Saved scenarios</div>
+            <ul class="named-saves" id="namedSavesList"></ul>
+            <div class="action-menu-section">File</div>
+            <button type="button" data-open-action="disk">Open HTML from disk…</button>
+          </div>
+        </details>
+        <button id="startPresentation" class="btn btn-primary" type="button">Presentation mode</button>
+        <button id="printScenario" class="btn" type="button">Print / save PDF</button>
+        <input id="loadScenarioFile" type="file" accept=".html,text/html,.json,application/json" hidden />
+        <!-- Legacy IDs preserved as hidden so existing JS bindings keep
+             working. The Save / Open dropdowns above route through them. -->
+        <button id="saveHtmlScenario" type="button" hidden tabindex="-1" aria-hidden="true">Save HTML</button>
+        <button id="loadHtmlScenario" type="button" hidden tabindex="-1" aria-hidden="true">Load HTML</button>
       </div>
     </header>
     <button id="exitPresentation" class="exit-presentation" type="button" hidden>Exit presentation</button>
@@ -2144,35 +2356,41 @@ body { padding-top: var(--ckg-strip-h) !important; }
 
     <main>
       <section class="controls" aria-label="Model controls">
-        <div class="control-grid">
-          <label>
-            Variant
-            <select id="variantKey"></select>
-          </label>
-          <label>
-            Currency
-            <select id="currency">
-              <option>SGD</option>
-              <option>USD</option>
-            </select>
-          </label>
-          <label>
-            Payment mode
-            <select id="paymentFrequency">
-              <option value="Annual">Annual</option>
-              <option value="SemiAnnual">Semi-Annual</option>
-              <option value="Quarterly">Quarterly</option>
-              <option value="Monthly">Monthly</option>
-            </select>
-          </label>
-          <label>
-            Annualised basic premium
-            <input id="annualizedPremium" type="number" min="0" step="100" value="100000" />
-          </label>
-          <label>
-            Age last birthday
-            <input id="startAge" type="number" min="0" max="98" step="1" value="62" />
-          </label>
+        <div class="input-groups">
+          <div class="input-group" role="group" aria-label="Policy inputs">
+            <span class="input-group-label">Policy</span>
+            <label>
+              Variant
+              <select id="variantKey"></select>
+            </label>
+            <label>
+              Currency
+              <select id="currency">
+                <option>SGD</option>
+                <option>USD</option>
+              </select>
+            </label>
+            <label>
+              Payment mode
+              <select id="paymentFrequency">
+                <option value="Annual">Annual</option>
+                <option value="SemiAnnual">Semi-Annual</option>
+                <option value="Quarterly">Quarterly</option>
+                <option value="Monthly">Monthly</option>
+              </select>
+            </label>
+          </div>
+          <div class="input-group" role="group" aria-label="Client inputs">
+            <span class="input-group-label">Client</span>
+            <label>
+              Annualised basic premium
+              <input id="annualizedPremium" type="number" min="0" step="100" value="100000" />
+            </label>
+            <label>
+              Age last birthday
+              <input id="startAge" type="number" min="0" max="98" step="1" value="62" />
+            </label>
+          </div>
         </div>
 
         <div class="toggle-groups" role="group" aria-label="Bonus, comparison and view toggles">
@@ -2235,25 +2453,13 @@ body { padding-top: var(--ckg-strip-h) !important; }
           <button id="copyMainStrategy" type="button">Copy selected strategy</button>
         </div>
 
-        <div class="action-row" aria-label="Scenario actions">
-          <div class="action-cluster">
-            <span class="action-cluster-label">Scenario</span>
-            <button id="saveHtmlScenario" type="button">Save HTML</button>
-            <button id="loadHtmlScenario" type="button">Load HTML</button>
-            <input id="loadScenarioFile" type="file" accept=".html,text/html,.json,application/json" hidden />
-          </div>
-          <div class="action-cluster">
-            <span class="action-cluster-label">Output</span>
-            <button id="startPresentation" type="button">Presentation mode</button>
-            <button id="printScenario" type="button">Print / save PDF</button>
-          </div>
-          <!-- Removed by request: Copy share link, Export annual CSV,
-               Export monthly CSV. The hidden buttons + listeners survive
-               so any saved-HTML scenarios produced by older versions can
-               still load without errors, but no new entry points exist. -->
-          <button id="copyShareLink" type="button" hidden tabindex="-1" aria-hidden="true">Copy share link</button>
-          <button id="exportAnnual" type="button" hidden tabindex="-1" aria-hidden="true">Export annual CSV</button>
-          <button id="exportMonthly" type="button" hidden tabindex="-1" aria-hidden="true">Export monthly CSV</button>
+        <!-- Action row moved to the sticky scenario-actions strip in the
+             topbar. Legacy hidden buttons preserved here so old saved-
+             HTML scenarios that target these IDs still bind. -->
+        <div class="action-row" hidden aria-hidden="true">
+          <button id="copyShareLink" type="button">Copy share link</button>
+          <button id="exportAnnual" type="button">Export annual CSV</button>
+          <button id="exportMonthly" type="button">Export monthly CSV</button>
         </div>
 
         <div id="advisorSettings" class="advisor-settings" hidden>
@@ -6180,6 +6386,200 @@ body { padding-top: var(--ckg-strip-h) !important; }
     }
   }
 
+  // ===== AUTOSAVE + NAMED SAVES (browser localStorage) =====
+  const AUTOSAVE_KEY = "ckg-illustration-autosave";
+  const NAMED_PREFIX = "ckg-illustration-save:";
+  let _autosaveTimer = null;
+  let _autosaveStarted = false;
+
+  function _safeStorage() {
+    try { return window.localStorage; } catch (_e) { return null; }
+  }
+  function _setAutosaveStatus(text, kind) {
+    const el = document.getElementById("autosaveStatus");
+    if (!el) return;
+    el.textContent = text || "";
+    el.classList.remove("saved", "warn");
+    if (kind) el.classList.add(kind);
+  }
+  function writeAutosave(reason = "edit") {
+    if (!_autosaveStarted) return;          // skip first-paint preset writes
+    const storage = _safeStorage();
+    if (!storage) return;
+    try {
+      const payload = currentScenarioPayload();
+      payload._autosavedAt = Date.now();
+      storage.setItem(AUTOSAVE_KEY, JSON.stringify(payload));
+      _setAutosaveStatus("Autosaved · " + new Date().toLocaleTimeString("en-SG", { hour: "2-digit", minute: "2-digit" }), "saved");
+    } catch (e) {
+      _setAutosaveStatus("Autosave failed", "warn");
+    }
+  }
+  function scheduleAutosave() {
+    if (!_autosaveStarted) return;
+    if (_autosaveTimer) clearTimeout(_autosaveTimer);
+    _autosaveTimer = setTimeout(() => writeAutosave("debounced"), 1200);
+  }
+  function loadAutosave() {
+    const storage = _safeStorage();
+    if (!storage) return false;
+    try {
+      const raw = storage.getItem(AUTOSAVE_KEY);
+      if (!raw) return false;
+      const payload = JSON.parse(raw);
+      if (!applyScenarioPayload(payload)) return false;
+      recalc();
+      const ts = payload._autosavedAt ? new Date(payload._autosavedAt).toLocaleString("en-SG") : "unknown";
+      _setAutosaveStatus("Restored · " + ts, "saved");
+      return true;
+    } catch (_e) { return false; }
+  }
+  function listNamedSaves() {
+    const storage = _safeStorage();
+    if (!storage) return [];
+    const out = [];
+    for (let i = 0; i < storage.length; i += 1) {
+      const key = storage.key(i);
+      if (!key || !key.startsWith(NAMED_PREFIX)) continue;
+      try {
+        const payload = JSON.parse(storage.getItem(key));
+        out.push({
+          name: key.slice(NAMED_PREFIX.length),
+          savedAt: payload._savedAt || 0,
+        });
+      } catch (_e) { /* ignore corrupt entries */ }
+    }
+    return out.sort((a, b) => b.savedAt - a.savedAt);
+  }
+  function saveNamed(name) {
+    const trimmed = String(name || "").trim();
+    if (!trimmed) return false;
+    const storage = _safeStorage();
+    if (!storage) return false;
+    const key = NAMED_PREFIX + trimmed;
+    if (storage.getItem(key) && !window.confirm(`Overwrite saved scenario "${trimmed}"?`)) return false;
+    try {
+      const payload = currentScenarioPayload();
+      payload._savedAt = Date.now();
+      payload._savedName = trimmed;
+      storage.setItem(key, JSON.stringify(payload));
+      _setAutosaveStatus(`Saved as "${trimmed}"`, "saved");
+      renderNamedSavesList();
+      return true;
+    } catch (_e) {
+      window.alert("Could not save scenario — browser storage may be full.");
+      return false;
+    }
+  }
+  function loadNamed(name) {
+    const storage = _safeStorage();
+    if (!storage) return false;
+    try {
+      const raw = storage.getItem(NAMED_PREFIX + name);
+      if (!raw) return false;
+      const payload = JSON.parse(raw);
+      if (!applyScenarioPayload(payload)) return false;
+      recalc();
+      _setAutosaveStatus(`Loaded "${name}"`, "saved");
+      return true;
+    } catch (_e) { return false; }
+  }
+  function deleteNamed(name) {
+    const storage = _safeStorage();
+    if (!storage) return;
+    if (!window.confirm(`Delete saved scenario "${name}"? This can't be undone.`)) return;
+    storage.removeItem(NAMED_PREFIX + name);
+    renderNamedSavesList();
+  }
+  function renderNamedSavesList() {
+    const list = document.getElementById("namedSavesList");
+    const heading = document.getElementById("namedSavesHeading");
+    if (!list) return;
+    const saves = listNamedSaves();
+    if (heading) heading.hidden = saves.length === 0;
+    if (!saves.length) {
+      list.innerHTML = `<li class="named-saves-empty">No saved scenarios yet.</li>`;
+      return;
+    }
+    list.innerHTML = saves.map((entry) => {
+      const subtitle = entry.savedAt
+        ? new Date(entry.savedAt).toLocaleString("en-SG", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
+        : "";
+      return `
+        <li>
+          <button type="button" class="named-save-open" data-named="${htmlEscape(entry.name)}">
+            ${htmlEscape(entry.name)}
+            ${subtitle ? `<small>${htmlEscape(subtitle)}</small>` : ""}
+          </button>
+          <button type="button" class="named-save-delete" data-named-delete="${htmlEscape(entry.name)}" aria-label="Delete ${htmlEscape(entry.name)}" title="Delete">×</button>
+        </li>
+      `;
+    }).join("");
+    list.querySelectorAll("[data-named]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        loadNamed(btn.dataset.named);
+        document.getElementById("openMenu")?.removeAttribute("open");
+      });
+    });
+    list.querySelectorAll("[data-named-delete]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        deleteNamed(btn.dataset.namedDelete);
+      });
+    });
+  }
+
+  function bindScenarioMenus() {
+    // Save dropdown actions
+    document.querySelectorAll("[data-save-action]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const action = btn.dataset.saveAction;
+        if (action === "autosave") {
+          writeAutosave("manual");
+        } else if (action === "named") {
+          const name = window.prompt("Save this scenario as… (e.g. client name)", "");
+          if (name) saveNamed(name);
+        } else if (action === "disk") {
+          saveHtmlScenario();
+          _setAutosaveStatus("Downloaded HTML", "saved");
+        }
+        document.getElementById("saveMenu")?.removeAttribute("open");
+      });
+    });
+    // Open dropdown actions
+    document.querySelectorAll("[data-open-action]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const action = btn.dataset.openAction;
+        if (action === "autosave") {
+          if (!loadAutosave()) window.alert("No autosave found in this browser.");
+        } else if (action === "disk") {
+          fields.loadScenarioFile.click();
+        }
+        document.getElementById("openMenu")?.removeAttribute("open");
+      });
+    });
+    // Refresh the list whenever the Open menu opens
+    const openMenu = document.getElementById("openMenu");
+    if (openMenu) {
+      openMenu.addEventListener("toggle", () => {
+        if (openMenu.open) renderNamedSavesList();
+      });
+    }
+    // Click-outside closes any open <details> menu
+    document.addEventListener("click", (e) => {
+      document.querySelectorAll(".action-menu[open]").forEach((m) => {
+        if (!m.contains(e.target)) m.removeAttribute("open");
+      });
+    });
+    // Escape closes any open menu
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        document.querySelectorAll(".action-menu[open]").forEach((m) => m.removeAttribute("open"));
+      }
+    });
+    renderNamedSavesList();
+  }
+
   function init() {
     collectFields();
     populateVariants();
@@ -6187,6 +6587,7 @@ body { padding-top: var(--ckg-strip-h) !important; }
     enforcePremiumMinimum(true);
     bindEvents();
     bindChartEvents();
+    bindScenarioMenus();
     populateHistoricalStartYears();
     initFundBuilder();
     syncSliderReadouts();
@@ -6202,6 +6603,30 @@ body { padding-top: var(--ckg-strip-h) !important; }
     // preset / loaded scenario doesn't immediately mark the form as
     // dirty. Anything the user types from this point on counts.
     setTimeout(_wireCkgDirtyTracking, 0);
+    // Wire autosave AFTER the initial preset / scenario load so the
+    // first-paint state doesn't trigger a write. Every subsequent input
+    // change debounces a write to the browser-local autosave slot.
+    setTimeout(() => {
+      _autosaveStarted = true;
+      const debounced = scheduleAutosave;
+      document.querySelectorAll(
+        ".controls input, .controls select, .strategy-section input, .strategy-section select, .fund-builder-section input, .fund-builder-section select, #scenarioNotes"
+      ).forEach((el) => {
+        el.addEventListener("input", debounced);
+        el.addEventListener("change", debounced);
+      });
+      // Surface a hint that an autosave is available
+      try {
+        const raw = window.localStorage.getItem(AUTOSAVE_KEY);
+        if (raw) {
+          const payload = JSON.parse(raw);
+          if (payload._autosavedAt) {
+            const stamp = new Date(payload._autosavedAt).toLocaleTimeString("en-SG", { hour: "2-digit", minute: "2-digit" });
+            _setAutosaveStatus("Autosave from " + stamp, "saved");
+          }
+        }
+      } catch (_e) { /* ignore */ }
+    }, 800);
   }
 
   document.addEventListener("DOMContentLoaded", init);
