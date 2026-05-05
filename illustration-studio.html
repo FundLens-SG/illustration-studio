@@ -978,6 +978,8 @@ canvas#valueChart {
 
 .chart-tooltip {
   position: absolute;
+  top: 0;
+  left: 0;
   z-index: 5;
   min-width: 200px;
   max-width: 280px;
@@ -989,7 +991,24 @@ canvas#valueChart {
   box-shadow: 0 14px 28px rgba(16, 26, 40, 0.14);
   font-size: 12px;
   pointer-events: none;
-  transform: translate(12px, 12px);
+  /* No initial transform — JS sets `left` / `top` directly so the tooltip
+     follows the cursor + the snapped year, never floating below the chart. */
+}
+
+/* Dotted crosshair overlay — shows the user the exact X (year) and Y
+   (value) the cursor is reading. Brass at low alpha, 1px dotted. */
+.chart-crosshair {
+  position: absolute;
+  pointer-events: none;
+  z-index: 4;
+}
+.chart-crosshair-x {
+  width: 0;
+  border-left: 1px dashed rgba(214, 168, 122, 0.55);
+}
+.chart-crosshair-y {
+  height: 0;
+  border-top: 1px dashed rgba(214, 168, 122, 0.55);
 }
 
 .chart-tooltip h4 {
@@ -1774,9 +1793,15 @@ input[type="range"]::-moz-range-thumb {
 
 .projection-access-legend {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
+  /* Two columns side-by-side so "Partial withdrawal access starts" and
+     "Full cashout available" can be read across without the eye scanning
+     down the full row width and back. Stacks on narrow screens. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
   margin-top: 10px;
+}
+@media (max-width: 980px) {
+  .projection-access-legend { grid-template-columns: 1fr; }
 }
 
 .access-legend-card {
@@ -2247,16 +2272,21 @@ body.presentation-mode .strategy-table input:disabled {
 /* ===== CKG Suite Strip — global cross-tool nav ===== */
 :root { --ckg-strip-h: 36px; }
 @media (max-width: 640px) { :root { --ckg-strip-h: 44px; } }
-body { padding-top: var(--ckg-strip-h) !important; }
+/* CKG strip is now `position: sticky` (was `position: fixed` with a
+   compensating body padding-top). Sticky keeps the strip pinned to the
+   top of the viewport while staying inside normal flow, so the navy
+   topbar below it docks flush to it instead of floating over a gap of
+   page-bg colour. The compensating body padding is dropped because
+   the strip now occupies real layout space. */
 .ckg-suite-strip {
-  position: fixed; top: 0; left: 0; right: 0;
+  position: sticky; top: 0; left: 0; right: 0;
   height: var(--ckg-strip-h);
   background: #0a0a0a;
   border-bottom: 1px solid rgba(214, 168, 122, 0.18);
   display: flex; align-items: center;
   padding: 0 14px;
   font-family: "Geist", "Inter", "Segoe UI", system-ui, sans-serif;
-  z-index: 999999;
+  z-index: 100;
   box-sizing: border-box;
 }
 .ckg-suite-strip-back {
@@ -2410,7 +2440,11 @@ body { padding-top: var(--ckg-strip-h) !important; }
             <span class="toggle-group-label">View</span>
             <label class="toggle"><input id="inflationAdjust" type="checkbox" /> Today's dollars</label>
             <label class="toggle"><input id="deductPiFundMgmt" type="checkbox" /> PI 1.25% deduction</label>
-            <label class="toggle"><input id="showAdvisorDetails" type="checkbox" /> Advisor details</label>
+            <!-- Advisor details toggle removed from the visible UI by request.
+                 The hidden checkbox is preserved (default unchecked) so the
+                 strategy/compare-strategy renderers and the advisor-only
+                 settings sub-panel keep evaluating the gate cleanly. -->
+            <input id="showAdvisorDetails" type="checkbox" hidden tabindex="-1" aria-hidden="true" />
           </div>
         </div>
 
@@ -2520,6 +2554,8 @@ body { padding-top: var(--ckg-strip-h) !important; }
           <div id="chartLegend" class="chart-legend"></div>
           <div class="chart-stage">
             <canvas id="valueChart" width="1100" height="380"></canvas>
+            <div id="chartCrosshairX" class="chart-crosshair chart-crosshair-x" hidden></div>
+            <div id="chartCrosshairY" class="chart-crosshair chart-crosshair-y" hidden></div>
             <div id="chartTooltip" class="chart-tooltip" hidden></div>
           </div>
           <p class="chart-hint">Hover any year for a breakdown. Click a year to highlight it in the projection table below.</p>
@@ -2731,18 +2767,18 @@ body { padding-top: var(--ckg-strip-h) !important; }
       <section class="notes-section" aria-label="Scenario notes">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Advisor Working Notes</p>
-            <h2>Scenario Notes</h2>
+            <p class="eyebrow">Advisor working notes</p>
+            <h2>Scenario notes</h2>
           </div>
-          <small class="caption-note">Saved with the scenario when you export HTML or copy the share link.</small>
+          <small class="caption-note">Travels with every Save · Open · Download HTML · Drive sync.</small>
         </div>
-        <textarea id="scenarioNotes" rows="3" placeholder="Notes about goals, risk preferences, drawdown plans — travel with the scenario when shared or saved."></textarea>
+        <textarea id="scenarioNotes" rows="3" placeholder="Client goals, risk preferences, drawdown plans, follow-ups — anything that should travel with this scenario."></textarea>
       </section>
 
-      <section class="source-notes" aria-label="Source notes">
-        <h2>Source Notes</h2>
-        <div id="sourceNotes"></div>
-      </section>
+      <!-- Source-notes panel removed by request. The hidden hook below
+           keeps existing JS that writes into #sourceNotes from throwing
+           on a missing element. -->
+      <div id="sourceNotes" hidden aria-hidden="true"></div>
 
       <section class="disclaimers" aria-label="Important disclaimers">
         <h2>Important Disclaimers</h2>
@@ -5506,10 +5542,14 @@ body { padding-top: var(--ckg-strip-h) !important; }
 
   function showTooltipAt(event) {
     if (!state.results) return;
-    const idx = chartIndexFromEvent(event);
     const tooltip = $("chartTooltip");
+    const xLine = $("chartCrosshairX");
+    const yLine = $("chartCrosshairY");
+    const idx = chartIndexFromEvent(event);
     if (idx === null) {
       tooltip.hidden = true;
+      if (xLine) xLine.hidden = true;
+      if (yLine) yLine.hidden = true;
       return;
     }
     const settings = currentSettings();
@@ -5545,23 +5585,67 @@ body { padding-top: var(--ckg-strip-h) !important; }
       </dl>
     `;
     tooltip.hidden = false;
-    const stage = $("valueChart").parentElement;
-    const stageRect = stage.getBoundingClientRect();
+
+    // Snap tooltip + crosshair to the year-snapped X position rather than
+    // raw cursor X — that way the tooltip docks at the value being read,
+    // not floating arbitrarily.
+    const geometry = state.chartGeometry;
+    const canvas = $("valueChart");
+    const canvasRect = canvas.getBoundingClientRect();
+    const snapXcanvas = geometry.xAt(idx);                       // canvas-px X
+    const snapYcanvas = geometry.yAt(row.totalValue);            // canvas-px Y
+    // Convert canvas-px to CSS-px (the canvas is scaled by canvas.width / clientWidth)
+    const cssScaleX = canvas.clientWidth / (canvas.width / (window.devicePixelRatio || 1));
+    const cssScaleY = canvas.clientHeight / (canvas.height / (window.devicePixelRatio || 1));
+    const snapX = snapXcanvas * cssScaleX;
+    const snapY = snapYcanvas * cssScaleY;
+    const cursorY = event.clientY - canvasRect.top;
+    const stage = canvas.parentElement;
     const tooltipWidth = tooltip.offsetWidth;
     const tooltipHeight = tooltip.offsetHeight;
-    const stageMouseX = event.clientX - stageRect.left;
-    const stageMouseY = event.clientY - stageRect.top;
-    let left = stageMouseX + 14;
-    let top = stageMouseY + 14;
-    if (left + tooltipWidth > stage.clientWidth - 8) left = stageMouseX - tooltipWidth - 14;
-    if (top + tooltipHeight > stage.clientHeight - 8) top = stageMouseY - tooltipHeight - 14;
-    tooltip.style.transform = `translate(${Math.max(8, left)}px, ${Math.max(8, top)}px)`;
+
+    // Default: tooltip just to the right of the snap point, vertically near
+    // the value being read. Flip horizontally if it would overflow the stage.
+    let left = snapX + 14;
+    let top = snapY - tooltipHeight / 2;
+    if (left + tooltipWidth > stage.clientWidth - 8) left = snapX - tooltipWidth - 14;
+    if (top < 8) top = 8;
+    if (top + tooltipHeight > stage.clientHeight - 8) top = stage.clientHeight - tooltipHeight - 8;
+    tooltip.style.transform = "none";
+    tooltip.style.left = `${Math.max(8, left)}px`;
+    tooltip.style.top = `${Math.max(8, top)}px`;
+
+    // Crosshair: vertical line at snapped X (years are discrete), horizontal
+    // line at the actual cursor Y so the user can read the gridline value.
+    if (xLine && geometry) {
+      const plotTop = geometry.pad.top * cssScaleY;
+      const plotBottom = (geometry.height - geometry.pad.bottom) * cssScaleY;
+      xLine.style.left = `${snapX}px`;
+      xLine.style.top = `${plotTop}px`;
+      xLine.style.height = `${plotBottom - plotTop}px`;
+      xLine.hidden = false;
+    }
+    if (yLine && geometry) {
+      const plotLeft = geometry.pad.left * cssScaleX;
+      const plotRight = (geometry.width - geometry.pad.right) * cssScaleX;
+      const yPos = Math.max(plotLeft, Math.min(canvas.clientHeight, cursorY));
+      yLine.style.left = `${plotLeft}px`;
+      yLine.style.top = `${yPos}px`;
+      yLine.style.width = `${plotRight - plotLeft}px`;
+      yLine.hidden = false;
+    }
   }
 
   function bindChartEvents() {
     const canvas = $("valueChart");
     canvas.addEventListener("mousemove", showTooltipAt);
-    canvas.addEventListener("mouseleave", () => { $("chartTooltip").hidden = true; });
+    canvas.addEventListener("mouseleave", () => {
+      $("chartTooltip").hidden = true;
+      const xLine = $("chartCrosshairX");
+      const yLine = $("chartCrosshairY");
+      if (xLine) xLine.hidden = true;
+      if (yLine) yLine.hidden = true;
+    });
     canvas.addEventListener("click", (event) => {
       const idx = chartIndexFromEvent(event);
       if (idx === null) return;
