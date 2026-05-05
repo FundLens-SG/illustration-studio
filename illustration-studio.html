@@ -304,6 +304,64 @@ textarea:focus {
   margin-top: 16px;
 }
 
+/* Grouped toggle rows: each group has a small uppercase eyebrow label
+   on the left, then its toggles. Three groups stack vertically on
+   narrow screens, sit side-by-side on wide. */
+.toggle-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+.toggle-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.toggle-group-label {
+  flex: 0 0 auto;
+  width: 110px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-right: 6px;
+}
+@media (max-width: 720px) {
+  .toggle-group-label { width: auto; flex-basis: 100%; padding-bottom: 2px; }
+}
+
+/* Action row clusters: same eyebrow-label idea, with a faint vertical
+   rule between clusters to group them visually. */
+.action-row {
+  align-items: center;
+}
+.action-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 14px;
+  border-right: 1px solid var(--line);
+}
+.action-cluster:last-of-type { border-right: 0; padding-right: 0; }
+.action-cluster-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 2px;
+}
+@media (max-width: 720px) {
+  .action-cluster {
+    border-right: 0;
+    padding-right: 0;
+    flex-wrap: wrap;
+  }
+}
+
 .toggle {
   display: inline-flex;
   grid-template-columns: none;
@@ -1036,18 +1094,27 @@ dd {
   border: 0;
 }
 
-/* Strategy-row flash — single uniform brass tint that fades in and out
-   simultaneously across all cells of a row, so it reads as one
-   horizontal flash rather than eight individual cell animations.
-   Triggered on single-cell edit, bulk-apply, apply-portfolio, S&P
-   backfill, and reset-premiums. */
+/* Strategy-row flash — a brass underline pulse + a barely-there brass
+   tint, applied to every cell of the row simultaneously so it reads as
+   one calm horizontal "row was just touched" indicator, not a yellow
+   alert. Triggered on single-cell edit, bulk-apply, apply-portfolio,
+   S&P backfill, and reset-premiums. */
 @keyframes strategy-row-flash {
-  0%   { background-color: rgba(214, 168, 122, 0.00); }
-  20%  { background-color: rgba(214, 168, 122, 0.18); }
-  100% { background-color: rgba(214, 168, 122, 0.00); }
+  0% {
+    box-shadow: inset 0 -2px 0 rgba(214, 168, 122, 0);
+    background-color: rgba(214, 168, 122, 0);
+  }
+  25% {
+    box-shadow: inset 0 -2px 0 rgba(214, 168, 122, 0.75);
+    background-color: rgba(214, 168, 122, 0.05);
+  }
+  100% {
+    box-shadow: inset 0 -2px 0 rgba(214, 168, 122, 0);
+    background-color: rgba(214, 168, 122, 0);
+  }
 }
 .strategy-table tr.is-flashing td {
-  animation: strategy-row-flash 900ms ease-out both;
+  animation: strategy-row-flash 700ms ease-out both;
 }
 
 .fund-preview {
@@ -2108,16 +2175,25 @@ body { padding-top: var(--ckg-strip-h) !important; }
           </label>
         </div>
 
-        <div class="toggle-row" role="group" aria-label="Bonus and benchmark toggles">
-          <label class="toggle"><input id="includeWelcome" type="checkbox" checked /> Welcome Bonus</label>
-          <label class="toggle"><input id="includeAnnualBonus" type="checkbox" checked /> Annual Premium Bonus</label>
-          <label class="toggle"><input id="includeLoyalty" type="checkbox" checked /> Loyalty Bonus</label>
-          <label class="toggle"><input id="compareCustom" type="checkbox" /> Compare with</label>
-          <label class="toggle"><input id="compareReinvest" type="checkbox" /> Compare all dividends reinvested</label>
-          <label class="toggle"><input id="compareFd" type="checkbox" /> Compare fixed deposit</label>
-          <label class="toggle"><input id="inflationAdjust" type="checkbox" /> Show in today's dollars</label>
-          <label class="toggle"><input id="deductPiFundMgmt" type="checkbox" /> PI 1.25% fund-charge deduction</label>
-          <label class="toggle"><input id="showAdvisorDetails" type="checkbox" /> Advisor details</label>
+        <div class="toggle-groups" role="group" aria-label="Bonus, comparison and view toggles">
+          <div class="toggle-group">
+            <span class="toggle-group-label">Bonuses</span>
+            <label class="toggle"><input id="includeWelcome" type="checkbox" checked /> Welcome</label>
+            <label class="toggle"><input id="includeAnnualBonus" type="checkbox" checked /> Annual Premium</label>
+            <label class="toggle"><input id="includeLoyalty" type="checkbox" checked /> Loyalty</label>
+          </div>
+          <div class="toggle-group">
+            <span class="toggle-group-label">Compare with</span>
+            <label class="toggle"><input id="compareCustom" type="checkbox" /> Variant</label>
+            <label class="toggle"><input id="compareReinvest" type="checkbox" /> All dividends reinvested</label>
+            <label class="toggle"><input id="compareFd" type="checkbox" /> Fixed deposit</label>
+          </div>
+          <div class="toggle-group">
+            <span class="toggle-group-label">View</span>
+            <label class="toggle"><input id="inflationAdjust" type="checkbox" /> Today's dollars</label>
+            <label class="toggle"><input id="deductPiFundMgmt" type="checkbox" /> PI 1.25% deduction</label>
+            <label class="toggle"><input id="showAdvisorDetails" type="checkbox" /> Advisor details</label>
+          </div>
         </div>
 
         <div id="inflationSettings" class="benchmark-settings" hidden>
@@ -2159,15 +2235,25 @@ body { padding-top: var(--ckg-strip-h) !important; }
           <button id="copyMainStrategy" type="button">Copy selected strategy</button>
         </div>
 
-        <div class="action-row">
-          <button id="saveHtmlScenario" type="button">Save HTML</button>
-          <button id="loadHtmlScenario" type="button">Load HTML</button>
-          <input id="loadScenarioFile" type="file" accept=".html,text/html,.json,application/json" hidden />
-          <button id="copyShareLink" type="button" title="Copy a share link with the current scenario encoded">Copy share link</button>
-          <button id="startPresentation" type="button">Presentation mode</button>
-          <button id="printScenario" type="button">Print / save PDF</button>
-          <button id="exportAnnual" type="button">Export annual CSV</button>
-          <button id="exportMonthly" type="button">Export monthly CSV</button>
+        <div class="action-row" aria-label="Scenario actions">
+          <div class="action-cluster">
+            <span class="action-cluster-label">Scenario</span>
+            <button id="saveHtmlScenario" type="button">Save HTML</button>
+            <button id="loadHtmlScenario" type="button">Load HTML</button>
+            <input id="loadScenarioFile" type="file" accept=".html,text/html,.json,application/json" hidden />
+          </div>
+          <div class="action-cluster">
+            <span class="action-cluster-label">Output</span>
+            <button id="startPresentation" type="button">Presentation mode</button>
+            <button id="printScenario" type="button">Print / save PDF</button>
+          </div>
+          <!-- Removed by request: Copy share link, Export annual CSV,
+               Export monthly CSV. The hidden buttons + listeners survive
+               so any saved-HTML scenarios produced by older versions can
+               still load without errors, but no new entry points exist. -->
+          <button id="copyShareLink" type="button" hidden tabindex="-1" aria-hidden="true">Copy share link</button>
+          <button id="exportAnnual" type="button" hidden tabindex="-1" aria-hidden="true">Export annual CSV</button>
+          <button id="exportMonthly" type="button" hidden tabindex="-1" aria-hidden="true">Export monthly CSV</button>
         </div>
 
         <div id="advisorSettings" class="advisor-settings" hidden>
