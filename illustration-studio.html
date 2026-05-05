@@ -5914,9 +5914,43 @@ body { padding-top: var(--ckg-strip-h) !important; }
     const html = buildCurrentDocumentHtml(payload);
     const date = new Date().toISOString().slice(0, 10);
     downloadText(`illustration-studio-${payload.settings.variantKey}-${date}.html`, html, "text/html;charset=utf-8");
+    _ckgDirty = false;   // Save HTML cleared the dirty flag
     // Cross-tool activity log (ckgtools landing): one event per
     // finalized illustration. No-op when not signed into the hub.
     try { window.ckgTrackIllustration && window.ckgTrackIllustration(payload); } catch (_e) {}
+  }
+
+  // ── ckg leave-guard wiring ─────────────────────────────────────────
+  // Track dirty state so the suite-strip / dock / palette / tab-close
+  // can prompt before throwing away the current illustration.
+  let _ckgDirty = false;
+  function _markCkgDirty() { _ckgDirty = true; }
+
+  // Bind dirty-tracking to every input that contributes to the
+  // scenario. We attach in init() (after collectFields runs) so
+  // fields.* are populated.
+  function _wireCkgDirtyTracking() {
+    document.querySelectorAll(
+      ".panel input, .panel select, .panel textarea"
+    ).forEach((el) => {
+      el.addEventListener("change", _markCkgDirty);
+      if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+        el.addEventListener("input", _markCkgDirty);
+      }
+    });
+    if (typeof window.ckgRegisterLeaveGuard === "function") {
+      window.ckgRegisterLeaveGuard({
+        isDirty: () => _ckgDirty,
+        describe: () => ({
+          title: "Unsaved illustration",
+          message: "You have unsaved changes to this illustration. Save the HTML before leaving?",
+          primaryLabel: "Save HTML",
+          primaryAction: async () => { saveHtmlScenario(); },
+          secondaryLabel: "Discard",
+          secondaryAction: () => { _ckgDirty = false; },
+        }),
+      });
+    }
   }
 
   function extractScenarioPayload(text) {
@@ -6164,6 +6198,10 @@ body { padding-top: var(--ckg-strip-h) !important; }
     } else {
       applyPreset("excelBase");
     }
+    // Register the leave-guard AFTER initial paint so the auto-applied
+    // preset / loaded scenario doesn't immediately mark the form as
+    // dirty. Anything the user types from this point on counts.
+    setTimeout(_wireCkgDirtyTracking, 0);
   }
 
   document.addEventListener("DOMContentLoaded", init);
