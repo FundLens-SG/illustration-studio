@@ -1036,35 +1036,18 @@ dd {
   border: 0;
 }
 
-/* Strategy-row shimmer — fires whenever a row's projection inputs change,
-   whether from a single-cell edit, a bulk-apply, or apply-portfolio.
-   Brass tint slides L→R then fades. */
+/* Strategy-row flash — single uniform brass tint that fades in and out
+   simultaneously across all cells of a row, so it reads as one
+   horizontal flash rather than eight individual cell animations.
+   Triggered on single-cell edit, bulk-apply, apply-portfolio, S&P
+   backfill, and reset-premiums. */
 @keyframes strategy-row-flash {
-  0%   { background: rgba(214, 168, 122, 0.00); }
-  18%  { background: rgba(214, 168, 122, 0.28); }
-  100% { background: rgba(214, 168, 122, 0.00); }
-}
-@keyframes strategy-row-shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
+  0%   { background-color: rgba(214, 168, 122, 0.00); }
+  20%  { background-color: rgba(214, 168, 122, 0.18); }
+  100% { background-color: rgba(214, 168, 122, 0.00); }
 }
 .strategy-table tr.is-flashing td {
-  animation: strategy-row-flash 1100ms ease-out both;
-  position: relative;
-}
-.strategy-table tr.is-flashing td::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    100deg,
-    transparent 30%,
-    rgba(214, 168, 122, 0.25) 50%,
-    transparent 70%
-  );
-  background-size: 200% 100%;
-  animation: strategy-row-shimmer 900ms ease-out 1;
-  pointer-events: none;
+  animation: strategy-row-flash 900ms ease-out both;
 }
 
 .fund-preview {
@@ -3660,6 +3643,35 @@ body { padding-top: var(--ckg-strip-h) !important; }
     updateAllocationHint();
   }
 
+  // After a user commits a new allocation, scale the OTHER rows down (or
+  // up) proportionally so the total stays at 100%. Prevents 170%-style
+  // surprises when a user types a big number into a row that was already
+  // sitting in a fully-allocated portfolio.
+  function autoRebalanceFundPortfolio(editedIndex) {
+    const portfolio = state.fundPortfolio;
+    if (!portfolio[editedIndex] || portfolio.length < 2) return;
+    let editedAlloc = Math.max(0, Number(portfolio[editedIndex].allocation) || 0);
+    if (editedAlloc > 100) {
+      editedAlloc = 100;
+      portfolio[editedIndex].allocation = 100;
+    }
+    const others = portfolio
+      .map((row, i) => ({ row, i, alloc: Math.max(0, Number(row.allocation) || 0) }))
+      .filter((o) => o.i !== editedIndex);
+    const othersSum = others.reduce((s, o) => s + o.alloc, 0);
+    const total = editedAlloc + othersSum;
+    if (Math.abs(total - 100) < 0.05) return;        // already balanced — no-op
+    if (total <= 100) return;                        // under-allocated is fine
+    // Over-allocated: shrink others proportionally.
+    const targetOthersSum = Math.max(0, 100 - editedAlloc);
+    if (othersSum > 0) {
+      const scale = targetOthersSum / othersSum;
+      others.forEach((o) => {
+        o.row.allocation = Number((o.alloc * scale).toFixed(2));
+      });
+    }
+  }
+
   // Compute the unallocated remainder and reflect it in the caption next
   // to the search input. Caption flips colour at 0/over/under 100%.
   function updateAllocationHint() {
@@ -3889,8 +3901,20 @@ body { padding-top: var(--ckg-strip-h) !important; }
       input.addEventListener("input", () => {
         syncFundPortfolioFromTable();
         renderFundSummary();
+        updateAllocationHint();
       });
-      input.addEventListener("change", renderFundPortfolioTable);
+      input.addEventListener("change", () => {
+        // Sync first so the rebalance reads the just-committed value, even
+        // when the change event fires programmatically without a prior input.
+        syncFundPortfolioFromTable();
+        // When the user commits a new allocation, auto-rebalance the OTHER
+        // funds so the total stays at 100% — no surprise 170% portfolios.
+        if (input.dataset.field === "allocation") {
+          const tr = input.closest("tr[data-index]");
+          if (tr) autoRebalanceFundPortfolio(Number(tr.dataset.index));
+        }
+        renderFundPortfolioTable();
+      });
     });
     table.querySelectorAll("select").forEach((select) => {
       select.addEventListener("change", () => {
@@ -4638,11 +4662,12 @@ body { padding-top: var(--ckg-strip-h) !important; }
     const settings = currentSettings();
     const welcome = model.welcomeRate(variant, settings.annualizedPremium);
     const policyFee = model.policyFeeMonthly(variant, settings.annualizedPremium);
+    // No fee applies when premium is at/above the band's max — say "N/A"
+    // outright instead of the awkward "Above S$9,600 p.a." which read as
+    // if a fee was being charged.
     const policyFeeText = policyFee > 0
       ? `${money(policyFee, settings.currency)} / mo`
-      : variant.policyFeeBand
-        ? `Above ${money(variant.policyFeeBand.max, settings.currency)} p.a.`
-        : "Not applicable";
+      : "N/A";
     const adminText = variant.adminMode === "vmpp"
       ? `${percent(variant.adminDuring)} / ${percent(result.settings.adminAfter)} of VMPP`
       : `${percent(variant.adminDuring)} / ${percent(result.settings.adminAfter)}`;
