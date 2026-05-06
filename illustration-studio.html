@@ -2410,12 +2410,15 @@ body.presentation-mode .strategy-table input:disabled {
           </div>
         </details>
         <button id="startPresentation" class="btn btn-primary" type="button">Presentation mode</button>
-        <!-- Print / save PDF removed from the visible UI per request.
-             The canonical paper deck is generated via the Playwright
-             script (`npm run build:pdf` — see README). The button
-             survives in the DOM as `hidden` so legacy bindings keep
-             working. -->
-        <button id="printScenario" type="button" hidden tabindex="-1" aria-hidden="true">Print / save PDF</button>
+        <!-- Print PDF: opens a fresh window with the canonical 6-page
+             paper deck (Executive Summary · Value Mechanics · Chart ·
+             Annual Projection · Withdrawal & Access · Disclaimers) and
+             auto-triggers the browser's print dialog. The deck CSS
+             declares @page { size: A4 landscape } so the dialog
+             defaults to landscape; the user picks "Save as PDF" to
+             save. Same deck the `npm run build:pdf` Playwright script
+             produces — both paths share `assets/paper-deck.js`. -->
+        <button id="printScenario" class="btn" type="button" title="Open print-ready paper deck">Print PDF</button>
         <input id="loadScenarioFile" type="file" accept=".html,text/html,.json,application/json" hidden />
         <!-- Legacy IDs preserved as hidden so existing JS bindings keep
              working. The Save / Open dropdowns above route through them. -->
@@ -3624,6 +3627,7 @@ body.presentation-mode .strategy-table input:disabled {
 
     </script>
     <script src="fund-library-afl.js"></script>
+    <script src="assets/paper-deck.js"></script>
     <script>
 (function () {
   "use strict";
@@ -6594,10 +6598,17 @@ body.presentation-mode .strategy-table input:disabled {
       // After leaving presentation mode the canvas needs a redraw at new size
       if (state.results) drawChart(buildChartSeries(state.results), currentSettings());
     });
-    // Print button is hidden — but if a saved-HTML scenario or external
-    // caller dispatches a click on it, run the legacy window.print()
-    // path so behaviour doesn't silently break.
-    $("printScenario").addEventListener("click", () => window.print());
+    // Print PDF button → open the canonical paper deck in a fresh
+    // window via the shared builder. The deck declares @page A4
+    // landscape so the print dialog opens in the right orientation.
+    $("printScenario").addEventListener("click", () => {
+      if (window.IllustrationStudioPaperDeck && window.IllustrationStudioPaperDeck.print) {
+        window.IllustrationStudioPaperDeck.print();
+      } else {
+        // Last-ditch fallback if assets/paper-deck.js failed to load.
+        window.print();
+      }
+    });
     $("exportAnnual").addEventListener("click", () => exportCsv("annual"));
     $("exportMonthly").addEventListener("click", () => exportCsv("monthly"));
 
