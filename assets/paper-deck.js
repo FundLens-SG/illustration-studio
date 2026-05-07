@@ -288,11 +288,20 @@
   function withdrawalAccessPage({ data, snapshot, pageNo, totalPages, common }) {
     const variant = snapshot?.variant || {};
     const partialCharges = variant.partialCharge || {};
+    // Cap at 10 rows so the schedule never collides with the page footer
+    // (the access-rules-panel overflow:hidden rule below is also a
+    // belt-and-braces guard for variants like IRG20F10 that have 20+
+    // years of partial-charge entries).
     const chargeSchedule = Object.entries(partialCharges)
       .map(([yr, rate]) => ({ yr: Number(yr), rate: Number(rate) }))
       .sort((a, b) => a.yr - b.yr)
       .filter((row) => row.rate > 0)
-      .slice(0, 12);
+      .slice(0, 10);
+    const chargeScheduleTotalYears = Object.entries(partialCharges)
+      .filter(([, rate]) => Number(rate) > 0).length;
+    const chargeScheduleTrailing = chargeScheduleTotalYears > chargeSchedule.length
+      ? `+ ${chargeScheduleTotalYears - chargeSchedule.length} more year${chargeScheduleTotalYears - chargeSchedule.length === 1 ? "" : "s"}`
+      : "";
     const accessCardsHtml = data.accessCards.length
       ? data.accessCards.map((item) => `
           <article class="access-card">
@@ -337,6 +346,7 @@
                     ${chargeSchedule.map((row) => `
                       <tr><td>Year ${row.yr}</td><td class="right">${esc(fmtPercent(row.rate, 0))}</td></tr>
                     `).join("")}
+                    ${chargeScheduleTrailing ? `<tr class="schedule-more"><td colspan="2">${esc(chargeScheduleTrailing)}</td></tr>` : ""}
                     ${chargeSchedule.length === 0 ? `<tr><td colspan="2"><em>No partial-withdrawal charge in this variant.</em></td></tr>` : ""}
                   </tbody>
                 </table>
@@ -521,31 +531,64 @@
     .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4mm; }
     .metric-grid.compact { grid-template-columns: repeat(3, 1fr); margin-top: 4mm; }
 
-    .table-page { height: calc(210mm - 10mm - 12mm - 14mm - 6mm - 14mm); }
+    .table-page { height: calc(210mm - 10mm - 12mm - 14mm - 6mm - 16mm); }
     .table-panel { height: 100%; padding: 5mm; overflow: hidden; }
-    .annual-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-family: "SFMono-Regular", "Roboto Mono", "Geist Mono", Consolas, monospace; font-size: 6.8pt; font-variant-numeric: tabular-nums lining-nums; }
-    .annual-table th { padding: 2.2mm 1.4mm; text-align: left; color: #5f6670; background: #f3f3f1; border-bottom: 1px solid #dedbd4; font-weight: 600; vertical-align: bottom; }
-    .annual-table td { padding: 2mm 1.4mm; color: #1a1d22; border-bottom: 1px solid #eeeeec; vertical-align: top; }
+    /* Annual projection table — tight, wide-body landscape table.
+       Headers wrap (long ones like "Total dividends reinvested") on
+       break-word; smaller header font + shorter line-height keeps the
+       th row from ballooning. Body cells stay single-line via
+       white-space: nowrap so the column widths actually drive layout
+       and the value strings don't break across two visual rows when
+       extracted (which was making pdftotext show interleaved values). */
+    .annual-table {
+      width: 100%; border-collapse: collapse; table-layout: fixed;
+      font-family: "SFMono-Regular", "Roboto Mono", "Geist Mono", Consolas, monospace;
+      font-size: 6.6pt; font-variant-numeric: tabular-nums lining-nums;
+    }
+    /* Year and Age get tighter columns so the long-headed money columns
+       can actually breathe. Done via nth-child rather than <col> so the
+       generic data.annualHeaders / row.cells map keeps its shape. */
+    .annual-table th:nth-child(1), .annual-table td:nth-child(1) { width: 5.5%; }
+    .annual-table th:nth-child(2), .annual-table td:nth-child(2) { width: 5.5%; }
+    .annual-table th {
+      padding: 1.8mm 1.2mm; text-align: left; color: #5f6670;
+      background: #f3f3f1; border-bottom: 1px solid #dedbd4;
+      font-weight: 600; vertical-align: bottom;
+      font-size: 5.9pt; line-height: 1.15;
+      word-break: break-word;
+    }
+    .annual-table td {
+      padding: 1.7mm 1.2mm; color: #1a1d22;
+      border-bottom: 1px solid #eeeeec; vertical-align: middle;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
     .annual-table .right { text-align: right; }
     .annual-table tr.milestone td { background: #fcf6ec; }
 
-    .access-page { display: grid; grid-template-rows: auto 1fr; gap: 5mm; height: calc(210mm - 10mm - 12mm - 14mm - 6mm - 14mm); }
-    .access-panel-print, .access-rules-panel { padding: 6mm; }
+    .access-page { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 4mm; height: calc(210mm - 10mm - 12mm - 14mm - 6mm - 14mm); }
+    .access-panel-print, .access-rules-panel { padding: 4mm 5mm; }
+    /* Belt-and-braces clip so a long charge schedule (or long notes) can't
+       spill past the rules panel and end up on top of the page footer.
+       The minmax(0,1fr) on the parent grid + min-height:0 here are what
+       actually let overflow:hidden take effect on a grid track. */
+    .access-rules-panel { overflow: hidden; min-height: 0; }
     .access-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4mm; }
-    .access-card { border: 1px solid #eeeeec; border-radius: 6px; background: #fbfaf3; padding: 4mm 5mm; }
-    .access-card h3 { margin: 0 0 2mm; font-size: 10pt; color: #1a1d22; }
-    .access-card .access-empty { color: #5f6670; font-size: 8.5pt; margin: 0; }
-    .access-line { display: flex; justify-content: space-between; gap: 8px; border-top: 1px solid #eeeeec; padding: 2mm 0 0; margin-top: 2mm; font-size: 8.4pt; }
+    .access-card { border: 1px solid #eeeeec; border-radius: 6px; background: #fbfaf3; padding: 3.5mm 4.5mm; }
+    .access-card h3 { margin: 0 0 1.6mm; font-size: 9.6pt; color: #1a1d22; }
+    .access-card .access-empty { color: #5f6670; font-size: 8.4pt; margin: 0; }
+    .access-line { display: flex; justify-content: space-between; gap: 8px; border-top: 1px solid #eeeeec; padding: 1.6mm 0 0; margin-top: 1.6mm; font-size: 8.2pt; }
     .access-line span { color: #454a51; }
     .access-line b { font-family: "SFMono-Regular", "Roboto Mono", "Geist Mono", Consolas, monospace; color: #1a1d22; text-align: right; font-weight: 600; }
-    .rules-two-col { display: grid; grid-template-columns: 1fr 1.3fr; gap: 6mm; }
-    .rules-two-col h4 { margin: 0 0 2mm; font-size: 9.5pt; color: #1a1d22; }
-    .schedule-table { width: 100%; border-collapse: collapse; font-family: "SFMono-Regular", "Roboto Mono", "Geist Mono", Consolas, monospace; font-size: 8pt; }
-    .schedule-table th, .schedule-table td { padding: 1.6mm 2mm; border-bottom: 1px solid #eeeeec; text-align: left; color: #1a1d22; }
+    .rules-two-col { display: grid; grid-template-columns: 1fr 1.3fr; gap: 6mm; height: 100%; min-height: 0; }
+    .rules-two-col > div { min-height: 0; overflow: hidden; }
+    .rules-two-col h4 { margin: 0 0 2mm; font-size: 9.4pt; color: #1a1d22; }
+    .schedule-table { width: 100%; border-collapse: collapse; font-family: "SFMono-Regular", "Roboto Mono", "Geist Mono", Consolas, monospace; font-size: 7.4pt; }
+    .schedule-table th, .schedule-table td { padding: 0.9mm 2mm; border-bottom: 1px solid #eeeeec; text-align: left; color: #1a1d22; line-height: 1.25; }
     .schedule-table th { color: #5f6670; font-weight: 600; }
     .schedule-table .right { text-align: right; }
-    .access-notes { margin: 0; padding-left: 4mm; color: #454a51; font-size: 8.6pt; line-height: 1.55; }
-    .access-notes li { margin-bottom: 1.6mm; }
+    .schedule-table tr.schedule-more td { color: #8a8d93; font-style: italic; border-bottom: 0; padding-top: 1.4mm; }
+    .access-notes { margin: 0; padding-left: 4mm; color: #454a51; font-size: 8.2pt; line-height: 1.4; }
+    .access-notes li { margin-bottom: 1.2mm; }
 
     .disclaimers-paper-page { break-before: page; }
     .disclaimer-page { height: calc(210mm - 10mm - 12mm - 14mm - 6mm - 14mm); }
