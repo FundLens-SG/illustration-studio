@@ -2364,6 +2364,256 @@ body.presentation-mode .strategy-table input:disabled {
   .ckg-suite-strip-crumb { display: none; }
   .ckg-suite-strip-back { min-height: 32px; padding: 8px 14px; font-size: 12px; }
 }
+
+/* ============================================================
+   MOBILE OPTIMISATION
+   Comprehensive responsive rules for screens ≤ 760px (covers all
+   common phones in portrait + small tablets). Tightens the topbar
+   and stacks every multi-column grid into single columns. The
+   existing tighten-block above stays — these rules layer on top
+   for components introduced after that block was written
+   (.scenario-actions, .action-menu, .input-groups, .toggle-groups,
+   .variant-facts, .composition-grid, .access-grid, .strat-bulk,
+   .historical-tools, .fund-builder-grid, .fund-summary-grid).
+   ============================================================ */
+
+@media (max-width: 760px) {
+  html { -webkit-text-size-adjust: 100%; }
+  body { overflow-x: hidden; }
+
+  /* ----- Topbar: single-row brand + wrap actions, smaller logo ----- */
+  .topbar {
+    flex-wrap: wrap;
+    padding: 10px 14px !important;
+    min-height: 0;
+    gap: 10px !important;
+  }
+  .topbar .brand-mark { width: 32px !important; height: 32px !important; flex-basis: 32px !important; border-radius: 7px !important; }
+  .topbar h1 { font-size: 15px !important; max-width: none !important; line-height: 1.15 !important; }
+  .topbar .eyebrow { font-size: 9px !important; margin-bottom: 0; }
+  .brand-lockup { gap: 10px; flex: 1 1 auto; min-width: 0; }
+  .brand-copy { min-width: 0; }
+
+  /* Scenario actions — keep the 4 buttons on a single wrapped row,
+     but compress them. Hide auto-save status text on smallest screens
+     to save room (still shown via the dropdown's own state). */
+  .scenario-actions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .scenario-actions .btn { height: 32px; padding: 0 10px; font-size: 12px; }
+  .scenario-actions .btn-primary { font-weight: 600; }
+  .autosave-status { display: none; }
+
+  /* Save / Open dropdowns — anchor to the right edge so popover doesn't
+     fall off-screen. Cap min-width and let it scroll if too tall. */
+  .action-menu-pop {
+    min-width: 220px;
+    max-width: calc(100vw - 28px);
+    right: -2px;
+  }
+
+  /* ----- Controls section ----- */
+  .controls { padding: 16px !important; }
+  .input-groups { gap: 12px; }
+  .input-group {
+    grid-template-columns: 1fr 1fr;
+  }
+  .input-group-label {
+    grid-column: 1 / -1;
+    width: auto;
+    padding: 0 0 4px;
+  }
+  /* Single-column for the narrowest phones */
+  @media (max-width: 420px) {
+    .input-group { grid-template-columns: 1fr; }
+  }
+
+  /* Toggle groups — already responsive; tighten on phone */
+  .toggle-groups { gap: 12px; }
+  .toggle-group { gap: 6px; }
+  .toggle-group .toggle { font-size: 12px; padding: 6px 9px; }
+
+  /* Sub-panels (inflation/FD/compare/advisor) — single column */
+  .benchmark-settings,
+  .compare-settings,
+  .advisor-settings {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .benchmark-settings label,
+  .compare-settings label,
+  .advisor-settings label {
+    width: 100%;
+  }
+
+  /* ----- Hero / number ----- */
+  .hero,
+  .hero-headline { padding: 16px !important; }
+  .hero strong, #heroTotal {
+    font-size: 32px !important;
+    line-height: 1.1 !important;
+  }
+  .hero-caption,
+  #heroCaption { font-size: 13px; }
+  .composition,
+  .composition-bar { width: 100%; }
+
+  /* ----- Comparison hero — stack ----- */
+  .comparison-hero {
+    grid-template-columns: 1fr !important;
+  }
+  .comparison-card { padding: 14px 16px; }
+  .comparison-delta {
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 14px;
+  }
+
+  /* ----- Composition + benefit duo ----- */
+  .duo, .composition-grid, .composition-legend {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ----- Variant facts strip — stack ----- */
+  .variant-facts {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .variant-facts > .vf-eyebrow {
+    grid-column: 1 / -1;
+    border-right: 0;
+    border-bottom: 1px solid var(--rule, var(--line));
+  }
+  .variant-facts > .vf-cell {
+    border-right: 1px solid var(--rule-soft, #eee);
+    border-bottom: 1px solid var(--rule-soft, #eee);
+  }
+  .variant-facts > .vf-cell:nth-child(odd) { border-right: 0; }
+
+  /* ----- Chart panel ----- */
+  .chart-panel .panel-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .chart-legend {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .chart-stage { padding: 8px 6px 12px; }
+  #valueChart {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  .chart-tooltip {
+    min-width: 160px;
+    max-width: calc(100vw - 32px);
+    font-size: 11px;
+  }
+  .chart-foot { grid-template-columns: 1fr 1fr !important; }
+  .chart-foot > div { padding: 10px 12px; }
+  .chart-foot > div:nth-child(2) { border-right: 0; }
+  .chart-foot > div:nth-child(-n+2) { border-bottom: 1px solid var(--rule-soft, #eee); }
+
+  /* ----- Status row + access cards ----- */
+  .status-row,
+  .projection-access-legend {
+    grid-template-columns: 1fr !important;
+  }
+  .status-row .checks { border-right: 0; border-bottom: 1px solid var(--line); }
+
+  /* ----- Fund builder ----- */
+  .fund-builder-section { padding: 16px !important; }
+  .fund-builder-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+  .fund-builder-grid label { font-size: 11px; }
+  .fund-builder-grid button { width: 100%; }
+  .fund-search-filters { flex-wrap: wrap; }
+  .fund-suggestions {
+    max-height: 50vh;
+  }
+  .fund-builder-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .fund-builder-actions label,
+  .fund-builder-actions button { width: 100%; }
+  .fund-summary-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* ----- Strategy / compare strategy / annual table panels ----- */
+  .strategy-section,
+  .detail-section,
+  .notes-section,
+  .source-notes,
+  .disclaimers,
+  .panel { padding: 14px 16px; }
+  .strategy-section .section-heading,
+  .detail-section .section-heading {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .strategy-section-actions,
+  .projection-options {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .view-toggle-btn { padding: 6px 12px; font-size: 11px; }
+  .bulk-tools,
+  .strat-bulk {
+    grid-template-columns: 1fr !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  .strat-bulk-rest { flex-wrap: wrap; gap: 8px; }
+  .strat-bulk-rest > * { flex: 1 1 auto; min-width: 0; }
+  .historical-details > summary { padding: 10px 16px; }
+  .historical-tools {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .historical-tools label,
+  .historical-tools button { width: 100%; }
+  .historical-note { display: block; padding-top: 4px; }
+
+  /* ----- Notes / disclaimers ----- */
+  .disclaimers ul { padding-left: 20px; }
+  .disclaimers li { font-size: 12px; }
+  #scenarioNotes { font-size: 14px; }   /* prevent iOS auto-zoom on focus */
+
+  /* ----- Touch-target sizing ----- */
+  button, .btn, .toggle, label.toggle {
+    min-height: 36px;
+  }
+  /* But not the small icon-style buttons in dropdowns */
+  .action-menu-pop button { min-height: 32px; }
+  .named-saves button { min-height: 32px; }
+  /* Keep table inputs compact (they're tiny by design) */
+  .data-table button,
+  .data-table input,
+  .data-table select { min-height: 0; }
+
+  /* Form inputs at 16px minimum to stop iOS zoom */
+  input[type="text"],
+  input[type="number"],
+  input[type="search"],
+  textarea, select {
+    font-size: 16px;
+  }
+  /* Keep small inputs inside data tables compact */
+  .data-table input,
+  .data-table select { font-size: 12px; }
+}
 </style>
   </head>
   <body>
