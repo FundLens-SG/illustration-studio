@@ -735,6 +735,19 @@ button:hover {
   background: #234375;
 }
 
+/* Yield inputs are ignored for par-WL variants — fade them to make
+   the inactive state visually obvious. The CSS body-class toggles
+   are managed by updateParWlBodyClasses(). */
+body.is-par-wl-main .goal-seek-yield-input {
+  opacity: 0.42;
+  pointer-events: none;
+}
+body.is-par-wl-main .goal-seek-yield-input::after {
+  content: " (ignored for SLH)";
+  font-size: 11px;
+  color: var(--muted);
+}
+
 /* ===== GLOSSARY TOOLTIPS =====
    Hover any term marked with .glossary-term to see a 1-sentence
    plain-English definition. Uses the native <abbr title> so the
@@ -3016,7 +3029,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         </div>
 
         <div id="goalSeekSettings" class="benchmark-settings goal-seek-panel" hidden>
-          <p class="caption-note">Back-solve the <strong>annual basic premium</strong> needed to hit a target value at a given age, using the currently selected variant + strategy. For SLH (par-WL) the math is closed-form (factor table). For IR / IRG (ILP) the simulator is linearly scaled against your current strategy &amp; yield assumptions.</p>
+          <p class="caption-note">Back-solve the <strong>annual basic premium</strong> needed to hit a target value at a given age. For SLH (par-WL) the math is closed-form (factor table — yield inputs ignored). For IR / IRG (ILP) the solver flat-lines the strategy at the NAV growth + dividend yield below (dividends reinvested) and linearly scales the premium.</p>
           <label>
             Target value
             <input id="goalSeekTarget" type="number" min="0" step="1000" placeholder="e.g. 5000000" />
@@ -3024,6 +3037,14 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
           <label>
             At age
             <input id="goalSeekAtAge" type="number" min="1" max="160" step="1" value="99" />
+          </label>
+          <label class="goal-seek-yield-input" id="goalSeekNavLabel">
+            NAV growth %
+            <input id="goalSeekNav" type="number" min="-5" max="15" step="0.25" value="0" />
+          </label>
+          <label class="goal-seek-yield-input" id="goalSeekDivLabel">
+            Dividend yield %
+            <input id="goalSeekDiv" type="number" min="0" max="15" step="0.25" value="6" />
           </label>
           <button id="goalSeekRun" type="button">Solve premium</button>
           <div id="goalSeekResult" class="goal-seek-result" hidden></div>
@@ -4821,6 +4842,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     "compareBulkNavReturn", "compareBulkDividendYield", "compareBulkDividendMode", "compareBulkFromYear",
     "inflationAdjust", "inflationRate", "scenarioNotes",
     "enableGoalSeek", "goalSeekTarget", "goalSeekAtAge", "goalSeekRun", "goalSeekResult",
+    "goalSeekNav", "goalSeekDiv",
     "historicalStartYear", "historicalDividendBoost",
     "fundSearch", "fundSuggestions", "fundCategory", "fundAllocation",
     "fundFilterDividend", "fundFilterNonDividend",
@@ -8018,6 +8040,14 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
           const cur = state.results.custom.final.totalValue || 0;
           fields.goalSeekTarget.value = Math.round(cur);
         }
+        // Pre-fill yield inputs from the strategy table (median row, since
+        // the first few rows are often the premium-paying years and may
+        // hold edge values). Only useful for ILP; par-WL ignores these.
+        if (variant?.kind !== "par-wl" && Array.isArray(state.strategy) && state.strategy.length) {
+          const mid = state.strategy[Math.floor(state.strategy.length / 2)] || state.strategy[0];
+          if (fields.goalSeekNav) fields.goalSeekNav.value = ((mid.navReturn || 0) * 100).toFixed(2);
+          if (fields.goalSeekDiv) fields.goalSeekDiv.value = ((mid.dividendYield || 0) * 100).toFixed(2);
+        }
         fields.goalSeekTarget.focus();
       }
     });
@@ -8057,12 +8087,32 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         return;
       }
 
+      // For ILP, build a uniform-yield strategy from the goal-seek inputs
+      // (NAV growth + dividend yield, dividends reinvested). The advisor
+      // edits ONE pair of numbers in the panel and the back-solver answers
+      // "what premium for those yield assumptions" — much faster than
+      // editing the full 37-row strategy table.
+      // For par-WL these inputs are ignored (closed-form factor table).
+      const navInput = Number(fields.goalSeekNav?.value);
+      const divInput = Number(fields.goalSeekDiv?.value);
+      const useUniformYield = variant?.kind !== "par-wl"
+        && Number.isFinite(navInput)
+        && Number.isFinite(divInput);
+      const solverStrategy = useUniformYield
+        ? state.strategy.map((row) => ({
+            ...row,
+            navReturn: navInput / 100,
+            dividendYield: divInput / 100,
+            dividendMode: "reinvest",
+          }))
+        : state.strategy;
+
       const result = model.solvePremiumForTarget({
         variantKey: settings.variantKey,
         targetValue: target,
         atYear,
         settings,
-        strategy: state.strategy,
+        strategy: solverStrategy,
       });
 
       resultEl.hidden = false;
@@ -8101,18 +8151,22 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         const factor = premium / oldPremium;
         fields.annualizedPremium.value = premium;
 
-        // Scale the strategy table's basicPremium + topUp rows in lockstep
-        // with the new annualizedPremium. Without this the simulator would
-        // keep paying the OLD premium because it reads basicPremium from
-        // the strategy rows (which hold the user's actual funding pattern,
-        // not just settings.annualizedPremium). Par-WL doesn't use the
-        // strategy table — its simulator reads annualizedPremium directly
-        // — so this is a no-op for SLH variants.
+        // For ILP: scale basicPremium + topUp in lockstep with the new
+        // annualizedPremium AND write the goal-seek yield inputs into
+        // every row (so the advisor's projection actually uses the
+        // yield they back-solved against). Without this the simulator
+        // would keep using the OLD strategy's per-year rates and the
+        // result would diverge from the goal-seek estimate.
+        // For par-WL: yield inputs are ignored; only the premium is
+        // applied (par-WL simulator doesn't use the strategy table).
         if (variant?.kind !== "par-wl" && Number.isFinite(factor) && factor > 0) {
           state.strategy = state.strategy.map((row) => ({
             ...row,
             basicPremium: (row.basicPremium || 0) * factor,
             topUp: (row.topUp || 0) * factor,
+            navReturn: useUniformYield ? navInput / 100 : row.navReturn,
+            dividendYield: useUniformYield ? divInput / 100 : row.dividendYield,
+            dividendMode: useUniformYield ? "reinvest" : row.dividendMode,
           }));
         }
 
