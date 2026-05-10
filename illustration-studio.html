@@ -916,6 +916,17 @@ button:hover {
   background: rgba(255, 255, 255, 0.16);
 }
 
+.delta-toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.delta-toggle-row .delta-toggle {
+  margin-top: 0;
+}
+
 /* ===== BENEFIT HIGHLIGHT ===== */
 .benefit-highlight {
   display: grid;
@@ -1105,6 +1116,40 @@ canvas#valueChart {
   font-size: 12px;
   font-weight: 700;
 }
+
+.chart-heading-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.chart-focus-toggle {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid #d1c8b6;
+  border-radius: 999px;
+  background: #f8f3e6;
+  overflow: hidden;
+}
+
+.chart-focus-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background-color 0.16s ease, color 0.16s ease;
+}
+
+.chart-focus-btn:hover { color: #1a1d22; }
+.chart-focus-btn.active { background: var(--brass, #d6a87a); color: #fff; }
 
 /* ===== STATUS ===== */
 .status-row {
@@ -2908,7 +2953,10 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         <div class="comparison-delta" id="comparisonDelta">
           <span class="delta-label" id="cmpDeltaLabel">Difference</span>
           <strong class="delta-amount" id="cmpDeltaAmount">S$0</strong>
-          <button type="button" class="delta-toggle" id="deltaToggle">Show as %</button>
+          <div class="delta-toggle-row">
+            <button type="button" class="delta-toggle" id="deltaToggle">Show as %</button>
+            <button type="button" class="delta-toggle" id="cmpFxToggle" hidden>Show in S$</button>
+          </div>
         </div>
         <article class="comparison-card secondary">
           <p class="eyebrow" id="cmpSecondaryLabel">Benchmark</p>
@@ -2938,7 +2986,13 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         <div class="chart-panel">
           <div class="panel-heading">
             <h2>Projected Client Value And Benchmark</h2>
-            <span id="chartEndLabel"></span>
+            <div class="chart-heading-meta">
+              <div class="chart-focus-toggle" id="chartFocusToggle" hidden role="group" aria-label="Chart focus">
+                <button type="button" class="chart-focus-btn active" data-focus="main" id="chartFocusMain">Main</button>
+                <button type="button" class="chart-focus-btn" data-focus="compare" id="chartFocusCompare">Compare</button>
+              </div>
+              <span id="chartEndLabel"></span>
+            </div>
           </div>
           <div id="chartLegend" class="chart-legend"></div>
           <div class="chart-stage">
@@ -4379,6 +4433,8 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     results: null,
     annualView: "milestone", // "milestone" | "full"
     deltaMode: "amount", // "amount" | "percent"
+    cmpDisplayCurrency: null, // null = native; "SGD" | "USD" override (uses live FX rate)
+    chartFocus: "main",       // "main" | "compare" — which variant the chart anchors on
     highlightYear: null,
     chartGeometry: null,
     fundLibrary: [],
@@ -6096,17 +6152,50 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     hero.hidden = false;
 
     const endYear = comparisonHorizonYear;
-    const primaryValue = inflationActive() ? discount(primary.value, endYear) : primary.value;
-    const secondaryValue = inflationActive() ? discount(secondary.value, endYear) : secondary.value;
+    let primaryValue = inflationActive() ? discount(primary.value, endYear) : primary.value;
+    let secondaryValue = inflationActive() ? discount(secondary.value, endYear) : secondary.value;
+
+    // FX display toggle — converts the comparison hero values to the
+    // alternate currency using the live USD/SGD rate, if available. The
+    // toggle button is hidden unless the policy currency is USD or SGD
+    // (the only pair we have a live rate for).
+    const fxToggle = $("cmpFxToggle");
+    const fxRate = state.fxRate?.USD_SGD;
+    const settingsCurrency = settings.currency;
+    const canConvertFx = (settingsCurrency === "USD" || settingsCurrency === "SGD")
+      && Number.isFinite(fxRate) && fxRate > 0;
+    let displayCurrency = settingsCurrency;
+    if (fxToggle) {
+      if (canConvertFx) {
+        fxToggle.hidden = false;
+        const altCurrency = settingsCurrency === "USD" ? "SGD" : "USD";
+        const isAlt = state.cmpDisplayCurrency && state.cmpDisplayCurrency !== settingsCurrency;
+        displayCurrency = isAlt ? altCurrency : settingsCurrency;
+        fxToggle.textContent = isAlt
+          ? `Show in ${settingsCurrency === "USD" ? "US$" : "S$"}`
+          : `Show in ${altCurrency === "USD" ? "US$" : "S$"}`;
+      } else {
+        fxToggle.hidden = true;
+        displayCurrency = settingsCurrency;
+      }
+    }
+    if (displayCurrency !== settingsCurrency && canConvertFx) {
+      const factor = settingsCurrency === "USD" && displayCurrency === "SGD"
+        ? fxRate
+        : 1 / fxRate;
+      primaryValue *= factor;
+      secondaryValue *= factor;
+    }
+
     const delta = primaryValue - secondaryValue;
     const positive = delta >= 0;
 
     $("cmpPrimaryLabel").textContent = primary.label;
-    $("cmpPrimaryValue").textContent = money(primaryValue, settings.currency);
+    $("cmpPrimaryValue").textContent = money(primaryValue, displayCurrency);
     $("cmpPrimaryDetail").textContent = primary.detail;
 
     $("cmpSecondaryLabel").textContent = secondary.label;
-    $("cmpSecondaryValue").textContent = money(secondaryValue, settings.currency);
+    $("cmpSecondaryValue").textContent = money(secondaryValue, displayCurrency);
     $("cmpSecondaryDetail").textContent = secondary.detail;
 
     const deltaEl = $("comparisonDelta");
@@ -6120,13 +6209,26 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       $("cmpDeltaAmount").textContent = `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`;
       $("deltaToggle").textContent = "Show as $";
     } else {
-      $("cmpDeltaAmount").textContent = `${positive ? "+" : "−"}${money(Math.abs(delta), settings.currency)}`;
+      $("cmpDeltaAmount").textContent = `${positive ? "+" : "−"}${money(Math.abs(delta), displayCurrency)}`;
       $("deltaToggle").textContent = "Show as %";
     }
   }
 
   // ===== CHART =====
+  // When the chart focus toggle is set to "compare" AND there's a
+  // customCompare result, swap the roles so the chart uses the compared
+  // variant as its main series. Lets the advisor see the compared
+  // variant's full structure (its own milestones, x-axis horizon, area
+  // fill) and treat the original main as the benchmark line.
+  function chartResults(results) {
+    if (state.chartFocus === "compare" && results && results.customCompare) {
+      return { ...results, custom: results.customCompare, customCompare: results.custom };
+    }
+    return results;
+  }
+
   function buildChartSeries(results) {
+    results = chartResults(results);
     const settings = currentSettings();
     const annual = results.custom.annual;
     const labels = annual.map((row) => `Y${row.year}`);
@@ -6154,12 +6256,17 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       account: { name: "Account value (after cash-outs)", color: "#74808f", values: apply(accountOnly), dash: [6, 6] },
     };
 
+    // Cap benchmark series to the focused variant's horizon so the chart's
+    // y-axis max isn't blown up by the par-WL year-120 value when viewing
+    // a 37-year ILP. Benchmarks shorter than the main length stay as-is
+    // (the chart skips past their end naturally).
+    const horizonLen = annual.length;
     const benchmarks = [];
     if (results.customCompare) {
       benchmarks.push({
         name: `${results.customCompare.variant.label} total value`,
         color: "var(--c-benchmark)",
-        values: apply(results.customCompare.annual.map((row) => row.totalValue)),
+        values: apply(results.customCompare.annual.map((row) => row.totalValue)).slice(0, horizonLen),
         kind: "compare",
       });
     }
@@ -6167,7 +6274,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       benchmarks.push({
         name: "All dividends reinvested",
         color: "#a7853d",
-        values: apply(results.reinvest.annual.map((row) => row.totalValue)),
+        values: apply(results.reinvest.annual.map((row) => row.totalValue)).slice(0, horizonLen),
         kind: "reinvest",
       });
     }
@@ -6175,7 +6282,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       benchmarks.push({
         name: "Fixed deposit",
         color: "var(--c-dividend)",
-        values: apply(results.fixedDeposit.annual.map((row) => row.value)),
+        values: apply(results.fixedDeposit.annual.map((row) => row.value)).slice(0, horizonLen),
         kind: "fd",
       });
     }
@@ -6213,9 +6320,31 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
   function renderCharts(results) {
     const settings = currentSettings();
     const series = buildChartSeries(results);
-    const annual = results.custom.annual;
+    // Chart focus toggle visibility + active state — only meaningful when
+    // there's a customCompare. Drop it back to "main" silently if the
+    // compare is removed so we don't render a stale focus.
+    const focusToggle = $("chartFocusToggle");
+    if (focusToggle) {
+      const hasCompare = !!results.customCompare;
+      focusToggle.hidden = !hasCompare;
+      if (!hasCompare && state.chartFocus !== "main") {
+        state.chartFocus = "main";
+      }
+      const mainBtn = $("chartFocusMain");
+      const compareBtn = $("chartFocusCompare");
+      if (mainBtn) mainBtn.classList.toggle("active", state.chartFocus === "main");
+      if (compareBtn) compareBtn.classList.toggle("active", state.chartFocus === "compare");
+      if (mainBtn) mainBtn.textContent = results.custom.variant.label.split(" · ")[0] || "Main";
+      if (compareBtn && results.customCompare) {
+        compareBtn.textContent = results.customCompare.variant.label.split(" · ")[0] || "Compare";
+      }
+    }
+    // After focus swap, "effective main" may not match results.custom —
+    // chartResults() returns the swapped pair when focus === "compare".
+    const effective = chartResults(results);
+    const annual = effective.custom.annual;
     const hasCashReceived = annual.some((row) => (row.cashDividends + row.cashWithdrawals) > 0);
-    const isParWl_chart = results.custom.variant && results.custom.variant.kind === "par-wl";
+    const isParWl_chart = effective.custom.variant && effective.custom.variant.kind === "par-wl";
     $("chartEndLabel").textContent = isParWl_chart
       ? `End of policy year ${annual.length}`
       : `End age ${settings.startAge + annual.length}`;
@@ -6521,11 +6650,15 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       return;
     }
     const settings = currentSettings();
-    const result = state.results.custom;
+    // Honour chart focus — when the user has flipped the chart to view
+    // the compared variant, the tooltip should describe that variant's
+    // year rather than the main variant's.
+    const effective = chartResults(state.results);
+    const result = effective.custom;
     const row = result.annual[idx];
-    const compRow = state.results.customCompare && state.results.customCompare.annual[idx];
-    const fdRow = state.results.fixedDeposit && state.results.fixedDeposit.annual[idx];
-    const reinvestRow = state.results.reinvest && state.results.reinvest.annual[idx];
+    const compRow = effective.customCompare && effective.customCompare.annual[idx];
+    const fdRow = effective.fixedDeposit && effective.fixedDeposit.annual[idx];
+    const reinvestRow = effective.reinvest && effective.reinvest.annual[idx];
 
     let cumulativePaid = 0;
     for (let i = 0; i <= idx; i += 1) {
@@ -6552,7 +6685,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
           [`<i style="background:${resolveColor("var(--c-selected)")}"></i> Account value`, money2(row.accountValue)],
           [`<i style="background:${resolveColor("var(--c-bonus)")}"></i> Total wealth`, money2(row.totalValue)],
         ];
-    if (compRow) rows.push([`<i style="background:${resolveColor("var(--c-benchmark)")}"></i> ${state.results.customCompare.variant.label}`, money2(compRow.totalValue)]);
+    if (compRow) rows.push([`<i style="background:${resolveColor("var(--c-benchmark)")}"></i> ${effective.customCompare.variant.label}`, money2(compRow.totalValue)]);
     if (fdRow) rows.push([`<i style="background:${resolveColor("var(--c-dividend)")}"></i> Fixed deposit`, money2(fdRow.value)]);
     if (reinvestRow) rows.push([`<i style="background:#a7853d"></i> All reinvested`, money2(reinvestRow.totalValue)]);
 
@@ -7640,6 +7773,30 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       state.deltaMode = state.deltaMode === "amount" ? "percent" : "amount";
       if (state.results) renderComparisonHero(state.results);
     });
+
+    // FX display toggle — convert comparison hero values between USD and
+    // SGD using the live rate fetched at boot. Cycles policy currency →
+    // alternate → policy currency.
+    $("cmpFxToggle").addEventListener("click", () => {
+      const settings = currentSettings();
+      const alt = settings.currency === "USD" ? "SGD" : "USD";
+      state.cmpDisplayCurrency = state.cmpDisplayCurrency === alt ? null : alt;
+      if (state.results) renderComparisonHero(state.results);
+    });
+
+    // Chart focus toggle — swap which variant is the chart's main series.
+    // Useful when the main is par-WL (PY120 horizon) and compare is ILP
+    // (caps at age 99): viewing the IR chart shows the IR-side milestones
+    // and stops at age 99, instead of being a flat line crammed into the
+    // first 30% of the par-WL x-axis.
+    const setChartFocus = (focus) => {
+      if (!state.results || !state.results.customCompare) return;
+      if (state.chartFocus === focus) return;
+      state.chartFocus = focus;
+      renderCharts(state.results);
+    };
+    $("chartFocusMain")?.addEventListener("click", () => setChartFocus("main"));
+    $("chartFocusCompare")?.addEventListener("click", () => setChartFocus("compare"));
 
     // Notes — no recalc needed (just stored on save)
     if (fields.scenarioNotes) {
