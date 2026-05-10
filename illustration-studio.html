@@ -1977,6 +1977,17 @@ body.presentation-mode .strategy-table input:disabled {
   color: #5a4a23;
   font-size: 12.5px;
 }
+/* Strengthened "personal education only" banner — louder colour and
+   slightly heavier border so the advisor can't miss it. */
+.usage-banner-strong {
+  border: 1px solid #c0392b;
+  border-left: 5px solid #c0392b;
+  background: linear-gradient(180deg, #fff4ef 0%, #ffe7df 100%);
+  color: #6b2010;
+  padding: 12px 20px;
+}
+.usage-banner-strong strong { color: #b03425; }
+.usage-banner-strong span { color: #6b2010; }
 
 .usage-banner strong {
   display: block;
@@ -2335,6 +2346,20 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
 .par-wl-info-fx { font-size: 12px; color: var(--ink-3, #5a6577); }
 .par-wl-info .section-heading h2 { font-size: 18px; }
 .par-wl-info .section-heading .eyebrow { color: var(--gold-dark); }
+.par-wl-info-strong {
+  border-left: 3px solid var(--gold-dark, #b58a52);
+  padding-left: 12px;
+  margin-top: 12px !important;
+  font-size: 12.5px !important;
+}
+.par-wl-info-cta {
+  margin-top: 14px !important;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(181, 138, 82, 0.4);
+  font-size: 11.5px !important;
+  color: var(--ink-3, #5a6577) !important;
+  font-style: italic;
+}
 
 /* ===== CKG Suite Strip — global cross-tool nav ===== */
 :root { --ckg-strip-h: 36px; }
@@ -2708,9 +2733,9 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
     </header>
     <button id="exitPresentation" class="exit-presentation" type="button" hidden>Exit presentation</button>
 
-    <div class="usage-banner" role="note">
-      <strong>For educational purposes only · Not for distribution</strong>
-      <span>Internal advisor working tool. Not an offer, solicitation or recommendation.</span>
+    <div class="usage-banner usage-banner-strong" role="note" aria-label="Important notice">
+      <strong>For personal education only · Do not present to clients</strong>
+      <span>This is an internal advisor working tool — not a customer illustration, not an offer, solicitation, or recommendation. Use the insurer's official Policy Illustration when discussing actual products with a client. Numbers shown here are projections based on assumptions and are not guaranteed.</span>
     </div>
 
     <main>
@@ -2988,15 +3013,24 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
       <section class="par-wl-info" id="parWlInfo" aria-label="Par-whole-life info" hidden>
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Participating Whole-Life Plan · USD</p>
-            <h2>Projection driven by insurer's bonus realisation</h2>
+            <p class="eyebrow">Participating Whole-Life Plan · USD · Policy Year 1 → 120</p>
+            <h2>Illustrated at 7.50% p.a. — the higher of two illustrated rates</h2>
           </div>
         </div>
         <p>
-          Signature Legacy Harvest is a participating whole-life policy. The projection in this illustration uses the insurer's published 7.50% bonus-realisation factor schedule (with 7% drawdown from policy year 10) — there are no per-year NAV growth, dividend or withdrawal inputs to edit. The strategy table is hidden for this product.
+          Signature Legacy Harvest is a participating whole-life policy underwritten by Manulife (Singapore) Pte. Ltd.. This illustration projects to <strong>policy year 120</strong> using the insurer's published <strong>7.50% per annum</strong> Illustrated Investment Rate of Return — the <em>higher</em> of the two rates shown on the official Policy Illustration. The lower rate (5.25% p.a.) and the actual realised bonus rate may differ materially from this projection.
+        </p>
+        <p>
+          The 7% drawdown from policy year 10 is a withdrawal pattern, not a guaranteed yield. Bonuses, dividends, and the surrender values shown are <strong>not guaranteed</strong> until declared. The guaranteed surrender benefit may be less than total premiums paid, particularly in the early policy years.
+        </p>
+        <p class="par-wl-info-strong">
+          Key risks of a participating plan — your premiums are pooled with other policyholders' and invested in Manulife's Participating Fund. As a policyholder you share in the fund's <strong>investment risk</strong> (lower-than-expected returns), <strong>insurance risk</strong> (higher-than-expected claims), and <strong>expense risk</strong> (higher-than-expected fund management costs). Any of these can reduce the bonuses or dividends you receive.
         </p>
         <p class="par-wl-info-fx" id="parWlFxNote">
           USD values are converted to SGD at the live exchange rate when comparing with SGD-denominated InvestReady plans.
+        </p>
+        <p class="par-wl-info-cta">
+          For the official figures and complete terms, refer to the Manulife Policy Illustration, Product Summary, and Bundled Product Disclosure Document. In any discrepancy, those documents prevail over this advisor working tool.
         </p>
       </section>
 
@@ -3783,7 +3817,12 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
   // projection — keep working without modification.
   function simulateParWL(settings, strategy, mode = "custom") {
     const variant = VARIANTS[settings.variantKey];
-    const years = Math.max(1, Math.min(99, num(settings.projectionYears, 64)));
+    // Par-WL projects to policy year 120 (whole-life horizon, matching the
+    // insurer's PI document and the SLH workbook). Not age-capped — at
+    // start-age 40, year 120 is "age 160", which is beyond mortality but
+    // is the full length of the factor schedule. Caller's projectionYears
+    // is ignored for par-WL.
+    const years = 120;
     const annualPremium = num(settings.annualizedPremium, 100000);
     const startAge = num(settings.startAge, 36);
     const premiumTerm = variant.premiumTermYears || 1;
@@ -5818,8 +5857,15 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
     const dividends = inflationActive() ? discount(composition.dividends, endYear) : composition.dividends;
     const growth = inflationActive() ? discount(composition.growth, endYear) : composition.growth;
 
+    // Par-WL variants project to policy year 120 (whole-life horizon).
+    // Show "policy year 120" instead of "age N" because for whole-life
+    // products the end of the factor schedule is the policy's full term,
+    // not the policyholder's lifespan.
+    const isParWl = result.variant && result.variant.kind === "par-wl";
     $("heroLabel").textContent = "Projected wealth";
-    $("heroEndAge").textContent = `age ${endAge}${inflationActive() ? " in today's dollars" : ""}`;
+    $("heroEndAge").textContent = isParWl
+      ? `policy year ${endYear}${inflationActive() ? " in today's dollars" : ""}`
+      : `age ${endAge}${inflationActive() ? " in today's dollars" : ""}`;
     $("heroTotal").textContent = money(total, settings.currency);
 
     const irrText = result.final.irr !== null && !Number.isNaN(result.final.irr)
@@ -6024,7 +6070,10 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
     const series = buildChartSeries(results);
     const annual = results.custom.annual;
     const hasCashReceived = annual.some((row) => (row.cashDividends + row.cashWithdrawals) > 0);
-    $("chartEndLabel").textContent = `End age ${settings.startAge + annual.length}`;
+    const isParWl_chart = results.custom.variant && results.custom.variant.kind === "par-wl";
+    $("chartEndLabel").textContent = isParWl_chart
+      ? `End of policy year ${annual.length}`
+      : `End age ${settings.startAge + annual.length}`;
 
     // Legend
     const legendItems = [];
@@ -6438,6 +6487,15 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
   // ===== ANNUAL TABLE =====
   function isMilestoneYear(year, settings, variant, totalYears) {
     if (year === 1 || year === totalYears) return true;
+    // Par-WL: project to PY120 with policy-year milestones (not age),
+    // since whole-life products extend far beyond a normal lifespan.
+    if (variant.kind === "par-wl") {
+      if (year === variant.premiumTermYears) return true;       // last paid year
+      if (year === 10) return true;                              // drawdown starts
+      if (year <= 30 && year % 5 === 0) return true;             // every 5 PY for first 30
+      if (year > 30 && year % 10 === 0) return true;             // every 10 PY thereafter
+      return false;
+    }
     if (year === variant.shortfallYears) return true;
     if (year === variant.mipYears) return true;
     if (year === variant.mipYears + 1) return true;
