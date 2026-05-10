@@ -3334,10 +3334,173 @@ body.presentation-mode .strategy-table input:disabled {
       partialCharge: { 1: 1, 2: 1, 3: 0.9, 4: 0.85, 5: 0.8, 6: 0.08, 7: 0.08, 8: 0.08, 9: 0.08, 10: 0.08, 11: 0.08, 12: 0.08, 13: 0.08, 14: 0.08, 15: 0.08, 16: 0.08, 17: 0.08, 18: 0.08, 19: 0.08, 20: 0.08 },
       shortfallCharge: { 1: 1, 2: 1, 3: 0.9, 4: 0.85, 5: 0.8, 6: 0.75, 7: 0.62, 8: 0.52, 9: 0.45, 10: 0.4 },
     },
+
+    // ──────────────────────────────────────────────────────────────────
+    // Signature Legacy Harvest (SLH) — Manulife participating whole-life.
+    // Different math from the InvestReady ILPs above: the simulator uses
+    // a precomputed factor table per policy year (TotalSurrenderValue /
+    // base premium at the illustration's 7.50% bonus realisation rate).
+    // Tables transcribed from the customer's SLH Simulation workbook.
+    // Values in early years are deliberately below cumulative premium
+    // paid — typical of par WL early surrender penalty; the factors
+    // grow exponentially in later years as terminal bonus accumulates.
+    // ──────────────────────────────────────────────────────────────────
+    "SLH_SP": {
+      key: "SLH_SP",
+      label: "Signature Legacy Harvest · Single Premium",
+      family: "Signature Legacy Harvest",
+      kind: "par-wl",
+      currencies: ["USD"],
+      premiumTermYears: 1,
+      mipYears: 1,                 // for chart milestone heuristics
+      flexiStartYear: 2,
+      shortfallYears: 1,
+      adminDuring: 0,
+      adminAfter: 0,
+      loyaltyRate: 0,
+      annualPremiumBonusRate: 0,
+      minPremiums: { USD: { Annual: 50000 } },
+      welcomeBands: [],
+      surrenderCharge: {},
+      partialCharge: {},
+      shortfallCharge: {},
+      // Total surrender value as a multiple of the user's single premium,
+      // by end-of-policy-year. Source: Percent_of_Premium (Reinvested),
+      // column G (D + F = Guaranteed + Non-Guaranteed Terminal Bonus).
+      slhFactorTable: [
+        [1, 0.85], [2, 0.942], [3, 0.986], [4, 1.0464], [5, 1.1162],
+        [6, 1.1749], [7, 1.2389], [8, 1.3089], [9, 1.4254], [10, 1.55],
+        [11, 1.6537], [12, 1.7657], [13, 1.8864], [14, 2.0456], [15, 2.1746],
+        [16, 2.3138], [17, 2.4645], [18, 2.6267], [19, 2.802], [20, 2.9914],
+        [21, 3.1879], [22, 3.4], [23, 3.6297], [24, 3.8774], [25, 4.1465],
+        [26, 4.438], [27, 4.7535], [28, 5.093], [29, 5.4603], [30, 5.8542],
+        [31, 6.2427], [32, 6.6623], [33, 7.1144], [34, 7.6014], [35, 8.1263],
+        [36, 8.6889], [37, 9.2948], [38, 9.9475], [39, 10.6506], [40, 11.4079],
+        [45, 16.1564], [50, 23.018], [55, 32.9565], [60, 47.3533], [65, 68.1793],
+        [70, 98.158], [80, 204.1371], [90, 425.6081], [100, 888.4473],
+        [110, 1856], [120, 3877],
+      ],
+      // Guaranteed-only factor (column D in the workbook's
+      // "Percent_of_Premium (Reinvested)" sheet). Used as the "surrender
+      // value" baseline so the surrender vs total-value gap reads as the
+      // non-guaranteed terminal bonus.
+      slhGuaranteedTable: [
+        [1, 0.85], [2, 0.85], [3, 0.85], [4, 0.85], [5, 0.85],
+        [6, 0.85], [7, 0.85], [8, 0.85], [9, 0.89], [10, 0.931],
+        [11, 0.94], [12, 0.95], [13, 0.96], [14, 1.0], [15, 1.0002],
+        [16, 1.0003], [17, 1.0005], [18, 1.0007], [19, 1.0008], [20, 1.001],
+        [21, 1.0011], [22, 1.0013], [23, 1.0015], [24, 1.0016], [25, 1.0027],
+        [26, 1.005], [27, 1.0073], [28, 1.0096], [29, 1.0119], [30, 1.0129],
+        [31, 1.0142], [32, 1.0166], [33, 1.0189], [34, 1.0212], [35, 1.0236],
+        [36, 1.0259], [37, 1.0283], [38, 1.0307], [39, 1.033], [40, 1.0354],
+        [45, 1.0474], [50, 1.0595], [55, 1.0719], [60, 1.0844], [65, 1.097],
+        [70, 1.1099], [80, 1.1361], [90, 1.1631], [100, 1.1855],
+        [110, 1.2059], [120, 1.2268],
+      ],
+    },
+
+    "SLH_3PAY": {
+      key: "SLH_3PAY",
+      label: "Signature Legacy Harvest · 3-Pay",
+      family: "Signature Legacy Harvest",
+      kind: "par-wl",
+      currencies: ["USD"],
+      premiumTermYears: 3,
+      mipYears: 3,
+      flexiStartYear: 4,
+      shortfallYears: 3,
+      adminDuring: 0,
+      adminAfter: 0,
+      loyaltyRate: 0,
+      annualPremiumBonusRate: 0,
+      minPremiums: { USD: { Annual: 30000 } },
+      welcomeBands: [],
+      surrenderCharge: {},
+      partialCharge: {},
+      shortfallCharge: {},
+      // Total factor [A]+[C] from "3 Pay_Factor" sheet — multiplier on
+      // ANNUAL premium, not cumulative.
+      slhFactorTable: [
+        [1, 0.2], [2, 0.291995], [3, 0.302498], [4, 0.559167], [5, 0.815836],
+        [6, 1.000709], [7, 1.089482], [8, 1.183724], [9, 1.283945], [10, 1.390703],
+        [11, 1.50259], [12, 1.621264], [13, 1.750816], [14, 1.880358], [15, 2.022056],
+        [16, 2.142866], [17, 2.284035], [18, 2.425204], [19, 2.566373], [20, 2.734478],
+        [21, 2.902594], [22, 3.087775], [23, 3.287508], [24, 3.503967], [25, 3.737742],
+        [26, 3.992016], [27, 4.278047], [28, 4.564087], [29, 4.884091], [30, 5.229713],
+        [31, 5.569507], [32, 5.933692], [33, 6.342299], [34, 6.750906], [35, 7.207517],
+        [36, 7.699468], [37, 8.226829], [38, 8.794828], [39, 9.406611], [40, 10.06554],
+        [45, 14.20098], [50, 20.17104], [55, 28.817643], [60, 41.342548], [65, 59.48729],
+        [70, 85.57774], [80, 177.811645], [90, 370.559547], [100, 773.375203],
+        [110, 1615.08024], [120, 3374.199413],
+      ],
+      slhGuaranteedTable: [
+        [1, 0.2], [2, 0.200003], [3, 0.200002], [4, 0.400004], [5, 0.600006],
+        [6, 0.731005], [7, 0.760906], [8, 0.790806], [9, 0.820707], [10, 0.850607],
+        [11, 0.880508], [12, 0.910408], [13, 0.940309], [14, 0.970209], [15, 1.00009],
+        [16, 1.00025], [17, 1.000419], [18, 1.000579], [19, 1.000749], [20, 1.000918],
+        [21, 1.001078], [22, 1.001238], [23, 1.001397], [24, 1.001567], [25, 1.002166],
+        [26, 1.003852], [27, 1.006158], [28, 1.008463], [29, 1.010759], [30, 1.012505],
+        [31, 1.013763], [32, 1.01517], [33, 1.017575], [34, 1.01999], [35, 1.022395],
+        [36, 1.024821], [37, 1.027226], [38, 1.029661], [39, 1.032076], [40, 1.034491],
+        [45, 1.045909], [50, 1.057376], [55, 1.068943], [60, 1.08058], [65, 1.092306],
+        [70, 1.102835], [80, 1.124223], [90, 1.146109], [100, 1.16581],
+        [110, 1.184702], [120, 1.203904],
+      ],
+    },
+
+    "SLH_5PAY": {
+      key: "SLH_5PAY",
+      label: "Signature Legacy Harvest · 5-Pay",
+      family: "Signature Legacy Harvest",
+      kind: "par-wl",
+      currencies: ["USD"],
+      premiumTermYears: 5,
+      mipYears: 5,
+      flexiStartYear: 6,
+      shortfallYears: 5,
+      adminDuring: 0,
+      adminAfter: 0,
+      loyaltyRate: 0,
+      annualPremiumBonusRate: 0,
+      minPremiums: { USD: { Annual: 20000 } },
+      welcomeBands: [],
+      surrenderCharge: {},
+      partialCharge: {},
+      shortfallCharge: {},
+      // Total surrender value at 7.5% bonus realisation, multiplier on
+      // ANNUAL premium. Source: 5-pay BR_Factor_Table column E.
+      slhFactorTable: [
+        [1, 0.2], [2, 0.584], [3, 0.9075], [4, 1.32705], [5, 1.8345],
+        [6, 2.6995], [7, 3.83735], [8, 5.00025], [9, 5.5197], [10, 5.90545],
+        [11, 6.33975], [12, 6.77585], [13, 7.21185], [14, 7.6469], [15, 8.08085],
+        [16, 8.26535], [17, 8.44905], [18, 8.6319], [19, 8.81495], [20, 8.998],
+        [21, 9.14955], [22, 9.3005], [23, 9.4507], [24, 9.6001], [25, 9.7506],
+        [26, 9.9049], [27, 10.06655], [28, 10.2269], [29, 10.38825], [30, 10.549],
+        [31, 10.60935], [32, 10.66605], [33, 10.73035], [34, 10.7948], [35, 10.85935],
+        [36, 10.92405], [37, 10.98885], [38, 11.0516], [39, 11.11445], [40, 11.1773],
+        [45, 11.4889], [50, 11.79965], [55, 12.11575], [60, 12.434], [65, 12.76435],
+        [70, 13.0702], [80, 13.6915], [90, 14.335], [100, 14.9995],
+        [110, 15.19275], [120, 15.3885],
+      ],
+      slhGuaranteedTable: [
+        [1, 0.2], [2, 0.4], [3, 0.6], [4, 0.8], [5, 1.0],
+        [6, 1.61835], [7, 2.48665], [8, 3.355], [9, 3.5525], [10, 3.74875],
+        [11, 4.0], [12, 4.25], [13, 4.5], [14, 4.75], [15, 5.0],
+        [16, 5.0008], [17, 5.00165], [18, 5.00245], [19, 5.0033], [20, 5.0041],
+        [21, 5.00495], [22, 5.00575], [23, 5.00655], [24, 5.0074], [25, 5.0082],
+        [26, 5.01345], [27, 5.025], [28, 5.0365], [29, 5.048], [30, 5.06035],
+        [31, 5.0665], [32, 5.06885], [33, 5.08125], [34, 5.09365], [35, 5.10605],
+        [36, 5.11845], [37, 5.13085], [38, 5.14325], [39, 5.15565], [40, 5.168],
+        [45, 5.2221], [50, 5.27605], [55, 5.32995], [60, 5.3839], [65, 5.43785],
+        [70, 5.47875], [80, 5.56145], [90, 5.64545], [100, 5.7307],
+        [110, 5.81725], [120, 5.9051],
+      ],
+    },
   };
 
-  const VARIANT_ORDER = ["5F1", "6F2", "7F5", "10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10"];
+  const VARIANT_ORDER = ["5F1", "6F2", "7F5", "10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10", "SLH_SP", "SLH_3PAY", "SLH_5PAY"];
   const PARTIAL_WITHDRAWAL_VARIANTS = new Set(["10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10"]);
+  const PAR_WL_VARIANTS = new Set(["SLH_SP", "SLH_3PAY", "SLH_5PAY"]);
 
   function num(value, fallback = 0) {
     const parsed = Number(value);
@@ -3492,8 +3655,184 @@ body.presentation-mode .strategy-table input:disabled {
     return Number.isFinite(rate) ? Math.pow(1 + rate, 12) - 1 : null;
   }
 
+  // Linear-interpolate a factor table {year, factor} for any policy year.
+  // The SLH workbook gives factors at every year up to 40, then sparse
+  // (45, 50, 55, ..., 120) — interpolation keeps the chart smooth.
+  function lookupSlhFactor(table, year) {
+    if (!table || !table.length) return 0;
+    if (year <= table[0][0]) return table[0][1];
+    if (year >= table[table.length - 1][0]) return table[table.length - 1][1];
+    for (let i = 0; i < table.length - 1; i += 1) {
+      const [y1, f1] = table[i];
+      const [y2, f2] = table[i + 1];
+      if (year >= y1 && year <= y2) {
+        const t = (year - y1) / (y2 - y1);
+        return f1 + t * (f2 - f1);
+      }
+    }
+    return table[table.length - 1][1];
+  }
+
+  // Participating whole-life simulator (SLH SP / 3-Pay / 5-Pay).
+  // Different math from the ILP variants: instead of a monthly account-
+  // value engine, we apply pre-computed factor tables (TotalSurrender /
+  // base premium at the illustration's 7.50% bonus realisation rate).
+  // We still produce an ILP-shaped result so all the existing
+  // renderers — strategy table, hero, composition, chart, annual
+  // projection — keep working without modification.
+  function simulateParWL(settings, strategy, mode = "custom") {
+    const variant = VARIANTS[settings.variantKey];
+    const years = Math.max(1, Math.min(99, num(settings.projectionYears, 64)));
+    const annualPremium = num(settings.annualizedPremium, 100000);
+    const startAge = num(settings.startAge, 36);
+    const premiumTerm = variant.premiumTermYears || 1;
+
+    const annual = [];
+    const monthly = [];
+    const cashFlows = new Array(years * 12 + 1).fill(0);
+
+    let totalBasicPaid = 0;
+    let cumulativeBonus = 0;
+
+    for (let year = 1; year <= years; year += 1) {
+      // Premium paid this year — single lump for SP at year 1, or one
+      // annual premium per year for the first `premiumTerm` years.
+      const premiumThisYear = year <= premiumTerm ? annualPremium : 0;
+      totalBasicPaid += premiumThisYear;
+      if (premiumThisYear > 0) {
+        // Charge premium at the start of the policy year (month index)
+        const monthIndex = (year - 1) * 12;
+        cashFlows[monthIndex] -= premiumThisYear;
+      }
+
+      // Lookup factors (per-annual-premium for 3/5-pay, per-single-premium
+      // for SP — same formula either way since `annualPremium` IS the
+      // premium that's multiplied by the factor in both cases).
+      const totalFactor = lookupSlhFactor(variant.slhFactorTable, year);
+      const guaranteedFactor = lookupSlhFactor(variant.slhGuaranteedTable, year);
+      const totalValue = totalFactor * annualPremium;
+      const guaranteedValue = guaranteedFactor * annualPremium;
+      const terminalBonus = Math.max(0, totalValue - guaranteedValue);
+      cumulativeBonus = terminalBonus;   // running marker, not additive
+
+      // Map par-WL concepts onto the ILP shape used by the renderers:
+      //   accountValue   = total surrender value (with non-guaranteed TB)
+      //   surrenderValue = guaranteed cash surrender value (no TB)
+      //   deathBenefit   = max(101% × premium paid, total value) — a sane
+      //                    proxy; SLH actual death benefit is detailed in
+      //                    the policy contract and isn't in the workbook.
+      //   bonuses        = terminal bonus accumulated this year
+      const deathBenefit = Math.max(1.01 * totalBasicPaid, totalValue);
+      // Par-WL has a single non-guaranteed component (terminal bonus
+      // accumulated to date). The composition chart breaks "non-
+      // guaranteed value" into bonuses + dividends + investment growth;
+      // for par-WL we attribute the entire non-guaranteed portion to
+      // Investment growth (`growth = total - paid - bonuses - dividends`),
+      // so set bonuses + dividends to 0. This avoids double-counting
+      // (where the same terminal bonus would show twice).
+      annual.push({
+        year,
+        age: startAge + year,
+        premiums: premiumThisYear,
+        topUps: 0,
+        bonuses: 0,
+        grossDividends: 0,
+        cashDividends: 0,
+        reinvestedDividends: 0,
+        totalReinvestedDividends: 0,
+        adminCharges: 0,
+        policyFees: 0,
+        shortfallCharges: 0,
+        coiCharges: 0,
+        optionalDeductions: 0,
+        dividendWithdrawals: 0,
+        partialWithdrawals: 0,
+        withdrawalCharges: 0,
+        dividendWithdrawalLimit: 0,
+        partialWithdrawalLimit: 0,
+        partialWithdrawalChargeRate: 0,
+        adminRate: 0,
+        accountValue: totalValue,
+        surrenderValue: guaranteedValue,
+        deathBenefit,
+        cashWithdrawals: 0,
+        totalValue,
+        totalBasicPaid,
+        totalTopUps: 0,
+        surrenderChargeRate: 0,
+        surrenderCharge: 0,
+        reinvestedDividendBasis: 0,
+        lapsed: false,
+        // Surface the par-WL specific non-guaranteed component for any
+        // future renderer that wants to show it explicitly.
+        slhTerminalBonus: terminalBonus,
+      });
+
+      // Monthly stub — par-WL doesn't have month-granular behaviour but
+      // some downstream renderers (chart hover at year boundaries) walk
+      // monthly[]; producing one synthetic record per year keeps them
+      // happy without lying about intra-year movement.
+      monthly.push({
+        month: year * 12,
+        year,
+        age: startAge + year,
+        accountValue: totalValue,
+        surrenderValue: guaranteedValue,
+        deathBenefit,
+        cashDividends: 0,
+        cashWithdrawals: 0,
+        totalValue,
+        totalBasicPaid,
+        totalTopUps: 0,
+        totalReinvestedDividends: 0,
+        reinvestedDividendBasis: 0,
+        lapsed: false,
+      });
+    }
+
+    // Final cash flow: terminal value at the end of the projection,
+    // for IRR computation.
+    cashFlows[years * 12] += annual[annual.length - 1].totalValue;
+
+    const final = annual[annual.length - 1] || {};
+    const irr = irrMonthly(cashFlows);
+    return {
+      mode,
+      variant,
+      settings: { ...settings, adminAfter: 0, policyFee: 0 },
+      annual,
+      monthly,
+      final: {
+        ...final,
+        irr,
+        bonusTotal: 0,                    // par-WL non-guaranteed value sits in `growth`, not bonuses
+        netCapital: totalBasicPaid,
+      },
+      cashFlows,
+      warnings: validateParWL(settings, variant),
+    };
+  }
+
+  function validateParWL(settings, variant) {
+    const warnings = [];
+    if (!variant.currencies.includes(settings.currency)) {
+      warnings.push(`${variant.label} is not available in ${settings.currency}.`);
+    }
+    const minimum = annualizedMinimum(variant, settings.currency, settings.paymentFrequency);
+    if (minimum !== null && num(settings.annualizedPremium) < minimum) {
+      warnings.push(`Annualised premium is below the ${currencySymbol(settings.currency)}${minimum.toLocaleString()} minimum for this plan.`);
+    }
+    return warnings;
+  }
+
   function simulate(settings, strategy, mode = "custom") {
     const variant = VARIANTS[settings.variantKey] || VARIANTS["10F3"];
+    // Dispatch to the participating-whole-life engine for SLH variants.
+    // The factor-table model produces values directly from policy year
+    // and premium, with no per-year NAV / dividend inputs.
+    if (variant.kind === "par-wl") {
+      return simulateParWL(settings, strategy, mode);
+    }
     const frequency = FREQUENCIES[settings.paymentFrequency] || FREQUENCIES.Annual;
     const years = Math.max(1, Math.min(99, num(settings.projectionYears, 37)));
     const rows = cloneStrategy(strategy, years);
