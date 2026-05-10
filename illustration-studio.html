@@ -3746,7 +3746,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         [31, 6.24268], [32, 6.66230], [33, 7.11438], [34, 7.60145], [35, 8.12625],
         [36, 8.68886], [37, 9.29483], [38, 9.94755], [39, 10.65059], [40, 11.40788],
         [45, 16.15642], [50, 23.01804], [55, 32.95649], [60, 47.35330], [65, 68.17926],
-        [70, 98.15801], [80, 204.13707], [90, 425.60806], [100, 888.44727],
+        [70, 98.15801], [75, 141.49313], [80, 204.13707], [90, 425.60806], [100, 888.44727],
         [110, 1855.55771], [120, 3876.76892],
       ],
       // SP guaranteed surrender value factor — Manulife PI PDF exact
@@ -3831,22 +3831,22 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       // 1.0 × cumulative paid = breakeven, which matches the user's
       // reference value. So 3-Pay uses the cumulative basis.
       slhFactorBasis: "cumulative",
-      // 3-Pay Reinvested-mode total factor — workbook column E (3 Pay
-      // Factor sheet). Y1–Y9 share values with the BR factor table since
-      // BR drawdown only starts at Y10. Calibrated against code basis
-      // ($100,200 = annual × premium term) so factor × basis = PI dollars.
+      // 3-Pay Reinvested-mode total factor — Manulife PI PDF exact
+      // values from the standard surrender value table (3 pay.pdf
+      // page 7, "Illustrated at 7.50% investment return — Total")
+      // calibrated against the code's basis ($100,200 = $33,400 × 3)
+      // so factor × basis = PI dollars exactly.
+      // Earlier values were workbook-derived and had systematic drift
+      // at Y20+ (Y20 was off by $412, Y120 was off by $3,374).
       slhFactorTable: [
         [1, 0.2], [2, 0.291991], [3, 0.302495], [4, 0.5501996], [5, 0.8158283],
-        [6, 1.0006986], [7, 1.0894711], [8, 1.1837126], [9, 1.2839321], [10, 1.390703],
-        [11, 1.50259], [12, 1.621264], [13, 1.750816], [14, 1.880358], [15, 2.022056],
-        [16, 2.142866], [17, 2.284035], [18, 2.425204], [19, 2.566373], [20, 2.734478],
-        [21, 2.902594], [22, 3.087775], [23, 3.287508], [24, 3.503967], [25, 3.737742],
-        [26, 3.992016], [27, 4.278047], [28, 4.564087], [29, 4.884091], [30, 5.229713],
-        [31, 5.569507], [32, 5.933692], [33, 6.342299], [34, 6.750906], [35, 7.207517],
-        [36, 7.699468], [37, 8.226829], [38, 8.794828], [39, 9.406611], [40, 10.06554],
-        [45, 14.20098], [50, 20.17104], [55, 28.817643], [60, 41.342548], [65, 59.48729],
-        [70, 85.57774], [80, 177.811645], [90, 370.559547], [100, 773.375203],
-        [110, 1615.08024], [120, 3374.199413],
+        [6, 1.0006986], [7, 1.0894711], [8, 1.1837126], [9, 1.2839321], [10, 1.3906886],
+        [11, 1.5025749], [12, 1.6212475], [13, 1.747016], [14, 1.8803393], [15, 2.0220359],
+        [16, 2.1428443], [17, 2.2731637], [18, 2.4140619], [19, 2.5663473], [20, 2.7309681],
+        [25, 3.7376946], [30, 5.2296607], [35, 7.2074351], [40, 10.0654391], [45, 14.2008283],
+        [50, 20.1708383], [55, 28.8173553], [60, 41.3421357], [65, 59.4866966], [70, 85.5768862],
+        [75, 123.2911178], [80, 177.8098703], [90, 370.5558483], [100, 773.367485],
+        [110, 1615.0641218], [120, 3374.1657385],
       ],
       // 3-Pay guaranteed surrender value factor — Manulife PI PDF exact
       // values (3 pay.pdf, page 13–14, column [A]). Factors calibrated
@@ -4391,10 +4391,15 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
           row.brCumulativeIncome = brCumRealised;
           row.brTotalWealth = brTotalSV + brCumRealised; // [A]+[B]+[C]
           row.slhAdhocDrawdown50 = row.year >= 11 ? brNG * 0.50 : 0;
-          // Yield based on TOTAL WEALTH (with bonus payouts) per workbook.
-          row.slhYieldFactor = row.brTotalWealth > 0 && row.totalBasicPaid > 0 && row.year >= brStartYear
-            ? Math.pow(row.brTotalWealth / row.totalBasicPaid, 1 / row.year) - 1
-            : 0;
+          // Yield is set in a separate IRR pass after all rows are
+          // populated — see "Compute BR-mode yield as IRR per year"
+          // section below. Reason: yield = IRR of cashflow stream up
+          // to that year (premiums out, realised cash + final
+          // surrender in), which gives a monotonic curve matching
+          // the workbook's "Effective Annual Yield (With Bonus
+          // Payouts)" column. The simple compound formula
+          // (totalWealth/paid)^(1/year)-1 was wrong because realised
+          // cash isn't compounding inside the policy.
         }
       } else {
         // Approximation for variants without BR factor tables yet.
@@ -4424,9 +4429,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
           row.accountValue = row.totalValue;
           row.brTotalWealth = row.totalValue + brCumulative;   // [A]+[B]+[C]
           row.slhAdhocDrawdown50 = row.year >= 11 ? brNG * 0.50 : 0;
-          row.slhYieldFactor = row.brTotalWealth > 0 && row.totalBasicPaid > 0
-            ? Math.pow(row.brTotalWealth / row.totalBasicPaid, 1 / row.year) - 1
-            : 0;
+          // Yield set in IRR pass below.
         }
       }
 
@@ -4436,6 +4439,33 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         if (row.year >= brStartYear && (row.brIncomeThisYear || 0) > 0) {
           cashFlows[(i + 1) * 12] = (cashFlows[(i + 1) * 12] || 0) + row.brIncomeThisYear;
         }
+      });
+
+      // Compute BR-mode yield as IRR per year. The workbook's
+      // "Effective Annual Yield (With Bonus Payouts)" column shows the
+      // rate at which premium grown forward equals (final surrender +
+      // realised cash with same-rate accumulation) — i.e. the IRR of
+      // the cashflow stream if surrendered at year Y. This gives a
+      // monotonic increasing yield that matches the workbook (~0.1%
+      // off due to month-vs-year compounding conventions).
+      //
+      // Implementation: for each row Y, snapshot cashflows up to that
+      // year, overlay the row's totalValue as a final +inflow at Y,
+      // run irrMonthly. Convert monthly rate → annual.
+      annual.forEach((row, idx) => {
+        if (row.year < 9 || (row.totalValue || 0) <= 0) {
+          row.slhYieldFactor = 0;
+          return;
+        }
+        const cf = cashFlows.slice(0, row.year * 12 + 1);
+        // Add this year's surrender as a final inflow (overlay; the
+        // realised at that month is already in cashFlows from the
+        // pass above).
+        cf[cf.length - 1] = (cf[cf.length - 1] || 0) + (row.totalValue || 0);
+        // irrMonthly returns the annualised IRR directly (it internally
+        // converts the monthly rate to (1+r_m)^12 - 1 before returning).
+        const annualised = irrMonthly(cf);
+        row.slhYieldFactor = annualised !== null && Number.isFinite(annualised) ? annualised : 0;
       });
       // Update monthly stubs so chart hover stays consistent
       monthly.forEach((m, i) => {
