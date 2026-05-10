@@ -5838,6 +5838,29 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
   function compositionFor(result) {
     const f = result.final;
     const paid = (f.totalBasicPaid || 0) + (f.totalTopUps || 0);
+    const total = f.totalValue || 0;
+    // Par-WL is a participating whole-life policy — there is no welcome
+    // bonus, no fund dividends, and the surplus over premiums is NOT
+    // "investment growth". The clean breakdown is:
+    //   • Capital paid in       → premiums paid
+    //   • Guaranteed cash value → guaranteed surrender value above paid
+    //   • Non-guaranteed bonus  → terminal bonus (declared, not vested)
+    if (result.variant && result.variant.kind === "par-wl") {
+      const guaranteedSV = f.surrenderValue || 0;       // guaranteed-only baseline
+      const guaranteedAbovePaid = Math.max(0, guaranteedSV - paid);
+      const nonGuaranteedBonus = Math.max(0, total - guaranteedSV);
+      return {
+        isParWl: true,
+        paid,
+        guaranteed: guaranteedAbovePaid,
+        nonGuaranteed: nonGuaranteedBonus,
+        // back-compat fields (some downstream callers may still touch these):
+        bonuses: nonGuaranteedBonus,
+        dividends: 0,
+        growth: 0,
+        total,
+      };
+    }
     const bonuses = f.bonusTotal || 0;
     const dividends = (f.totalReinvestedDividends || 0) + (f.cashDividends || 0);
     // residual NAV growth = totalValue - paid - bonuses - dividends-in-cash
@@ -5846,9 +5869,8 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     // So a clean breakdown of TOTAL value:
     //   capital paid + bonuses + cumulative dividends (reinvested+cash) + (NAV growth - charges)
     // However reinvested dividends are themselves earnings, which makes "growth" the residual.
-    const total = f.totalValue || 0;
     const residual = total - paid - bonuses - dividends;
-    return { paid, bonuses, dividends, growth: residual, total };
+    return { isParWl: false, paid, bonuses, dividends, growth: residual, total };
   }
 
   function renderHero(results) {
@@ -5862,6 +5884,8 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     const bonuses = inflationActive() ? discount(composition.bonuses, endYear) : composition.bonuses;
     const dividends = inflationActive() ? discount(composition.dividends, endYear) : composition.dividends;
     const growth = inflationActive() ? discount(composition.growth, endYear) : composition.growth;
+    const guaranteedAbovePaid = inflationActive() ? discount(composition.guaranteed || 0, endYear) : (composition.guaranteed || 0);
+    const nonGuaranteedBonus = inflationActive() ? discount(composition.nonGuaranteed || 0, endYear) : (composition.nonGuaranteed || 0);
 
     // Par-WL variants project to policy year 120 (whole-life horizon).
     // Show "policy year 120" instead of "age N" because for whole-life
@@ -5879,13 +5903,24 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       : "";
     $("heroCaption").textContent = `From ${money(paid, settings.currency)} contributed${irrText}.`;
 
-    // Composition bar segments — show only positive segments
-    const segs = [
-      { key: "paid", label: "Capital paid in", value: paid, color: "var(--c-paid)" },
-      { key: "bonuses", label: "Bonuses credited", value: bonuses, color: "var(--c-bonus)" },
-      { key: "dividends", label: "Dividends accrued", value: dividends, color: "var(--c-dividend)" },
-      { key: "growth", label: "Investment growth", value: Math.max(0, growth), color: "var(--c-growth)" },
-    ];
+    // Composition bar segments — show only positive segments. Par-WL uses
+    // a different breakdown (capital / guaranteed / non-guaranteed bonus)
+    // because there is no welcome bonus, no fund dividends, and no
+    // "investment growth" — the surplus over premiums is illustrated
+    // terminal bonus, declared annually and only vested on surrender or
+    // claim.
+    const segs = composition.isParWl
+      ? [
+          { key: "paid", label: "Capital paid in", value: paid, color: "var(--c-paid)" },
+          { key: "guaranteed", label: "Guaranteed cash value", value: guaranteedAbovePaid, color: "var(--c-growth)" },
+          { key: "nonGuaranteed", label: "Non-guaranteed bonus", value: nonGuaranteedBonus, color: "var(--c-bonus)" },
+        ]
+      : [
+          { key: "paid", label: "Capital paid in", value: paid, color: "var(--c-paid)" },
+          { key: "bonuses", label: "Bonuses credited", value: bonuses, color: "var(--c-bonus)" },
+          { key: "dividends", label: "Dividends accrued", value: dividends, color: "var(--c-dividend)" },
+          { key: "growth", label: "Investment growth", value: Math.max(0, growth), color: "var(--c-growth)" },
+        ];
     const positiveSum = segs.reduce((acc, s) => acc + Math.max(0, s.value), 0) || 1;
 
     $("compositionBar").innerHTML = segs.map((s) => {
@@ -6081,10 +6116,16 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       ? `End of policy year ${annual.length}`
       : `End age ${settings.startAge + annual.length}`;
 
-    // Legend
+    // Legend — par-WL has no "Investment growth"; the filled area is the
+    // illustrated total surrender value above premiums (guaranteed cash
+    // value + non-guaranteed terminal bonus).
     const legendItems = [];
     legendItems.push({ name: "Capital paid in", color: "var(--c-paid)", swatch: "line" });
-    legendItems.push({ name: "Investment growth (filled)", color: "var(--c-growth)", swatch: "area" });
+    legendItems.push({
+      name: isParWl_chart ? "Total surrender value (filled)" : "Investment growth (filled)",
+      color: "var(--c-growth)",
+      swatch: "area",
+    });
     legendItems.push({ name: series.selected.name, color: "var(--c-selected)", swatch: "line" });
     if (hasCashReceived && !results.customCompare) {
       legendItems.push({ name: series.account.name, color: "#74808f", swatch: "dashed" });
@@ -6391,18 +6432,28 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     const wrap = (v) => inflationActive() ? discount(v, yearNum) : v;
     const money2 = (v) => money(wrap(v), settings.currency);
 
-    const rows = [
-      [`<i style="background:${resolveColor("var(--c-paid)")}"></i> Capital paid in`, money2(cumulativePaid)],
-      [`<i style="background:${resolveColor("var(--c-dividend)")}"></i> Dividends accrued`, money2((row.totalReinvestedDividends || 0) + (row.cashDividends || 0))],
-      [`<i style="background:${resolveColor("var(--c-selected)")}"></i> Account value`, money2(row.accountValue)],
-      [`<i style="background:${resolveColor("var(--c-bonus)")}"></i> Total wealth`, money2(row.totalValue)],
-    ];
+    // Par-WL has no fund dividends — replace the dividend row with the
+    // guaranteed / non-guaranteed split that's specific to par-WL maths.
+    const isParWlRow = result.variant && result.variant.kind === "par-wl";
+    const rows = isParWlRow
+      ? [
+          [`<i style="background:${resolveColor("var(--c-paid)")}"></i> Capital paid in`, money2(cumulativePaid)],
+          [`<i style="background:${resolveColor("var(--c-growth)")}"></i> Guaranteed SV [A]`, money2(row.surrenderValue || 0)],
+          [`<i style="background:${resolveColor("var(--c-bonus)")}"></i> Non-guaranteed bonus [B]`, money2(row.slhNonGuaranteedBonus || Math.max(0, (row.totalValue || 0) - (row.surrenderValue || 0)))],
+          [`<i style="background:${resolveColor("var(--c-selected)")}"></i> Total SV [A]+[B]`, money2(row.totalValue)],
+        ]
+      : [
+          [`<i style="background:${resolveColor("var(--c-paid)")}"></i> Capital paid in`, money2(cumulativePaid)],
+          [`<i style="background:${resolveColor("var(--c-dividend)")}"></i> Dividends accrued`, money2((row.totalReinvestedDividends || 0) + (row.cashDividends || 0))],
+          [`<i style="background:${resolveColor("var(--c-selected)")}"></i> Account value`, money2(row.accountValue)],
+          [`<i style="background:${resolveColor("var(--c-bonus)")}"></i> Total wealth`, money2(row.totalValue)],
+        ];
     if (compRow) rows.push([`<i style="background:${resolveColor("var(--c-benchmark)")}"></i> ${state.results.customCompare.variant.label}`, money2(compRow.totalValue)]);
     if (fdRow) rows.push([`<i style="background:${resolveColor("var(--c-dividend)")}"></i> Fixed deposit`, money2(fdRow.value)]);
     if (reinvestRow) rows.push([`<i style="background:#a7853d"></i> All reinvested`, money2(reinvestRow.totalValue)]);
 
     tooltip.innerHTML = `
-      <h4>Year ${yearNum} · Age ${row.age}</h4>
+      <h4>${isParWlRow ? `Policy year ${yearNum}` : `Year ${yearNum} · Age ${row.age}`}</h4>
       <dl>
         ${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}
       </dl>
@@ -7128,13 +7179,36 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       charges.withdrawalCharges +
       charges.optionalDeductions;
 
+    // Par-WL specific breakdown — surfaces the guaranteed / non-guaranteed
+    // split so the paper deck can render meaningful labels instead of
+    // "Bonuses credited" / "Dividends accrued" / "Investment growth"
+    // (which are ILP-only concepts).
+    const isParWl = variant.kind === "par-wl";
+    const capitalPaid = (final.totalBasicPaid || 0) + (final.totalTopUps || 0);
+    const guaranteedSV = final.surrenderValue || 0;
+    const totalSV = final.totalValue || 0;
+    const parWl = isParWl
+      ? {
+          isParWl: true,
+          premiumTermYears: variant.premiumTermYears || 1,
+          guaranteedSV,
+          guaranteedAbovePaid: Math.max(0, guaranteedSV - capitalPaid),
+          nonGuaranteedBonus: Math.max(0, totalSV - guaranteedSV),
+          totalSV,
+          slhFactorTable: variant.slhFactorTable || [],
+          slhGuaranteedTable: variant.slhGuaranteedTable || [],
+        }
+      : { isParWl: false };
+
     return {
       settings,
       variant: {
         key: settings.variantKey,
         label: variant.label,
+        kind: variant.kind || "ilp",
         mipYears: variant.mipYears,
         shortfallYears: variant.shortfallYears,
+        premiumTermYears: variant.premiumTermYears || 0,
         adminDuring: variant.adminDuring,
         adminAfter: result.settings.adminAfter,
         adminMode: variant.adminMode || "account",
@@ -7152,14 +7226,18 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         welcomeBonusAmount,
         annualPremiumBonusAmount,
         year1Bonuses: year1.bonuses || 0,
-        totalBonuses: final.bonusTotal || 0,
+        // For par-WL, "totalBonuses" represents the non-guaranteed terminal
+        // bonus crystallised at the projection horizon. Welcome / annual /
+        // loyalty bonuses are all 0 for par-WL.
+        totalBonuses: isParWl ? parWl.nonGuaranteedBonus : (final.bonusTotal || 0),
       },
       charges,
       protection: {
         deathBenefit: final.deathBenefit || 0,
         surrenderValue: final.surrenderValue || 0,
-        capitalPaid: (final.totalBasicPaid || 0) + (final.totalTopUps || 0),
+        capitalPaid,
       },
+      parWl,
       scenarioName: state.currentScenarioName || "",
     };
   }

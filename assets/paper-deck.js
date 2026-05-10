@@ -107,6 +107,7 @@
     const currency = settings.currency || "SGD";
     const startAge = Number(settings.startAge) || 62;
     const endAge = startAge + (snapshot?.annual?.length || 37);
+    const isParWl = !!(snapshot?.variant?.kind === "par-wl" || snapshot?.parWl?.isParWl);
     const irrText = snapshot && snapshot.final && Number.isFinite(snapshot.final.irr)
       ? fmtPercent(snapshot.final.irr, 2)
       : "—";
@@ -122,6 +123,25 @@
       <span style="width:${esc(s.width)}; background:${esc(s.color)}">${esc(s.text)}</span>
     `).join("");
 
+    // Par-WL has no "premium term + MIP" structure (premium term IS the
+    // commitment), no "age window" (whole-life projection runs to PY120),
+    // and the surplus is non-guaranteed terminal bonus rather than
+    // bonuses+dividends+growth.
+    const premiumStructure = isParWl
+      ? `${snapshot?.variant?.premiumTermYears || snapshot?.parWl?.premiumTermYears || 1} yr${(snapshot?.variant?.premiumTermYears || snapshot?.parWl?.premiumTermYears || 1) === 1 ? "" : "s"} (par-WL)`
+      : `${snapshot?.variant?.shortfallYears || 0} yrs (MIP ${snapshot?.variant?.mipYears || 0} yrs)`;
+    const horizonLabel = isParWl
+      ? `Policy year window`
+      : `Age window`;
+    const horizonValue = isParWl
+      ? `Year 1 → ${snapshot?.annual?.length || 120}`
+      : `${startAge} → ${endAge}`;
+    const endValueNote = isParWl
+      ? "Guaranteed cash value + non-guaranteed terminal bonus"
+      : "All bonuses, dividends and growth";
+    const heroFootBonusLabel = isParWl ? "Non-guaranteed bonus" : "Total bonuses";
+    const heroFootIrrLabel = isParWl ? "Yield" : "IRR";
+
     return pageShell({
       ...common, pageNo, totalPages,
       title: "Executive Summary",
@@ -132,18 +152,18 @@
             <div class="hero-value">${esc(data.heroValue)}</div>
             <p class="hero-caption">${esc(data.heroCaption)}</p>
             <div class="hero-foot">
-              <div><div class="metric-label">IRR</div><div class="metric-value-sm brass">${esc(irrText)}</div></div>
+              <div><div class="metric-label">${esc(heroFootIrrLabel)}</div><div class="metric-value-sm brass">${esc(irrText)}</div></div>
               <div><div class="metric-label">Capital paid</div><div class="metric-value-sm">${esc(fmtCompactMoney(snapshot?.protection?.capitalPaid || 0, currency))}</div></div>
-              <div><div class="metric-label">Total bonuses</div><div class="metric-value-sm">${esc(fmtCompactMoney(snapshot?.bonuses?.totalBonuses || 0, currency))}</div></div>
+              <div><div class="metric-label">${esc(heroFootBonusLabel)}</div><div class="metric-value-sm">${esc(fmtCompactMoney(snapshot?.bonuses?.totalBonuses || 0, currency))}</div></div>
             </div>
           </section>
           <section class="metric-grid exec-meta">
             ${metricCard("Variant", snapshot?.variant?.label || settings.variantKey || "—")}
             ${metricCard("Currency · payment", `${currency} · ${settings.paymentFrequency || "—"}`)}
             ${metricCard("Annualised premium", fmtMoney(settings.annualizedPremium || 0, currency))}
-            ${metricCard("Premium term", `${snapshot?.variant?.shortfallYears || 0} yrs (MIP ${snapshot?.variant?.mipYears || 0} yrs)`)}
-            ${metricCard("Age window", `${startAge} → ${endAge}`)}
-            ${metricCard("End-age value", data.heroValue || "—", "All bonuses, dividends and growth")}
+            ${metricCard("Premium term", premiumStructure)}
+            ${metricCard(horizonLabel, horizonValue)}
+            ${metricCard("End-of-projection value", data.heroValue || "—", endValueNote)}
           </section>
           <section class="panel wide composition-panel">
             <div class="panel-head">
@@ -164,6 +184,7 @@
     const bonuses = snapshot?.bonuses || {};
     const protection = snapshot?.protection || {};
     const variant = snapshot?.variant || {};
+    const isParWl = !!(variant.kind === "par-wl" || snapshot?.parWl?.isParWl);
 
     const lineRow = (label, value, sub = "") => `
       <div class="line-row">
@@ -171,6 +192,60 @@
         <b>${esc(value)}</b>
       </div>
     `;
+
+    if (isParWl) {
+      // Par-WL has no welcome bonus, no premium / admin / shortfall /
+      // COI / partial-withdrawal charges, no fund NAV. The mechanics are:
+      //   • Premium structure   — single / 3-pay / 5-pay term commitment
+      //   • Guaranteed cash value — what the insurer guarantees on surrender
+      //   • Non-guaranteed bonus — terminal bonus illustrated at 7.50% p.a.
+      const parWl = snapshot.parWl || {};
+      const annualizedPremium = snapshot?.settings?.annualizedPremium || 0;
+      const premiumTerm = variant.premiumTermYears || parWl.premiumTermYears || 1;
+      const totalCommitted = annualizedPremium * premiumTerm;
+      return pageShell({
+        ...common, pageNo, totalPages,
+        title: "Value Mechanics",
+        body: `
+          <main class="value-mechanics-grid">
+            <section class="value-card welcome-card">
+              <div class="section-kicker">Premium structure</div>
+              <div class="value-card-big">${esc(fmtMoney(totalCommitted, currency))}</div>
+              <div class="value-card-sub">Total premium committed across the premium-paying term</div>
+              <div class="value-card-lines">
+                ${lineRow("Premium per year", fmtMoney(annualizedPremium, currency))}
+                ${lineRow("Premium-paying term", `${premiumTerm} yr${premiumTerm === 1 ? "" : "s"}`, premiumTerm === 1 ? "Single premium up-front" : "Annual premiums for the full term")}
+                ${lineRow("Projection horizon", `Policy year ${snapshot?.annual?.length || 120}`, "Whole-of-life — factor schedule runs to PY120")}
+                ${lineRow("Currency", currency)}
+              </div>
+              <p class="value-card-note">No welcome bonus, no annual premium bonus, no loyalty bonus — par-WL has only the <b>terminal bonus</b>.</p>
+            </section>
+            <section class="value-card charges-card">
+              <div class="section-kicker">Guaranteed cash value</div>
+              <div class="value-card-big">${esc(fmtMoney(parWl.guaranteedSV || protection.surrenderValue || 0, currency))}</div>
+              <div class="value-card-sub">Guaranteed surrender value at end of projection</div>
+              <div class="value-card-lines">
+                ${lineRow("Capital paid in", fmtMoney(protection.capitalPaid || 0, currency))}
+                ${lineRow("Guaranteed value above premiums", fmtMoney(parWl.guaranteedAbovePaid || 0, currency), "Vested — payable on surrender at any time")}
+                ${lineRow("Death/TI benefit at horizon", fmtMoney(protection.deathBenefit || 0, currency), "Higher of 101% of premiums or total surrender value")}
+              </div>
+              <p class="value-card-note">There are no admin, mortality, or fund-management charges deducted from the policyholder's account — this is a participating-fund policy, not an investment account.</p>
+            </section>
+            <section class="value-card protection-card">
+              <div class="section-kicker">Non-guaranteed terminal bonus</div>
+              <div class="value-card-big brass">${esc(fmtMoney(parWl.nonGuaranteedBonus || bonuses.totalBonuses || 0, currency))}</div>
+              <div class="value-card-sub">Illustrated at 7.50% p.a. Bonus Realisation rate</div>
+              <div class="value-card-lines">
+                ${lineRow("Total surrender value at horizon", fmtMoney(parWl.totalSV || protection.deathBenefit || 0, currency), "Guaranteed [A] + non-guaranteed bonus [B]")}
+                ${lineRow("Illustrated BR rate", "7.50% p.a.", "The higher of two illustrated rates published by the insurer")}
+                ${lineRow("Vesting", "On surrender or claim", "Bonus is declared annually but not contractually owed until surrender")}
+              </div>
+              <p class="value-card-warn">The terminal bonus is <b>not guaranteed</b>. Actual bonuses depend on the participating fund's experience and may be lower (or zero). Past performance is not a reliable indicator of future results.</p>
+            </section>
+          </main>
+        `,
+      });
+    }
 
     return pageShell({
       ...common, pageNo, totalPages,
@@ -224,6 +299,27 @@
       const found = data.composition.find((item) => item.label.toLowerCase().includes(needle));
       return found ? found.value : "—";
     };
+    const isParWl = !!(snapshot?.variant?.kind === "par-wl" || snapshot?.parWl?.isParWl);
+    // Par-WL doesn't have "Bonuses credited" / "Dividends accrued" /
+    // "Investment growth" — its composition is Capital + Guaranteed + NG.
+    // Par-WL gets 4 cards (single row of 4 in `.par-wl` grid variant); ILP
+    // gets 6 (two rows of 3). The chart end label is part of the panel
+    // header for par-WL, so the redundant "Horizon" card is dropped.
+    const cardsHtml = isParWl
+      ? `
+          ${metricCard("Projected wealth", data.heroValue)}
+          ${metricCard("Capital paid in", compValue("capital"))}
+          ${metricCard("Guaranteed cash value", compValue("guaranteed"))}
+          ${metricCard("Non-guaranteed bonus", compValue("non-guaranteed"))}
+        `
+      : `
+          ${metricCard("Projected wealth", data.heroValue)}
+          ${metricCard("Capital paid in", compValue("capital"))}
+          ${metricCard("Bonuses credited", compValue("bonus"))}
+          ${metricCard("Dividends accrued", compValue("dividend"))}
+          ${metricCard("Investment growth", compValue("growth"))}
+          ${metricCard("End age", data.chartEndLabel || "—")}
+        `;
     return pageShell({
       ...common, pageNo, totalPages,
       title: "Projection Chart",
@@ -239,13 +335,8 @@
             </div>
             <img class="chart-image" src="${esc(data.chartPng)}" alt="Projected client value chart" />
           </section>
-          <section class="metric-grid compact">
-            ${metricCard("Projected wealth", data.heroValue)}
-            ${metricCard("Capital paid in", compValue("capital"))}
-            ${metricCard("Bonuses credited", compValue("bonus"))}
-            ${metricCard("Dividends accrued", compValue("dividend"))}
-            ${metricCard("Investment growth", compValue("growth"))}
-            ${metricCard("End age", data.chartEndLabel || "—")}
+          <section class="metric-grid compact${isParWl ? " par-wl" : ""}">
+            ${cardsHtml}
           </section>
         </main>
       `,
@@ -287,21 +378,9 @@
 
   function withdrawalAccessPage({ data, snapshot, pageNo, totalPages, common }) {
     const variant = snapshot?.variant || {};
-    const partialCharges = variant.partialCharge || {};
-    // Cap at 10 rows so the schedule never collides with the page footer
-    // (the access-rules-panel overflow:hidden rule below is also a
-    // belt-and-braces guard for variants like IRG20F10 that have 20+
-    // years of partial-charge entries).
-    const chargeSchedule = Object.entries(partialCharges)
-      .map(([yr, rate]) => ({ yr: Number(yr), rate: Number(rate) }))
-      .sort((a, b) => a.yr - b.yr)
-      .filter((row) => row.rate > 0)
-      .slice(0, 10);
-    const chargeScheduleTotalYears = Object.entries(partialCharges)
-      .filter(([, rate]) => Number(rate) > 0).length;
-    const chargeScheduleTrailing = chargeScheduleTotalYears > chargeSchedule.length
-      ? `+ ${chargeScheduleTotalYears - chargeSchedule.length} more year${chargeScheduleTotalYears - chargeSchedule.length === 1 ? "" : "s"}`
-      : "";
+    const isParWl = !!(variant.kind === "par-wl" || snapshot?.parWl?.isParWl);
+    const currency = snapshot?.settings?.currency || "SGD";
+
     const accessCardsHtml = data.accessCards.length
       ? data.accessCards.map((item) => `
           <article class="access-card">
@@ -320,6 +399,93 @@
             <p class="access-empty">No withdrawal access events were active in the source HTML at the time of generation.</p>
           </article>
         `;
+
+    if (isParWl) {
+      // Par-WL has no partial-withdrawal charge schedule. Access is via:
+      //   • Adhoc drawdown — one-off, computed from the non-guaranteed
+      //     bonus accumulated to date (10% / 50% drawdowns are illustrated
+      //     in the annual table).
+      //   • Full surrender — payable any year at the total surrender value
+      //     (Guaranteed [A] + Non-guaranteed bonus [B]).
+      const parWl = snapshot.parWl || {};
+      const totalSV = parWl.totalSV || snapshot?.protection?.deathBenefit || 0;
+      const ngBonus = parWl.nonGuaranteedBonus || 0;
+      return pageShell({
+        ...common, pageNo, totalPages,
+        title: "Withdrawal &amp; Access Summary",
+        body: `
+          <main class="access-page">
+            <section class="panel access-panel-print">
+              <div class="panel-head">
+                <h2>Access points (illustrative)</h2>
+                <span>${esc(snapshot?.variant?.label || "")}</span>
+              </div>
+              <div class="access-grid">
+                <article class="access-card">
+                  <h3>Full surrender</h3>
+                  <div class="access-line"><span>Available from</span><b>Any policy year</b></div>
+                  <div class="access-line"><span>Payable at horizon</span><b>${esc(fmtMoney(totalSV, currency))}</b></div>
+                  <div class="access-line"><span>Composition</span><b>Guaranteed [A] + Non-guaranteed bonus [B]</b></div>
+                </article>
+                <article class="access-card">
+                  <h3>Adhoc 10% drawdown</h3>
+                  <div class="access-line"><span>Drawdown amount at horizon</span><b>${esc(fmtMoney(ngBonus * 0.10, currency))}</b></div>
+                  <div class="access-line"><span>Computed from</span><b>10% of accrued non-guaranteed bonus</b></div>
+                  <div class="access-line"><span>Effect</span><b>Reduces future bonus accrual proportionally</b></div>
+                </article>
+                <article class="access-card">
+                  <h3>Adhoc 50% drawdown</h3>
+                  <div class="access-line"><span>Drawdown amount at horizon</span><b>${esc(fmtMoney(ngBonus * 0.50, currency))}</b></div>
+                  <div class="access-line"><span>Computed from</span><b>50% of accrued non-guaranteed bonus</b></div>
+                  <div class="access-line"><span>Effect</span><b>Larger one-off cash; more impact on future bonus</b></div>
+                </article>
+              </div>
+            </section>
+            <section class="panel access-rules-panel">
+              <div class="panel-head">
+                <h2>How access works</h2>
+                <span>Participating whole-life</span>
+              </div>
+              <div class="rules-two-col">
+                <div>
+                  <h4>Surrender mechanics</h4>
+                  <ul class="access-notes">
+                    <li>The policy can be surrendered at any time for the prevailing total surrender value (Guaranteed [A] + Non-guaranteed bonus [B]).</li>
+                    <li>The Guaranteed [A] portion is contractually owed by the insurer at all times after the early-year build-up.</li>
+                    <li>The Non-guaranteed [B] portion is the terminal bonus declared annually but only crystallised on surrender or claim.</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4>Notes</h4>
+                  <ul class="access-notes">
+                    <li>Adhoc drawdown amounts shown are illustrative — they reduce the policy's future bonus accrual on a roughly proportional basis.</li>
+                    <li>There are <b>no partial-withdrawal charges</b>, no admin charges, and no policy fees deducted from the policyholder.</li>
+                    <li>The 10% / 50% adhoc drawdowns are policy events, not pre-set rules — the actual drawdown granted is at the insurer's discretion within the policy framework.</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          </main>
+        `,
+      });
+    }
+
+    const partialCharges = variant.partialCharge || {};
+    // Cap at 10 rows so the schedule never collides with the page footer
+    // (the access-rules-panel overflow:hidden rule below is also a
+    // belt-and-braces guard for variants like IRG20F10 that have 20+
+    // years of partial-charge entries).
+    const chargeSchedule = Object.entries(partialCharges)
+      .map(([yr, rate]) => ({ yr: Number(yr), rate: Number(rate) }))
+      .sort((a, b) => a.yr - b.yr)
+      .filter((row) => row.rate > 0)
+      .slice(0, 10);
+    const chargeScheduleTotalYears = Object.entries(partialCharges)
+      .filter(([, rate]) => Number(rate) > 0).length;
+    const chargeScheduleTrailing = chargeScheduleTotalYears > chargeSchedule.length
+      ? `+ ${chargeScheduleTotalYears - chargeSchedule.length} more year${chargeScheduleTotalYears - chargeSchedule.length === 1 ? "" : "s"}`
+      : "";
+
     return pageShell({
       ...common, pageNo, totalPages,
       title: "Withdrawal &amp; Access Summary",
@@ -530,6 +696,7 @@
     .chart-image { display: block; width: 100%; height: 110mm; object-fit: contain; border: 1px solid #eeeeec; border-radius: 6px; background: #ffffff; }
     .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4mm; }
     .metric-grid.compact { grid-template-columns: repeat(3, 1fr); margin-top: 4mm; }
+    .metric-grid.compact.par-wl { grid-template-columns: repeat(4, 1fr); }
 
     .table-page { height: calc(210mm - 10mm - 12mm - 14mm - 6mm - 16mm); }
     .table-panel { height: 100%; padding: 5mm; overflow: hidden; }
