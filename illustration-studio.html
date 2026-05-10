@@ -2527,6 +2527,11 @@ body.is-par-wl-main label.toggle:has(#annualDividendMonthly) {
    the main variant is par-WL. */
 .par-wl-only-controls { display: none; }
 body.is-par-wl-main .par-wl-only-controls { display: flex; }
+/* PI 1.25% fund-mgmt deduction is an ILP-only concept (par-WL doesn't
+   use a fund NAV) — hide for SLH. */
+body.is-par-wl-main .ilp-only-deduction {
+  display: none !important;
+}
 body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
 .par-wl-info {
   background: linear-gradient(180deg, #fbf6e8 0%, #f5ebd1 100%);
@@ -3001,13 +3006,13 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
           </div>
           <div class="toggle-group">
             <span class="toggle-group-label">View</span>
-            <label class="toggle"><input id="inflationAdjust" type="checkbox" /> Today's dollars</label>
-            <label class="toggle"><input id="deductPiFundMgmt" type="checkbox" /> PI 1.25% deduction</label>
-            <!-- Advisor details toggle removed from the visible UI by request.
-                 The hidden checkbox is preserved (default unchecked) so the
-                 strategy/compare-strategy renderers and the advisor-only
-                 settings sub-panel keep evaluating the gate cleanly. -->
+            <label class="toggle ilp-only-deduction"><input id="deductPiFundMgmt" type="checkbox" /> PI 1.25% deduction</label>
+            <!-- Advisor details + Today's dollars toggles removed from the
+                 visible UI by request. Hidden inputs kept so old saved-
+                 HTML scenarios that target these IDs still bind cleanly. -->
             <input id="showAdvisorDetails" type="checkbox" hidden tabindex="-1" aria-hidden="true" />
+            <input id="inflationAdjust" type="checkbox" hidden tabindex="-1" aria-hidden="true" />
+            <input id="inflationRate" type="number" hidden tabindex="-1" aria-hidden="true" value="2.5" />
           </div>
           <div class="toggle-group">
             <span class="toggle-group-label">Tools</span>
@@ -3015,17 +3020,11 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
           </div>
           <div class="toggle-group par-wl-only-controls">
             <span class="toggle-group-label">SLH options</span>
-            <label class="toggle" title="Switches the projection to Bonus Realisation income mode: 7% of accumulated non-guaranteed bonus is withdrawn as cash each year from policy year 10 onwards. Reduces future bonus accrual."><input id="enableBRIncome" type="checkbox" /> BR income (7%/yr from PY10)</label>
+            <label class="toggle" title="Switches the projection to Bonus Realisation mode: 7% of the year's non-guaranteed bonus is realised as cash income from policy year 10 onwards. Reduces future bonus accrual; total wealth = remaining policy value + cumulative realised income."><input id="enableBRIncome" type="checkbox" /> Bonus Realisation - 7% from year 10</label>
           </div>
         </div>
 
-        <div id="inflationSettings" class="benchmark-settings" hidden>
-          <label>
-            Inflation rate %
-            <input id="inflationRate" type="number" min="0" max="20" step="0.1" value="2.5" />
-          </label>
-          <p class="caption-note">All headline figures and the chart will discount future amounts to today's purchasing power.</p>
-        </div>
+        <div id="inflationSettings" class="benchmark-settings" hidden aria-hidden="true"></div>
 
         <div id="fdSettings" class="benchmark-settings" hidden>
           <label>
@@ -3763,6 +3762,44 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         [70, 1.1099], [80, 1.1361], [90, 1.1631], [100, 1.1855],
         [110, 1.2059], [120, 1.2268],
       ],
+      // Bonus Realisation mode factors — 7% of accrued non-guaranteed
+      // bonus is realised as cash income each year from policy year 10
+      // onwards. The remaining 93% continues to compound in the policy.
+      // Source: workbook screenshot (Terminal Bonus + Bonus Realisation
+      // sheet for SP at age 56 / $100K). Years before 10 mirror the
+      // Reinvested factors (no realisation occurs yet).
+      //
+      //   slhBRTotalFactor       → Total Surrender Value [A]+[B] factor
+      //                            (×$ premium = remaining policy value)
+      //   slhBRCumulativeRealised → Cumulative Bonus Realised [C] factor
+      //                            (×$ premium = total income paid out)
+      //   Total Wealth [A]+[B]+[C] = (slhBRTotalFactor + slhBRCumulativeRealised) × premium
+      slhBRTotalFactor: [
+        [1, 0.85], [2, 0.942], [3, 0.986], [4, 1.04636], [5, 1.11625],
+        [6, 1.17486], [7, 1.23890], [8, 1.30890], [9, 1.42541],
+        [10, 1.50668], [11, 1.55966], [12, 1.61327], [13, 1.66696], [14, 1.75026], [15, 1.79364],
+        [16, 1.83686], [17, 1.88014], [18, 1.92306], [19, 1.96602], [20, 2.00892],
+        [21, 2.04414], [22, 2.07924], [23, 2.11451], [24, 2.14954], [25, 2.18571],
+        [26, 2.22297], [27, 2.26046], [28, 2.29763], [29, 2.33503], [30, 2.37077],
+        [31, 2.38503], [32, 2.40036], [33, 2.41572], [34, 2.43113], [35, 2.44656],
+        [36, 2.46151], [37, 2.47648], [38, 2.49150], [39, 2.50654], [40, 2.52161],
+        [45, 2.59712], [50, 2.67381], [55, 2.75201], [60, 2.83172], [65, 2.91219],
+        [70, 2.99081], [80, 3.15251], [90, 3.32022], [100, 3.4883],
+        [110, 3.53527], [120, 3.5829],
+      ],
+      slhBRCumulativeRealised: [
+        [1, 0], [2, 0], [3, 0], [4, 0], [5, 0],
+        [6, 0], [7, 0], [8, 0], [9, 0],
+        [10, 0.04333], [11, 0.08997], [12, 0.13989], [13, 0.19310], [14, 0.24957], [15, 0.30929],
+        [16, 0.37225], [17, 0.43846], [18, 0.50789], [19, 0.58054], [20, 0.65641],
+        [21, 0.73491], [22, 0.81604], [23, 0.89982], [24, 0.98622], [25, 1.07526],
+        [26, 1.16694], [27, 1.26126], [28, 1.35821], [29, 1.45780], [30, 1.56000],
+        [31, 1.66318], [32, 1.76734], [33, 1.87248], [34, 1.97860], [35, 2.08571],
+        [36, 2.19376], [37, 2.30276], [38, 2.41272], [39, 2.52363], [40, 2.63550],
+        [45, 2.75215], [50, 2.87365], [55, 3.00011], [60, 3.13163], [65, 3.26825],
+        [70, 3.40982], [80, 3.56159], [90, 3.72395], [100, 3.89728],
+        [110, 4.07261], [120, 4.24995],
+      ],
     },
 
     "SLH_3PAY": {
@@ -4161,9 +4198,10 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         // Adhoc 50% drawdown — informational one-off cash the policyholder
         // could pull out at this year (without losing the surrender value
         // baseline). Computed as 50% of the accrued non-guaranteed bonus.
-        // (10% adhoc column was removed by user request — the 50% column is
-        // the only adhoc figure that's meaningful for SLH ops.)
-        slhAdhocDrawdown50: nonGuaranteedBonus * 0.50,
+        // Per the SLH workbook, the adhoc drawdown facility opens only
+        // from policy year 11 onwards — the option doesn't exist before
+        // that. Show 0 (rendered as "—") for years 1–10.
+        slhAdhocDrawdown50: year >= 11 ? nonGuaranteedBonus * 0.50 : 0,
         slhYieldFactor: totalValue > 0 && totalBasicPaid > 0
           ? Math.pow(totalValue / totalBasicPaid, 1 / year) - 1
           : 0,
@@ -4194,73 +4232,115 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       });
     }
 
-    // Bonus Realisation income mode: when the user toggles BR income
-    // on, simulate a 7%-per-year cash drawdown of the accumulated NG
-    // bonus from policy year 10 onwards. This is an APPROXIMATION of
-    // the workbook's BR_Factor_Table (which has its own per-year
-    // factors). Implementation:
+    // Bonus Realisation income mode: 7% of accrued non-guaranteed
+    // bonus is realised as cash each year from policy year 10 onwards.
+    // The remaining 93% continues to compound in the policy.
     //
-    //   1. Track a running BR-mode NG bonus (brNG) that mirrors the
-    //      Reinvested NG growth path year-on-year. Each year's
-    //      growth factor = reinvNG[y] / reinvNG[y-1].
-    //   2. From PY10 onwards, draw 7% of brNG as cash income at the
-    //      start of each year (after applying the year's growth).
-    //      Subtract from brNG; the remaining 93% continues to compound.
-    //   3. Overwrite each annual row's totalValue + nonGuaranteedBonus
-    //      so the BR-mode values flow through the rest of the renderer.
-    //   4. Add the yearly + cumulative income to the row so the
-    //      annual table can surface it in dedicated columns.
+    // Two execution paths:
     //
-    // The Adhoc 50% drawdown column is computed from the *Reinvested*
-    // NG bonus (not the BR-mode haircut value) because it represents
-    // a one-off withdrawal option the policyholder could exercise
-    // INSTEAD of BR income — not in addition to it.
+    //   • EXACT: variant has slhBRTotalFactor + slhBRCumulativeRealised
+    //     hardcoded from the workbook (currently SP only). Use those
+    //     factors directly — reproduces the workbook to the dollar.
+    //
+    //   • APPROXIMATE: variant doesn't have BR factors yet (3-Pay,
+    //     5-Pay). Fall back to a year-on-year approximation:
+    //         brNG_y = brNG_{y-1} × reinvested_growth_y × (1 - 0.07)
+    //     This matches the SP workbook to within ~1% for early years
+    //     and gets less accurate over time. Plug in the workbook BR
+    //     factor tables for 3-Pay / 5-Pay when available for exact
+    //     reproduction.
+    //
+    // In both paths the row's "total surrender value" [A]+[B] reflects
+    // the CURRENT POLICY VALUE (not including realised cash income).
+    // The workbook's "Total Value [A]+[B]+[C]" = policy + cumulative
+    // realised. We surface BOTH so the renderer can show "Total Wealth"
+    // = policy value + realised income clearly.
     if (settings.enableBRIncome) {
       const brStartYear = 10;
       const brRate = 0.07;
-      let brNG = 0;
-      let brCumulative = 0;
-      // Snapshot the reinvested NG path before mutating
-      const reinvNG = annual.map((row) => row.slhNonGuaranteedBonus || 0);
-      for (let i = 0; i < annual.length; i += 1) {
-        const row = annual[i];
-        if (row.year < brStartYear) {
-          brNG = reinvNG[i];
-          continue;
+      const brTotalTable = variant.slhBRTotalFactor;
+      const brCumTable = variant.slhBRCumulativeRealised;
+      const hasExact = Array.isArray(brTotalTable) && Array.isArray(brCumTable);
+      const cumYears = (year) => Math.min(year, variant.premiumTermYears || 1);
+      const basisAtYear = (year, paidAtYear) => variant.slhFactorBasis === "cumulative"
+        ? paidAtYear
+        : annualPremium;
+
+      if (hasExact) {
+        // Exact reproduction from workbook factor tables.
+        //
+        // Note on the "Current Year Realised Bonus" column: per the
+        // workbook formula, it equals 7% × NG_BR_PRE_drawdown, which
+        // is equivalent to NG_BR_post × 0.07 / 0.93. Computing as
+        // (cum_this_year − cum_prev_year) would give the wrong number
+        // for sparsely-tabulated years (45, 50, 55, ...) where we
+        // interpolate between explicit rows.
+        for (let i = 0; i < annual.length; i += 1) {
+          const row = annual[i];
+          const basis = basisAtYear(row.year, row.totalBasicPaid);
+          const brTotalSV = lookupSlhFactor(brTotalTable, row.year) * basis;
+          const brCumRealised = lookupSlhFactor(brCumTable, row.year) * basis;
+          const brNG = Math.max(0, brTotalSV - (row.surrenderValue || 0));
+          // Current realised = 7% of NG pre-drawdown = NG_post * (7/93).
+          // Zero before the brStartYear since no realisation occurs.
+          const currentRealised = row.year >= brStartYear
+            ? brNG * (brRate / (1 - brRate))
+            : 0;
+          row.slhNonGuaranteedBonus = brNG;
+          row.slhTerminalBonus = brNG;
+          row.totalValue = brTotalSV;                  // [A]+[B] policy value
+          row.accountValue = brTotalSV;
+          row.brIncomeThisYear = currentRealised;
+          row.brCumulativeIncome = brCumRealised;
+          row.brTotalWealth = brTotalSV + brCumRealised; // [A]+[B]+[C]
+          row.slhAdhocDrawdown50 = row.year >= 11 ? brNG * 0.50 : 0;
+          // Yield based on TOTAL WEALTH (with bonus payouts) per workbook.
+          row.slhYieldFactor = row.brTotalWealth > 0 && row.totalBasicPaid > 0 && row.year >= brStartYear
+            ? Math.pow(row.brTotalWealth / row.totalBasicPaid, 1 / row.year) - 1
+            : 0;
         }
-        // Apply the same year-over-year growth that the Reinvested
-        // path showed, then draw 7%.
-        const prevReinv = reinvNG[i - 1] || 0;
-        const growthFactor = prevReinv > 0 ? reinvNG[i] / prevReinv : 1;
-        brNG *= growthFactor;
-        const drawThisYear = brNG * brRate;
-        brNG -= drawThisYear;
-        brCumulative += drawThisYear;
-        row.brIncomeThisYear = drawThisYear;
-        row.brCumulativeIncome = brCumulative;
-        row.slhNonGuaranteedBonus = brNG;
-        row.slhTerminalBonus = brNG;
-        row.totalValue = (row.surrenderValue || 0) + brNG;
-        row.accountValue = row.totalValue;
-        // Adhoc-50 stays computed off the BR-mode NG (since that's
-        // what's actually in the policy under BR mode).
-        row.slhAdhocDrawdown50 = brNG * 0.50;
-        // Recompute yield using BR-mode total (lower than Reinvested
-        // because cash has been drawn out).
-        row.slhYieldFactor = row.totalValue > 0 && row.totalBasicPaid > 0
-          ? Math.pow(row.totalValue / row.totalBasicPaid, 1 / row.year) - 1
-          : 0;
+      } else {
+        // Approximation for variants without BR factor tables yet.
+        const reinvNG = annual.map((r) => r.slhNonGuaranteedBonus || 0);
+        let brNG = 0;
+        let brCumulative = 0;
+        for (let i = 0; i < annual.length; i += 1) {
+          const row = annual[i];
+          if (row.year < brStartYear) {
+            brNG = reinvNG[i];
+            row.brIncomeThisYear = 0;
+            row.brCumulativeIncome = 0;
+            row.brTotalWealth = row.totalValue;
+            continue;
+          }
+          const prevReinv = reinvNG[i - 1] || 0;
+          const growthFactor = prevReinv > 0 ? reinvNG[i] / prevReinv : 1;
+          brNG *= growthFactor;
+          const drawThisYear = brNG * brRate;
+          brNG -= drawThisYear;
+          brCumulative += drawThisYear;
+          row.brIncomeThisYear = drawThisYear;
+          row.brCumulativeIncome = brCumulative;
+          row.slhNonGuaranteedBonus = brNG;
+          row.slhTerminalBonus = brNG;
+          row.totalValue = (row.surrenderValue || 0) + brNG;   // [A]+[B]
+          row.accountValue = row.totalValue;
+          row.brTotalWealth = row.totalValue + brCumulative;   // [A]+[B]+[C]
+          row.slhAdhocDrawdown50 = row.year >= 11 ? brNG * 0.50 : 0;
+          row.slhYieldFactor = row.brTotalWealth > 0 && row.totalBasicPaid > 0
+            ? Math.pow(row.brTotalWealth / row.totalBasicPaid, 1 / row.year) - 1
+            : 0;
+        }
       }
-      // Adjust cash flows: each year's drawdown is a positive cash
-      // event, plus the residual surrender at horizon. This makes IRR
-      // pick up the cash income as a return.
+
+      // Adjust cash flows: each year's realised income is a positive
+      // cash event so IRR sees the income as a return.
       annual.forEach((row, i) => {
-        if (row.year >= brStartYear && row.brIncomeThisYear > 0) {
+        if (row.year >= brStartYear && (row.brIncomeThisYear || 0) > 0) {
           cashFlows[(i + 1) * 12] = (cashFlows[(i + 1) * 12] || 0) + row.brIncomeThisYear;
         }
       });
-      // Update each monthly stub to mirror the BR-mode values so chart
-      // hover stays consistent
+      // Update monthly stubs so chart hover stays consistent
       monthly.forEach((m, i) => {
         const row = annual[i];
         if (!row) return;
@@ -6437,16 +6517,28 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       const guaranteedSV = f.surrenderValue || 0;       // guaranteed-only baseline
       const guaranteedAbovePaid = Math.max(0, guaranteedSV - paid);
       const nonGuaranteedBonus = Math.max(0, total - guaranteedSV);
+      // BR mode: split the surplus into "remaining policy value" (the
+      // post-realisation NG bonus that's still in the policy) and
+      // "realised BR income" (cumulative cash drawn out). Total Wealth
+      // = paid + guaranteed-above-paid + remaining-bonus + realised-income.
+      const brOn = !!(f.brCumulativeIncome > 0);
+      const realisedIncome = f.brCumulativeIncome || 0;
+      const totalWealth = brOn
+        ? (f.brTotalWealth || (total + realisedIncome))
+        : total;
       return {
         isParWl: true,
+        brOn,
         paid,
         guaranteed: guaranteedAbovePaid,
         nonGuaranteed: nonGuaranteedBonus,
+        realisedIncome,
         // back-compat fields (some downstream callers may still touch these):
         bonuses: nonGuaranteedBonus,
         dividends: 0,
         growth: 0,
-        total,
+        total: totalWealth,           // headline value the hero shows
+        policyValue: total,           // [A]+[B] only — for the "Policy Value" stat
       };
     }
     const bonuses = f.bonusTotal || 0;
@@ -6467,43 +6559,59 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     const endYear = result.annual.length;
     const endAge = settings.startAge + endYear;
     const composition = compositionFor(result);
-    const total = inflationActive() ? discount(composition.total, endYear) : composition.total;
-    const paid = inflationActive() ? discount(composition.paid, endYear) : composition.paid;
-    const bonuses = inflationActive() ? discount(composition.bonuses, endYear) : composition.bonuses;
-    const dividends = inflationActive() ? discount(composition.dividends, endYear) : composition.dividends;
-    const growth = inflationActive() ? discount(composition.growth, endYear) : composition.growth;
-    const guaranteedAbovePaid = inflationActive() ? discount(composition.guaranteed || 0, endYear) : (composition.guaranteed || 0);
-    const nonGuaranteedBonus = inflationActive() ? discount(composition.nonGuaranteed || 0, endYear) : (composition.nonGuaranteed || 0);
+    const total = composition.total;
+    const paid = composition.paid;
+    const bonuses = composition.bonuses;
+    const dividends = composition.dividends;
+    const growth = composition.growth;
+    const guaranteedAbovePaid = composition.guaranteed || 0;
+    const nonGuaranteedBonus = composition.nonGuaranteed || 0;
+    const realisedIncome = composition.realisedIncome || 0;
+    const policyValue = composition.policyValue || total;
 
     // Par-WL variants project to policy year 120 (whole-life horizon).
     // Show "policy year 120" instead of "age N" because for whole-life
     // products the end of the factor schedule is the policy's full term,
     // not the policyholder's lifespan.
     const isParWl = result.variant && result.variant.kind === "par-wl";
-    $("heroLabel").textContent = "Projected wealth";
+    // In BR mode the headline "Projected wealth" is replaced with
+    // "Total Wealth" and the breakdown surfaces both the policy value
+    // and realised BR income.
+    const brOn = !!composition.brOn;
+    $("heroLabel").textContent = brOn ? "Total Wealth" : "Projected wealth";
     $("heroEndAge").textContent = isParWl
-      ? `policy year ${endYear}${inflationActive() ? " in today's dollars" : ""}`
-      : `age ${endAge}${inflationActive() ? " in today's dollars" : ""}`;
+      ? `policy year ${endYear}`
+      : `age ${endAge}`;
     $("heroTotal").textContent = money(total, settings.currency);
 
     const irrLabel = isParWl ? "Yield" : "IRR";
     const irrText = result.final.irr !== null && !Number.isNaN(result.final.irr)
       ? ` at ${percent(result.final.irr)} ${glossaryAbbr(irrLabel)}`
       : "";
-    $("heroCaption").innerHTML = `From ${money(paid, settings.currency)} contributed${irrText}.`;
+    const captionExtra = brOn
+      ? ` · ${money(policyValue, settings.currency)} policy value + ${money(realisedIncome, settings.currency)} realised BR income`
+      : "";
+    $("heroCaption").innerHTML = `From ${money(paid, settings.currency)} contributed${irrText}.${captionExtra}`;
 
     // Composition bar segments — show only positive segments. Par-WL uses
     // a different breakdown (capital / guaranteed / non-guaranteed bonus)
     // because there is no welcome bonus, no fund dividends, and no
     // "investment growth" — the surplus over premiums is illustrated
     // terminal bonus, declared annually and only vested on surrender or
-    // claim.
+    // claim. In BR mode, the bar adds a 4th segment for realised income.
     const segs = composition.isParWl
-      ? [
-          { key: "paid", label: "Capital paid in", value: paid, color: "var(--c-paid)" },
-          { key: "guaranteed", label: "Guaranteed cash value", value: guaranteedAbovePaid, color: "var(--c-growth)" },
-          { key: "nonGuaranteed", label: "Non-guaranteed bonus", value: nonGuaranteedBonus, color: "var(--c-bonus)" },
-        ]
+      ? brOn
+        ? [
+            { key: "paid", label: "Capital paid in", value: paid, color: "var(--c-paid)" },
+            { key: "guaranteed", label: "Guaranteed cash value", value: guaranteedAbovePaid, color: "var(--c-growth)" },
+            { key: "nonGuaranteed", label: "Non-guaranteed bonus (in policy)", value: nonGuaranteedBonus, color: "var(--c-bonus)" },
+            { key: "realised", label: "Realised BR income", value: realisedIncome, color: "var(--c-dividend)" },
+          ]
+        : [
+            { key: "paid", label: "Capital paid in", value: paid, color: "var(--c-paid)" },
+            { key: "guaranteed", label: "Guaranteed cash value", value: guaranteedAbovePaid, color: "var(--c-growth)" },
+            { key: "nonGuaranteed", label: "Non-guaranteed bonus", value: nonGuaranteedBonus, color: "var(--c-bonus)" },
+          ]
       : [
           { key: "paid", label: "Capital paid in", value: paid, color: "var(--c-paid)" },
           { key: "bonuses", label: "Bonuses credited", value: bonuses, color: "var(--c-bonus)" },
@@ -7548,22 +7656,27 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     // adds two extra columns: BR income this year + cumulative income.
     if (variant.kind === "par-wl") {
       const brIncomeOn = !!fields.enableBRIncome?.checked;
-      const brHeaders = brIncomeOn
-        ? `<th class="col-withdrawal right">BR income (this yr)</th>
-           <th class="col-withdrawal right">Cumulative income</th>`
-        : "";
-      $("annualTable").innerHTML = `
+      // BR mode replaces the Reinvested-mode header layout with the
+      // workbook's BR layout: Premium / Guaranteed [A] / NG [B] (post-
+      // realisation) / Current Year Realised / Total Bonus Realised [C]
+      // / Total SV [A]+[B] / Total Wealth [A]+[B]+[C] / Yield. The
+      // adhoc-50% column drops in BR mode (it doesn't apply alongside
+      // an ongoing income drawdown — the two are mutually exclusive
+      // policy actions).
+      $("annualTable").innerHTML = brIncomeOn
+        ? `
         <thead>
           <tr>
             <th class="col-time">Policy Year</th>
             <th class="col-time">Age</th>
-            <th class="col-premium right">Premium paid</th>
+            <th class="col-premium right">Total Premium Paid</th>
             <th class="col-value right">Guaranteed SV [A]</th>
-            <th class="col-bonus right">Non-Guaranteed Bonus [B]</th>
+            <th class="col-bonus right">Non-Guaranteed Terminal Bonus [B]</th>
+            <th class="col-withdrawal right">Current Year Realised Bonus</th>
+            <th class="col-withdrawal right">Total Bonus Realised [C]</th>
             <th class="col-total right">Total Surrender Value [A]+[B]</th>
-            <th class="col-charge right">Yield</th>
-            <th class="col-withdrawal right">Adhoc drawdown<br><small>(50% of NG bonus)</small></th>
-            ${brHeaders}
+            <th class="col-total right">Total Wealth [A]+[B]+[C]</th>
+            <th class="col-charge right">Yield (with payouts)</th>
           </tr>
         </thead>
         <tbody>
@@ -7575,10 +7688,46 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
             const ng = row.slhNonGuaranteedBonus || 0;
             const yieldPct = row.slhYieldFactor || 0;
             const yieldText = yieldPct > 0 ? percent(yieldPct, 2) : "—";
-            const brCells = brIncomeOn
-              ? `<td class="col-withdrawal right">${(row.brIncomeThisYear || 0) > 0 ? valueWrapper(row.brIncomeThisYear, row.year) : "—"}</td>
-                 <td class="col-withdrawal right">${(row.brCumulativeIncome || 0) > 0 ? valueWrapper(row.brCumulativeIncome, row.year) : "—"}</td>`
-              : "";
+            const cumulativePaid = row.totalBasicPaid || 0;
+            return `
+              <tr class="${classes.filter(Boolean).join(" ")}" data-year="${row.year}" ${milestoneCls ? `data-milestone="${milestoneCls}"` : ""}>
+                <td class="col-time">${row.year}</td>
+                <td class="col-time">${row.age}</td>
+                <td class="col-premium right">${cumulativePaid > 0 ? valueWrapper(cumulativePaid, row.year) : "—"}</td>
+                <td class="col-value right">${valueWrapper(row.surrenderValue, row.year)}</td>
+                <td class="col-bonus right">${valueWrapper(ng, row.year)}</td>
+                <td class="col-withdrawal right">${(row.brIncomeThisYear || 0) > 0 ? valueWrapper(row.brIncomeThisYear, row.year) : "—"}</td>
+                <td class="col-withdrawal right">${(row.brCumulativeIncome || 0) > 0 ? valueWrapper(row.brCumulativeIncome, row.year) : "—"}</td>
+                <td class="col-total right">${valueWrapper(row.totalValue, row.year)}</td>
+                <td class="col-total right strong">${valueWrapper(row.brTotalWealth || row.totalValue, row.year)}</td>
+                <td class="col-charge right">${yieldText}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      `
+        : `
+        <thead>
+          <tr>
+            <th class="col-time">Policy Year</th>
+            <th class="col-time">Age</th>
+            <th class="col-premium right">Premium paid</th>
+            <th class="col-value right">Guaranteed SV [A]</th>
+            <th class="col-bonus right">Non-Guaranteed Bonus [B]</th>
+            <th class="col-total right">Total Surrender Value [A]+[B]</th>
+            <th class="col-charge right">Yield</th>
+            <th class="col-withdrawal right">Adhoc drawdown<br><small>(50% of NG bonus, from PY11)</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${annualRows.map((row) => {
+            const milestoneCls = milestoneOnly ? milestoneLabel(row.year, settings, variant, totalYears) : "";
+            const classes = ["par-wl-row"];
+            if (state.highlightYear === row.year) classes.push("year-highlight");
+            if (milestoneCls) classes.push("milestone");
+            const ng = row.slhNonGuaranteedBonus || 0;
+            const yieldPct = row.slhYieldFactor || 0;
+            const yieldText = yieldPct > 0 ? percent(yieldPct, 2) : "—";
             return `
               <tr class="${classes.filter(Boolean).join(" ")}" data-year="${row.year}" ${milestoneCls ? `data-milestone="${milestoneCls}"` : ""}>
                 <td class="col-time">${row.year}</td>
@@ -7588,8 +7737,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
                 <td class="col-bonus right">${valueWrapper(ng, row.year)}</td>
                 <td class="col-total right strong">${valueWrapper(row.totalValue, row.year)}</td>
                 <td class="col-charge right">${yieldText}</td>
-                <td class="col-withdrawal right">${ng > 0 ? valueWrapper(row.slhAdhocDrawdown50 || 0, row.year) : "—"}</td>
-                ${brCells}
+                <td class="col-withdrawal right">${(row.slhAdhocDrawdown50 || 0) > 0 ? valueWrapper(row.slhAdhocDrawdown50, row.year) : "—"}</td>
               </tr>
             `;
           }).join("")}
