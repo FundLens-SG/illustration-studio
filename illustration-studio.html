@@ -3520,10 +3520,24 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     // Each variant carries:
     //   slhFactorTable      → total surrender value factor by policy
     //                          year (Reinvested mode at 7.50% p.a.
-    //                          illustrated bonus rate). Multiplier on
-    //                          the user's premium (single for SP,
-    //                          annual for 3-Pay / 5-Pay).
-    //   slhGuaranteedTable  → guaranteed-only surrender factor.
+    //                          illustrated bonus rate). Multiplied by
+    //                          the basis below to produce dollar
+    //                          values.
+    //   slhGuaranteedTable  → guaranteed-only surrender factor (same
+    //                          basis as slhFactorTable).
+    //   slhFactorBasis      → "annual" or "cumulative". The workbook
+    //                          uses different normalisations across
+    //                          variants: SP and 5-Pay express factors
+    //                          relative to a single annual premium
+    //                          (annual basis), while 3-Pay's columns
+    //                          express factors relative to cumulative
+    //                          premium paid up to that year (cumulative
+    //                          basis). Defaults to "annual".
+    // Sanity-check anchors per variant — the row where total factor
+    // first crosses "breakeven on paid premiums":
+    //   SP    : year 14, factor ≈ 1.0  × $100K = $100K = paid
+    //   3-Pay : year 6,  factor ≈ 1.0  × cumulative $100,200 = paid
+    //   5-Pay : year 8,  factor ≈ 5.0  × $33,400 (annual) = 5×ann = paid
     // The Non-Guaranteed Bonus column the workbook displays is just
     // (slhFactorTable - slhGuaranteedTable). Adhoc 10%/50% drawdowns
     // are computed from the NG bonus per year. There is no recurring
@@ -3548,6 +3562,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       surrenderCharge: {},
       partialCharge: {},
       shortfallCharge: {},
+      slhFactorBasis: "annual",   // factor × annual premium = $ value
       // Total Surrender Value factor (Reinvested mode, 7.50% BR).
       // Source: Percent_of_Premium (Reinvested) sheet, column G
       // (= Guaranteed col D + Non-Guaranteed Terminal Bonus col F).
@@ -3602,6 +3617,12 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       surrenderCharge: {},
       partialCharge: {},
       shortfallCharge: {},
+      // Workbook column E in the 3-Pay tab is normalised against the
+      // cumulative premium paid (not against a single annual premium
+      // like SP or 5-Pay). At year 6 the total factor is 1.000709 →
+      // 1.0 × cumulative paid = breakeven, which matches the user's
+      // reference value. So 3-Pay uses the cumulative basis.
+      slhFactorBasis: "cumulative",
       // Source: 3 Pay_Factor sheet, column E (Total Factor [A]+[C]).
       slhFactorTable: [
         [1, 0.2], [2, 0.291995], [3, 0.302498], [4, 0.559167], [5, 0.815836],
@@ -3650,6 +3671,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       surrenderCharge: {},
       partialCharge: {},
       shortfallCharge: {},
+      slhFactorBasis: "annual",   // factor 5.0 = 5×annual = paid → year 8 breakeven
       // Source: 5-pay Factor_Table sheet, column D
       // (Total_AplusBplusC_factor — Reinvested mode at 7.50% BR).
       slhFactorTable: [
@@ -3893,18 +3915,26 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         cashFlows[monthIndex] -= premiumThisYear;
       }
 
-      // Lookup factors (per-annual-premium for 3/5-pay, per-single-premium
-      // for SP — same formula either way since `annualPremium` IS the
-      // premium that's multiplied by the factor in both cases). The
-      // workbook's Reinvested mode keeps everything inside the policy:
-      // there's no recurring cash drawdown unless the user opts in
-      // (separate feature). Instead, the surface a row at year N gives
-      // the policyholder the option to surrender or take an adhoc
-      // drawdown at that point — both computed from the NG bonus.
+      // Lookup factors. The basis depends on the variant's workbook
+      // column convention:
+      //   • "annual"     — factor × annualPremium gives $ value.
+      //                    SP and 5-Pay use this (factor 1.0 means
+      //                    "1 annual premium worth of value").
+      //   • "cumulative" — factor × cumulative premium paid up to year.
+      //                    3-Pay uses this (factor 1.0 means "value =
+      //                    total premiums paid to date" = breakeven).
+      // The workbook's Reinvested mode keeps everything inside the
+      // policy: there's no recurring cash drawdown unless the user
+      // opts in (separate feature). Each row gives the policyholder
+      // the option to surrender or take an adhoc drawdown at that
+      // point — both computed from the NG bonus.
       const surrenderFactor = lookupSlhFactor(variant.slhFactorTable, year);
       const guaranteedFactor = lookupSlhFactor(variant.slhGuaranteedTable, year);
-      const surrenderValue = surrenderFactor * annualPremium;
-      const guaranteedValue = guaranteedFactor * annualPremium;
+      const factorBasis = variant.slhFactorBasis === "cumulative"
+        ? totalBasicPaid                 // includes the premium just paid this year
+        : annualPremium;
+      const surrenderValue = surrenderFactor * factorBasis;
+      const guaranteedValue = guaranteedFactor * factorBasis;
       const nonGuaranteedBonus = Math.max(0, surrenderValue - guaranteedValue);
       const totalValue = surrenderValue;        // Reinvested → everything stays in the policy
       cumulativeBonus = nonGuaranteedBonus;
