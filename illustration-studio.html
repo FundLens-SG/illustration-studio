@@ -2917,13 +2917,21 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         </article>
       </section>
 
-      <section class="benefit-highlight" aria-label="Legacy protection benefit">
+      <section id="legacyProtectionBanner" class="benefit-highlight" aria-label="Legacy protection benefit">
         <div>
           <p class="eyebrow">Legacy Protection</p>
           <h2>Death and Terminal Illness Benefit</h2>
         </div>
         <strong>101% Capital Protected</strong>
         <p>A clear protection floor for clients and beneficiaries alongside the investment strategy.</p>
+      </section>
+      <section id="parWlProtectionBanner" class="benefit-highlight par-wl-banner" aria-label="Par-WL legacy protection" hidden>
+        <div>
+          <p class="eyebrow">Legacy Protection</p>
+          <h2>Death and Terminal Illness Benefit</h2>
+        </div>
+        <strong>Higher of premiums paid or total surrender value</strong>
+        <p>Total surrender value [A]+[B] vests on death or surrender — providing legacy continuity for beneficiaries.</p>
       </section>
 
       <section class="chart-grid" aria-label="Charts">
@@ -5293,6 +5301,15 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
 
     const parWlInfo = document.getElementById("parWlInfo");
     if (parWlInfo) parWlInfo.hidden = !mainIsParWl;
+
+    // Swap the legacy-protection banner so it doesn't say "alongside the
+    // investment strategy" for par-WL. The par-WL banner instead frames
+    // the death benefit as max(premiums, total SV) — which is what the
+    // simulator models.
+    const legacyBanner = document.getElementById("legacyProtectionBanner");
+    const parWlBanner = document.getElementById("parWlProtectionBanner");
+    if (legacyBanner) legacyBanner.hidden = mainIsParWl;
+    if (parWlBanner) parWlBanner.hidden = !mainIsParWl;
   }
 
   function syncPaymentOptions() {
@@ -5798,9 +5815,60 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     `;
   }
 
+  // Compute par-WL milestones: the year at which the policy first crosses
+  // an interesting threshold. The user's framing in the spec is:
+  //   • Breakeven (G + non-G) — first year totalSV ≥ premiums paid
+  //   • Official breakeven (G) — first year guaranteed SV ≥ premiums paid
+  //   • Capital × N — first year totalSV ≥ N × premiums paid
+  // All thresholds use cumulative basic premium paid at that year (so
+  // for 3-Pay / 5-Pay the threshold itself rises until the premium term
+  // ends).
+  function parWlMilestones(result) {
+    const annual = result.annual || [];
+    const findFirst = (predicate) => {
+      const row = annual.find(predicate);
+      return row ? row.year : null;
+    };
+    const breakevenTotal = findFirst((r) => (r.totalValue || 0) >= (r.totalBasicPaid || 0) && (r.totalBasicPaid || 0) > 0);
+    const breakevenGuaranteed = findFirst((r) => (r.surrenderValue || 0) >= (r.totalBasicPaid || 0) && (r.totalBasicPaid || 0) > 0);
+    const findMultiple = (mult) => findFirst((r) => (r.totalBasicPaid || 0) > 0 && (r.totalValue || 0) >= mult * (r.totalBasicPaid || 0));
+    return {
+      breakevenTotal,
+      breakevenGuaranteed,
+      multiple2: findMultiple(2),
+      multiple4: findMultiple(4),
+      multiple8: findMultiple(8),
+    };
+  }
+
   function renderAssumptions(result) {
     const variant = result.variant;
     const settings = currentSettings();
+
+    // Par-WL doesn't have MIP / Admin / Policy fee / Welcome bonus /
+    // Annual Premium Bonus / Loyalty Bonus — these are all ILP-specific
+    // concepts. Replace the row with par-WL milestones the advisor cares
+    // about: breakeven (guaranteed-only and total) plus capital-multiple
+    // crossings (2× / 4× / 8×).
+    if (variant.kind === "par-wl") {
+      const m = parWlMilestones(result);
+      const startAge = Number(settings.startAge) || 36;
+      const fmtYear = (y) => y === null
+        ? '<span class="muted">Not reached</span>'
+        : `Year ${y} <small class="muted">· age ${startAge + y}</small>`;
+      $("assumptions").innerHTML = `
+        <strong>${variant.label}</strong>
+        <dl>
+          <div><dt>Breakeven (Total SV)</dt><dd>${fmtYear(m.breakevenTotal)}</dd></div>
+          <div><dt>Official breakeven (Guaranteed)</dt><dd>${fmtYear(m.breakevenGuaranteed)}</dd></div>
+          <div><dt>Capital × 2</dt><dd>${fmtYear(m.multiple2)}</dd></div>
+          <div><dt>Capital × 4</dt><dd>${fmtYear(m.multiple4)}</dd></div>
+          <div><dt>Capital × 8</dt><dd>${fmtYear(m.multiple8)}</dd></div>
+        </dl>
+      `;
+      return;
+    }
+
     const welcome = model.welcomeRate(variant, settings.annualizedPremium);
     const policyFee = model.policyFeeMonthly(variant, settings.annualizedPremium);
     // No fee applies when premium is at/above the band's max — say "N/A"
@@ -5949,17 +6017,53 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
 
     let primary = null;
     let secondary = null;
+    // Horizon for inflation-discount math. Defaults to the main variant's
+    // full projection length, but is overridden below if we're anchoring
+    // a par-WL vs ILP compare at the shared (shorter) horizon.
+    let comparisonHorizonYear = results.custom.annual.length;
 
     if (results.customCompare) {
+      const mainAnnual = results.custom.annual;
+      const compareAnnual = results.customCompare.annual;
+      const mainIsParWl = results.custom.variant.kind === "par-wl";
+      const compareIsParWl = results.customCompare.variant.kind === "par-wl";
+      const horizonMismatch = mainIsParWl !== compareIsParWl;
+
+      // Par-WL projects to PY120 (~age 156 from start age 36); ILP caps
+      // around age 99. Comparing the par-WL year-120 number against the
+      // ILP year-37 number is misleading — anchor both sides at the
+      // shorter horizon and surface the age explicitly so the advisor
+      // doesn't read past-99 SLH growth as if it competed with IR.
+      const sharedYear = horizonMismatch
+        ? Math.min(mainAnnual.length, compareAnnual.length)
+        : null;
+      const mainEndIdx = sharedYear ? sharedYear - 1 : mainAnnual.length - 1;
+      const compareEndIdx = sharedYear ? sharedYear - 1 : compareAnnual.length - 1;
+      const mainAtHorizon = mainAnnual[mainEndIdx] || results.custom.final;
+      const compareAtHorizon = compareAnnual[compareEndIdx] || results.customCompare.final;
+      const sharedAge = (Number(settings.startAge) || 36) + (sharedYear || mainAnnual.length);
+      const ageNote = horizonMismatch ? ` · at age ${sharedAge}` : "";
+
+      const mainPaid = (mainAtHorizon.totalBasicPaid || 0) + (mainAtHorizon.totalTopUps || 0);
+      const comparePaid = (compareAtHorizon.totalBasicPaid || 0) + (compareAtHorizon.totalTopUps || 0);
+      const mainIrrText = horizonMismatch || !Number.isFinite(results.custom.final.irr)
+        ? ""
+        : ` · ${percent(results.custom.final.irr)} ${mainIsParWl ? "Yield" : "IRR"}`;
+      const compareIrrText = horizonMismatch || !Number.isFinite(results.customCompare.final.irr)
+        ? ""
+        : ` · ${percent(results.customCompare.final.irr)} ${compareIsParWl ? "Yield" : "IRR"}`;
+
+      if (sharedYear) comparisonHorizonYear = sharedYear;
+
       primary = {
         label: results.custom.variant.label,
-        value: results.custom.final.totalValue,
-        detail: `From ${money(results.custom.final.totalBasicPaid + results.custom.final.totalTopUps, settings.currency)} paid · ${percent(results.custom.final.irr)} IRR`,
+        value: mainAtHorizon.totalValue,
+        detail: `From ${money(mainPaid, settings.currency)} paid${ageNote}${mainIrrText}`,
       };
       secondary = {
         label: results.customCompare.variant.label,
-        value: results.customCompare.final.totalValue,
-        detail: `From ${money(results.customCompare.final.totalBasicPaid + results.customCompare.final.totalTopUps, settings.currency)} paid · ${percent(results.customCompare.final.irr)} IRR`,
+        value: compareAtHorizon.totalValue,
+        detail: `From ${money(comparePaid, settings.currency)} paid${ageNote}${compareIrrText}`,
       };
     } else if (results.fixedDeposit) {
       primary = {
@@ -5991,7 +6095,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     }
     hero.hidden = false;
 
-    const endYear = results.custom.annual.length;
+    const endYear = comparisonHorizonYear;
     const primaryValue = inflationActive() ? discount(primary.value, endYear) : primary.value;
     const secondaryValue = inflationActive() ? discount(secondary.value, endYear) : secondary.value;
     const delta = primaryValue - secondaryValue;
