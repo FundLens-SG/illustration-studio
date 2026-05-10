@@ -520,6 +520,19 @@ input.invalid-input {
   background: var(--red-soft);
 }
 
+.field-hint {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.field-hint strong {
+  color: var(--ink-1, #1a1d22);
+  font-weight: 700;
+}
+
 .field-status {
   color: var(--red);
   font-size: 10px;
@@ -2983,6 +2996,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
             <label>
               Annualised basic premium
               <input id="annualizedPremium" type="number" min="0" step="100" value="100000" />
+              <small id="premiumCommitmentHint" class="field-hint" hidden></small>
             </label>
             <label>
               Age last birthday
@@ -6037,6 +6051,36 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     const parWlBanner = document.getElementById("parWlProtectionBanner");
     if (legacyBanner) legacyBanner.hidden = mainIsParWl;
     if (parWlBanner) parWlBanner.hidden = !mainIsParWl;
+
+    updatePremiumCommitmentHint();
+  }
+
+  // Show "Total premium committed: $X over Y years" beneath the
+  // annualised-premium input. Most useful for 3-Pay / 5-Pay where the
+  // total commitment is 3× or 5× the displayed annual figure — the
+  // PI documents show values for specific premiums, and confusing the
+  // PI's annual ($33,400 / $20,000) with the user's input ($100K) was
+  // tripping up advisors. The hint anchors the displayed total to the
+  // amount the customer actually pays out across the premium term.
+  function updatePremiumCommitmentHint() {
+    const hint = document.getElementById("premiumCommitmentHint");
+    if (!hint) return;
+    const variant = model.VARIANTS[fields.variantKey?.value];
+    if (!variant) { hint.hidden = true; return; }
+    const annual = Number(fields.annualizedPremium?.value) || 0;
+    const term = variant.premiumTermYears
+      || variant.shortfallYears
+      || (variant.kind === "par-wl" ? 1 : 0);
+    if (annual <= 0 || !term) { hint.hidden = true; return; }
+    const total = annual * term;
+    const settings = currentSettings();
+    const sym = settings.currency === "USD" ? "US$" : "S$";
+    if (term === 1) {
+      hint.innerHTML = `${variant.kind === "par-wl" ? "Single premium" : "Premium term: 1 year"} — total commitment <strong>${sym}${total.toLocaleString()}</strong>.`;
+    } else {
+      hint.innerHTML = `Premium term: ${term} years — total commitment <strong>${sym}${total.toLocaleString()}</strong> (= ${sym}${annual.toLocaleString()} × ${term}).`;
+    }
+    hint.hidden = false;
   }
 
   function syncPaymentOptions() {
@@ -8390,6 +8434,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       recalc();
     });
     fields.annualizedPremium.addEventListener("input", () => {
+      updatePremiumCommitmentHint();
       if (!enforcePremiumMinimum(false)) {
         updatePremiumNote();
         renderMinimumPremiumWarning();
