@@ -3948,17 +3948,19 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         [31, 5.0665], [32, 5.06885], [33, 5.08125], [34, 5.09365], [35, 5.10605],
         [36, 5.11845], [37, 5.13085], [38, 5.14325], [39, 5.15565], [40, 5.168],
         [45, 5.2221], [50, 5.27605], [55, 5.32995], [60, 5.3839], [65, 5.43785],
-        [70, 5.47875], [80, 5.56145], [90, 5.64545], [100, 5.7307],
+        [70, 5.47875], [75, 5.51995], [80, 5.56145], [90, 5.64545], [100, 5.7307],
         [110, 5.81725], [120, 5.9051],
       ],
-      // 5-Pay Bonus Realisation factor table — workbook-exact values.
-      // Source: 7% Bonus Realisation (Payout) from Policy Year 10
-      // onwards sheet for 5-Pay at age 41 / annual $20K. Multiplied by
-      // annual premium (per slhFactorBasis="annual"):
+      // 5-Pay Bonus Realisation factor table — Manulife PI PDF exact
+      // values (5 pay.pdf, page 13–14, "Supplementary Illustration -
+      // Bonus Realisation" 7%/yr from PY10, illustrated at 7.50% IIR).
+      // Multiplied by annual premium (per slhFactorBasis="annual"):
       //   value = factor × annual_premium
       // Years 1–9 mirror the Reinvested total factor since BR drawdown
       // hasn't started; year 10 is when BR diverges (factor 5.90545 vs
-      // Reinvested 6.0678).
+      // Reinvested 6.0678). Y75 (factor 13.3781) added from PDF
+      // explicitly because the workbook screenshot skipped that row,
+      // and linear interp Y70→Y80 gave $267,617 vs PDF $267,562.
       slhBRTotalFactor: [
         [1, 0.2], [2, 0.584], [3, 0.9075], [4, 1.32705], [5, 1.8345],
         [6, 2.6995], [7, 3.83735], [8, 5.00025], [9, 5.5197],
@@ -3969,9 +3971,14 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         [31, 10.60935], [32, 10.66605], [33, 10.73035], [34, 10.7948], [35, 10.85935],
         [36, 10.92405], [37, 10.98885], [38, 11.0516], [39, 11.11445], [40, 11.1773],
         [45, 11.4889], [50, 11.79965], [55, 12.11575], [60, 12.4372], [65, 12.76435],
-        [70, 13.0702], [80, 13.6915], [90, 14.335], [100, 14.9995],
+        [70, 13.0702], [75, 13.3781], [80, 13.6915], [90, 14.335], [100, 14.9995],
         [110, 15.19275], [120, 15.3885],
       ],
+      // Cumulative Bonus Realised factor — PDF-summed cumulative (sums
+      // each year displayed in the PDF: every year 10–40, then Y45,
+      // 50, 55, 60, 65, 70, 75, 80, 90, 100, 110, 120). At anchor rows
+      // this matches what an advisor reads off the PDF; in-between
+      // years are linearly interpolated.
       slhBRCumulativeRealised: [
         [1, 0], [2, 0], [3, 0], [4, 0], [5, 0],
         [6, 0], [7, 0], [8, 0], [9, 0],
@@ -3982,8 +3989,8 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         [31, 6.5914], [32, 7.0127], [33, 7.4379], [34, 7.867], [35, 8.30005],
         [36, 8.73705], [37, 9.17795], [38, 9.62265], [39, 10.07115], [40, 10.52345],
         [45, 10.99515], [50, 11.48615], [55, 11.9969], [60, 12.5278], [65, 13.07925],
-        [70, 13.65065], [80, 14.2626], [90, 14.91665], [100, 15.6143],
-        [110, 16.32], [120, 17.0338],
+        [70, 13.65065], [75, 14.2421], [80, 14.85405], [90, 15.5081], [100, 16.20575],
+        [110, 16.91145], [120, 17.62525],
       ],
     },
   };
