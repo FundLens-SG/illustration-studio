@@ -642,7 +642,11 @@ button:hover {
   background: var(--navy);
 }
 
-/* `#copyShareLink.copied` rule removed — share-link button is hidden. */
+.scenario-actions .btn.copied {
+  background: rgba(214, 168, 122, 0.28);
+  border-color: var(--gold);
+  color: #fff;
+}
 
 .advisor-settings,
 .benchmark-settings {
@@ -660,6 +664,103 @@ button:hover {
 .compact-toggle {
   max-width: none;
   align-self: end;
+}
+
+.goal-seek-panel .caption-note {
+  width: 100%;
+  margin: 0 0 6px 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.goal-seek-panel button#goalSeekRun {
+  align-self: end;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--brass, #d6a87a);
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.goal-seek-panel button#goalSeekRun:hover {
+  background: var(--brass-deep, #c0925f);
+}
+
+.goal-seek-result {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: #faf6ed;
+  border: 1px solid #e2dccc;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.goal-seek-result.error {
+  background: var(--amber-soft, #fef5e7);
+  border-color: var(--amber, #d6a050);
+  color: #6e4a13;
+}
+
+.goal-seek-result strong {
+  color: #1a1d22;
+  font-family: "Geist Mono", "SFMono-Regular", "Roboto Mono", Consolas, monospace;
+  font-size: 16px;
+}
+
+.goal-seek-result .goal-seek-meta {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+}
+
+.goal-seek-result .goal-seek-apply {
+  margin-left: 12px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #1a3357;
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.goal-seek-result .goal-seek-apply:hover {
+  background: #234375;
+}
+
+/* ===== GLOSSARY TOOLTIPS =====
+   Hover any term marked with .glossary-term to see a 1-sentence
+   plain-English definition. Uses the native <abbr title> so the
+   tooltip is OS-rendered (no JS needed) and accessible by default.
+   The dotted underline is the visual affordance. */
+.glossary-term {
+  border-bottom: 1px dotted rgba(60, 50, 30, 0.55);
+  cursor: help;
+  text-decoration: none;
+}
+.glossary-term:hover {
+  border-bottom-color: var(--brass, #d6a87a);
+  color: var(--brass-deep, #c0925f);
+}
+/* When abbr appears in dark / on-navy contexts, lighten the underline. */
+.par-wl-banner .glossary-term,
+.benefit-highlight .glossary-term {
+  border-bottom-color: rgba(255, 255, 255, 0.55);
+  color: inherit;
+}
+.par-wl-banner .glossary-term:hover,
+.benefit-highlight .glossary-term:hover {
+  border-bottom-color: var(--gold, #d6a87a);
 }
 
 .caption-note {
@@ -2786,6 +2887,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
             <button type="button" data-open-action="disk">Open HTML from disk…</button>
           </div>
         </details>
+        <button id="shareLinkBtn" class="btn" type="button" title="Copy a URL that re-opens this exact scenario">Share link</button>
         <button id="startPresentation" class="btn btn-primary" type="button">Presentation mode</button>
         <!-- Print PDF: opens a fresh window with the canonical 6-page
              paper deck (Executive Summary · Value Mechanics · Chart ·
@@ -2872,6 +2974,10 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
                  settings sub-panel keep evaluating the gate cleanly. -->
             <input id="showAdvisorDetails" type="checkbox" hidden tabindex="-1" aria-hidden="true" />
           </div>
+          <div class="toggle-group">
+            <span class="toggle-group-label">Tools</span>
+            <label class="toggle"><input id="enableGoalSeek" type="checkbox" /> Goal-seek</label>
+          </div>
         </div>
 
         <div id="inflationSettings" class="benchmark-settings" hidden>
@@ -2911,6 +3017,20 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
             <input id="compareAnnualizedPremium" type="number" min="0" step="100" value="100000" />
           </label>
           <button id="copyMainStrategy" type="button">Copy selected strategy</button>
+        </div>
+
+        <div id="goalSeekSettings" class="benchmark-settings goal-seek-panel" hidden>
+          <p class="caption-note">Back-solve the <strong>annual basic premium</strong> needed to hit a target value at a given age, using the currently selected variant + strategy. For SLH (par-WL) the math is closed-form (factor table). For IR / IRG (ILP) the simulator is linearly scaled against your current strategy &amp; yield assumptions.</p>
+          <label>
+            Target value
+            <input id="goalSeekTarget" type="number" min="0" step="1000" placeholder="e.g. 5000000" />
+          </label>
+          <label>
+            At age
+            <input id="goalSeekAtAge" type="number" min="1" max="160" step="1" value="99" />
+          </label>
+          <button id="goalSeekRun" type="button">Solve premium</button>
+          <div id="goalSeekResult" class="goal-seek-result" hidden></div>
         </div>
 
         <!-- Action row moved to the sticky scenario-actions strip in the
@@ -2976,7 +3096,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       <section id="parWlProtectionBanner" class="benefit-highlight par-wl-banner" aria-label="Par-WL legacy protection" hidden>
         <div>
           <p class="eyebrow">Legacy Protection</p>
-          <h2>Death and Terminal Illness Benefit</h2>
+          <h2><abbr class="glossary-term" title="Lump sum payable on death or terminal illness. For SLH: higher of premiums paid or total surrender value.">Death and Terminal Illness Benefit</abbr></h2>
         </div>
         <strong>Higher of premiums paid or total surrender value</strong>
         <p>Total surrender value [A]+[B] vests on death or surrender — providing legacy continuity for beneficiaries.</p>
@@ -3107,13 +3227,13 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
           </div>
         </div>
         <p>
-          SLH (Signature Legacy Harvest) is a participating whole-life policy underwritten by Manulife (Singapore) Pte. Ltd.. This illustration projects to policy year 120 using the insurer's <strong>Reinvested</strong> bonus schedule — non-guaranteed terminal bonus stays inside the policy and compounds the surrender value. Adhoc 10% / 50% drawdown columns in the table are <em>informational</em>: they show how much cash a policyholder could pull from the accumulated non-guaranteed bonus at that policy year.
+          SLH (Signature Legacy Harvest) is a <abbr class="glossary-term" title="A whole-life policy where premiums are pooled in the insurer's Participating Fund. Policyholders share in the fund's surplus via annual bonus declarations, but bear investment / insurance / expense risk.">participating whole-life policy</abbr> underwritten by Manulife (Singapore) Pte. Ltd.. This illustration projects to policy year 120 using the insurer's <strong>Reinvested</strong> bonus schedule — non-guaranteed <abbr class="glossary-term" title="Bonus declared annually but only crystallised on surrender or claim. The single largest component of an SLH year-120 value.">terminal bonus</abbr> stays inside the policy and compounds the surrender value. <abbr class="glossary-term" title="A one-off cash withdrawal computed from the accumulated non-guaranteed bonus. Reduces future bonus accrual proportionally.">Adhoc 10% / 50% drawdown</abbr> columns in the table are <em>informational</em>: they show how much cash a policyholder could pull from the accumulated non-guaranteed bonus at that policy year.
         </p>
         <p>
           Bonuses, dividends, and the surrender values shown are <strong>not guaranteed</strong> until declared. The guaranteed surrender benefit may be less than total premiums paid, particularly in the early policy years.
         </p>
         <p class="par-wl-info-strong">
-          Key risks of a participating plan — your premiums are pooled with other policyholders' and invested in Manulife's Participating Fund. As a policyholder you share in the fund's <strong>investment risk</strong> (lower-than-expected returns), <strong>insurance risk</strong> (higher-than-expected claims), and <strong>expense risk</strong> (higher-than-expected fund management costs). Any of these can reduce the bonuses or dividends you receive.
+          Key risks of a participating plan — your premiums are pooled with other policyholders' and invested in Manulife's <abbr class="glossary-term" title="The insurer's pooled investment fund whose surplus is shared with par-WL policyholders via annual bonus declarations.">Participating Fund</abbr>. As a policyholder you share in the fund's <strong>investment risk</strong> (lower-than-expected returns), <strong>insurance risk</strong> (higher-than-expected claims), and <strong>expense risk</strong> (higher-than-expected fund management costs). Any of these can reduce the bonuses or dividends you receive.
         </p>
         <p class="par-wl-info-fx" id="parWlFxNote">
           USD values are converted to SGD at the live exchange rate when comparing with SGD-denominated InvestReady plans.
@@ -3122,7 +3242,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
           For the official figures and complete terms, refer to the Manulife Policy Illustration, Product Summary, and Bundled Product Disclosure Document. In any discrepancy, those documents prevail over this advisor working tool.
         </p>
         <p class="par-wl-info-rate">
-          <strong>Illustrated at 7.50% p.a.</strong> — the higher of two Illustrated Investment Rates of Return on the official Policy Illustration. The lower rate (5.25% p.a.) and the actual realised bonus rate may differ materially from this projection.
+          <strong>Illustrated at 7.50% p.a. <abbr class="glossary-term" title="Bonus Realisation rate — the rate at which the participating fund's surplus is illustrated as policy bonuses each year. SLH uses the higher illustrated rate (7.50%).">BR</abbr></strong> — the higher of two Illustrated Investment Rates of Return on the official Policy Illustration. The lower rate (5.25% p.a.) and the actual realised bonus rate may differ materially from this projection.
         </p>
       </section>
 
@@ -4428,6 +4548,153 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
   // Source: ^SPX daily close, full years 1951–2025.
   const SP500_ANNUAL_RETURNS = {1951:0.164625,1952:0.117796,1953:-0.06624,1954:0.450222,1955:0.264036,1956:0.026165,1957:-0.143133,1958:0.380595,1959:0.084767,1960:-0.029721,1961:0.231285,1962:-0.118099,1963:0.188906,1964:0.129699,1965:0.090619,1966:-0.13091,1967:0.200921,1968:0.076604,1969:-0.113614,1970:0.000978,1971:0.107868,1972:0.156333,1973:-0.173655,1974:-0.297181,1975:0.31549,1976:0.191485,1977:-0.11502,1978:0.01062,1979:0.123088,1980:0.257736,1981:-0.097304,1982:0.147613,1983:0.17271,1984:0.014006,1985:0.263334,1986:0.146204,1987:0.020275,1988:0.124008,1989:0.272505,1990:-0.065591,1991:0.263067,1992:0.044643,1993:0.070552,1994:-0.015393,1995:0.341107,1996:0.202637,1997:0.310082,1998:0.266686,1999:0.19526,2000:-0.101392,2001:-0.130427,2002:-0.23366,2003:0.263804,2004:0.089935,2005:0.03001,2006:0.136194,2007:0.035296,2008:-0.384858,2009:0.234542,2010:0.127827,2011:-3.2e-05,2012:0.134057,2013:0.296012,2014:0.113906,2015:-0.007266,2016:0.09535,2017:0.1942,2018:-0.062373,2019:0.288781,2020:0.162589,2021:0.268927,2022:-0.194428,2023:0.242305,2024:0.23309,2025:0.163878};
 
+  // ===== GOAL-SEEK =====
+  // Back-solve the annual basic premium needed to reach a target value
+  // at a given policy year, holding the variant + currency + strategy
+  // constant. Two regimes:
+  //
+  //   • Par-WL (SLH SP / 3-Pay / 5-Pay): closed-form. The factor table
+  //     determines value deterministically:
+  //         targetValue = factor(year) × basis(annualPremium, year, variant)
+  //     where basis = annualPremium for "annual" basis variants (SP, 5-Pay)
+  //     or cumulative-paid (= annualPremium × min(year, premiumTermYears))
+  //     for "cumulative" basis variants (3-Pay).
+  //
+  //   • ILP (5F1 / 6F2 / ... / IRG20F10): the simulator runs monthly
+  //     cashflows with year-by-year NAV growth + dividend yields taken
+  //     from the strategy editor. The yield is therefore an INPUT (the
+  //     advisor's editable strategy table), not something the solver
+  //     invents. Given a fixed yield path, account value at year T is
+  //     approximately linear in annualPremium — sum of premiums × growth
+  //     factors, where growth factors don't depend on the premium amount.
+  //     The only non-linearity is the small banded policy fee for
+  //     premiums < ~$9,600 p.a.; for HNW illustrations (premium >= $50K)
+  //     that's effectively zero.
+  //
+  //     Algorithm:
+  //       1. Probe simulation at the current annualPremium (or $100K
+  //          fallback). Read the value V₀ at the target year.
+  //       2. Linear estimate: P₁ = P₀ × (target / V₀).
+  //       3. Verify with one more simulation. If |V₁ − target|/target ≤ 0.5%,
+  //          accept. Otherwise fall back to a 40-iteration binary search
+  //          on premium ∈ [1, 10¹⁰]. Bisection always converges because
+  //          value-at-year is monotone in premium.
+  //
+  //     The "yield assumption" is whatever's in `strategy[]` when the
+  //     solver runs. If the advisor wants a different yield, they edit
+  //     the strategy first then re-run goal-seek.
+  function solvePremiumForTarget({ variantKey, targetValue, atYear, settings, strategy }) {
+    const variant = VARIANTS[variantKey];
+    if (!variant) return { success: false, error: "Unknown variant" };
+    if (!Number.isFinite(targetValue) || targetValue <= 0) {
+      return { success: false, error: "Target must be a positive number" };
+    }
+    const safeYear = Math.max(1, Math.min(num(atYear, 99), variant.kind === "par-wl" ? 120 : 99));
+
+    if (variant.kind === "par-wl") {
+      const factor = lookupSlhFactor(variant.slhFactorTable, safeYear);
+      if (!factor || factor <= 0) {
+        return { success: false, error: `No factor table entry for year ${safeYear}` };
+      }
+      let annualPremium;
+      if (variant.slhFactorBasis === "cumulative") {
+        // Cumulative basis (3-Pay): factor × (annualPremium × min(year, PT)) = target
+        const cumYears = Math.min(safeYear, variant.premiumTermYears || 1);
+        annualPremium = targetValue / (factor * cumYears);
+      } else {
+        // Annual basis (SP, 5-Pay): factor × annualPremium = target
+        annualPremium = targetValue / factor;
+      }
+      return {
+        success: true,
+        annualPremium,
+        method: "closed-form",
+        atYear: safeYear,
+        verifiedValue: targetValue,
+        relativeError: 0,
+      };
+    }
+
+    // ILP: linear-scale + verify, fall back to binary search if non-linear.
+    const probePremium = num(settings && settings.annualizedPremium, 100000) || 100000;
+    const baseSettings = {
+      ...(settings || {}),
+      annualizedPremium: probePremium,
+      projectionYears: Math.max(safeYear, num((settings || {}).projectionYears, 37)),
+    };
+
+    // Helper to scale the strategy table's basicPremium + topUp rows in
+    // sync with settings.annualizedPremium. The simulator reads per-year
+    // premiums from the strategy table (so the advisor can model varying
+    // funding patterns), not from settings.annualizedPremium directly.
+    // Without scaling the strategy, changing settings.annualizedPremium
+    // alone would only affect bonus rates, not the actual cashflow.
+    const scaleStrategy = (rows, factor) => rows.map((row) => ({
+      ...row,
+      basicPremium: (row.basicPremium || 0) * factor,
+      topUp: (row.topUp || 0) * factor,
+    }));
+
+    const probeResult = simulate(baseSettings, strategy, "custom");
+    const probeRow = probeResult.annual[safeYear - 1];
+    const probeValue = probeRow ? probeRow.totalValue : 0;
+    if (probeValue <= 0) {
+      return { success: false, error: `Probe simulation produced zero value at year ${safeYear} (account may have lapsed)` };
+    }
+
+    const linearFactor = targetValue / probeValue;
+    const linearPremium = probePremium * linearFactor;
+    const linearStrategy = scaleStrategy(strategy, linearFactor);
+    const verifyResult = simulate(
+      { ...baseSettings, annualizedPremium: linearPremium },
+      linearStrategy,
+      "custom"
+    );
+    const verifyRow = verifyResult.annual[safeYear - 1];
+    const verifyValue = verifyRow ? verifyRow.totalValue : 0;
+    const linearError = Math.abs(verifyValue - targetValue) / targetValue;
+    if (linearError <= 0.005) {
+      return {
+        success: true,
+        annualPremium: linearPremium,
+        method: "linear-scaling",
+        atYear: safeYear,
+        verifiedValue: verifyValue,
+        relativeError: linearError,
+      };
+    }
+
+    // Fallback: binary search. Bisection on [1, 10¹⁰]; ~40 iterations is
+    // enough to converge to within 1¢ for any reasonable target. Scale
+    // the strategy table at every probe so basicPremium rows match the
+    // current candidate premium.
+    let lo = 1;
+    let hi = 1e10;
+    let best = { premium: linearPremium, value: verifyValue };
+    for (let iter = 0; iter < 40; iter += 1) {
+      const mid = (lo + hi) / 2;
+      const factor = mid / probePremium;
+      const r = simulate(
+        { ...baseSettings, annualizedPremium: mid },
+        scaleStrategy(strategy, factor),
+        "custom"
+      );
+      const row = r.annual[safeYear - 1];
+      const v = row ? row.totalValue : 0;
+      if (v < targetValue) lo = mid; else hi = mid;
+      best = { premium: mid, value: v };
+      if (Math.abs(v - targetValue) / targetValue < 0.0005) break;
+    }
+    return {
+      success: true,
+      annualPremium: best.premium,
+      method: "binary-search",
+      atYear: safeYear,
+      verifiedValue: best.value,
+      relativeError: Math.abs(best.value - targetValue) / targetValue,
+    };
+  }
+
   const api = {
     FREQUENCIES,
     SP500_ANNUAL_RETURNS,
@@ -4436,11 +4703,13 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     annualizedMinimum,
     currencySymbol,
     defaultStrategy,
+    lookupSlhFactor,
     partialWithdrawalAllowed,
     partialWithdrawalLimit,
     policyFeeMonthly,
     premiumForYear,
     simulate,
+    solvePremiumForTarget,
     validate,
     welcomeRate,
   };
@@ -4473,6 +4742,39 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     lifeStageEvents: [],
     currentScenarioName: "",  // active named-save title; drives disk filename
   };
+
+  // ===== GLOSSARY =====
+  // Plain-English definitions for the acronyms the advisor sees in
+  // the UI. These are rendered as native <abbr title="..."> elements
+  // — the browser tooltip pops up after a brief hover, keyboard-
+  // accessible, no JS needed. CSS adds the dotted underline cue.
+  const GLOSSARY = {
+    "BR":            "Bonus Realisation rate — the rate at which the participating fund's surplus is illustrated as policy bonuses each year. SLH uses the higher illustrated rate (7.50%).",
+    "MIP":           "Minimum Investment Period — early policy years where surrender / partial-withdrawal access is restricted or charge-loaded. Most ILP variants set this to 6–10 years.",
+    "IRR":           "Internal Rate of Return — the annualised yield implied by the cashflow stream (premiums in, withdrawals + final value out).",
+    "Yield":         "Annualised return on the policy from inception to that year — for SLH this is total surrender value compounded over premiums paid.",
+    "NG":            "Non-Guaranteed — the portion of value (terminal bonus, projected dividends) that isn't contractually owed by the insurer until vested.",
+    "VMPP":          "Variable Multi-Premium Policy — admin charge basis for some IR variants; charge is on premium, not account value.",
+    "Welcome Bonus": "Year-1 bonus credited to the policy account, expressed as a % of annualised premium. Banded by premium tier.",
+    "Annual Premium Bonus": "Bonus added to the policy each year that the annualised premium is paid in full, expressed as a % of premium. Drops off after the premium term.",
+    "Loyalty Bonus": "Recurring bonus (% of account value) credited each year after MIP, contingent on no recent withdrawals.",
+    "Premium Bonus": "Variant-specific recurring bonus paid from a designated start year (e.g. flexi start year). Stacks with annual / loyalty bonuses.",
+    "Booster Bonus": "One-off bonus credited at MIP end for variants that offer it.",
+    "Terminal Bonus": "Non-guaranteed bonus declared annually but only crystallised on surrender or claim. The single largest component of an SLH year-120 value.",
+    "Participating Fund": "The insurer's pooled investment fund whose surplus is shared with par-WL policyholders via annual bonus declarations.",
+    "Surrender Value": "Cash payout if the policy is terminated. May be lower than premiums paid, particularly in early years.",
+    "Death Benefit": "Lump sum payable on death or terminal illness. Higher of 101% of premiums paid or the prevailing total surrender value.",
+    "Guaranteed SV": "Guaranteed surrender value [A] — the contractually-owed cash value, not contingent on bonus declarations.",
+    "Adhoc Drawdown": "A one-off cash withdrawal computed from the accumulated non-guaranteed bonus. Reduces future bonus accrual proportionally.",
+  };
+
+  function glossaryAbbr(term, displayLabel) {
+    const def = GLOSSARY[term];
+    const label = displayLabel || term;
+    if (!def) return label;
+    const safeDef = def.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return `<abbr class="glossary-term" title="${safeDef}">${label}</abbr>`;
+  }
 
   const FUND_LIBRARY_SEED = Array.isArray(window.AFL_FUND_LIBRARY) && window.AFL_FUND_LIBRARY.length ? window.AFL_FUND_LIBRARY : [
     { code: "MAM019", name: "Manulife Asia Pacific Investment Grade Bond A MDis SGD", currency: "SGD", sector: "Fixed Income / Asia ex Japan", currentNav: 0.861, navDate: "2026-04-29", totalReturn: 0.008, returnPeriod: "5Y", dividendYield: 0.04294077 },
@@ -4522,6 +4824,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     "bulkNavReturn", "bulkDividendYield", "bulkDividendMode", "bulkFromYear", "bulkFromAge", "bulkFromLabel", "bulkFromStatus",
     "compareBulkNavReturn", "compareBulkDividendYield", "compareBulkDividendMode", "compareBulkFromYear",
     "inflationAdjust", "inflationRate", "scenarioNotes",
+    "enableGoalSeek", "goalSeekTarget", "goalSeekAtAge", "goalSeekRun", "goalSeekResult",
     "historicalStartYear", "historicalDividendBoost",
     "fundSearch", "fundSuggestions", "fundCategory", "fundAllocation",
     "fundFilterDividend", "fundFilterNonDividend",
@@ -5968,21 +6271,21 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       : `${percent(variant.adminDuring)} / ${percent(result.settings.adminAfter)}`;
     const extraRows = [];
     if (variant.premiumBonusRate > 0) {
-      extraRows.push(`<div><dt>Premium Bonus</dt><dd>${percent(variant.premiumBonusRate)} from Yr ${variant.flexiStartYear}</dd></div>`);
+      extraRows.push(`<div><dt>${glossaryAbbr("Premium Bonus")}</dt><dd>${percent(variant.premiumBonusRate)} from Yr ${variant.flexiStartYear}</dd></div>`);
     }
     if (variant.boosterBonusRate > 0) {
-      extraRows.push(`<div><dt>Booster Bonus</dt><dd>${percent(variant.boosterBonusRate)} at MIP end</dd></div>`);
+      extraRows.push(`<div><dt>${glossaryAbbr("Booster Bonus")}</dt><dd>${percent(variant.boosterBonusRate)} at ${glossaryAbbr("MIP")} end</dd></div>`);
     }
     $("assumptions").innerHTML = `
       <strong>${variant.label}</strong>
       <dl>
-        <div><dt>MIP</dt><dd>${variant.mipYears} yrs</dd></div>
+        <div><dt>${glossaryAbbr("MIP")}</dt><dd>${variant.mipYears} yrs</dd></div>
         <div><dt>Premium term</dt><dd>${variant.shortfallYears} yrs</dd></div>
         <div><dt>Admin</dt><dd>${adminText}</dd></div>
         <div><dt>Policy fee</dt><dd>${policyFeeText}</dd></div>
-        <div><dt>Welcome Bonus</dt><dd>${percent(welcome)}</dd></div>
-        <div><dt>Annual Premium Bonus</dt><dd>${percent(variant.annualPremiumBonusRate)}</dd></div>
-        <div><dt>Loyalty Bonus</dt><dd>${percent(variant.loyaltyRate)}</dd></div>
+        <div><dt>${glossaryAbbr("Welcome Bonus")}</dt><dd>${percent(welcome)}</dd></div>
+        <div><dt>${glossaryAbbr("Annual Premium Bonus")}</dt><dd>${percent(variant.annualPremiumBonusRate)}</dd></div>
+        <div><dt>${glossaryAbbr("Loyalty Bonus")}</dt><dd>${percent(variant.loyaltyRate)}</dd></div>
         ${extraRows.join("")}
       </dl>
     `;
@@ -6052,10 +6355,11 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       : `age ${endAge}${inflationActive() ? " in today's dollars" : ""}`;
     $("heroTotal").textContent = money(total, settings.currency);
 
+    const irrLabel = isParWl ? "Yield" : "IRR";
     const irrText = result.final.irr !== null && !Number.isNaN(result.final.irr)
-      ? ` at ${percent(result.final.irr)} IRR`
+      ? ` at ${percent(result.final.irr)} ${glossaryAbbr(irrLabel)}`
       : "";
-    $("heroCaption").textContent = `From ${money(paid, settings.currency)} contributed${irrText}.`;
+    $("heroCaption").innerHTML = `From ${money(paid, settings.currency)} contributed${irrText}.`;
 
     // Composition bar segments — show only positive segments. Par-WL uses
     // a different breakdown (capital / guaranteed / non-guaranteed bonus)
@@ -6134,10 +6438,10 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       const comparePaid = (compareAtHorizon.totalBasicPaid || 0) + (compareAtHorizon.totalTopUps || 0);
       const mainIrrText = horizonMismatch || !Number.isFinite(results.custom.final.irr)
         ? ""
-        : ` · ${percent(results.custom.final.irr)} ${mainIsParWl ? "Yield" : "IRR"}`;
+        : ` · ${percent(results.custom.final.irr)} ${glossaryAbbr(mainIsParWl ? "Yield" : "IRR")}`;
       const compareIrrText = horizonMismatch || !Number.isFinite(results.customCompare.final.irr)
         ? ""
-        : ` · ${percent(results.customCompare.final.irr)} ${compareIsParWl ? "Yield" : "IRR"}`;
+        : ` · ${percent(results.customCompare.final.irr)} ${glossaryAbbr(compareIsParWl ? "Yield" : "IRR")}`;
 
       if (sharedYear) comparisonHorizonYear = sharedYear;
 
@@ -6155,7 +6459,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       primary = {
         label: `${results.custom.variant.label} (selected)`,
         value: results.custom.final.totalValue,
-        detail: `From ${money(results.custom.final.totalBasicPaid + results.custom.final.totalTopUps, settings.currency)} paid · ${percent(results.custom.final.irr)} IRR`,
+        detail: `From ${money(results.custom.final.totalBasicPaid + results.custom.final.totalTopUps, settings.currency)} paid · ${percent(results.custom.final.irr)} ${glossaryAbbr("IRR")}`,
       };
       secondary = {
         label: `Fixed deposit (${results.comparison.fdFundingMode === "single" ? "single sum" : "annual"}, ${results.comparison.fdCompound ? "compounded" : "simple"})`,
@@ -6166,12 +6470,12 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       primary = {
         label: `${results.custom.variant.label} — your strategy`,
         value: results.custom.final.totalValue,
-        detail: `${percent(results.custom.final.irr)} IRR`,
+        detail: `${percent(results.custom.final.irr)} ${glossaryAbbr("IRR")}`,
       };
       secondary = {
         label: "All dividends reinvested",
         value: results.reinvest.final.totalValue,
-        detail: `${percent(results.reinvest.final.irr)} IRR`,
+        detail: `${percent(results.reinvest.final.irr)} ${glossaryAbbr("IRR")}`,
       };
     }
 
@@ -6222,11 +6526,11 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
 
     $("cmpPrimaryLabel").textContent = primary.label;
     $("cmpPrimaryValue").textContent = money(primaryValue, displayCurrency);
-    $("cmpPrimaryDetail").textContent = primary.detail;
+    $("cmpPrimaryDetail").innerHTML = primary.detail;
 
     $("cmpSecondaryLabel").textContent = secondary.label;
     $("cmpSecondaryValue").textContent = money(secondaryValue, displayCurrency);
-    $("cmpSecondaryDetail").textContent = secondary.detail;
+    $("cmpSecondaryDetail").innerHTML = secondary.detail;
 
     const deltaEl = $("comparisonDelta");
     deltaEl.classList.toggle("negative", !positive);
@@ -7348,28 +7652,38 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     const payload = currentScenarioPayload();
     const hash = scenarioToHash(payload);
     const url = `${window.location.origin}${window.location.pathname}${hash}`;
+    let copied = true;
     try {
       await navigator.clipboard.writeText(url);
     } catch {
       // Fallback: put it in a temporary input
-      const tmp = document.createElement("input");
-      tmp.value = url;
-      document.body.appendChild(tmp);
-      tmp.select();
-      document.execCommand("copy");
-      document.body.removeChild(tmp);
+      try {
+        const tmp = document.createElement("input");
+        tmp.value = url;
+        document.body.appendChild(tmp);
+        tmp.select();
+        document.execCommand("copy");
+        document.body.removeChild(tmp);
+      } catch {
+        copied = false;
+      }
     }
-    const btn = $("copyShareLink");
-    if (btn) {
-      const original = btn.textContent;
-      btn.textContent = url.length > 1900 ? "Link copied (long)" : "Link copied!";
+    // Both buttons exist (legacy hidden + visible) — flash whichever is around.
+    [$("copyShareLink"), $("shareLinkBtn")].forEach((btn) => {
+      if (!btn) return;
+      const original = btn.dataset.originalLabel || btn.textContent;
+      btn.dataset.originalLabel = original;
+      btn.textContent = !copied
+        ? "Copy failed — see address bar"
+        : url.length > 1900 ? "Link copied (long URL)" : "Link copied";
       btn.classList.add("copied");
       setTimeout(() => {
         btn.textContent = original;
         btn.classList.remove("copied");
-      }, 2200);
-    }
-    // Also update URL hash so refresh keeps it
+      }, 2400);
+    });
+    // Also update URL hash so refresh keeps it (and the user can read the
+    // link straight from the address bar if clipboard write fails).
     history.replaceState(null, "", hash);
   }
 
@@ -7689,6 +8003,132 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     });
     fields.inflationRate.addEventListener("input", recalc);
 
+    // Goal-seek panel toggle + run handler. Goal-seek doesn't change the
+    // simulation directly — it only fills the annualizedPremium field
+    // when the advisor accepts the result, which then triggers recalc()
+    // through the existing field change handler.
+    fields.enableGoalSeek?.addEventListener("change", () => {
+      const open = !!fields.enableGoalSeek.checked;
+      $("goalSeekSettings").hidden = !open;
+      if (open) {
+        // Pre-fill "at age" with the current end age if empty
+        const settings = currentSettings();
+        const variant = model.VARIANTS[settings.variantKey];
+        const endAge = variant?.kind === "par-wl" ? 99 : (settings.startAge + settings.projectionYears);
+        if (!fields.goalSeekAtAge.value) fields.goalSeekAtAge.value = endAge;
+        // Pre-fill target with the current projected wealth so the user
+        // sees a reference point — helps them set realistic targets.
+        if (!fields.goalSeekTarget.value && state.results) {
+          const cur = state.results.custom.final.totalValue || 0;
+          fields.goalSeekTarget.value = Math.round(cur);
+        }
+        fields.goalSeekTarget.focus();
+      }
+    });
+
+    fields.goalSeekRun?.addEventListener("click", () => {
+      const settings = currentSettings();
+      const target = Number(fields.goalSeekTarget.value);
+      const atAge = Number(fields.goalSeekAtAge.value);
+      const startAge = settings.startAge;
+      const atYear = atAge - startAge;
+      const resultEl = $("goalSeekResult");
+      const variant = model.VARIANTS[settings.variantKey];
+      const sym = settings.currency === "USD" ? "US$" : "S$";
+
+      if (!Number.isFinite(target) || target <= 0) {
+        resultEl.hidden = false;
+        resultEl.classList.add("error");
+        resultEl.innerHTML = "Please enter a positive target value.";
+        return;
+      }
+      if (!Number.isFinite(atAge) || atAge <= startAge) {
+        resultEl.hidden = false;
+        resultEl.classList.add("error");
+        resultEl.innerHTML = `Age must be greater than the client's current age (${startAge}).`;
+        return;
+      }
+      if (variant?.kind === "par-wl" && atYear > 120) {
+        resultEl.hidden = false;
+        resultEl.classList.add("error");
+        resultEl.innerHTML = `SLH only projects to policy year 120 (age ${startAge + 120}). Pick an earlier age.`;
+        return;
+      }
+      if (variant?.kind !== "par-wl" && atAge > 99) {
+        resultEl.hidden = false;
+        resultEl.classList.add("error");
+        resultEl.innerHTML = `IR / IRG variants cap at age 99. Pick age ≤ 99 (or switch to an SLH variant for longer horizons).`;
+        return;
+      }
+
+      const result = model.solvePremiumForTarget({
+        variantKey: settings.variantKey,
+        targetValue: target,
+        atYear,
+        settings,
+        strategy: state.strategy,
+      });
+
+      resultEl.hidden = false;
+      resultEl.classList.remove("error");
+      if (!result.success) {
+        resultEl.classList.add("error");
+        resultEl.innerHTML = `Could not solve: ${result.error}`;
+        return;
+      }
+
+      const premium = Math.round(result.annualPremium);
+      const minPremium = model.annualizedMinimum(variant, settings.currency, settings.paymentFrequency);
+      const belowMin = minPremium !== null && premium < minPremium;
+      const minWarning = belowMin
+        ? `<br><span style="color:#c9501a;font-weight:600">⚠ Below the ${sym}${minPremium.toLocaleString()} minimum for this variant — actual policy may not be issuable at this premium.</span>`
+        : "";
+      const methodLabel = {
+        "closed-form": "closed-form (factor table)",
+        "linear-scaling": "linear scaling at current strategy/yield",
+        "binary-search": "binary search (40 iters)",
+      }[result.method] || result.method;
+      const errorPct = result.relativeError > 0
+        ? ` · ${(result.relativeError * 100).toFixed(2)}% deviation`
+        : "";
+
+      resultEl.innerHTML = `
+        Required annual basic premium:
+        <strong>${sym}${premium.toLocaleString()}</strong>
+        <button type="button" class="goal-seek-apply" id="goalSeekApply">Apply to scenario</button>
+        <span class="goal-seek-meta">${methodLabel}${errorPct} · target ${sym}${target.toLocaleString()} at age ${atAge} (year ${atYear})${minWarning}</span>
+      `;
+
+      // Wire the Apply button each time, since innerHTML rewrites the DOM.
+      $("goalSeekApply")?.addEventListener("click", () => {
+        const oldPremium = Number(fields.annualizedPremium.value) || 100000;
+        const factor = premium / oldPremium;
+        fields.annualizedPremium.value = premium;
+
+        // Scale the strategy table's basicPremium + topUp rows in lockstep
+        // with the new annualizedPremium. Without this the simulator would
+        // keep paying the OLD premium because it reads basicPremium from
+        // the strategy rows (which hold the user's actual funding pattern,
+        // not just settings.annualizedPremium). Par-WL doesn't use the
+        // strategy table — its simulator reads annualizedPremium directly
+        // — so this is a no-op for SLH variants.
+        if (variant?.kind !== "par-wl" && Number.isFinite(factor) && factor > 0) {
+          state.strategy = state.strategy.map((row) => ({
+            ...row,
+            basicPremium: (row.basicPremium || 0) * factor,
+            topUp: (row.topUp || 0) * factor,
+          }));
+        }
+
+        fields.annualizedPremium.dispatchEvent(new Event("input", { bubbles: true }));
+        fields.annualizedPremium.dispatchEvent(new Event("change", { bubbles: true }));
+        // Close the panel after applying — matches user mental model of
+        // "I solved it, now show me the result"
+        fields.enableGoalSeek.checked = false;
+        $("goalSeekSettings").hidden = true;
+      });
+    });
+
     // Sliders update the readout live but do NOT recalc until "Apply to rows below" is pressed.
     [fields.bulkNavReturn, fields.bulkDividendYield].forEach((el) => {
       el.addEventListener("input", syncSliderReadouts);
@@ -7757,6 +8197,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     $("saveHtmlScenario").addEventListener("click", saveHtmlScenario);
     $("loadHtmlScenario").addEventListener("click", () => fields.loadScenarioFile.click());
     $("copyShareLink").addEventListener("click", copyShareLink);
+    $("shareLinkBtn")?.addEventListener("click", copyShareLink);
     fields.loadScenarioFile.addEventListener("change", () => loadHtmlScenarioFile(fields.loadScenarioFile.files[0]));
     $("startPresentation").addEventListener("click", () => {
       document.body.classList.add("presentation-mode");
