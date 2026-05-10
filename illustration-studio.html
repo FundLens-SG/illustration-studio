@@ -2318,18 +2318,34 @@ body.presentation-mode .strategy-table input:disabled {
   }
 }
 
-/* ===== Par-WL info card + strategy gating ===== */
-/* When an SLH variant is active, hide the editable strategy section
-   and show the par-WL info card in its place. The body class
-   `is-par-wl` is set by the overlay JS on variant change. */
-body.is-par-wl #strategySection,
-body.is-par-wl #compareStrategySection,
-body.is-par-wl .historical-tools,
-body.is-par-wl .sensitivity-tools,
-body.is-par-wl .strategy-table {
+/* ===== Par-WL info card + strategy / ILP control gating =====
+   Body classes (set by updateParWlBodyClasses() on every variant or
+   compare change):
+     .is-par-wl-main      — main variant is SLH
+     .is-par-wl-compare   — compare variant is SLH
+     .hide-ilp-controls   — main is SLH AND no ILP variant on the
+                            compare side (so Bonuses + Fund Builder
+                            don't apply to anything visible)
+   .is-par-wl is kept as a backwards-compat alias for .is-par-wl-main.
+*/
+body.is-par-wl-main #strategySection,
+body.is-par-wl-main .historical-tools.strategy-section-tools,
+body.is-par-wl-main #strategySection .sensitivity-tools,
+body.is-par-wl-main #strategySection .strategy-table {
   display: none !important;
 }
-body.is-par-wl #parWlInfo[hidden] { display: block !important; }
+body.is-par-wl-compare #compareStrategySection {
+  display: none !important;
+}
+/* Bonuses row + Fund Builder section disappear when there's no ILP
+   variant in scope (compare off, or compare also par-WL). When the
+   user selects compare = IR / IRG, this class drops and these
+   controls reappear so the compare side can be tuned. */
+body.hide-ilp-controls .ilp-only-controls,
+body.hide-ilp-controls #fundBuilderSection {
+  display: none !important;
+}
+body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
 .par-wl-info {
   background: linear-gradient(180deg, #fbf6e8 0%, #f5ebd1 100%);
   border: 1px solid var(--gold-dark, #b58a52);
@@ -2361,6 +2377,16 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
   color: var(--ink-3, #5a6577) !important;
   font-style: italic;
 }
+.par-wl-info-rate {
+  margin-top: 10px !important;
+  padding: 10px 12px;
+  background: rgba(181, 138, 82, 0.10);
+  border-left: 3px solid var(--gold-dark, #b58a52);
+  border-radius: 4px;
+  font-size: 12.5px !important;
+  color: var(--ink-soft, #2a3548) !important;
+}
+.par-wl-info-rate strong { color: var(--gold-dark, #6b4d10); }
 
 /* ===== CKG Suite Strip — global cross-tool nav ===== */
 :root { --ckg-strip-h: 36px; }
@@ -2779,7 +2805,7 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
         </div>
 
         <div class="toggle-groups" role="group" aria-label="Bonus, comparison and view toggles">
-          <div class="toggle-group">
+          <div class="toggle-group ilp-only-controls" id="bonusesToggleGroup">
             <span class="toggle-group-label">Bonuses</span>
             <label class="toggle"><input id="includeWelcome" type="checkbox" checked /> Welcome</label>
             <label class="toggle"><input id="includeAnnualBonus" type="checkbox" checked /> Annual Premium</label>
@@ -3015,14 +3041,14 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
         <div class="section-heading">
           <div>
             <p class="eyebrow">Participating Whole-Life Plan · USD · Policy Year 1 → 120</p>
-            <h2>Illustrated at 7.50% p.a. — the higher of two illustrated rates</h2>
+            <h2>Important risks &amp; disclosures</h2>
           </div>
         </div>
         <p>
-          Signature Legacy Harvest is a participating whole-life policy underwritten by Manulife (Singapore) Pte. Ltd.. This illustration projects to <strong>policy year 120</strong> using the insurer's published <strong>7.50% per annum</strong> Illustrated Investment Rate of Return — the <em>higher</em> of the two rates shown on the official Policy Illustration. The lower rate (5.25% p.a.) and the actual realised bonus rate may differ materially from this projection.
+          Signature Legacy Harvest is a participating whole-life policy underwritten by Manulife (Singapore) Pte. Ltd.. This illustration projects to policy year 120 using the insurer's <strong>Reinvested</strong> bonus schedule — non-guaranteed terminal bonus stays inside the policy and compounds the surrender value. Adhoc 10% / 50% drawdown columns in the table are <em>informational</em>: they show how much cash a policyholder could pull from the accumulated non-guaranteed bonus at that policy year.
         </p>
         <p>
-          The 7% drawdown from policy year 10 is a withdrawal pattern, not a guaranteed yield. Bonuses, dividends, and the surrender values shown are <strong>not guaranteed</strong> until declared. The guaranteed surrender benefit may be less than total premiums paid, particularly in the early policy years.
+          Bonuses, dividends, and the surrender values shown are <strong>not guaranteed</strong> until declared. The guaranteed surrender benefit may be less than total premiums paid, particularly in the early policy years.
         </p>
         <p class="par-wl-info-strong">
           Key risks of a participating plan — your premiums are pooled with other policyholders' and invested in Manulife's Participating Fund. As a policyholder you share in the fund's <strong>investment risk</strong> (lower-than-expected returns), <strong>insurance risk</strong> (higher-than-expected claims), and <strong>expense risk</strong> (higher-than-expected fund management costs). Any of these can reduce the bonuses or dividends you receive.
@@ -3032,6 +3058,9 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
         </p>
         <p class="par-wl-info-cta">
           For the official figures and complete terms, refer to the Manulife Policy Illustration, Product Summary, and Bundled Product Disclosure Document. In any discrepancy, those documents prevail over this advisor working tool.
+        </p>
+        <p class="par-wl-info-rate">
+          <strong>Illustrated at 7.50% p.a.</strong> — the higher of two Illustrated Investment Rates of Return on the official Policy Illustration. The lower rate (5.25% p.a.) and the actual realised bonus rate may differ materially from this projection.
         </p>
       </section>
 
@@ -3425,21 +3454,18 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
     // paid — typical of par WL early surrender penalty; the factors
     // grow exponentially in later years as terminal bonus accumulates.
     // ──────────────────────────────────────────────────────────────────
-    // Signature Legacy Harvest — par-WL with 7% bonus realisation
-    // (drawdown) starting policy year 10. Each variant carries:
-    //   slhFactorTable      → total surrender value factor by year
-    //                          (column G of "Percent_of_Premium (7% Draw)"
-    //                          for SP, column E of "3PayDrawdown" for
-    //                          3-pay, column E of "5-pay BR_Factor_Table"
-    //                          for 5-pay — all at 7.5% BR rate).
-    //   slhGuaranteedTable  → guaranteed-only factor (column D for SP,
-    //                          column C for 3-pay/5-pay).
-    //   slhDrawdownTable    → per-year cash drawdown factor — 0 for years
-    //                          1-9, then the bonus-realisation amount
-    //                          paid out as cash from year 10 onwards.
-    //                          The simulator accumulates this into
-    //                          cashWithdrawals so totalValue =
-    //                          surrender + cumulative drawdown.
+    // Signature Legacy Harvest — Manulife participating whole-life.
+    // Each variant carries:
+    //   slhFactorTable      → total surrender value factor by policy
+    //                          year (Reinvested mode at 7.50% p.a.
+    //                          illustrated bonus rate). Multiplier on
+    //                          the user's premium (single for SP,
+    //                          annual for 3-Pay / 5-Pay).
+    //   slhGuaranteedTable  → guaranteed-only surrender factor.
+    // The Non-Guaranteed Bonus column the workbook displays is just
+    // (slhFactorTable - slhGuaranteedTable). Adhoc 10%/50% drawdowns
+    // are computed from the NG bonus per year. There is no recurring
+    // drawdown unless the user opts in (separate feature).
 
     "SLH_SP": {
       key: "SLH_SP",
@@ -3460,49 +3486,38 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
       surrenderCharge: {},
       partialCharge: {},
       shortfallCharge: {},
-      // Total surrender VALUE factor (after 7% drawdown each year from PY10).
-      // Source: Percent_of_Premium (7% Draw, Year 10), column G.
+      // Total Surrender Value factor (Reinvested mode, 7.50% BR).
+      // Source: Percent_of_Premium (Reinvested) sheet, column G
+      // (= Guaranteed col D + Non-Guaranteed Terminal Bonus col F).
+      // Late-policy factors (110, 120) bumped to 5-decimal precision so
+      // the workbook's exact dollar values reproduce — at year 120 the
+      // difference between factor 3877 and 3876.76892 is $23K on a $100K
+      // single premium.
       slhFactorTable: [
         [1, 0.85], [2, 0.942], [3, 0.986], [4, 1.04636], [5, 1.11625],
-        [6, 1.17486], [7, 1.2389], [8, 1.3089], [9, 1.42541], [10, 1.50668],
-        [11, 1.55966], [12, 1.61327], [13, 1.66696], [14, 1.75026], [15, 1.79364],
-        [16, 1.83686], [17, 1.88014], [18, 1.92306], [19, 1.96602], [20, 2.00892],
-        [21, 2.04414], [22, 2.07924], [23, 2.11451], [24, 2.14954], [25, 2.18571],
-        [26, 2.22297], [27, 2.26046], [28, 2.29763], [29, 2.33503], [30, 2.37077],
-        [31, 2.38503], [32, 2.40036], [33, 2.41572], [34, 2.43113], [35, 2.44656],
-        [36, 2.46151], [37, 2.47648], [38, 2.4915], [39, 2.50654], [40, 2.52161],
-        [45, 2.59712], [50, 2.67381], [55, 2.75201], [60, 2.83172], [65, 2.91219],
-        [70, 2.99081], [80, 3.15251], [90, 3.32022], [100, 3.4883],
-        [110, 3.53527], [120, 3.5829],
+        [6, 1.17486], [7, 1.23890], [8, 1.30890], [9, 1.42541], [10, 1.55002],
+        [11, 1.65366], [12, 1.76574], [13, 1.88638], [14, 2.04560], [15, 2.17460],
+        [16, 2.31385], [17, 2.46451], [18, 2.62670], [19, 2.80205], [20, 2.99138],
+        [21, 3.18792], [22, 3.40001], [23, 3.62974], [24, 3.87738], [25, 4.14653],
+        [26, 4.43801], [27, 4.75346], [28, 5.09299], [29, 5.46033], [30, 5.85423],
+        [31, 6.24268], [32, 6.66230], [33, 7.11438], [34, 7.60145], [35, 8.12625],
+        [36, 8.68886], [37, 9.29483], [38, 9.94755], [39, 10.65059], [40, 11.40788],
+        [45, 16.15642], [50, 23.01804], [55, 32.95649], [60, 47.35330], [65, 68.17926],
+        [70, 98.15801], [80, 204.13707], [90, 425.60806], [100, 888.44727],
+        [110, 1855.55771], [120, 3876.76892],
       ],
       slhGuaranteedTable: [
         [1, 0.85], [2, 0.85], [3, 0.85], [4, 0.85], [5, 0.85],
         [6, 0.85], [7, 0.85], [8, 0.85], [9, 0.89], [10, 0.931],
-        [11, 0.94], [12, 0.95], [13, 0.96], [14, 1.0], [15, 1.00016],
-        [16, 1.00033], [17, 1.00049], [18, 1.00066], [19, 1.00082], [20, 1.00099],
-        [21, 1.00115], [22, 1.00131], [23, 1.00148], [24, 1.00164], [25, 1.00269],
-        [26, 1.005], [27, 1.0073], [28, 1.0096], [29, 1.01191], [30, 1.01294],
-        [31, 1.01423], [32, 1.01656], [33, 1.01889], [34, 1.02123], [35, 1.02357],
-        [36, 1.02593], [37, 1.02828], [38, 1.03065], [39, 1.03302], [40, 1.0354],
-        [45, 1.04738], [50, 1.05954], [55, 1.07187], [60, 1.08437], [65, 1.09704],
-        [70, 1.10989], [80, 1.13614], [90, 1.16311], [100, 1.18547],
-        [110, 1.20593], [120, 1.22676],
-      ],
-      // Per-year drawdown factor (cash paid out year-N, multiplier on
-      // single premium). Source: Percent_of_Premium (7% Draw), column C
-      // ("Current Year Realised TB"). Years 1-9 = 0 (pre-drawdown).
-      slhDrawdownTable: [
-        [1, 0], [2, 0], [3, 0], [4, 0], [5, 0],
-        [6, 0], [7, 0], [8, 0], [9, 0], [10, 0.04333],
-        [11, 0.04664], [12, 0.04992], [13, 0.05321], [14, 0.05647], [15, 0.05972],
-        [16, 0.06296], [17, 0.06621], [18, 0.06943], [19, 0.07265], [20, 0.07587],
-        [21, 0.0785], [22, 0.08113], [23, 0.08378], [24, 0.0864], [25, 0.08904],
-        [26, 0.09168], [27, 0.09432], [28, 0.09695], [29, 0.09959], [30, 0.1022],
-        [31, 0.10318], [32, 0.10416], [33, 0.10514], [34, 0.10612], [35, 0.10711],
-        [36, 0.10805], [37, 0.109], [38, 0.10996], [39, 0.11091], [40, 0.11187],
-        [45, 0.11665], [50, 0.1215], [55, 0.12646], [60, 0.13152], [65, 0.13662],
-        [70, 0.14157], [80, 0.15177], [90, 0.16236], [100, 0.17333],
-        [110, 0.17533], [120, 0.17734],
+        [11, 0.94], [12, 0.95], [13, 0.96], [14, 1.0], [15, 1.0002],
+        [16, 1.0003], [17, 1.0005], [18, 1.0007], [19, 1.0008], [20, 1.001],
+        [21, 1.0011], [22, 1.0013], [23, 1.0015], [24, 1.0016], [25, 1.0027],
+        [26, 1.005], [27, 1.0073], [28, 1.0096], [29, 1.0119], [30, 1.0129],
+        [31, 1.0142], [32, 1.0166], [33, 1.0189], [34, 1.0212], [35, 1.0236],
+        [36, 1.0259], [37, 1.0283], [38, 1.0307], [39, 1.033], [40, 1.0354],
+        [45, 1.0474], [50, 1.0595], [55, 1.0719], [60, 1.0844], [65, 1.097],
+        [70, 1.1099], [80, 1.1361], [90, 1.1631], [100, 1.1855],
+        [110, 1.2059], [120, 1.2268],
       ],
     },
 
@@ -3525,47 +3540,32 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
       surrenderCharge: {},
       partialCharge: {},
       shortfallCharge: {},
-      // Total Factor [A]+[C] (col E) from "3PayDrawdown" — at 7.5% BR.
+      // Source: 3 Pay_Factor sheet, column E (Total Factor [A]+[C]).
       slhFactorTable: [
-        [1, 0.2], [2, 0.292], [3, 0.3025], [4, 0.55021], [5, 0.81584],
-        [6, 1.00071], [7, 1.08948], [8, 1.18372], [9, 1.28394], [10, 1.3529],
-        [11, 1.4206], [12, 1.48824], [13, 1.55565], [14, 1.6228], [15, 1.68987],
-        [16, 1.72701], [17, 1.76397], [18, 1.80094], [19, 1.83791], [20, 1.8749],
-        [21, 1.90581], [22, 1.93656], [23, 1.96713], [24, 1.99794], [25, 2.02898],
-        [26, 2.06132], [27, 2.09412], [28, 2.12714], [29, 2.15984], [30, 2.1922],
-        [31, 2.20452], [32, 2.21649], [33, 2.22947], [34, 2.24248], [35, 2.25551],
-        [36, 2.26859], [37, 2.28121], [38, 2.29387], [39, 2.30654], [40, 2.31922],
-        [45, 2.38248], [50, 2.44598], [55, 2.51065], [60, 2.57648], [65, 2.64354],
-        [70, 2.70685], [75, 2.77131], [80, 2.83694], [85, 2.90376], [90, 2.97174],
-        [100, 3.1083], [110, 3.14955], [120, 3.19137],
+        [1, 0.2], [2, 0.291995], [3, 0.302498], [4, 0.559167], [5, 0.815836],
+        [6, 1.000709], [7, 1.089482], [8, 1.183724], [9, 1.283945], [10, 1.390703],
+        [11, 1.50259], [12, 1.621264], [13, 1.750816], [14, 1.880358], [15, 2.022056],
+        [16, 2.142866], [17, 2.284035], [18, 2.425204], [19, 2.566373], [20, 2.734478],
+        [21, 2.902594], [22, 3.087775], [23, 3.287508], [24, 3.503967], [25, 3.737742],
+        [26, 3.992016], [27, 4.278047], [28, 4.564087], [29, 4.884091], [30, 5.229713],
+        [31, 5.569507], [32, 5.933692], [33, 6.342299], [34, 6.750906], [35, 7.207517],
+        [36, 7.699468], [37, 8.226829], [38, 8.794828], [39, 9.406611], [40, 10.06554],
+        [45, 14.20098], [50, 20.17104], [55, 28.817643], [60, 41.342548], [65, 59.48729],
+        [70, 85.57774], [80, 177.811645], [90, 370.559547], [100, 773.375203],
+        [110, 1615.08024], [120, 3374.199413],
       ],
       slhGuaranteedTable: [
-        [1, 0.2], [2, 0.2], [3, 0.2], [4, 0.4], [5, 0.60001],
-        [6, 0.73101], [7, 0.76091], [8, 0.79081], [9, 0.82071], [10, 0.85061],
-        [11, 0.88051], [12, 0.91041], [13, 0.94031], [14, 0.97021], [15, 1.00009],
-        [16, 1.00025], [17, 1.00042], [18, 1.00058], [19, 1.00075], [20, 1.00091],
-        [21, 1.00108], [22, 1.00124], [23, 1.0014], [24, 1.00157], [25, 1.00217],
-        [26, 1.00385], [27, 1.00616], [28, 1.00846], [29, 1.01076], [30, 1.0125],
-        [31, 1.01376], [32, 1.01517], [33, 1.01758], [34, 1.01999], [35, 1.02239],
-        [36, 1.02482], [37, 1.02723], [38, 1.02966], [39, 1.03208], [40, 1.03449],
-        [45, 1.04591], [50, 1.05738], [55, 1.06894], [60, 1.08058], [65, 1.09231],
-        [70, 1.10284], [75, 1.11346], [80, 1.12422], [85, 1.1351], [90, 1.14611],
-        [100, 1.16581], [110, 1.1847], [120, 1.2039],
-      ],
-      // Per-year drawdown factor — column B "Realised TB Factor" of
-      // 3PayDrawdown sheet. Multiplier on annual premium.
-      slhDrawdownTable: [
-        [1, 0], [2, 0], [3, 0], [4, 0], [5, 0],
-        [6, 0], [7, 0], [8, 0], [9, 0], [10, 0.0378],
-        [11, 0.04065], [12, 0.04349], [13, 0.04632], [14, 0.04912], [15, 0.05192],
-        [16, 0.0547], [17, 0.05748], [18, 0.06024], [19, 0.06302], [20, 0.06579],
-        [21, 0.06809], [22, 0.0704], [23, 0.07268], [24, 0.075], [25, 0.07729],
-        [26, 0.07959], [27, 0.08189], [28, 0.0842], [29, 0.08649], [30, 0.08879],
-        [31, 0.08963], [32, 0.09042], [33, 0.09122], [34, 0.09202], [35, 0.09281],
-        [36, 0.09361], [37, 0.09438], [38, 0.09516], [39, 0.09593], [40, 0.0967],
-        [45, 0.1006], [50, 0.10452], [55, 0.10851], [60, 0.1126], [65, 0.11676],
-        [70, 0.12073], [75, 0.12478], [80, 0.12891], [85, 0.13312], [90, 0.13742],
-        [100, 0.14621], [110, 0.1479], [120, 0.14959],
+        [1, 0.2], [2, 0.200003], [3, 0.200002], [4, 0.400004], [5, 0.600006],
+        [6, 0.731005], [7, 0.760906], [8, 0.790806], [9, 0.820707], [10, 0.850607],
+        [11, 0.880508], [12, 0.910408], [13, 0.940309], [14, 0.970209], [15, 1.00009],
+        [16, 1.00025], [17, 1.000419], [18, 1.000579], [19, 1.000749], [20, 1.000918],
+        [21, 1.001078], [22, 1.001238], [23, 1.001397], [24, 1.001567], [25, 1.002166],
+        [26, 1.003852], [27, 1.006158], [28, 1.008463], [29, 1.010759], [30, 1.012505],
+        [31, 1.013763], [32, 1.01517], [33, 1.017575], [34, 1.01999], [35, 1.022395],
+        [36, 1.024821], [37, 1.027226], [38, 1.029661], [39, 1.032076], [40, 1.034491],
+        [45, 1.045909], [50, 1.057376], [55, 1.068943], [60, 1.08058], [65, 1.092306],
+        [70, 1.102835], [80, 1.124223], [90, 1.146109], [100, 1.16581],
+        [110, 1.184702], [120, 1.203904],
       ],
     },
 
@@ -3588,21 +3588,20 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
       surrenderCharge: {},
       partialCharge: {},
       shortfallCharge: {},
-      // Total surrender VALUE factor at 7.5% BR (col E of BR_Factor_Table).
-      // 7% drawdown applies from PY10 onwards; cash drawn is captured in
-      // slhDrawdownTable below.
+      // Source: 5-pay Factor_Table sheet, column D
+      // (Total_AplusBplusC_factor — Reinvested mode at 7.50% BR).
       slhFactorTable: [
         [1, 0.2], [2, 0.584], [3, 0.9075], [4, 1.32705], [5, 1.8345],
-        [6, 2.6995], [7, 3.83735], [8, 5.00025], [9, 5.5197], [10, 5.90545],
-        [11, 6.33975], [12, 6.77585], [13, 7.21185], [14, 7.6469], [15, 8.08085],
-        [16, 8.26535], [17, 8.44905], [18, 8.6319], [19, 8.81495], [20, 8.998],
-        [21, 9.14955], [22, 9.3005], [23, 9.4507], [24, 9.6001], [25, 9.7506],
-        [26, 9.9049], [27, 10.06655], [28, 10.2269], [29, 10.38825], [30, 10.549],
-        [31, 10.60935], [32, 10.66605], [33, 10.73035], [34, 10.7948], [35, 10.85935],
-        [36, 10.92405], [37, 10.98885], [38, 11.0516], [39, 11.11445], [40, 11.1773],
-        [45, 11.4889], [50, 11.79965], [55, 12.11575], [60, 12.434], [65, 12.76435],
-        [70, 13.0702], [80, 13.6915], [90, 14.335], [100, 14.9995],
-        [110, 15.19275], [120, 15.3885],
+        [6, 2.6995], [7, 3.83735], [8, 5.00025], [9, 5.5197], [10, 6.0678],
+        [11, 6.69335], [12, 7.3526], [13, 8.04575], [14, 8.77435], [15, 9.5406],
+        [16, 10.0996], [17, 10.70275], [18, 11.35325], [19, 12.0567], [20, 12.8169],
+        [21, 13.60465], [22, 14.45485], [23, 15.372], [24, 16.36095], [25, 17.43225],
+        [26, 18.5923], [27, 19.8545], [28, 21.213], [29, 22.68265], [30, 24.26465],
+        [31, 25.81615], [32, 27.48485], [33, 29.2829], [34, 31.2198], [35, 33.3065],
+        [36, 35.5545], [37, 37.9765], [38, 40.5728], [39, 43.3691], [40, 46.3808],
+        [45, 65.29855], [50, 92.5865], [55, 132.1075], [60, 189.35465], [65, 272.28785],
+        [70, 391.71005], [75, 564.16305], [80, 813.46025], [85, 1173.84905], [90, 1694.83965],
+        [100, 3536.8277], [110, 7385.7089], [120, 15429.6676],
       ],
       slhGuaranteedTable: [
         [1, 0.2], [2, 0.4], [3, 0.6], [4, 0.8], [5, 1.0],
@@ -3616,20 +3615,6 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
         [45, 5.2221], [50, 5.27605], [55, 5.32995], [60, 5.3839], [65, 5.43785],
         [70, 5.47875], [80, 5.56145], [90, 5.64545], [100, 5.7307],
         [110, 5.81725], [120, 5.9051],
-      ],
-      // Realised bonus per annual premium (col B of 5-pay BR_Factor_Table).
-      slhDrawdownTable: [
-        [1, 0], [2, 0], [3, 0], [4, 0], [5, 0],
-        [6, 0], [7, 0], [8, 0], [9, 0], [10, 0.16235],
-        [11, 0.1761], [12, 0.1901], [13, 0.2041], [14, 0.21805], [15, 0.2319],
-        [16, 0.2457], [17, 0.2595], [18, 0.2732], [19, 0.2869], [20, 0.3006],
-        [21, 0.31195], [22, 0.32325], [23, 0.3345], [24, 0.3457], [25, 0.35695],
-        [26, 0.36815], [27, 0.37945], [28, 0.3907], [29, 0.40195], [30, 0.4131],
-        [31, 0.4172], [32, 0.4213], [33, 0.4252], [34, 0.4291], [35, 0.43305],
-        [36, 0.437], [37, 0.4409], [38, 0.4447], [39, 0.4485], [40, 0.4523],
-        [45, 0.4717], [50, 0.491], [55, 0.51075], [60, 0.5309], [65, 0.55145],
-        [70, 0.5714], [80, 0.61195], [90, 0.65405], [100, 0.69765],
-        [110, 0.7057], [120, 0.7138],
       ],
     },
   };
@@ -3834,7 +3819,6 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
 
     let totalBasicPaid = 0;
     let cumulativeBonus = 0;
-    let cumulativeDrawdown = 0;
 
     for (let year = 1; year <= years; year += 1) {
       // Premium paid this year — single lump for SP at year 1, or one
@@ -3849,38 +3833,28 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
 
       // Lookup factors (per-annual-premium for 3/5-pay, per-single-premium
       // for SP — same formula either way since `annualPremium` IS the
-      // premium that's multiplied by the factor in both cases).
+      // premium that's multiplied by the factor in both cases). The
+      // workbook's Reinvested mode keeps everything inside the policy:
+      // there's no recurring cash drawdown unless the user opts in
+      // (separate feature). Instead, the surface a row at year N gives
+      // the policyholder the option to surrender or take an adhoc
+      // drawdown at that point — both computed from the NG bonus.
       const surrenderFactor = lookupSlhFactor(variant.slhFactorTable, year);
       const guaranteedFactor = lookupSlhFactor(variant.slhGuaranteedTable, year);
-      // Cash drawdown for THIS year (7% bonus realisation from PY10).
-      // Stays 0 for variants without a drawdown table.
-      const drawdownFactor = variant.slhDrawdownTable
-        ? lookupSlhFactor(variant.slhDrawdownTable, year)
-        : 0;
-      const drawdownThisYear = drawdownFactor * annualPremium;
-      cumulativeDrawdown += drawdownThisYear;
-      if (drawdownThisYear > 0) {
-        // Drawdown is paid out at the end of the policy year — record it
-        // in the cashflow timeline so IRR sees the cash-back.
-        const drawMonth = year * 12 - 1;
-        cashFlows[drawMonth] = (cashFlows[drawMonth] || 0) + drawdownThisYear;
-      }
       const surrenderValue = surrenderFactor * annualPremium;
       const guaranteedValue = guaranteedFactor * annualPremium;
-      // Total value the policyholder has accumulated = current surrender +
-      // every drawdown they've already received.
-      const totalValue = surrenderValue + cumulativeDrawdown;
-      const terminalBonus = Math.max(0, surrenderValue - guaranteedValue);
-      cumulativeBonus = terminalBonus;
+      const nonGuaranteedBonus = Math.max(0, surrenderValue - guaranteedValue);
+      const totalValue = surrenderValue;        // Reinvested → everything stays in the policy
+      cumulativeBonus = nonGuaranteedBonus;
 
-      // Map par-WL concepts onto the ILP shape used by the renderers:
-      //   accountValue    = current surrender value (after drawdowns)
-      //   surrenderValue  = guaranteed cash surrender value (no TB)
-      //   cashWithdrawals = cumulative drawdown paid out so far
-      //   totalValue      = accountValue + cashWithdrawals (full lifetime
-      //                     value the policyholder has received)
+      // Map par-WL concepts onto the ILP shape used by renderers:
+      //   accountValue    = total surrender value (incl. NG bonus)
+      //   surrenderValue  = guaranteed surrender value (no NG)
+      //   totalValue      = total surrender value (Reinvested mode)
       //   deathBenefit    = max(101% × premium paid, totalValue) proxy
       const deathBenefit = Math.max(1.01 * totalBasicPaid, totalValue);
+      const drawdownThisYear = 0;               // no recurring drawdown
+      const cumulativeDrawdown = 0;
       // Par-WL has a single non-guaranteed component (terminal bonus
       // accumulated to date). The composition chart breaks "non-
       // guaranteed value" into bonuses + dividends + investment growth;
@@ -3923,8 +3897,16 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
         lapsed: false,
         // Surface the par-WL specific non-guaranteed component for any
         // future renderer that wants to show it explicitly.
-        slhTerminalBonus: terminalBonus,
-        slhDrawdownThisYear: drawdownThisYear,
+        slhTerminalBonus: nonGuaranteedBonus,
+        slhNonGuaranteedBonus: nonGuaranteedBonus,
+        // Adhoc drawdown options (informational — what cash the user
+        // could pull out at this year as a one-off without losing the
+        // surrender value baseline).
+        slhAdhocDrawdown10: nonGuaranteedBonus * 0.10,
+        slhAdhocDrawdown50: nonGuaranteedBonus * 0.50,
+        slhYieldFactor: totalValue > 0 && totalBasicPaid > 0
+          ? Math.pow(totalValue / totalBasicPaid, 1 / year) - 1
+          : 0,
       });
 
       // Monthly stub — par-WL doesn't have month-granular behaviour but
@@ -5281,13 +5263,36 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
     fields.currency.value = variant.currencies.includes(value) ? value : variant.currencies[0];
     syncPaymentOptions();
     enforceComparePremiumMinimum(true);
-    // Toggle the `is-par-wl` body class so the CSS can hide the editable
-    // strategy section (and reveal the par-WL info card) for Signature
-    // Legacy Harvest variants. Triggered alongside the currency sync so
-    // every variant change passes through here.
-    document.body.classList.toggle("is-par-wl", variant.kind === "par-wl");
+    updateParWlBodyClasses();
+  }
+
+  // Body-class state machine for par-WL UI gating:
+  //   .is-par-wl-main       — main variant is SLH (hide main strategy table)
+  //   .is-par-wl-compare    — compare variant is SLH (hide compare strategy)
+  //   .hide-ilp-controls    — main is par-WL AND compare is either off or
+  //                           also par-WL → no ILP variant in the picture,
+  //                           so hide the Bonuses toggles + Fund Builder
+  //                           panel (they don't apply to par-WL).
+  // When the user comparing main=SLH against compare=IR/IRG, .hide-ilp-
+  // controls drops off so the bonuses + fund builder remain available
+  // for the compare side.
+  function updateParWlBodyClasses() {
+    const mainKey = fields.variantKey?.value;
+    const mainVariant = mainKey ? model.VARIANTS[mainKey] : null;
+    const compareEnabled = !!fields.compareCustom?.checked;
+    const compareKey = fields.compareVariantKey?.value;
+    const compareVariant = compareEnabled && compareKey ? model.VARIANTS[compareKey] : null;
+    const mainIsParWl = mainVariant?.kind === "par-wl";
+    const compareIsParWl = compareVariant?.kind === "par-wl";
+    const compareIsIlp = compareEnabled && compareVariant && compareVariant.kind !== "par-wl";
+
+    document.body.classList.toggle("is-par-wl", mainIsParWl);                  // backwards-compat alias
+    document.body.classList.toggle("is-par-wl-main", mainIsParWl);
+    document.body.classList.toggle("is-par-wl-compare", compareIsParWl);
+    document.body.classList.toggle("hide-ilp-controls", mainIsParWl && !compareIsIlp);
+
     const parWlInfo = document.getElementById("parWlInfo");
-    if (parWlInfo) parWlInfo.hidden = variant.kind !== "par-wl";
+    if (parWlInfo) parWlInfo.hidden = !mainIsParWl;
   }
 
   function syncPaymentOptions() {
@@ -6745,6 +6750,53 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
     };
     renderAnnualAccessLegend(access, valueWrapper, variant);
 
+    // Par-WL annual table is structurally different from the ILP one:
+    // no NAV, no dividends, no top-up — instead Year/Age/Premium/GSV/
+    // Non-Guaranteed Bonus/Total Surrender Value/Yield/Adhoc 10%/Adhoc 50%
+    // (mirroring the customer's SLH workbook layout).
+    if (variant.kind === "par-wl") {
+      $("annualTable").innerHTML = `
+        <thead>
+          <tr>
+            <th class="col-time">Policy Year</th>
+            <th class="col-time">Age</th>
+            <th class="col-premium right">Premium paid</th>
+            <th class="col-value right">Guaranteed SV [A]</th>
+            <th class="col-bonus right">Non-Guaranteed Bonus [B]</th>
+            <th class="col-total right">Total Surrender Value [A]+[B]</th>
+            <th class="col-charge right">Yield</th>
+            <th class="col-withdrawal right">Adhoc 10% Drawdown</th>
+            <th class="col-withdrawal right">Adhoc 50% Drawdown</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${annualRows.map((row) => {
+            const milestoneCls = milestoneOnly ? milestoneLabel(row.year, settings, variant, totalYears) : "";
+            const classes = ["par-wl-row"];
+            if (state.highlightYear === row.year) classes.push("year-highlight");
+            if (milestoneCls) classes.push("milestone");
+            const ng = row.slhNonGuaranteedBonus || 0;
+            const yieldPct = row.slhYieldFactor || 0;
+            const yieldText = yieldPct > 0 ? percent(yieldPct, 2) : "—";
+            return `
+              <tr class="${classes.filter(Boolean).join(" ")}" data-year="${row.year}" ${milestoneCls ? `data-milestone="${milestoneCls}"` : ""}>
+                <td class="col-time">${row.year}</td>
+                <td class="col-time">${row.age}</td>
+                <td class="col-premium right">${row.premiums > 0 ? valueWrapper(row.premiums, row.year) : "—"}</td>
+                <td class="col-value right">${valueWrapper(row.surrenderValue, row.year)}</td>
+                <td class="col-bonus right">${valueWrapper(ng, row.year)}</td>
+                <td class="col-total right strong">${valueWrapper(row.totalValue, row.year)}</td>
+                <td class="col-charge right">${yieldText}</td>
+                <td class="col-withdrawal right">${ng > 0 ? valueWrapper(row.slhAdhocDrawdown10 || 0, row.year) : "—"}</td>
+                <td class="col-withdrawal right">${ng > 0 ? valueWrapper(row.slhAdhocDrawdown50 || 0, row.year) : "—"}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      `;
+      return;
+    }
+
     $("annualTable").innerHTML = `
       <thead>
         <tr>
@@ -7254,6 +7306,7 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
       enforceComparePremiumMinimum(true);
       autofillComparePremiums();
       renderCompareStrategyTable();
+      updateParWlBodyClasses();
       recalc();
     });
     fields.compareAnnualizedPremium.addEventListener("input", () => {
@@ -7273,6 +7326,7 @@ body.is-par-wl #parWlInfo[hidden] { display: block !important; }
     });
     fields.fdFundingMode.addEventListener("change", recalc);
     fields.compareCustom.addEventListener("change", () => {
+      updateParWlBodyClasses();
       if (fields.compareCustom.checked && !state.compareStrategy.length) {
         fields.compareAnnualizedPremium.value = fields.annualizedPremium.value;
         copyMainStrategyToCompare();
