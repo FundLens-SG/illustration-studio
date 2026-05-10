@@ -642,11 +642,8 @@ button:hover {
   background: var(--navy);
 }
 
-.scenario-actions .btn.copied {
-  background: rgba(214, 168, 122, 0.28);
-  border-color: var(--gold);
-  color: #fff;
-}
+/* Share-link button removed from topbar; the legacy hidden #copyShareLink
+   button still works for URL-hash restoration on saved scenarios. */
 
 .advisor-settings,
 .benchmark-settings {
@@ -2887,7 +2884,6 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
             <button type="button" data-open-action="disk">Open HTML from disk…</button>
           </div>
         </details>
-        <button id="shareLinkBtn" class="btn" type="button" title="Copy a URL that re-opens this exact scenario">Share link</button>
         <button id="startPresentation" class="btn btn-primary" type="button">Presentation mode</button>
         <!-- Print PDF: opens a fresh window with the canonical 6-page
              paper deck (Executive Summary · Value Mechanics · Chart ·
@@ -8197,7 +8193,6 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     $("saveHtmlScenario").addEventListener("click", saveHtmlScenario);
     $("loadHtmlScenario").addEventListener("click", () => fields.loadScenarioFile.click());
     $("copyShareLink").addEventListener("click", copyShareLink);
-    $("shareLinkBtn")?.addEventListener("click", copyShareLink);
     fields.loadScenarioFile.addEventListener("change", () => loadHtmlScenarioFile(fields.loadScenarioFile.files[0]));
     $("startPresentation").addEventListener("click", () => {
       document.body.classList.add("presentation-mode");
