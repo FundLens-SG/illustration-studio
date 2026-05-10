@@ -6600,9 +6600,18 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       const row = annual.find(predicate);
       return row ? row.year : null;
     };
-    const breakevenTotal = findFirst((r) => (r.totalValue || 0) >= (r.totalBasicPaid || 0) && (r.totalBasicPaid || 0) > 0);
+    // In BR mode, cumulative cash income has been realised out of the
+    // policy. The advisor cares about TOTAL WEALTH (= remaining policy
+    // value + cumulative realised cash), not just policy value, when
+    // judging "have I doubled my money / 4× / 8×". Without this, BR
+    // mode would show "Not reached" for Capital × 4 / × 8 because the
+    // policy value alone is artificially capped by the recurring 7%
+    // drawdown — even though the customer has actually received many
+    // multiples of their premium back via realised cash.
+    const wealthOf = (r) => (r.brTotalWealth != null ? r.brTotalWealth : (r.totalValue || 0));
+    const breakevenTotal = findFirst((r) => wealthOf(r) >= (r.totalBasicPaid || 0) && (r.totalBasicPaid || 0) > 0);
     const breakevenGuaranteed = findFirst((r) => (r.surrenderValue || 0) >= (r.totalBasicPaid || 0) && (r.totalBasicPaid || 0) > 0);
-    const findMultiple = (mult) => findFirst((r) => (r.totalBasicPaid || 0) > 0 && (r.totalValue || 0) >= mult * (r.totalBasicPaid || 0));
+    const findMultiple = (mult) => findFirst((r) => (r.totalBasicPaid || 0) > 0 && wealthOf(r) >= mult * (r.totalBasicPaid || 0));
     return {
       breakevenTotal,
       breakevenGuaranteed,
