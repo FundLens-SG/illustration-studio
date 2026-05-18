@@ -2964,100 +2964,105 @@ body.is-si3-main #advisorSettings {
   border: 1px solid var(--line);
   border-radius: 4px;
 }
+/* Match the IR / IRG annual table (.data-table) visual language —
+   inherits "Geist" from the body, tabular-nums for column alignment,
+   bold title-case headers, calm 9px×10px cell padding. SI adds its
+   own column-group colour coding on top via the .si-col-* classes
+   below. */
 .si-projection-table {
   width: 100%;
-  border-collapse: collapse;
-  /* Sans-serif with tabular-nums aligns digit columns without the
-     cramped chunky look of Geist Mono at small body sizes. Same
-     pattern Stripe / Linear use for finance tables. */
-  font-family: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
-  font-variant-numeric: tabular-nums lining-nums;
-  font-feature-settings: "tnum" 1, "lnum" 1, "kern" 1;
-  font-size: 13px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.si-projection-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 .si-projection-table thead th {
   position: sticky;
   top: 0;
-  background: var(--surface-2);
-  color: var(--navy);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 11px 14px;
+  z-index: 6;
+  height: 38px;
+  padding: 9px 10px;
+  color: #243246;
   text-align: right;
-  border-bottom: 1px solid var(--line);
   white-space: nowrap;
-  font-family: "Geist", "Segoe UI", system-ui, sans-serif;
-  font-variant-numeric: normal;
+  font-size: 12px;
+  font-weight: 700;
+  background: #fff;
+  background-clip: padding-box;
+  border-bottom: 1px solid #cfc2ad;
+  box-shadow: 0 1px 0 #cfc2ad, 0 3px 8px rgba(16, 26, 40, 0.08);
 }
-.si-projection-table thead th:nth-child(1),
-.si-projection-table thead th:nth-child(2) { text-align: center; }
+.si-projection-table thead th.si-col-age,
+.si-projection-table thead th.si-col-year { text-align: center; }
 .si-th-sub {
   display: block;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--muted);
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   text-transform: none;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 .si-projection-table tbody td {
-  padding: 9px 14px;
+  border-bottom: 1px solid #eee7dc;
+  padding: 9px 10px;
   text-align: right;
-  border-bottom: 1px solid #ececec;
-  color: var(--navy);
   white-space: nowrap;
-  font-weight: 500;
+  color: var(--navy);
+  font-variant-numeric: tabular-nums;
 }
-/* Age + Policy Year — neutral identifier columns, centered with
-   muted text so they recede behind the financial columns. */
+/* Age + Policy Year — centred, muted text so the identifier columns
+   recede behind the financial columns the advisor actually reads. */
 .si-projection-table .si-col-age,
 .si-projection-table .si-col-year {
   text-align: center;
   color: var(--ink-soft);
-  font-weight: 500;
 }
-/* Column group separators — subtle vertical line where the column
+/* Column-group separators — subtle vertical line where the column
    meaning shifts (identifier → income → cash → grand total). */
 .si-projection-table .si-col-gross,
 .si-projection-table .si-col-cv,
 .si-projection-table .si-col-grand {
-  border-left: 1px solid #ececec;
+  border-left: 1px solid #eee7dc;
+}
+.si-projection-table thead .si-col-gross,
+.si-projection-table thead .si-col-cv,
+.si-projection-table thead .si-col-grand {
+  border-left: 1px solid #cfc2ad;
 }
 /* Income block — brass tones. Net Payout (the headline yearly figure)
    is the boldest; Payout and Total Payout are softer brass. */
-.si-projection-table tbody .si-col-gross {
-  color: var(--gold-dark);
-}
+.si-projection-table tbody .si-col-gross { color: var(--gold-dark); }
 .si-projection-table tbody .si-col-net {
   color: var(--gold-dark);
   font-weight: 600;
 }
-.si-projection-table tbody .si-col-total-payout {
-  color: #8c6a3f;          /* darker brass — accumulated income */
-}
+.si-projection-table tbody .si-col-total-payout { color: #8c6a3f; }
 /* Cash block — blue tones, signalling policy equity (stable value
-   sitting inside the policy, distinct from the cash income flow). */
-.si-projection-table tbody .si-col-cv {
-  color: var(--blue);
-}
+   inside the policy, distinct from the cash income flow). */
+.si-projection-table tbody .si-col-cv { color: var(--blue); }
 .si-projection-table tbody .si-col-cv-fin {
   color: var(--blue);
   font-weight: 600;
 }
-/* Total Received — the bottom-line takeaway, in dividend green and
-   bold so the eye lands here first at any given year. */
+/* Total Received — bottom-line takeaway, dividend green + bold so
+   the eye lands here first at any given row. */
 .si-projection-table tbody .si-col-grand {
   color: var(--green);
   font-weight: 700;
 }
-/* Quiet alternation — matches the Excel's calm two-tone banding. */
-.si-projection-table tbody tr:nth-child(even) td { background: #f9faf8; }
-.si-projection-table tbody tr:hover td { background: var(--gold-soft); }
+/* Row transitions — match the IR / IRG data-table hover behaviour
+   exactly (subtle brightness shift, no colour-band repaint). */
+.si-projection-table tbody tr { transition: background 0.15s ease; }
+.si-projection-table tbody tr:hover td { filter: brightness(0.985); }
 .si-projection-table tbody td.si-negative { color: var(--red) !important; }
-/* Header colour-block hints — tint each header cell the same colour
-   as its column data so the user immediately groups the columns. */
+/* Header colour-block tints — match each header to its column data
+   colour so the visual grouping is obvious before reading any number. */
 .si-projection-table thead .si-col-income { color: var(--gold-dark); }
 .si-projection-table thead .si-col-cash { color: var(--blue); }
 .si-projection-table thead .si-col-grand { color: var(--green); }
