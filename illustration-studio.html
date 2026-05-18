@@ -2569,25 +2569,39 @@ body.is-si3-main .par-wl-info {
 body.is-si3-main #siCalculator[hidden] { display: block !important; }
 /* Trim the controls panel down for SI3 — fund picker, dividends,
    compare, goal-seek, advisor settings, NAV bulk-apply tools etc.
-   are all irrelevant for a single-premium coupon product. */
+   are all irrelevant for a single-premium coupon product. We also
+   hide the top "Client" input group (Annualised basic premium + Age
+   last birthday) because the SI section has its own premium and age
+   inputs — the duplicate top inputs were confusing.
+
+   .input-group[aria-label="Client inputs"] is the legacy ILP row in
+   the .controls section. Stays put for ILP/SLH; hidden for SI3. */
 body.is-si3-main .ilp-only-controls,
 body.is-si3-main .par-wl-only-controls,
 body.is-si3-main .compare-block,
 body.is-si3-main .goal-seek-block,
 body.is-si3-main .inflation-block,
 body.is-si3-main .bulk-strategy-block,
-body.is-si3-main .historical-tools {
+body.is-si3-main .historical-tools,
+body.is-si3-main .input-group[aria-label="Client inputs"],
+body.is-si3-main .toggle-groups,
+body.is-si3-main #compareSettings,
+body.is-si3-main #fdSettings,
+body.is-si3-main #goalSeekSettings,
+body.is-si3-main #advisorSettings {
   display: none !important;
 }
 
 /* ===== SI calculator card styling =====
-   Reuses navy/brass tokens. Cards have the brass-edged header used
-   elsewhere in the studio. */
+   Reuses the studio's navy / gold / Geist / Newsreader tokens so SI(III)
+   feels like a first-class member of the suite rather than a bolt-on. */
 .si-calculator {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 18px;
   margin: 18px 0;
+  font-family: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--ink);
 }
 
 /* Death benefit umbrella banner — sits at top of SI section. Inherits
@@ -2595,14 +2609,30 @@ body.is-si3-main .historical-tools {
    banner, with extra columns for milestone values across the policy
    lifetime. */
 .si-db-banner {
-  grid-template-columns: minmax(280px, 1.1fr) minmax(260px, 0.85fr) minmax(360px, 1.4fr) !important;
+  grid-template-columns: minmax(280px, 1fr) minmax(240px, 0.8fr) minmax(360px, 1.5fr) !important;
   margin-top: 0 !important;
+  font-family: "Geist", "Segoe UI", system-ui, sans-serif;
 }
-.si-db-banner-intro h2 { margin: 6px 0; }
+.si-db-banner-intro p.eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin: 0;
+}
+.si-db-banner-intro h2 {
+  margin: 6px 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.15;
+}
 .si-db-banner-sub {
   margin: 8px 0 0 0;
-  color: #d8dfdf;
-  font-size: 13px;
+  color: #c8d0d8;
+  font-size: 12px;
+  line-height: 1.45;
   max-width: 380px;
 }
 .si-db-banner-headline {
@@ -2613,23 +2643,25 @@ body.is-si3-main .historical-tools {
   gap: 4px;
 }
 .si-db-eyebrow {
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--gold, #d6a87a);
+  color: var(--gold);
   font-weight: 600;
 }
 .si-db-banner-headline strong {
   font-family: "Newsreader", Georgia, "Times New Roman", serif;
-  font-size: 38px;
+  font-size: 36px;
   font-weight: 600;
   line-height: 1.05;
   color: #ffffff;
+  letter-spacing: -0.01em;
 }
 .si-db-detail {
-  font-size: 12px;
-  color: #d8dfdf;
-  font-family: "Geist Mono", monospace;
+  font-size: 11px;
+  color: #b8c0c8;
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: -0.005em;
 }
 .si-db-milestones {
   margin: 0;
@@ -2637,34 +2669,36 @@ body.is-si3-main .historical-tools {
   list-style: none;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px 18px;
+  gap: 10px;
 }
 .si-db-milestones li {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 10px 14px;
-  background: rgba(255,255,255,0.06);
-  border-left: 2px solid var(--gold, #d6a87a);
+  gap: 3px;
+  padding: 9px 12px;
+  background: rgba(255,255,255,0.05);
+  border-left: 2px solid var(--gold);
   border-radius: 2px;
 }
 .si-db-milestones .si-db-ms-label {
   font-size: 10px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--gold, #d6a87a);
+  color: var(--gold);
   font-weight: 600;
 }
 .si-db-milestones .si-db-ms-value {
-  font-family: "Geist Mono", monospace;
-  font-size: 16px;
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  font-size: 15px;
   font-weight: 600;
   color: #ffffff;
+  letter-spacing: -0.01em;
 }
 .si-db-milestones .si-db-ms-detail {
   font-size: 10px;
-  color: #b8c0c8;
-  font-family: "Geist Mono", monospace;
+  color: #a8b0b8;
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: -0.005em;
 }
 @media (max-width: 1100px) {
   .si-db-banner {
@@ -2677,35 +2711,38 @@ body.is-si3-main .historical-tools {
   .si-db-milestones { grid-template-columns: 1fr; }
 }
 .si-card {
-  background: #fff;
-  border: 1px solid #e3dccb;
-  border-radius: 8px;
-  padding: 24px 28px;
-  box-shadow: 0 2px 6px rgba(14,31,51,0.04);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 22px 26px;
+  box-shadow: 0 1px 2px rgba(14,31,51,0.04);
 }
 .si-card-header h2 {
-  font-family: var(--font-display, "Newsreader", serif);
-  font-size: 22px;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.15;
   margin: 0 0 6px 0;
-  color: var(--navy, #0e1f33);
+  color: var(--navy);
 }
 .si-subtitle {
   margin: 0 0 18px 0;
   font-size: 13px;
-  color: #5a6b80;
+  line-height: 1.45;
+  color: var(--muted);
 }
 .si-inputs-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px 24px;
-  margin-bottom: 20px;
+  gap: 14px 22px;
+  margin-bottom: 18px;
 }
 .si-financing-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 22px;
   padding: 18px 0 0 0;
-  border-top: 1px dashed #e3dccb;
+  border-top: 1px dashed var(--line);
 }
 .si-financing-grid.is-disabled { opacity: 0.45; pointer-events: none; }
 .si-field {
@@ -2718,51 +2755,67 @@ body.is-si3-main .historical-tools {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #5a6b80;
+  color: var(--muted);
+  margin-bottom: 2px;
 }
 .si-input-wrap {
   position: relative;
   display: flex;
   align-items: center;
-  background: #faf7f0;
-  border: 1px solid #d8d2c1;
-  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
   padding: 0 12px;
-  height: 38px;
+  height: 36px;
+  transition: border-color 0.15s ease;
+}
+.si-input-wrap:focus-within {
+  border-color: var(--gold-dark);
+  box-shadow: 0 0 0 3px var(--gold-glow);
 }
 .si-input-wrap input {
   background: transparent;
   border: 0;
   outline: none;
   width: 100%;
-  font-family: var(--font-mono, "Geist Mono", monospace);
-  font-size: 15px;
-  color: var(--navy, #0e1f33);
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--navy);
   text-align: right;
+  padding: 0;
 }
-.si-input-wrap input:focus { color: #000; }
 .si-input-wrap .si-prefix,
 .si-input-wrap .si-suffix {
-  font-family: var(--font-mono, "Geist Mono", monospace);
-  font-size: 13px;
-  color: #8c8470;
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
 }
 .si-input-wrap .si-prefix { margin-right: 6px; }
 .si-input-wrap .si-suffix { margin-left: 6px; }
 .si-field > input[type="number"] {
-  background: #faf7f0;
-  border: 1px solid #d8d2c1;
-  border-radius: 6px;
-  padding: 9px 12px;
-  font-family: var(--font-mono, "Geist Mono", monospace);
-  font-size: 15px;
-  color: var(--navy, #0e1f33);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 12px;
+  height: 36px;
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--navy);
   outline: none;
+  transition: border-color 0.15s ease;
+}
+.si-field > input[type="number"]:focus {
+  border-color: var(--gold-dark);
+  box-shadow: 0 0 0 3px var(--gold-glow);
 }
 .si-hint {
   font-size: 11px;
-  color: #8c8470;
-  font-family: var(--font-mono, "Geist Mono", monospace);
+  color: var(--muted);
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: -0.005em;
 }
 .si-toggle-field {
   align-self: end;
@@ -2773,13 +2826,14 @@ body.is-si3-main .historical-tools {
   gap: 10px;
   cursor: pointer;
   user-select: none;
+  height: 36px;
 }
 .si-switch input { position: absolute; opacity: 0; pointer-events: none; }
 .si-switch-slider {
   position: relative;
-  width: 44px;
-  height: 24px;
-  background: #d8d2c1;
+  width: 38px;
+  height: 22px;
+  background: var(--line);
   border-radius: 999px;
   transition: background 0.18s ease;
 }
@@ -2788,58 +2842,66 @@ body.is-si3-main .historical-tools {
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   background: #fff;
   border-radius: 50%;
   box-shadow: 0 1px 2px rgba(0,0,0,0.18);
   transition: transform 0.18s ease;
 }
-.si-switch input:checked + .si-switch-slider {
-  background: var(--brass, #d6a87a);
+.si-switch input:checked + .si-switch-slider { background: var(--gold-dark); }
+.si-switch input:checked + .si-switch-slider::after { transform: translateX(16px); }
+.si-switch-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
-.si-switch input:checked + .si-switch-slider::after { transform: translateX(20px); }
-.si-switch-text { font-size: 13px; color: var(--navy, #0e1f33); }
 
 /* Summary card with 5 hero metrics */
 .si-summary-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
+  gap: 0;
 }
 .si-metric {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 14px 18px;
-  border-right: 1px solid #ece6d6;
+  padding: 12px 18px;
+  border-right: 1px solid var(--line);
 }
-.si-metric:last-child { border-right: 0; }
+.si-metric:first-child { padding-left: 4px; }
+.si-metric:last-child { border-right: 0; padding-right: 4px; }
 .si-metric-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #5a6b80;
+  color: var(--muted);
 }
 .si-metric-value {
-  font-family: var(--font-mono, "Geist Mono", monospace);
-  font-size: 24px;
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  font-size: 22px;
   font-weight: 600;
-  color: var(--navy, #0e1f33);
-  letter-spacing: -0.01em;
+  color: var(--navy);
+  letter-spacing: -0.015em;
+  line-height: 1.1;
 }
 .si-metric-detail {
   font-size: 11px;
-  color: #8c8470;
-  font-family: var(--font-mono, "Geist Mono", monospace);
+  color: var(--muted);
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  line-height: 1.3;
 }
-.si-metric-total .si-metric-value { color: var(--brass-dark, #c0925f); }
-.si-metric-rate .si-metric-value { color: var(--green-dividend, #2f6b5d); }
+.si-metric-total .si-metric-value { color: var(--gold-dark); }
+.si-metric-rate .si-metric-value { color: var(--green); }
 .si-summary-note {
-  margin: 12px 0 0 18px;
+  margin: 14px 0 0 4px;
   font-size: 12px;
-  color: #5a6b80;
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 /* Projection table */
@@ -2852,62 +2914,83 @@ body.is-si3-main .historical-tools {
   flex-wrap: wrap;
 }
 .si-table-header h3 {
-  font-family: var(--font-display, "Newsreader", serif);
-  font-size: 18px;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  font-size: 17px;
   margin: 0;
-  color: var(--navy, #0e1f33);
+  color: var(--navy);
 }
 .si-table-controls {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
 }
+/* Milestone toggle — match the existing `.toggle` pill pattern so it
+   lines up with the global control vocabulary. The native checkbox is
+   sized down and gold-tinted to avoid the giant default rendering. */
 .si-toggle-inline {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface-2);
   font-size: 12px;
-  color: #5a6b80;
+  font-weight: 600;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  user-select: none;
+}
+.si-toggle-inline input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  accent-color: var(--gold-dark);
   cursor: pointer;
 }
 .si-table-baseline {
   font-size: 11px;
-  font-family: var(--font-mono, "Geist Mono", monospace);
-  color: #8c8470;
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  color: var(--muted);
+  letter-spacing: -0.005em;
 }
 .si-table-scroll {
   overflow-x: auto;
-  border: 1px solid #ece6d6;
-  border-radius: 6px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
 }
 .si-projection-table {
   width: 100%;
   border-collapse: collapse;
-  font-family: var(--font-mono, "Geist Mono", monospace);
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
   font-size: 12px;
 }
 .si-projection-table thead th {
   position: sticky;
   top: 0;
-  background: #f5efde;
-  color: var(--navy, #0e1f33);
-  font-size: 11px;
+  background: var(--surface-2);
+  color: var(--navy);
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 10px 12px;
   text-align: right;
-  border-bottom: 2px solid #d8d2c1;
+  border-bottom: 1px solid var(--line);
   white-space: nowrap;
+  font-family: "Geist", "Segoe UI", system-ui, sans-serif;
 }
 .si-projection-table thead th:nth-child(1),
 .si-projection-table thead th:nth-child(2) { text-align: center; }
 .si-th-sub {
   display: block;
   font-size: 9px;
-  font-weight: 400;
-  color: #8c8470;
+  font-weight: 500;
+  color: var(--muted);
   letter-spacing: 0.02em;
   text-transform: none;
   margin-top: 2px;
@@ -2915,37 +2998,43 @@ body.is-si3-main .historical-tools {
 .si-projection-table tbody td {
   padding: 7px 12px;
   text-align: right;
-  border-bottom: 1px solid #f3eee0;
-  color: var(--navy, #0e1f33);
+  border-bottom: 1px solid var(--surface-2);
+  color: var(--navy);
   white-space: nowrap;
 }
 .si-projection-table tbody td:nth-child(1),
-.si-projection-table tbody td:nth-child(2) { text-align: center; color: #5a6b80; }
-.si-projection-table tbody tr:nth-child(odd) { background: #fbf8ef; }
-.si-projection-table tbody tr.si-milestone-row { background: #f3e9d2; font-weight: 600; }
+.si-projection-table tbody td:nth-child(2) {
+  text-align: center;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+.si-projection-table tbody tr:nth-child(even) { background: var(--surface-2); }
+.si-projection-table tbody tr.si-milestone-row { background: var(--gold-soft); }
+.si-projection-table tbody tr.si-milestone-row td { font-weight: 600; }
 .si-projection-table tbody tr.si-payout-start td:nth-child(3),
 .si-projection-table tbody tr.si-payout-start td:nth-child(4) {
-  color: var(--brass-dark, #c0925f);
+  color: var(--gold-dark);
   font-weight: 600;
 }
-.si-projection-table tbody td.si-negative { color: #b3463f; }
+.si-projection-table tbody td.si-negative { color: var(--red); }
 
 .si-warnings {
   margin-top: 14px;
   padding: 10px 14px;
-  background: #fdf6e3;
-  border: 1px solid #e8d8a8;
-  border-radius: 6px;
+  background: var(--amber-soft);
+  border: 1px solid #e2cf95;
+  border-radius: 4px;
   font-size: 12px;
-  color: #5a4a14;
+  color: var(--amber);
 }
+.si-warnings strong { display: block; margin-bottom: 4px; }
 .si-warnings ul { margin: 0; padding-left: 18px; }
 
 @media (max-width: 1100px) {
   .si-inputs-grid { grid-template-columns: 1fr 1fr; }
   .si-financing-grid { grid-template-columns: 1fr 1fr; }
   .si-summary-grid { grid-template-columns: 1fr 1fr; }
-  .si-metric { border-right: 0; border-bottom: 1px solid #ece6d6; }
+  .si-metric { border-right: 0; border-bottom: 1px solid var(--line); padding-left: 4px; padding-right: 4px; }
 }
 @media (max-width: 720px) {
   .si-inputs-grid { grid-template-columns: 1fr; }
@@ -3554,7 +3643,7 @@ body.is-si3-main .historical-tools {
             </label>
 
             <label class="si-field">
-              <span class="si-label">Entry Age</span>
+              <span class="si-label">Age</span>
               <input id="siEntryAge" type="number" min="1" max="70" step="1" />
               <span class="si-hint">PI calibrated for age 40</span>
             </label>
@@ -3573,7 +3662,7 @@ body.is-si3-main .historical-tools {
             <label class="si-field">
               <span class="si-label">Financing %</span>
               <div class="si-input-wrap">
-                <input id="siFinancingPct" type="number" min="0" max="100" step="0.5" />
+                <input id="siFinancingPct" type="number" min="0" max="72" step="0.5" />
                 <span class="si-suffix">%</span>
               </div>
               <span class="si-hint" id="siFinancedAmountHint">Bank loans —</span>
@@ -3596,15 +3685,6 @@ body.is-si3-main .historical-tools {
               </div>
               <span class="si-hint" id="siMonthlyInterestHint">Monthly —</span>
             </label>
-
-            <label class="si-field">
-              <span class="si-label">Interest Term</span>
-              <div class="si-input-wrap">
-                <input id="siInterestTermYears" type="number" min="1" max="20" step="1" />
-                <span class="si-suffix">years</span>
-              </div>
-              <span class="si-hint">Interest-only window</span>
-            </label>
           </div>
         </div>
 
@@ -3616,16 +3696,16 @@ body.is-si3-main .historical-tools {
               <span class="si-metric-detail" id="siSummaryInitialDetail">Customer cash on Day 1</span>
             </div>
             <div class="si-metric">
-              <span class="si-metric-label" id="siSummaryInterestLabel">3 Years Interest</span>
-              <strong class="si-metric-value" id="siSummaryInterest">S$0</strong>
-              <span class="si-metric-detail" id="siSummaryInterestDetail">Cumulative loan interest</span>
-            </div>
-            <div class="si-metric si-metric-total">
-              <span class="si-metric-label">Total Capital Out</span>
-              <strong class="si-metric-value" id="siSummaryTotalPaid">S$0</strong>
-              <span class="si-metric-detail">Initial + Interest</span>
+              <span class="si-metric-label">Bank Loan</span>
+              <strong class="si-metric-value" id="siSummaryLoan">S$0</strong>
+              <span class="si-metric-detail" id="siSummaryLoanDetail">Outstanding for policy term</span>
             </div>
             <div class="si-metric">
+              <span class="si-metric-label">Annual Interest</span>
+              <strong class="si-metric-value" id="siSummaryInterest">S$0</strong>
+              <span class="si-metric-detail" id="siSummaryInterestDetail">Paid every year of policy</span>
+            </div>
+            <div class="si-metric si-metric-total">
               <span class="si-metric-label">Net Annual Payout</span>
               <strong class="si-metric-value" id="siSummaryNetPayout">S$0</strong>
               <span class="si-metric-detail" id="siSummaryNetPayoutDetail">Coupon minus interest</span>
@@ -3633,7 +3713,7 @@ body.is-si3-main .historical-tools {
             <div class="si-metric si-metric-rate">
               <span class="si-metric-label">Payout Rate</span>
               <strong class="si-metric-value" id="siSummaryPayoutRate">0.0%</strong>
-              <span class="si-metric-detail">Net payout ÷ total capital out</span>
+              <span class="si-metric-detail">Net payout ÷ initial payment</span>
             </div>
           </div>
           <p class="si-summary-note" id="siSummaryNote"></p>
@@ -3645,7 +3725,7 @@ body.is-si3-main .historical-tools {
             <div class="si-table-controls">
               <label class="si-toggle-inline">
                 <input id="siMilestoneOnly" type="checkbox" />
-                <span>Milestone years only</span>
+                Milestone years only
               </label>
               <span class="si-table-baseline" id="siTableBaseline">Based on Manulife Signature Income (III) PI — Age 40 baseline · 4.25% IRR · Paid Out</span>
             </div>
@@ -5214,15 +5294,21 @@ body.is-si3-main .historical-tools {
     // Project to policy maturity (year 80 for an age-40 baseline).
     const years = Math.max(1, maturityAge - baselineAge);
 
-    // Financing inputs (default off; opt in via settings.siFinancingEnabled).
+    // Financing inputs. Hard cap at 72% — the maximum bank co-share
+    // available in the Singapore market for SI(III) premium financing.
+    // Interest is paid every year of the policy (no fixed "interest
+    // term" — loan stays outstanding until policy surrender / maturity).
     const finEnabled = !!settings.siFinancingEnabled;
-    const financingPct = finEnabled ? Math.max(0, Math.min(1, num(settings.siFinancingPct, 0))) : 0;
+    const financingPct = finEnabled ? Math.max(0, Math.min(0.72, num(settings.siFinancingPct, 0))) : 0;
     const interestRate = finEnabled ? Math.max(0, num(settings.siInterestRate, 0)) : 0;
-    const interestTermYears = finEnabled ? Math.max(0, Math.round(num(settings.siInterestTermYears, 3))) : 0;
     const financedAmount = premium * financingPct;
     const downpayment = premium - financedAmount;
     const annualInterest = financedAmount * interestRate;
-    const totalInterestPaid = annualInterest * interestTermYears;
+    // Cumulative interest over the full policy term (informational —
+    // surfaced via summary.totalInterestPaid). For an 80-year horizon
+    // this is a large nominal number; the UI surfaces Annual Interest
+    // as the primary recurring-cost metric.
+    const totalInterestPaid = annualInterest * years;
 
     const couponRate = num(variant.siCouponRate, 0.036);
     const payoutStartYear = variant.payoutStartYear || 4;
@@ -5269,12 +5355,11 @@ body.is-si3-main .historical-tools {
 
       cumulativeGrossPayout += grossPayout;
       cumulativeNetPayout += netPayout;
-      // Interest tracking — only counted for the contracted term years
-      // (matches the summary's "N Years Interest" metric). Past the
-      // term, the customer is assumed to have re-negotiated / rolled at
-      // the same rate, but the headline interest cost reflects the
-      // initial commitment only.
-      cumulativeInterestPaid += year <= interestTermYears ? interestThisYear : 0;
+      // Interest is paid every year of the policy — accumulates over
+      // the full horizon. The summary surfaces annualInterest (the
+      // recurring cost) as the headline; this cumulative is available
+      // for break-even and total-cost reporting.
+      cumulativeInterestPaid += interestThisYear;
 
       const cashValueMinusFinancing = cashValue - financedAmount;
       const totalReceived = cumulativeNetPayout + cashValueMinusFinancing;
@@ -5363,25 +5448,32 @@ body.is-si3-main .historical-tools {
 
     const irr = irrMonthly(cashFlows);
 
-    // Summary metrics (top-right summary panel in the spreadsheet).
+    // Summary metrics for the 5-card panel. The "interest is for the
+    // entire policy term" model reframes a few of these vs the original
+    // spreadsheet:
+    //   • Bank Loan = financed amount, outstanding for the entire term
+    //   • Annual Interest = recurring annual cost (replaces "3 Yrs Int")
+    //   • Net Annual Payout = coupon − annualInterest (steady state)
+    //   • Payout Rate = Net Annual / Initial Payment (yield on locked
+    //     capital — the customer's downpayment). Interest is recurring
+    //     so it doesn't get rolled into the denominator the way an
+    //     upfront commitment would.
     const summary = {
       premium,
       financingPct,
       financedAmount,
       downpayment,
       interestRate,
-      interestTermYears,
       annualInterest,
-      totalInterestPaid,
+      totalInterestPaid,                      // cumulative over full term — informational
       grossAnnualPayout,
-      // Spreadsheet J5: net annual payout post-interest (only meaningful
-      // while financing is active and after payouts begin).
       netAnnualPayoutDuringFinancing: grossAnnualPayout - annualInterest,
-      // Total Paid: Initial Payment + 3 Yrs Interest (spreadsheet J4).
-      totalPaid: downpayment + totalInterestPaid,
-      // Payout Rate: net annual payout ÷ total paid (spreadsheet J6).
-      payoutRate: (downpayment + totalInterestPaid) > 0
-        ? (grossAnnualPayout - annualInterest) / (downpayment + totalInterestPaid)
+      // Initial outlay only — interest is recurring, so a "total paid"
+      // figure that mixes upfront + lifetime interest is misleading.
+      initialOutlay: downpayment,
+      // Payout Rate: yield on the customer's locked-in cash (downpayment).
+      payoutRate: downpayment > 0
+        ? (grossAnnualPayout - annualInterest) / downpayment
         : 0,
       couponRate,
     };
@@ -5422,7 +5514,7 @@ body.is-si3-main .historical-tools {
       const annualInterest = num(settings.annualizedPremium, 0) * num(settings.siFinancingPct, 0) * num(settings.siInterestRate, 0);
       const grossPayout = num(settings.annualizedPremium, 0) * num(variant.siCouponRate, 0.036);
       if (annualInterest > grossPayout) {
-        warnings.push(`Annual loan interest (${currencySymbol(settings.currency)}${Math.round(annualInterest).toLocaleString()}) exceeds annual coupon (${currencySymbol(settings.currency)}${Math.round(grossPayout).toLocaleString()}). Net payout will be negative during the financing window — consider lowering financing % or interest rate.`);
+        warnings.push(`Annual loan interest (${currencySymbol(settings.currency)}${Math.round(annualInterest).toLocaleString()}) exceeds annual coupon (${currencySymbol(settings.currency)}${Math.round(grossPayout).toLocaleString()}). Net payout will be negative every year — consider lowering financing % or interest rate.`);
       }
     }
     return warnings;
@@ -6092,7 +6184,7 @@ body.is-si3-main .historical-tools {
     "annualDividendMonthly",
     // Signature Income (III) premium-financing fields
     "siPremium", "siEntryAge", "siFinancingEnabled",
-    "siFinancingPct", "siDownpayment", "siInterestRate", "siInterestTermYears",
+    "siFinancingPct", "siDownpayment", "siInterestRate",
     "siMilestoneOnly",
   ];
 
@@ -6864,9 +6956,10 @@ body.is-si3-main .historical-tools {
     };
     if (isSI3) {
       settings.siFinancingEnabled = !!(fields.siFinancingEnabled && fields.siFinancingEnabled.checked);
-      settings.siFinancingPct = pctInput(fields.siFinancingPct);
+      // Financing % is capped at 72% (max bank co-share for SI(III)
+      // premium financing in the Singapore market).
+      settings.siFinancingPct = Math.min(0.72, Math.max(0, pctInput(fields.siFinancingPct)));
       settings.siInterestRate = pctInput(fields.siInterestRate);
-      settings.siInterestTermYears = numberValue(fields.siInterestTermYears);
     }
     return settings;
   }
@@ -7548,15 +7641,18 @@ body.is-si3-main .historical-tools {
     setText("siSummaryInitial", fmt(summary.downpayment || 0));
     setText("siSummaryInitialDetail",
       summary.financingPct > 0
-        ? `${percent(1 - (summary.financingPct || 0), 0)} of premium`
+        ? `${percent(1 - (summary.financingPct || 0), 0)} of premium · customer cash`
         : "Full premium paid in cash");
-    setText("siSummaryInterestLabel", `${summary.interestTermYears || 0} Year${(summary.interestTermYears || 0) === 1 ? "" : "s"} Interest`);
-    setText("siSummaryInterest", fmt(summary.totalInterestPaid || 0));
+    setText("siSummaryLoan", fmt(summary.financedAmount || 0));
+    setText("siSummaryLoanDetail",
+      summary.financingPct > 0
+        ? `${pctFmt(summary.financingPct || 0, 0)} of premium · interest-only`
+        : "No financing");
+    setText("siSummaryInterest", fmt(summary.annualInterest || 0));
     setText("siSummaryInterestDetail",
       summary.financingPct > 0
-        ? `${fmt(summary.annualInterest || 0)}/yr × ${summary.interestTermYears || 0}`
-        : "No financing");
-    setText("siSummaryTotalPaid", fmt(summary.totalPaid || 0));
+        ? `${pctFmt(summary.interestRate || 0, 2)} on ${fmt(summary.financedAmount || 0)} · every year`
+        : "No interest");
     const netAnnual = summary.netAnnualPayoutDuringFinancing != null
       ? summary.netAnnualPayoutDuringFinancing
       : (summary.grossAnnualPayout || 0);
@@ -7568,7 +7664,7 @@ body.is-si3-main .historical-tools {
     setText("siSummaryPayoutRate", pctFmt(summary.payoutRate || 0, 2));
     setText("siSummaryNote",
       `Coupon ${pctFmt(summary.couponRate || 0, 2)} p.a. begins policy year ${variant.payoutStartYear || 4}. ` +
-      `Bank loan principal stays at ${fmt(summary.financedAmount || 0)} for the policy term (interest-only).`);
+      `Loan principal stays at ${fmt(summary.financedAmount || 0)} throughout the policy term — repaid from policy proceeds at surrender or maturity.`);
 
     // ----- Death benefit umbrella banner -----
     // Populate the headline (day-1 cover, guaranteed floor) plus a
@@ -9523,27 +9619,40 @@ body.is-si3-main .historical-tools {
   }
 
   // ===== EVENT BINDING =====
-  // Two-way sync for Financing % ↔ Downpayment. Premium × (1 − pct) =
-  // downpayment, and downpayment ÷ premium = (1 − pct). Both fields
-  // stay live-editable; whichever the user just touched is the source
-  // of truth and the other is recomputed.
+  // Two-way sync for Financing % ↔ Downpayment.
+  //   premium × (1 − pct) = downpayment       (pct is the source)
+  //   downpayment ÷ premium = (1 − pct)        (downpayment is the source)
+  // Both fields stay live-editable; whichever the user just touched is
+  // the source of truth and the other is recomputed. Financing is
+  // hard-capped at 72% — typing higher gets silently clamped to 72,
+  // and entering a downpayment below 28% of premium snaps back up.
+  const SI_MAX_FINANCING_PCT = 72;
   function syncSIDownpayment(source) {
     const premium = numberValue(fields.siPremium) || 0;
     if (premium <= 0) return;
+    const minDownpayment = premium * (1 - SI_MAX_FINANCING_PCT / 100);
     if (source === "fromPct") {
-      const pct = Math.max(0, Math.min(100, numberValue(fields.siFinancingPct)));
+      let pct = Math.max(0, Math.min(SI_MAX_FINANCING_PCT, numberValue(fields.siFinancingPct)));
+      // Snap-back the displayed value if the user typed > cap.
+      if (Number(fields.siFinancingPct.value) > SI_MAX_FINANCING_PCT) {
+        fields.siFinancingPct.value = SI_MAX_FINANCING_PCT;
+      }
       const dp = premium * (1 - pct / 100);
       fields.siDownpayment.value = Math.round(dp);
     } else if (source === "fromDownpayment") {
-      const dp = Math.max(0, Math.min(premium, numberValue(fields.siDownpayment)));
+      let dp = Math.max(minDownpayment, Math.min(premium, numberValue(fields.siDownpayment)));
+      if (numberValue(fields.siDownpayment) < minDownpayment) {
+        fields.siDownpayment.value = Math.round(minDownpayment);
+      }
       const pct = (1 - dp / premium) * 100;
       fields.siFinancingPct.value = Number(pct.toFixed(2));
     }
   }
 
   // Seed the SI(III) inputs with sensible defaults on first paint.
-  // Matches the reference spreadsheet: $200K premium, age 40, financing
-  // on at 72% / 2.00% / 3 years.
+  // $200K premium, age 40 (matches the PI baseline), financing on at
+  // 72% / 2.00%. Interest is paid for the entire policy term — no
+  // separate interest-term input.
   function initSI3Defaults() {
     if (fields.siPremium && !fields.siPremium.value) fields.siPremium.value = 200000;
     if (fields.siEntryAge && !fields.siEntryAge.value) fields.siEntryAge.value = 40;
@@ -9552,7 +9661,6 @@ body.is-si3-main .historical-tools {
     }
     if (fields.siFinancingPct && !fields.siFinancingPct.value) fields.siFinancingPct.value = 72;
     if (fields.siInterestRate && !fields.siInterestRate.value) fields.siInterestRate.value = 2;
-    if (fields.siInterestTermYears && !fields.siInterestTermYears.value) fields.siInterestTermYears.value = 3;
     syncSIDownpayment("fromPct");
   }
 
@@ -9659,12 +9767,11 @@ body.is-si3-main .historical-tools {
     if (fields.siFinancingEnabled) {
       fields.siFinancingEnabled.addEventListener("change", () => {
         const enabled = fields.siFinancingEnabled.checked;
-        // Restore default financing levels the first time the toggle is
-        // flipped on, so the advisor doesn't have to retype 72/2/3.
+        // Restore defaults the first time the toggle is flipped on so
+        // the advisor doesn't have to retype 72 / 2.
         if (enabled && (!numberValue(fields.siFinancingPct) || numberValue(fields.siFinancingPct) === 0)) {
           fields.siFinancingPct.value = 72;
           fields.siInterestRate.value = 2;
-          fields.siInterestTermYears.value = 3;
           syncSIDownpayment("fromPct");
         }
         recalc();
@@ -9678,9 +9785,6 @@ body.is-si3-main .historical-tools {
     }
     if (fields.siInterestRate) {
       fields.siInterestRate.addEventListener("input", recalc);
-    }
-    if (fields.siInterestTermYears) {
-      fields.siInterestTermYears.addEventListener("input", recalc);
     }
     if (fields.siMilestoneOnly) {
       fields.siMilestoneOnly.addEventListener("change", () => {
