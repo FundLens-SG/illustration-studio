@@ -3010,19 +3010,57 @@ body.is-si3-main #advisorSettings {
   white-space: nowrap;
   font-weight: 500;
 }
-.si-projection-table tbody td:nth-child(1),
-.si-projection-table tbody td:nth-child(2) {
+/* Age + Policy Year — neutral identifier columns, centered with
+   muted text so they recede behind the financial columns. */
+.si-projection-table .si-col-age,
+.si-projection-table .si-col-year {
   text-align: center;
   color: var(--ink-soft);
   font-weight: 500;
 }
-/* Quiet alternation — matches the Excel's calm green/white banding
-   feel without the gold highlights. No milestone-row tint: with the
-   "milestone years only" toggle the entire table is already filtered,
-   and on the full annual view the gold stripes added visual noise. */
+/* Column group separators — subtle vertical line where the column
+   meaning shifts (identifier → income → cash → grand total). */
+.si-projection-table .si-col-gross,
+.si-projection-table .si-col-cv,
+.si-projection-table .si-col-grand {
+  border-left: 1px solid #ececec;
+}
+/* Income block — brass tones. Net Payout (the headline yearly figure)
+   is the boldest; Payout and Total Payout are softer brass. */
+.si-projection-table tbody .si-col-gross {
+  color: var(--gold-dark);
+}
+.si-projection-table tbody .si-col-net {
+  color: var(--gold-dark);
+  font-weight: 600;
+}
+.si-projection-table tbody .si-col-total-payout {
+  color: #8c6a3f;          /* darker brass — accumulated income */
+}
+/* Cash block — blue tones, signalling policy equity (stable value
+   sitting inside the policy, distinct from the cash income flow). */
+.si-projection-table tbody .si-col-cv {
+  color: var(--blue);
+}
+.si-projection-table tbody .si-col-cv-fin {
+  color: var(--blue);
+  font-weight: 600;
+}
+/* Total Received — the bottom-line takeaway, in dividend green and
+   bold so the eye lands here first at any given year. */
+.si-projection-table tbody .si-col-grand {
+  color: var(--green);
+  font-weight: 700;
+}
+/* Quiet alternation — matches the Excel's calm two-tone banding. */
 .si-projection-table tbody tr:nth-child(even) td { background: #f9faf8; }
-.si-projection-table tbody tr:hover td { background: #f3eed8; }
-.si-projection-table tbody td.si-negative { color: var(--red); }
+.si-projection-table tbody tr:hover td { background: var(--gold-soft); }
+.si-projection-table tbody td.si-negative { color: var(--red) !important; }
+/* Header colour-block hints — tint each header cell the same colour
+   as its column data so the user immediately groups the columns. */
+.si-projection-table thead .si-col-income { color: var(--gold-dark); }
+.si-projection-table thead .si-col-cash { color: var(--blue); }
+.si-projection-table thead .si-col-grand { color: var(--green); }
 
 .si-warnings {
   margin-top: 14px;
@@ -3740,16 +3778,14 @@ body.is-si3-main #advisorSettings {
             <table id="siProjectionTable" class="si-projection-table">
               <thead>
                 <tr>
-                  <th scope="col">Age</th>
-                  <th scope="col">Policy Year</th>
-                  <th scope="col">Payout</th>
-                  <th scope="col">Net Payout</th>
-                  <th scope="col">Total Payout</th>
-                  <th scope="col">Total Outflow</th>
-                  <th scope="col">Death Benefit</th>
-                  <th scope="col">Cash Value</th>
-                  <th scope="col">Cash Value <span class="si-th-sub">(Minus Financing)</span></th>
-                  <th scope="col">Total Received</th>
+                  <th scope="col" class="si-col-age">Age</th>
+                  <th scope="col" class="si-col-year">Policy Year</th>
+                  <th scope="col" class="si-col-income si-col-gross">Payout</th>
+                  <th scope="col" class="si-col-income si-col-net">Net Payout</th>
+                  <th scope="col" class="si-col-income si-col-total-payout">Total Payout</th>
+                  <th scope="col" class="si-col-cash si-col-cv">Cash Value</th>
+                  <th scope="col" class="si-col-cash si-col-cv-fin">Cash Value <span class="si-th-sub">(Minus Financing)</span></th>
+                  <th scope="col" class="si-col-grand">Total Received</th>
                 </tr>
               </thead>
               <tbody id="siProjectionBody"></tbody>
@@ -7752,16 +7788,14 @@ body.is-si3-main #advisorSettings {
         if (isPayoutStart) cls.push("si-payout-start");
         return `
           <tr class="${cls.join(" ")}">
-            <td>${row.age}</td>
-            <td>${row.year}</td>
-            <td class="${negCls(row.siGrossPayout)}">${fmt(row.siGrossPayout || 0)}</td>
-            <td class="${negCls(row.siNetPayout)}">${fmt(row.siNetPayout || 0)}</td>
-            <td>${fmt(row.siCumulativeNetPayout)}</td>
-            <td class="${negCls(row.siTotalOutflow)}">${fmt(row.siTotalOutflow)}</td>
-            <td>${fmt(row.siDeathBenefit)}</td>
-            <td>${fmt(row.siCashValue)}</td>
-            <td class="${negCls(row.siCashValueMinusFinancing)}">${fmt(row.siCashValueMinusFinancing)}</td>
-            <td>${fmt(row.siTotalReceived)}</td>
+            <td class="si-col-age">${row.age}</td>
+            <td class="si-col-year">${row.year}</td>
+            <td class="si-col-income si-col-gross">${fmt(row.siGrossPayout || 0)}</td>
+            <td class="si-col-income si-col-net">${fmt(row.siNetPayout || 0)}</td>
+            <td class="si-col-income si-col-total-payout">${fmt(row.siCumulativeNetPayout)}</td>
+            <td class="si-col-cash si-col-cv">${fmt(row.siCashValue)}</td>
+            <td class="si-col-cash si-col-cv-fin${negCls(row.siCashValueMinusFinancing)}">${fmt(row.siCashValueMinusFinancing)}</td>
+            <td class="si-col-grand">${fmt(row.siTotalReceived)}</td>
           </tr>
         `;
       })
