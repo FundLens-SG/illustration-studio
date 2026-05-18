@@ -2546,6 +2546,412 @@ body.is-par-wl-main .ilp-only-deduction {
   display: none !important;
 }
 body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
+
+/* ===== SI(III) Premium-Financing UI gating =====
+   When the main variant family is SI3 (Signature Income III) we hide
+   essentially every ILP/SLH-specific section: hero, charts, fund
+   builder, strategy table, comparison hero, dividend toggles, par-WL
+   banner. Only the SI calculator section + header/disclaimers remain
+   visible. */
+body.is-si3-main #heroSummary,
+body.is-si3-main #comparisonHero,
+body.is-si3-main #legacyProtectionBanner,
+body.is-si3-main #parWlProtectionBanner,
+body.is-si3-main .chart-grid,
+body.is-si3-main .status-row,
+body.is-si3-main #fundBuilderSection,
+body.is-si3-main #strategySection,
+body.is-si3-main #compareStrategySection,
+body.is-si3-main .detail-section,
+body.is-si3-main .par-wl-info {
+  display: none !important;
+}
+body.is-si3-main #siCalculator[hidden] { display: block !important; }
+/* Trim the controls panel down for SI3 — fund picker, dividends,
+   compare, goal-seek, advisor settings, NAV bulk-apply tools etc.
+   are all irrelevant for a single-premium coupon product. */
+body.is-si3-main .ilp-only-controls,
+body.is-si3-main .par-wl-only-controls,
+body.is-si3-main .compare-block,
+body.is-si3-main .goal-seek-block,
+body.is-si3-main .inflation-block,
+body.is-si3-main .bulk-strategy-block,
+body.is-si3-main .historical-tools {
+  display: none !important;
+}
+
+/* ===== SI calculator card styling =====
+   Reuses navy/brass tokens. Cards have the brass-edged header used
+   elsewhere in the studio. */
+.si-calculator {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin: 18px 0;
+}
+
+/* Death benefit umbrella banner — sits at top of SI section. Inherits
+   the .benefit-highlight navy+gold styling from the existing legacy
+   banner, with extra columns for milestone values across the policy
+   lifetime. */
+.si-db-banner {
+  grid-template-columns: minmax(280px, 1.1fr) minmax(260px, 0.85fr) minmax(360px, 1.4fr) !important;
+  margin-top: 0 !important;
+}
+.si-db-banner-intro h2 { margin: 6px 0; }
+.si-db-banner-sub {
+  margin: 8px 0 0 0;
+  color: #d8dfdf;
+  font-size: 13px;
+  max-width: 380px;
+}
+.si-db-banner-headline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+.si-db-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold, #d6a87a);
+  font-weight: 600;
+}
+.si-db-banner-headline strong {
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1.05;
+  color: #ffffff;
+}
+.si-db-detail {
+  font-size: 12px;
+  color: #d8dfdf;
+  font-family: "Geist Mono", monospace;
+}
+.si-db-milestones {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 18px;
+}
+.si-db-milestones li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.06);
+  border-left: 2px solid var(--gold, #d6a87a);
+  border-radius: 2px;
+}
+.si-db-milestones .si-db-ms-label {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold, #d6a87a);
+  font-weight: 600;
+}
+.si-db-milestones .si-db-ms-value {
+  font-family: "Geist Mono", monospace;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+.si-db-milestones .si-db-ms-detail {
+  font-size: 10px;
+  color: #b8c0c8;
+  font-family: "Geist Mono", monospace;
+}
+@media (max-width: 1100px) {
+  .si-db-banner {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+  }
+  .si-db-milestones { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .si-db-milestones { grid-template-columns: 1fr; }
+}
+.si-card {
+  background: #fff;
+  border: 1px solid #e3dccb;
+  border-radius: 8px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 6px rgba(14,31,51,0.04);
+}
+.si-card-header h2 {
+  font-family: var(--font-display, "Newsreader", serif);
+  font-size: 22px;
+  margin: 0 0 6px 0;
+  color: var(--navy, #0e1f33);
+}
+.si-subtitle {
+  margin: 0 0 18px 0;
+  font-size: 13px;
+  color: #5a6b80;
+}
+.si-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 24px;
+  margin-bottom: 20px;
+}
+.si-financing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px 20px;
+  padding: 18px 0 0 0;
+  border-top: 1px dashed #e3dccb;
+}
+.si-financing-grid.is-disabled { opacity: 0.45; pointer-events: none; }
+.si-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.si-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #5a6b80;
+}
+.si-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #faf7f0;
+  border: 1px solid #d8d2c1;
+  border-radius: 6px;
+  padding: 0 12px;
+  height: 38px;
+}
+.si-input-wrap input {
+  background: transparent;
+  border: 0;
+  outline: none;
+  width: 100%;
+  font-family: var(--font-mono, "Geist Mono", monospace);
+  font-size: 15px;
+  color: var(--navy, #0e1f33);
+  text-align: right;
+}
+.si-input-wrap input:focus { color: #000; }
+.si-input-wrap .si-prefix,
+.si-input-wrap .si-suffix {
+  font-family: var(--font-mono, "Geist Mono", monospace);
+  font-size: 13px;
+  color: #8c8470;
+}
+.si-input-wrap .si-prefix { margin-right: 6px; }
+.si-input-wrap .si-suffix { margin-left: 6px; }
+.si-field > input[type="number"] {
+  background: #faf7f0;
+  border: 1px solid #d8d2c1;
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-family: var(--font-mono, "Geist Mono", monospace);
+  font-size: 15px;
+  color: var(--navy, #0e1f33);
+  outline: none;
+}
+.si-hint {
+  font-size: 11px;
+  color: #8c8470;
+  font-family: var(--font-mono, "Geist Mono", monospace);
+}
+.si-toggle-field {
+  align-self: end;
+}
+.si-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.si-switch input { position: absolute; opacity: 0; pointer-events: none; }
+.si-switch-slider {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #d8d2c1;
+  border-radius: 999px;
+  transition: background 0.18s ease;
+}
+.si-switch-slider::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+  transition: transform 0.18s ease;
+}
+.si-switch input:checked + .si-switch-slider {
+  background: var(--brass, #d6a87a);
+}
+.si-switch input:checked + .si-switch-slider::after { transform: translateX(20px); }
+.si-switch-text { font-size: 13px; color: var(--navy, #0e1f33); }
+
+/* Summary card with 5 hero metrics */
+.si-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+.si-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  border-right: 1px solid #ece6d6;
+}
+.si-metric:last-child { border-right: 0; }
+.si-metric-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #5a6b80;
+}
+.si-metric-value {
+  font-family: var(--font-mono, "Geist Mono", monospace);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--navy, #0e1f33);
+  letter-spacing: -0.01em;
+}
+.si-metric-detail {
+  font-size: 11px;
+  color: #8c8470;
+  font-family: var(--font-mono, "Geist Mono", monospace);
+}
+.si-metric-total .si-metric-value { color: var(--brass-dark, #c0925f); }
+.si-metric-rate .si-metric-value { color: var(--green-dividend, #2f6b5d); }
+.si-summary-note {
+  margin: 12px 0 0 18px;
+  font-size: 12px;
+  color: #5a6b80;
+}
+
+/* Projection table */
+.si-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 14px;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.si-table-header h3 {
+  font-family: var(--font-display, "Newsreader", serif);
+  font-size: 18px;
+  margin: 0;
+  color: var(--navy, #0e1f33);
+}
+.si-table-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.si-toggle-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #5a6b80;
+  cursor: pointer;
+}
+.si-table-baseline {
+  font-size: 11px;
+  font-family: var(--font-mono, "Geist Mono", monospace);
+  color: #8c8470;
+}
+.si-table-scroll {
+  overflow-x: auto;
+  border: 1px solid #ece6d6;
+  border-radius: 6px;
+}
+.si-projection-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono, "Geist Mono", monospace);
+  font-size: 12px;
+}
+.si-projection-table thead th {
+  position: sticky;
+  top: 0;
+  background: #f5efde;
+  color: var(--navy, #0e1f33);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 10px 12px;
+  text-align: right;
+  border-bottom: 2px solid #d8d2c1;
+  white-space: nowrap;
+}
+.si-projection-table thead th:nth-child(1),
+.si-projection-table thead th:nth-child(2) { text-align: center; }
+.si-th-sub {
+  display: block;
+  font-size: 9px;
+  font-weight: 400;
+  color: #8c8470;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  margin-top: 2px;
+}
+.si-projection-table tbody td {
+  padding: 7px 12px;
+  text-align: right;
+  border-bottom: 1px solid #f3eee0;
+  color: var(--navy, #0e1f33);
+  white-space: nowrap;
+}
+.si-projection-table tbody td:nth-child(1),
+.si-projection-table tbody td:nth-child(2) { text-align: center; color: #5a6b80; }
+.si-projection-table tbody tr:nth-child(odd) { background: #fbf8ef; }
+.si-projection-table tbody tr.si-milestone-row { background: #f3e9d2; font-weight: 600; }
+.si-projection-table tbody tr.si-payout-start td:nth-child(3),
+.si-projection-table tbody tr.si-payout-start td:nth-child(4) {
+  color: var(--brass-dark, #c0925f);
+  font-weight: 600;
+}
+.si-projection-table tbody td.si-negative { color: #b3463f; }
+
+.si-warnings {
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: #fdf6e3;
+  border: 1px solid #e8d8a8;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #5a4a14;
+}
+.si-warnings ul { margin: 0; padding-left: 18px; }
+
+@media (max-width: 1100px) {
+  .si-inputs-grid { grid-template-columns: 1fr 1fr; }
+  .si-financing-grid { grid-template-columns: 1fr 1fr; }
+  .si-summary-grid { grid-template-columns: 1fr 1fr; }
+  .si-metric { border-right: 0; border-bottom: 1px solid #ece6d6; }
+}
+@media (max-width: 720px) {
+  .si-inputs-grid { grid-template-columns: 1fr; }
+  .si-financing-grid { grid-template-columns: 1fr; }
+  .si-summary-grid { grid-template-columns: 1fr; }
+}
 .par-wl-info {
   background: linear-gradient(180deg, #fbf6e8 0%, #f5ebd1 100%);
   border: 1px solid var(--gold-dark, #b58a52);
@@ -3107,6 +3513,163 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
             Admin after MIP override
             <input id="adminAfterOverride" type="number" min="0" max="10" step="0.01" placeholder="Product default" />
           </label>
+        </div>
+      </section>
+
+      <!-- ===== SI(III) PREMIUM FINANCING SECTION =====
+           Visible only when an SI variant is selected (body.is-si3-main).
+           Provides: death-benefit umbrella banner, financing inputs
+           (premium, financing %/downpayment with 2-way sync, interest
+           rate, term), summary metrics card, and the year-by-year
+           projection table mirroring the reference spreadsheet column
+           layout. -->
+      <section id="siCalculator" class="si-calculator" aria-label="Signature Income financing calculator" hidden>
+        <section id="siDeathBenefitBanner" class="benefit-highlight si-db-banner" aria-label="Death benefit umbrella">
+          <div class="si-db-banner-intro">
+            <p class="eyebrow">Insurance Protection</p>
+            <h2><abbr class="glossary-term" title="Lump sum payable on death or terminal illness. Signature Income (III) provides a death benefit floor of 105% of the single premium plus accumulated non-guaranteed bonuses, paid to beneficiaries regardless of income drawn during the policy term.">Death and Terminal Illness Benefit</abbr></h2>
+            <p class="si-db-banner-sub">Insurance umbrella across the income product — guaranteed floor of 105% of premium from day one, with non-guaranteed bonuses on top.</p>
+          </div>
+          <div class="si-db-banner-headline">
+            <span class="si-db-eyebrow" id="siDbDay1Label">Day 1 cover</span>
+            <strong id="siDbDay1Value">S$0</strong>
+            <span class="si-db-detail" id="siDbDay1Detail">105% of single premium · guaranteed</span>
+          </div>
+          <ul class="si-db-milestones" id="siDbMilestones"></ul>
+        </section>
+
+        <div class="si-card si-inputs-card">
+          <div class="si-card-header">
+            <h2>Premium Financing — Manulife Signature Income (III)</h2>
+            <p class="si-subtitle">Interest-only premium financing. Adjust premium, financing %, and interest rate; the projection re-runs live.</p>
+          </div>
+
+          <div class="si-inputs-grid">
+            <label class="si-field">
+              <span class="si-label">Single Premium</span>
+              <div class="si-input-wrap">
+                <span class="si-prefix">S$</span>
+                <input id="siPremium" type="number" min="0" step="10000" inputmode="numeric" />
+              </div>
+            </label>
+
+            <label class="si-field">
+              <span class="si-label">Entry Age</span>
+              <input id="siEntryAge" type="number" min="1" max="70" step="1" />
+              <span class="si-hint">PI calibrated for age 40</span>
+            </label>
+
+            <label class="si-field si-toggle-field">
+              <span class="si-label">Premium Financing</span>
+              <label class="si-switch">
+                <input id="siFinancingEnabled" type="checkbox" />
+                <span class="si-switch-slider"></span>
+                <span class="si-switch-text">Enabled</span>
+              </label>
+            </label>
+          </div>
+
+          <div id="siFinancingControls" class="si-financing-grid">
+            <label class="si-field">
+              <span class="si-label">Financing %</span>
+              <div class="si-input-wrap">
+                <input id="siFinancingPct" type="number" min="0" max="100" step="0.5" />
+                <span class="si-suffix">%</span>
+              </div>
+              <span class="si-hint" id="siFinancedAmountHint">Bank loans —</span>
+            </label>
+
+            <label class="si-field">
+              <span class="si-label">Downpayment</span>
+              <div class="si-input-wrap">
+                <span class="si-prefix">S$</span>
+                <input id="siDownpayment" type="number" min="0" step="1000" />
+              </div>
+              <span class="si-hint" id="siDownpaymentHint">Customer cash —</span>
+            </label>
+
+            <label class="si-field">
+              <span class="si-label">Interest Rate (p.a.)</span>
+              <div class="si-input-wrap">
+                <input id="siInterestRate" type="number" min="0" max="20" step="0.01" />
+                <span class="si-suffix">%</span>
+              </div>
+              <span class="si-hint" id="siMonthlyInterestHint">Monthly —</span>
+            </label>
+
+            <label class="si-field">
+              <span class="si-label">Interest Term</span>
+              <div class="si-input-wrap">
+                <input id="siInterestTermYears" type="number" min="1" max="20" step="1" />
+                <span class="si-suffix">years</span>
+              </div>
+              <span class="si-hint">Interest-only window</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="siSummaryCard" class="si-card si-summary-card">
+          <div class="si-summary-grid">
+            <div class="si-metric">
+              <span class="si-metric-label">Initial Payment</span>
+              <strong class="si-metric-value" id="siSummaryInitial">S$0</strong>
+              <span class="si-metric-detail" id="siSummaryInitialDetail">Customer cash on Day 1</span>
+            </div>
+            <div class="si-metric">
+              <span class="si-metric-label" id="siSummaryInterestLabel">3 Years Interest</span>
+              <strong class="si-metric-value" id="siSummaryInterest">S$0</strong>
+              <span class="si-metric-detail" id="siSummaryInterestDetail">Cumulative loan interest</span>
+            </div>
+            <div class="si-metric si-metric-total">
+              <span class="si-metric-label">Total Capital Out</span>
+              <strong class="si-metric-value" id="siSummaryTotalPaid">S$0</strong>
+              <span class="si-metric-detail">Initial + Interest</span>
+            </div>
+            <div class="si-metric">
+              <span class="si-metric-label">Net Annual Payout</span>
+              <strong class="si-metric-value" id="siSummaryNetPayout">S$0</strong>
+              <span class="si-metric-detail" id="siSummaryNetPayoutDetail">Coupon minus interest</span>
+            </div>
+            <div class="si-metric si-metric-rate">
+              <span class="si-metric-label">Payout Rate</span>
+              <strong class="si-metric-value" id="siSummaryPayoutRate">0.0%</strong>
+              <span class="si-metric-detail">Net payout ÷ total capital out</span>
+            </div>
+          </div>
+          <p class="si-summary-note" id="siSummaryNote"></p>
+        </div>
+
+        <div class="si-card si-table-card">
+          <div class="si-table-header">
+            <h3>Year-by-year Projection</h3>
+            <div class="si-table-controls">
+              <label class="si-toggle-inline">
+                <input id="siMilestoneOnly" type="checkbox" />
+                <span>Milestone years only</span>
+              </label>
+              <span class="si-table-baseline" id="siTableBaseline">Based on Manulife Signature Income (III) PI — Age 40 baseline · 4.25% IRR · Paid Out</span>
+            </div>
+          </div>
+          <div class="si-table-scroll">
+            <table id="siProjectionTable" class="si-projection-table">
+              <thead>
+                <tr>
+                  <th scope="col">Age</th>
+                  <th scope="col">Policy Year</th>
+                  <th scope="col">Payout</th>
+                  <th scope="col">Net Payout</th>
+                  <th scope="col">Total Payout</th>
+                  <th scope="col">Total Outflow</th>
+                  <th scope="col">Death Benefit</th>
+                  <th scope="col">Cash Value</th>
+                  <th scope="col">Cash Value <span class="si-th-sub">(Minus Financing)</span></th>
+                  <th scope="col">Total Received</th>
+                </tr>
+              </thead>
+              <tbody id="siProjectionBody"></tbody>
+            </table>
+          </div>
+          <div id="siWarningsBox" class="si-warnings" hidden></div>
         </div>
       </section>
 
@@ -4016,11 +4579,92 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
         [110, 16.91145], [120, 17.62525],
       ],
     },
+
+    // ──────────────────────────────────────────────────────────────────
+    // Signature Income (III) SGD — Manulife participating endowment with
+    // single-premium funding and a fixed monthly coupon paid from policy
+    // month 37 (year 4) onwards through to maturity at age 120. Optional
+    // premium financing: customer puts down a portion, bank lends the
+    // rest, customer pays interest-only for the first N years (typically
+    // 3). Loan principal is repaid from policy proceeds on surrender or
+    // claim.
+    //
+    // Factor tables transcribed from a baseline PI (Age 40, SGD 700K
+    // single premium, Monthly Income = Paid Out, 4.25% IRR scenario).
+    // Cross-checked against the user's working spreadsheet ("SI Financing
+    // with Property Rental Breakdown") K/L columns — both match to the
+    // dollar at PI anchor rows. Sparse anchor years (25, 30, 35, 40, then
+    // Age 55–120 in 5-yr steps) are linearly interpolated by
+    // lookupSlhFactor() to fill the in-between policy years.
+    //
+    // The baseline PI is age 40 — surrender value and death benefit
+    // factors are intrinsic to attained age and policy duration. Changing
+    // the displayed entry age in the UI only shifts the Age column; the
+    // SV/DB curves are calibrated to the age-40 baseline. Re-cut the PI
+    // and regenerate the tables for materially different entry ages.
+    "SI3_SP": {
+      key: "SI3_SP",
+      label: "SI(III) · Single Premium",
+      family: "SI3",
+      kind: "par-income-fin",
+      currencies: ["SGD"],
+      premiumTermYears: 1,           // single-pay
+      policyMaturityAge: 120,
+      baselineEntryAge: 40,          // PI source age
+      payoutStartYear: 4,            // month 37 → policy year 4
+      // Coupon rates as % of single premium (annual). 1.24% guaranteed +
+      // 2.36% non-guaranteed at 4.25% illustrated IRR = 3.60% total.
+      // Source PI: guaranteed monthly $8,686/yr ÷ $700K = 1.241%,
+      // non-guaranteed @ 4.25% IRR $16,531/yr ÷ $700K = 2.362%.
+      siGuaranteedCouponRate:    0.012408,
+      siNonGuaranteedCouponRate: 0.023615,
+      siCouponRate:              0.036,        // total @ 4.25% IRR
+      siCouponRateLow:           0.023268,     // total @ 3.00% IRR fallback ($16,288 ÷ $700K)
+      illustratedIRR:            0.0425,
+      minPremiums: { SGD: { Annual: 200000 } },
+      // Premium-financing defaults (used to seed the financing card).
+      // The user's reference spreadsheet defaults to 28% downpayment /
+      // 72% financed with 2.00% interest-only for 3 years.
+      defaultFinancing: {
+        enabled: true,
+        financingPct: 0.72,
+        interestRate: 0.02,
+        interestTermYears: 3,
+      },
+      // Surrender value (cash value) factor per $1M single premium.
+      // 4.25% illustrated IRR, Monthly Income = Paid Out scenario. Annual
+      // rows yrs 1–20, sparse anchors at yrs 25/30/35/40 then Age-indexed
+      // 55–120 (= policy years 15–80 for an age-40 baseline). Maturity
+      // value at year 80 (age 120) = $1,067,789 per $1M.
+      siSurrenderFactor: [
+        [1, 800000],   [2, 800000],   [3, 800000],   [4, 804544],   [5, 816000],
+        [6, 822727],   [7, 828000],   [8, 833000],   [9, 841500],   [10, 848703],
+        [11, 859147],  [12, 870836],  [13, 882889],  [14, 894037],  [15, 904134],
+        [16, 908149],  [17, 910646],  [18, 917227],  [19, 924846],  [20, 930456],
+        [25, 970731],  [30, 1012690], [35, 1032486], [40, 1043487],
+        [45, 1045442], [50, 1048533], [55, 1050799], [60, 1053179], [65, 1055690],
+        [70, 1059111], [75, 1062029], [80, 1067789],
+      ],
+      // Death benefit factor per $1M single premium. 4.25% IRR Paid Out.
+      // Same row indexing as siSurrenderFactor. Grows much slower than
+      // SV (this is a participating endowment, not whole-life), reaching
+      // ~$1.061M per $1M at maturity.
+      siDeathBenefitFactor: [
+        [1, 1051571],  [2, 1051763],  [3, 1052151],  [4, 1052243],  [5, 1052347],
+        [6, 1052443],  [7, 1052529],  [8, 1052606],  [9, 1052699],  [10, 1052801],
+        [11, 1052829], [12, 1052976], [13, 1053039], [14, 1053174], [15, 1053283],
+        [16, 1053401], [17, 1053546], [18, 1053624], [19, 1053779], [20, 1053961],
+        [25, 1054870], [30, 1055869], [35, 1056750], [40, 1057137],
+        [45, 1057537], [50, 1058169], [55, 1058630], [60, 1059116], [65, 1059629],
+        [70, 1060327], [75, 1060923], [80, 1061557],
+      ],
+    },
   };
 
-  const VARIANT_ORDER = ["5F1", "6F2", "7F5", "10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10", "SLH_SP", "SLH_3PAY", "SLH_5PAY"];
+  const VARIANT_ORDER = ["5F1", "6F2", "7F5", "10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10", "SLH_SP", "SLH_3PAY", "SLH_5PAY", "SI3_SP"];
   const PARTIAL_WITHDRAWAL_VARIANTS = new Set(["10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10"]);
   const PAR_WL_VARIANTS = new Set(["SLH_SP", "SLH_3PAY", "SLH_5PAY"]);
+  const PAR_INCOME_VARIANTS = new Set(["SI3_SP"]);
 
   function num(value, fallback = 0) {
     const parsed = Number(value);
@@ -4529,8 +5173,269 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     return warnings;
   }
 
+  // ──────────────────────────────────────────────────────────────────
+  // Signature Income (III) simulator with optional premium financing.
+  //
+  // Math (per the reference spreadsheet, calibrated against the Manulife
+  // PI baseline at age 40, $700K single premium, Paid Out mode, 4.25% IRR):
+  //
+  //   premium              = single premium ($)
+  //   financingPct         = portion of premium financed by the bank
+  //   financedAmount       = premium × financingPct       (loan principal)
+  //   downpayment          = premium × (1 − financingPct) (customer cash)
+  //   annualInterest       = financedAmount × interestRate
+  //   totalInterestPaid    = annualInterest × interestTermYears
+  //   couponRate           = variant.siCouponRate (3.6% default at 4.25% IRR)
+  //   grossPayoutYr        = year >= 4 ? premium × couponRate : 0
+  //   netPayoutYr (during financing window) = grossPayoutYr − annualInterest
+  //   netPayoutYr (after  financing window) = grossPayoutYr
+  //
+  // SV(y) / DB(y) factors are looked up from siSurrenderFactor /
+  // siDeathBenefitFactor (per $1M) and scaled by (premium / 1e6).
+  //
+  // "Cash Value (Minus Financing)" subtracts the outstanding loan
+  // principal — since financing is interest-only, the principal stays
+  // constant at financedAmount throughout the policy term.
+  //
+  // "Total Outflow" mirrors the spreadsheet's column F: a running cash
+  // position track equal to (−downpayment + cumulative net payouts).
+  // Negative early years = still in the hole; turns positive once
+  // payouts have repaid the downpayment.
+  //
+  // "Total Received" = cumulative net payouts + cash-value-minus-financing.
+  // Represents the customer's total economic position if surrendered at
+  // that year.
+  function simulateParIncome(settings, strategy, mode = "custom") {
+    const variant = VARIANTS[settings.variantKey];
+    const premium = num(settings.annualizedPremium, 200000);
+    const baselineAge = variant.baselineEntryAge || 40;
+    const startAge = num(settings.startAge, baselineAge);
+    const maturityAge = variant.policyMaturityAge || 120;
+    // Project to policy maturity (year 80 for an age-40 baseline).
+    const years = Math.max(1, maturityAge - baselineAge);
+
+    // Financing inputs (default off; opt in via settings.siFinancingEnabled).
+    const finEnabled = !!settings.siFinancingEnabled;
+    const financingPct = finEnabled ? Math.max(0, Math.min(1, num(settings.siFinancingPct, 0))) : 0;
+    const interestRate = finEnabled ? Math.max(0, num(settings.siInterestRate, 0)) : 0;
+    const interestTermYears = finEnabled ? Math.max(0, Math.round(num(settings.siInterestTermYears, 3))) : 0;
+    const financedAmount = premium * financingPct;
+    const downpayment = premium - financedAmount;
+    const annualInterest = financedAmount * interestRate;
+    const totalInterestPaid = annualInterest * interestTermYears;
+
+    const couponRate = num(variant.siCouponRate, 0.036);
+    const payoutStartYear = variant.payoutStartYear || 4;
+    const grossAnnualPayout = premium * couponRate;
+
+    const annual = [];
+    const monthly = [];
+    const cashFlows = new Array(years * 12 + 1).fill(0);
+
+    // Year 1, month 0: customer pays the downpayment as a cash outflow.
+    // Financed amount is paid by the bank — it never leaves the customer's
+    // pocket, so we don't book it here. Bank repayment happens at the
+    // policy event (surrender, claim, or maturity) and is reflected in
+    // the final cashflow inflow (cashValue minus loan).
+    cashFlows[0] -= downpayment;
+
+    let cumulativeNetPayout = 0;
+    let cumulativeInterestPaid = 0;
+    let cumulativeGrossPayout = 0;
+
+    for (let year = 1; year <= years; year += 1) {
+      const sFactor = lookupSlhFactor(variant.siSurrenderFactor, year);
+      const dbFactor = lookupSlhFactor(variant.siDeathBenefitFactor, year);
+      const cashValue = sFactor * (premium / 1_000_000);
+      const deathBenefit = dbFactor * (premium / 1_000_000);
+
+      const grossPayout = year >= payoutStartYear ? grossAnnualPayout : 0;
+      // Interest applies for every year while financing is enabled — the
+      // reference spreadsheet's "Net Payout" formula assumes the loan
+      // rolls at the same rate indefinitely (steady-state view). The
+      // "Interest Term" input drives the summary metric ("3 Years
+      // Interest" in the summary card) — it's a labeling concept, not a
+      // hard cutoff on when interest stops.
+      const interestThisYear = financingPct > 0 ? annualInterest : 0;
+      // Net payout = gross payout − annual interest cost.
+      // Years 1-3 (pre-coupon): gross is 0, so net would be negative
+      // (you're paying interest out of pocket). The spreadsheet floors
+      // at zero here, which is what the advisor expects to see in the
+      // table — the actual interest outflow is captured in the summary
+      // and in the Total Outflow column.
+      const netPayout = year >= payoutStartYear
+        ? grossPayout - interestThisYear
+        : 0;
+
+      cumulativeGrossPayout += grossPayout;
+      cumulativeNetPayout += netPayout;
+      // Interest tracking — only counted for the contracted term years
+      // (matches the summary's "N Years Interest" metric). Past the
+      // term, the customer is assumed to have re-negotiated / rolled at
+      // the same rate, but the headline interest cost reflects the
+      // initial commitment only.
+      cumulativeInterestPaid += year <= interestTermYears ? interestThisYear : 0;
+
+      const cashValueMinusFinancing = cashValue - financedAmount;
+      const totalReceived = cumulativeNetPayout + cashValueMinusFinancing;
+      // Total Outflow (mirrors spreadsheet col F):
+      //   F = −downpayment + (policy_year × current_gross_payout)
+      // This is the spreadsheet's break-even tracker. It treats the
+      // gross coupon as if it had been received every year from policy
+      // year 1 (over-counting the 3-year delay). Mathematically loose
+      // but what advisors using the spreadsheet expect to see — we
+      // replicate it exactly so the column reads the same.
+      const totalOutflow = -downpayment + (year * grossPayout);
+
+      // Cashflow stream for IRR / chart hover. Net payout posts at the
+      // end of the policy year (month index = year * 12).
+      if (netPayout !== 0) {
+        cashFlows[year * 12] += netPayout;
+      }
+
+      annual.push({
+        year,
+        age: startAge + year,        // end-of-year age per PI convention (year 1 → age startAge+1)
+        premiums: year === 1 ? downpayment : 0,         // customer's actual out-of-pocket this year
+        topUps: 0,
+        bonuses: 0,
+        grossDividends: 0,
+        cashDividends: netPayout,                       // surface net coupon as "cash dividend"-shaped field
+        reinvestedDividends: 0,
+        totalReinvestedDividends: 0,
+        adminCharges: 0,
+        policyFees: 0,
+        shortfallCharges: 0,
+        coiCharges: 0,
+        optionalDeductions: 0,
+        dividendWithdrawals: netPayout,
+        partialWithdrawals: 0,
+        withdrawalCharges: 0,
+        dividendWithdrawalLimit: 0,
+        partialWithdrawalLimit: 0,
+        partialWithdrawalChargeRate: 0,
+        adminRate: 0,
+        accountValue: cashValue,
+        surrenderValue: cashValue,
+        deathBenefit,
+        cashWithdrawals: cumulativeNetPayout,
+        totalValue: cashValueMinusFinancing,
+        totalBasicPaid: year >= 1 ? downpayment + cumulativeInterestPaid : 0,
+        totalTopUps: 0,
+        surrenderChargeRate: 0,
+        surrenderCharge: 0,
+        reinvestedDividendBasis: 0,
+        lapsed: false,
+        // SI(III)-specific surfaced fields used by the dedicated renderer.
+        siGrossPayout: grossPayout,
+        siNetPayout: netPayout,
+        siInterestThisYear: interestThisYear,
+        siCumulativeGrossPayout: cumulativeGrossPayout,
+        siCumulativeNetPayout: cumulativeNetPayout,
+        siCashValue: cashValue,
+        siCashValueMinusFinancing: cashValueMinusFinancing,
+        siDeathBenefit: deathBenefit,
+        siTotalOutflow: totalOutflow,
+        siTotalReceived: totalReceived,
+      });
+
+      monthly.push({
+        month: year * 12,
+        year,
+        age: startAge + year,        // end-of-year age per PI convention (year 1 → age startAge+1)
+        accountValue: cashValue,
+        surrenderValue: cashValue,
+        deathBenefit,
+        cashDividends: netPayout,
+        cashWithdrawals: cumulativeNetPayout,
+        totalValue: cashValueMinusFinancing,
+        totalBasicPaid: downpayment + cumulativeInterestPaid,
+        totalTopUps: 0,
+        totalReinvestedDividends: 0,
+        reinvestedDividendBasis: 0,
+        lapsed: false,
+      });
+    }
+
+    // Final cashflow: residual cash-value-minus-financing at horizon.
+    const finalRow = annual[annual.length - 1] || {};
+    cashFlows[years * 12] += finalRow.siCashValueMinusFinancing || 0;
+
+    const irr = irrMonthly(cashFlows);
+
+    // Summary metrics (top-right summary panel in the spreadsheet).
+    const summary = {
+      premium,
+      financingPct,
+      financedAmount,
+      downpayment,
+      interestRate,
+      interestTermYears,
+      annualInterest,
+      totalInterestPaid,
+      grossAnnualPayout,
+      // Spreadsheet J5: net annual payout post-interest (only meaningful
+      // while financing is active and after payouts begin).
+      netAnnualPayoutDuringFinancing: grossAnnualPayout - annualInterest,
+      // Total Paid: Initial Payment + 3 Yrs Interest (spreadsheet J4).
+      totalPaid: downpayment + totalInterestPaid,
+      // Payout Rate: net annual payout ÷ total paid (spreadsheet J6).
+      payoutRate: (downpayment + totalInterestPaid) > 0
+        ? (grossAnnualPayout - annualInterest) / (downpayment + totalInterestPaid)
+        : 0,
+      couponRate,
+    };
+
+    return {
+      mode,
+      variant,
+      settings: { ...settings, adminAfter: 0, policyFee: 0 },
+      annual,
+      monthly,
+      final: {
+        ...finalRow,
+        irr,
+        bonusTotal: 0,
+        netCapital: downpayment + totalInterestPaid,
+        siSummary: summary,
+      },
+      cashFlows,
+      siSummary: summary,
+      warnings: validateParIncome(settings, variant),
+    };
+  }
+
+  function validateParIncome(settings, variant) {
+    const warnings = [];
+    if (!variant.currencies.includes(settings.currency)) {
+      warnings.push(`${variant.label} is not available in ${settings.currency}.`);
+    }
+    const minimum = annualizedMinimum(variant, settings.currency, settings.paymentFrequency);
+    if (minimum !== null && num(settings.annualizedPremium) < minimum) {
+      warnings.push(`Single premium is below the ${currencySymbol(settings.currency)}${minimum.toLocaleString()} minimum for this plan.`);
+    }
+    const startAge = num(settings.startAge, variant.baselineEntryAge || 40);
+    if (Math.abs(startAge - (variant.baselineEntryAge || 40)) > 5) {
+      warnings.push(`Cash Value and Death Benefit factors are calibrated to entry age ${variant.baselineEntryAge}. Values for entry age ${startAge} are approximate — regenerate the PI for an exact projection.`);
+    }
+    if (settings.siFinancingEnabled) {
+      const annualInterest = num(settings.annualizedPremium, 0) * num(settings.siFinancingPct, 0) * num(settings.siInterestRate, 0);
+      const grossPayout = num(settings.annualizedPremium, 0) * num(variant.siCouponRate, 0.036);
+      if (annualInterest > grossPayout) {
+        warnings.push(`Annual loan interest (${currencySymbol(settings.currency)}${Math.round(annualInterest).toLocaleString()}) exceeds annual coupon (${currencySymbol(settings.currency)}${Math.round(grossPayout).toLocaleString()}). Net payout will be negative during the financing window — consider lowering financing % or interest rate.`);
+      }
+    }
+    return warnings;
+  }
+
   function simulate(settings, strategy, mode = "custom") {
     const variant = VARIANTS[settings.variantKey] || VARIANTS["10F3"];
+    // Dispatch to the SI(III) financing engine for Signature Income
+    // variants. Coupon-paying participating endowment with optional
+    // premium financing — no fund NAV, no strategy table.
+    if (variant.kind === "par-income-fin") {
+      return simulateParIncome(settings, strategy, mode);
+    }
     // Dispatch to the participating-whole-life engine for SLH variants.
     // The factor-table model produces values directly from policy year
     // and premium, with no per-year NAV / dividend inputs.
@@ -5049,6 +5954,8 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     SP500_ANNUAL_RETURNS,
     VARIANTS,
     VARIANT_ORDER,
+    PAR_WL_VARIANTS,
+    PAR_INCOME_VARIANTS,
     annualizedMinimum,
     currencySymbol,
     defaultStrategy,
@@ -5058,6 +5965,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     policyFeeMonthly,
     premiumForYear,
     simulate,
+    simulateParIncome,
     solvePremiumForTarget,
     validate,
     welcomeRate,
@@ -5182,6 +6090,10 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     "addFundSelection", "fundApplyFromYear", "fundApplyDividendMode",
     "fundDividendOnly", "applyPortfolioAssumptions", "clearPortfolioFunds",
     "annualDividendMonthly",
+    // Signature Income (III) premium-financing fields
+    "siPremium", "siEntryAge", "siFinancingEnabled",
+    "siFinancingPct", "siDownpayment", "siInterestRate", "siInterestTermYears",
+    "siMilestoneOnly",
   ];
 
   function $(id) { return document.getElementById(id); }
@@ -5867,6 +6779,11 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
   }
 
   function enforcePremiumMinimum(clamp = false) {
+    // SI(III) variants read premium from their own input, so the
+    // standard annualisedPremium check doesn't apply. The SI engine
+    // surfaces its own minimum-premium warning via validateParIncome().
+    const variant = model.VARIANTS[fields.variantKey?.value];
+    if (variant?.kind === "par-income-fin") return true;
     const minimum = currentMinimumPremium();
     if (!fields.annualizedPremium || minimum === null) return true;
     fields.annualizedPremium.min = minimum;
@@ -5915,12 +6832,23 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
   // ===== SETTINGS BUILDERS =====
   function currentSettings() {
     const adminOverrideRaw = fields.adminAfterOverride.value.trim();
-    const startAge = numberValue(fields.startAge);
-    return {
+    const variant = model.VARIANTS[fields.variantKey.value];
+    const isSI3 = variant?.kind === "par-income-fin";
+    // When an SI(III) variant is selected, premium and entry age come
+    // from the SI-specific inputs rather than the generic ILP/SLH ones.
+    // This lets the two control sets coexist without ever overwriting
+    // each other's last-entered values during the session.
+    const annualizedPremium = isSI3 && fields.siPremium
+      ? numberValue(fields.siPremium)
+      : numberValue(fields.annualizedPremium);
+    const startAge = isSI3 && fields.siEntryAge
+      ? numberValue(fields.siEntryAge)
+      : numberValue(fields.startAge);
+    const settings = {
       variantKey: fields.variantKey.value,
       currency: fields.currency.value,
       paymentFrequency: fields.paymentFrequency.value,
-      annualizedPremium: numberValue(fields.annualizedPremium),
+      annualizedPremium,
       startAge,
       projectionYears: projectionYearsFromAge(startAge),
       adminAfterOverride: adminOverrideRaw === "" ? null : Number(adminOverrideRaw) / 100,
@@ -5934,6 +6862,13 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       topUpChargeRate: 0,
       enableBRIncome: !!(fields.enableBRIncome && fields.enableBRIncome.checked),
     };
+    if (isSI3) {
+      settings.siFinancingEnabled = !!(fields.siFinancingEnabled && fields.siFinancingEnabled.checked);
+      settings.siFinancingPct = pctInput(fields.siFinancingPct);
+      settings.siInterestRate = pctInput(fields.siInterestRate);
+      settings.siInterestTermYears = numberValue(fields.siInterestTermYears);
+    }
+    return settings;
   }
 
   function currentComparisonSettings(settings = currentSettings()) {
@@ -6034,11 +6969,19 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     const mainIsParWl = mainVariant?.kind === "par-wl";
     const compareIsParWl = compareVariant?.kind === "par-wl";
     const compareIsIlp = compareEnabled && compareVariant && compareVariant.kind !== "par-wl";
+    const mainIsSI3 = mainVariant?.kind === "par-income-fin";
 
     document.body.classList.toggle("is-par-wl", mainIsParWl);                  // backwards-compat alias
     document.body.classList.toggle("is-par-wl-main", mainIsParWl);
     document.body.classList.toggle("is-par-wl-compare", compareIsParWl);
     document.body.classList.toggle("hide-ilp-controls", mainIsParWl && !compareIsIlp);
+    document.body.classList.toggle("is-si3-main", mainIsSI3);
+
+    // Toggle SI section visibility — kept as a hidden attribute (not just
+    // CSS) so the section doesn't briefly flash during initial load
+    // before classes are applied.
+    const siCalc = document.getElementById("siCalculator");
+    if (siCalc) siCalc.hidden = !mainIsSI3;
 
     const parWlInfo = document.getElementById("parWlInfo");
     if (parWlInfo) parWlInfo.hidden = !mainIsParWl;
@@ -6564,6 +7507,16 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     $("fdSettings").hidden = !fields.compareFd.checked;
     $("inflationSettings").hidden = !inflationActive();
     syncSliderReadouts();
+    // SI(III) variants use a dedicated rendering path — skip the
+    // ILP/SLH-shaped renderers entirely. The SI calculator section is
+    // the only output panel visible (per .is-si3-main CSS gating), so
+    // running the standard renderers would be wasted work and might
+    // throw on the SI3 result shape.
+    const customVariant = results.custom?.variant;
+    if (customVariant?.kind === "par-income-fin") {
+      renderSI3(results);
+      return;
+    }
     renderChecks(results.custom);
     renderAssumptions(results.custom);
     renderHero(results);
@@ -6573,6 +7526,160 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     renderSourceNotes();
     updateStrategyReadouts(results.custom);
     if (results.customCompare) updateStrategyReadouts(results.customCompare, "compareStrategyTable", currentCompareSettings(settings), "compare");
+  }
+
+  // ===== SIGNATURE INCOME (III) RENDERER =====
+  // Renders the SI calculator section: financing summary metrics and the
+  // year-by-year projection table. Driven entirely off the result shape
+  // produced by simulateParIncome() — no DOM mutation outside the SI
+  // section.
+  function renderSI3(results) {
+    const result = results.custom;
+    if (!result) return;
+    const summary = result.siSummary || result.final?.siSummary || {};
+    const currency = result.settings?.currency || "SGD";
+    const variant = result.variant;
+
+    // ----- Summary card -----
+    const fmt = (v) => money(v, currency, 0);
+    const pctFmt = (v, d = 2) => percent(v, d);
+    const setText = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+
+    setText("siSummaryInitial", fmt(summary.downpayment || 0));
+    setText("siSummaryInitialDetail",
+      summary.financingPct > 0
+        ? `${percent(1 - (summary.financingPct || 0), 0)} of premium`
+        : "Full premium paid in cash");
+    setText("siSummaryInterestLabel", `${summary.interestTermYears || 0} Year${(summary.interestTermYears || 0) === 1 ? "" : "s"} Interest`);
+    setText("siSummaryInterest", fmt(summary.totalInterestPaid || 0));
+    setText("siSummaryInterestDetail",
+      summary.financingPct > 0
+        ? `${fmt(summary.annualInterest || 0)}/yr × ${summary.interestTermYears || 0}`
+        : "No financing");
+    setText("siSummaryTotalPaid", fmt(summary.totalPaid || 0));
+    const netAnnual = summary.netAnnualPayoutDuringFinancing != null
+      ? summary.netAnnualPayoutDuringFinancing
+      : (summary.grossAnnualPayout || 0);
+    setText("siSummaryNetPayout", fmt(netAnnual));
+    setText("siSummaryNetPayoutDetail",
+      summary.financingPct > 0
+        ? `${fmt(summary.grossAnnualPayout || 0)} coupon − ${fmt(summary.annualInterest || 0)} interest`
+        : `${pctFmt(summary.couponRate || 0, 1)} coupon, no interest deducted`);
+    setText("siSummaryPayoutRate", pctFmt(summary.payoutRate || 0, 2));
+    setText("siSummaryNote",
+      `Coupon ${pctFmt(summary.couponRate || 0, 2)} p.a. begins policy year ${variant.payoutStartYear || 4}. ` +
+      `Bank loan principal stays at ${fmt(summary.financedAmount || 0)} for the policy term (interest-only).`);
+
+    // ----- Death benefit umbrella banner -----
+    // Populate the headline (day-1 cover, guaranteed floor) plus a
+    // milestone grid (Age 65 / Age 80 / Maturity by default; falls back
+    // to specific policy years if the entry age skews milestones past
+    // the projection horizon).
+    const annual = result.annual || [];
+    const baselineAge = variant.baselineEntryAge || 40;
+    const userEntryAge = result.settings?.startAge || baselineAge;
+    const day1Row = annual[0];
+    if (day1Row) {
+      setText("siDbDay1Value", fmt(day1Row.siDeathBenefit));
+      setText("siDbDay1Label", `Day 1 cover · Age ${userEntryAge}`);
+      setText("siDbDay1Detail", `${pctFmt(day1Row.siDeathBenefit / summary.premium, 0)} of single premium · 4.25% illustrated`);
+    }
+
+    const findRowAtAge = (targetAge) => annual.find((r) => r.age === targetAge);
+    const findRowAtYear = (yr) => annual.find((r) => r.year === yr);
+    // Milestones the advisor cares about: a mid-life checkpoint (Age 65 —
+    // typical retirement reference), Age 80 (long-life planning), and
+    // maturity (Age 120 / year 80). If the user's entry age makes any of
+    // these fall outside the projection, we replace with a sensible
+    // policy-year equivalent so the slot doesn't go blank.
+    const milestoneSpecs = [
+      { label: "Age 65", row: findRowAtAge(65) || findRowAtYear(25), context: "Retirement reference" },
+      { label: "Age 80", row: findRowAtAge(80) || findRowAtYear(40), context: "Long-life planning" },
+      { label: "Maturity · Age 120", row: annual[annual.length - 1], context: `Policy year ${annual.length}` },
+    ];
+    const milestoneEl = $("siDbMilestones");
+    if (milestoneEl) {
+      milestoneEl.innerHTML = milestoneSpecs.map((spec) => {
+        if (!spec.row) return "";
+        return `
+          <li>
+            <span class="si-db-ms-label">${spec.label}</span>
+            <span class="si-db-ms-value">${fmt(spec.row.siDeathBenefit)}</span>
+            <span class="si-db-ms-detail">${spec.context} · policy year ${spec.row.year}</span>
+          </li>
+        `;
+      }).join("");
+    }
+
+    // Update inline hints inside the financing controls (live recompute).
+    const setHint = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+    setHint("siFinancedAmountHint", `Bank loans ${fmt(summary.financedAmount || 0)}`);
+    setHint("siDownpaymentHint", `Customer cash ${fmt(summary.downpayment || 0)}`);
+    setHint("siMonthlyInterestHint",
+      summary.financingPct > 0 && summary.interestRate > 0
+        ? `Monthly ${fmt((summary.annualInterest || 0) / 12)}`
+        : "No interest");
+
+    // Toggle financing-controls disabled appearance.
+    const finGrid = $("siFinancingControls");
+    if (finGrid) finGrid.classList.toggle("is-disabled", !summary.financingPct);
+
+    // ----- Projection table -----
+    const tbody = $("siProjectionBody");
+    if (!tbody) return;
+    const milestoneOnly = !!(fields.siMilestoneOnly && fields.siMilestoneOnly.checked);
+    const milestoneYears = new Set([1, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]);
+    const payoutStart = variant.payoutStartYear || 4;
+    const ageOffset = userEntryAge - baselineAge;
+
+    const rows = annual
+      .filter((row) => !milestoneOnly || milestoneYears.has(row.year))
+      .map((row) => {
+        const isMilestone = milestoneYears.has(row.year);
+        const isPayoutStart = row.year === payoutStart;
+        const negCls = (v) => (v < 0 ? " si-negative" : "");
+        const cls = ["si-projection-row"];
+        if (isMilestone) cls.push("si-milestone-row");
+        if (isPayoutStart) cls.push("si-payout-start");
+        return `
+          <tr class="${cls.join(" ")}">
+            <td>${row.age}</td>
+            <td>${row.year}</td>
+            <td class="${negCls(row.siGrossPayout)}">${row.siGrossPayout ? fmt(row.siGrossPayout) : "—"}</td>
+            <td class="${negCls(row.siNetPayout)}">${row.siNetPayout ? fmt(row.siNetPayout) : "—"}</td>
+            <td>${fmt(row.siCumulativeNetPayout)}</td>
+            <td class="${negCls(row.siTotalOutflow)}">${fmt(row.siTotalOutflow)}</td>
+            <td>${fmt(row.siDeathBenefit)}</td>
+            <td>${fmt(row.siCashValue)}</td>
+            <td class="${negCls(row.siCashValueMinusFinancing)}">${fmt(row.siCashValueMinusFinancing)}</td>
+            <td>${fmt(row.siTotalReceived)}</td>
+          </tr>
+        `;
+      })
+      .join("");
+    tbody.innerHTML = rows;
+
+    // Update baseline caption with the actual entry age the user picked.
+    const baselineCaption = $("siTableBaseline");
+    if (baselineCaption) {
+      const baseTxt = `Manulife Signature Income (III) PI · Age ${baselineAge} baseline · 4.25% IRR · Paid Out`;
+      baselineCaption.textContent = ageOffset === 0
+        ? `Based on ${baseTxt}`
+        : `Based on ${baseTxt} — age column shifted ${ageOffset > 0 ? "+" : ""}${ageOffset} yrs`;
+    }
+
+    // ----- Warnings -----
+    const warnEl = $("siWarningsBox");
+    if (warnEl) {
+      const ws = result.warnings || [];
+      if (!ws.length) {
+        warnEl.hidden = true;
+        warnEl.innerHTML = "";
+      } else {
+        warnEl.hidden = false;
+        warnEl.innerHTML = `<strong>Note</strong><ul>${ws.map((w) => `<li>${w}</li>`).join("")}</ul>`;
+      }
+    }
   }
 
   function renderChecks(result) {
@@ -8504,6 +9611,85 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     });
     ["includeWelcome", "includeAnnualBonus", "includeLoyalty", "compareReinvest", "compareFd", "fdCompound", "deductPiFundMgmt"].forEach((id) => fields[id].addEventListener("change", recalc));
 
+    // ===== SI(III) financing-input handlers =====
+    // Premium and entry age live in their own dedicated inputs so the
+    // ILP/SLH inputs aren't mutated when the advisor jumps between
+    // products. Each input triggers a debounced recalc — the heavy work
+    // (factor-table lookup, projection table render) is fast enough to
+    // do on every keystroke for this product.
+    if (fields.siPremium) {
+      fields.siPremium.addEventListener("input", () => { syncSIDownpayment("fromPct"); recalc(); });
+    }
+    if (fields.siEntryAge) {
+      fields.siEntryAge.addEventListener("input", recalc);
+    }
+    if (fields.siFinancingEnabled) {
+      fields.siFinancingEnabled.addEventListener("change", () => {
+        const enabled = fields.siFinancingEnabled.checked;
+        // Restore default financing levels the first time the toggle is
+        // flipped on, so the advisor doesn't have to retype 72/2/3.
+        if (enabled && (!numberValue(fields.siFinancingPct) || numberValue(fields.siFinancingPct) === 0)) {
+          fields.siFinancingPct.value = 72;
+          fields.siInterestRate.value = 2;
+          fields.siInterestTermYears.value = 3;
+          syncSIDownpayment("fromPct");
+        }
+        recalc();
+      });
+    }
+    if (fields.siFinancingPct) {
+      fields.siFinancingPct.addEventListener("input", () => { syncSIDownpayment("fromPct"); recalc(); });
+    }
+    if (fields.siDownpayment) {
+      fields.siDownpayment.addEventListener("input", () => { syncSIDownpayment("fromDownpayment"); recalc(); });
+    }
+    if (fields.siInterestRate) {
+      fields.siInterestRate.addEventListener("input", recalc);
+    }
+    if (fields.siInterestTermYears) {
+      fields.siInterestTermYears.addEventListener("input", recalc);
+    }
+    if (fields.siMilestoneOnly) {
+      fields.siMilestoneOnly.addEventListener("change", () => {
+        // Skip the heavy recompute — just re-render the table.
+        if (state.results) renderSI3(state.results);
+      });
+    }
+  }
+
+  // Two-way sync for Financing % ↔ Downpayment. Premium × (1 − pct) =
+  // downpayment, and downpayment ÷ premium = (1 − pct). Both fields
+  // stay live-editable; whichever the user just touched is the source
+  // of truth and the other is recomputed.
+  function syncSIDownpayment(source) {
+    const premium = numberValue(fields.siPremium) || 0;
+    if (premium <= 0) return;
+    if (source === "fromPct") {
+      const pct = Math.max(0, Math.min(100, numberValue(fields.siFinancingPct)));
+      const dp = premium * (1 - pct / 100);
+      fields.siDownpayment.value = Math.round(dp);
+    } else if (source === "fromDownpayment") {
+      const dp = Math.max(0, Math.min(premium, numberValue(fields.siDownpayment)));
+      const pct = (1 - dp / premium) * 100;
+      fields.siFinancingPct.value = Number(pct.toFixed(2));
+    }
+  }
+
+  // Seed the SI(III) inputs with sensible defaults on first paint.
+  // Matches the reference spreadsheet: $200K premium, age 40, financing
+  // on at 72% / 2.00% / 3 years.
+  function initSI3Defaults() {
+    if (fields.siPremium && !fields.siPremium.value) fields.siPremium.value = 200000;
+    if (fields.siEntryAge && !fields.siEntryAge.value) fields.siEntryAge.value = 40;
+    if (fields.siFinancingEnabled && !fields.siFinancingEnabled.hasAttribute("data-touched")) {
+      fields.siFinancingEnabled.checked = true;
+    }
+    if (fields.siFinancingPct && !fields.siFinancingPct.value) fields.siFinancingPct.value = 72;
+    if (fields.siInterestRate && !fields.siInterestRate.value) fields.siInterestRate.value = 2;
+    if (fields.siInterestTermYears && !fields.siInterestTermYears.value) fields.siInterestTermYears.value = 3;
+    syncSIDownpayment("fromPct");
+  }
+
     // Inflation
     fields.inflationAdjust.addEventListener("change", () => {
       $("inflationSettings").hidden = !inflationActive();
@@ -9312,6 +10498,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     populateVariants();
     syncCurrencyOptions();
     enforcePremiumMinimum(true);
+    initSI3Defaults();              // seed SI(III) inputs before binding events
     bindEvents();
     bindChartEvents();
     bindScenarioMenus();
@@ -9319,6 +10506,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
     initFundBuilder();
     syncSliderReadouts();
     syncBulkFromAgeControl();
+    updateParWlBodyClasses();        // sync body class for whatever variant defaulted in
     loadFxRate();           // fire-and-forget; updates state.fxRate when done
     if (loadScenarioFromHash()) {
       recalc();
@@ -9338,7 +10526,7 @@ body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
       _autosaveStarted = true;
       const debounced = scheduleAutosave;
       document.querySelectorAll(
-        ".controls input, .controls select, .strategy-section input, .strategy-section select, .fund-builder-section input, .fund-builder-section select, #scenarioNotes"
+        ".controls input, .controls select, .strategy-section input, .strategy-section select, .fund-builder-section input, .fund-builder-section select, .si-calculator input, .si-calculator select, #scenarioNotes"
       ).forEach((el) => {
         el.addEventListener("input", debounced);
         el.addEventListener("change", debounced);
