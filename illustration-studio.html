@@ -2585,6 +2585,7 @@ body.is-si3-main .bulk-strategy-block,
 body.is-si3-main .historical-tools,
 body.is-si3-main .input-group[aria-label="Client inputs"],
 body.is-si3-main .toggle-groups,
+body.is-si3-main .payment-mode-field,
 body.is-si3-main #compareSettings,
 body.is-si3-main #fdSettings,
 body.is-si3-main #goalSeekSettings,
@@ -2966,8 +2967,13 @@ body.is-si3-main #advisorSettings {
 .si-projection-table {
   width: 100%;
   border-collapse: collapse;
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
-  font-size: 12px;
+  /* Sans-serif with tabular-nums aligns digit columns without the
+     cramped chunky look of Geist Mono at small body sizes. Same
+     pattern Stripe / Linear use for finance tables. */
+  font-family: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1, "kern" 1;
+  font-size: 13px;
 }
 .si-projection-table thead th {
   position: sticky;
@@ -2976,13 +2982,14 @@ body.is-si3-main #advisorSettings {
   color: var(--navy);
   font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 10px 12px;
+  padding: 11px 14px;
   text-align: right;
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
   font-family: "Geist", "Segoe UI", system-ui, sans-serif;
+  font-variant-numeric: normal;
 }
 .si-projection-table thead th:nth-child(1),
 .si-projection-table thead th:nth-child(2) { text-align: center; }
@@ -2996,11 +3003,12 @@ body.is-si3-main #advisorSettings {
   margin-top: 2px;
 }
 .si-projection-table tbody td {
-  padding: 7px 12px;
+  padding: 9px 14px;
   text-align: right;
   border-bottom: 1px solid var(--surface-2);
   color: var(--navy);
   white-space: nowrap;
+  font-weight: 500;
 }
 .si-projection-table tbody td:nth-child(1),
 .si-projection-table tbody td:nth-child(2) {
@@ -3476,7 +3484,7 @@ body.is-si3-main #advisorSettings {
                 <option>USD</option>
               </select>
             </label>
-            <label>
+            <label class="payment-mode-field">
               Payment mode
               <select id="paymentFrequency">
                 <option value="Annual">Annual</option>
@@ -3645,7 +3653,7 @@ body.is-si3-main #advisorSettings {
             <label class="si-field">
               <span class="si-label">Age</span>
               <input id="siEntryAge" type="number" min="1" max="70" step="1" />
-              <span class="si-hint">PI calibrated for age 40</span>
+              <span class="si-hint">40 Years Old Onwards</span>
             </label>
 
             <label class="si-field si-toggle-field">
