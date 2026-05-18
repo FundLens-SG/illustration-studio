@@ -9523,6 +9523,39 @@ body.is-si3-main .historical-tools {
   }
 
   // ===== EVENT BINDING =====
+  // Two-way sync for Financing % ↔ Downpayment. Premium × (1 − pct) =
+  // downpayment, and downpayment ÷ premium = (1 − pct). Both fields
+  // stay live-editable; whichever the user just touched is the source
+  // of truth and the other is recomputed.
+  function syncSIDownpayment(source) {
+    const premium = numberValue(fields.siPremium) || 0;
+    if (premium <= 0) return;
+    if (source === "fromPct") {
+      const pct = Math.max(0, Math.min(100, numberValue(fields.siFinancingPct)));
+      const dp = premium * (1 - pct / 100);
+      fields.siDownpayment.value = Math.round(dp);
+    } else if (source === "fromDownpayment") {
+      const dp = Math.max(0, Math.min(premium, numberValue(fields.siDownpayment)));
+      const pct = (1 - dp / premium) * 100;
+      fields.siFinancingPct.value = Number(pct.toFixed(2));
+    }
+  }
+
+  // Seed the SI(III) inputs with sensible defaults on first paint.
+  // Matches the reference spreadsheet: $200K premium, age 40, financing
+  // on at 72% / 2.00% / 3 years.
+  function initSI3Defaults() {
+    if (fields.siPremium && !fields.siPremium.value) fields.siPremium.value = 200000;
+    if (fields.siEntryAge && !fields.siEntryAge.value) fields.siEntryAge.value = 40;
+    if (fields.siFinancingEnabled && !fields.siFinancingEnabled.hasAttribute("data-touched")) {
+      fields.siFinancingEnabled.checked = true;
+    }
+    if (fields.siFinancingPct && !fields.siFinancingPct.value) fields.siFinancingPct.value = 72;
+    if (fields.siInterestRate && !fields.siInterestRate.value) fields.siInterestRate.value = 2;
+    if (fields.siInterestTermYears && !fields.siInterestTermYears.value) fields.siInterestTermYears.value = 3;
+    syncSIDownpayment("fromPct");
+  }
+
   function bindEvents() {
     fields.variantKey.addEventListener("change", () => {
       syncCurrencyOptions();
@@ -9655,40 +9688,6 @@ body.is-si3-main .historical-tools {
         if (state.results) renderSI3(state.results);
       });
     }
-  }
-
-  // Two-way sync for Financing % ↔ Downpayment. Premium × (1 − pct) =
-  // downpayment, and downpayment ÷ premium = (1 − pct). Both fields
-  // stay live-editable; whichever the user just touched is the source
-  // of truth and the other is recomputed.
-  function syncSIDownpayment(source) {
-    const premium = numberValue(fields.siPremium) || 0;
-    if (premium <= 0) return;
-    if (source === "fromPct") {
-      const pct = Math.max(0, Math.min(100, numberValue(fields.siFinancingPct)));
-      const dp = premium * (1 - pct / 100);
-      fields.siDownpayment.value = Math.round(dp);
-    } else if (source === "fromDownpayment") {
-      const dp = Math.max(0, Math.min(premium, numberValue(fields.siDownpayment)));
-      const pct = (1 - dp / premium) * 100;
-      fields.siFinancingPct.value = Number(pct.toFixed(2));
-    }
-  }
-
-  // Seed the SI(III) inputs with sensible defaults on first paint.
-  // Matches the reference spreadsheet: $200K premium, age 40, financing
-  // on at 72% / 2.00% / 3 years.
-  function initSI3Defaults() {
-    if (fields.siPremium && !fields.siPremium.value) fields.siPremium.value = 200000;
-    if (fields.siEntryAge && !fields.siEntryAge.value) fields.siEntryAge.value = 40;
-    if (fields.siFinancingEnabled && !fields.siFinancingEnabled.hasAttribute("data-touched")) {
-      fields.siFinancingEnabled.checked = true;
-    }
-    if (fields.siFinancingPct && !fields.siFinancingPct.value) fields.siFinancingPct.value = 72;
-    if (fields.siInterestRate && !fields.siInterestRate.value) fields.siInterestRate.value = 2;
-    if (fields.siInterestTermYears && !fields.siInterestTermYears.value) fields.siInterestTermYears.value = 3;
-    syncSIDownpayment("fromPct");
-  }
 
     // Inflation
     fields.inflationAdjust.addEventListener("change", () => {
