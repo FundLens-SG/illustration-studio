@@ -5374,14 +5374,19 @@ body.is-si3-main #advisorSettings {
 
       const cashValueMinusFinancing = cashValue - financedAmount;
       const totalReceived = cumulativeNetPayout + cashValueMinusFinancing;
-      // Total Outflow (mirrors spreadsheet col F):
-      //   F = −downpayment + (policy_year × current_gross_payout)
-      // This is the spreadsheet's break-even tracker. It treats the
-      // gross coupon as if it had been received every year from policy
-      // year 1 (over-counting the 3-year delay). Mathematically loose
-      // but what advisors using the spreadsheet expect to see — we
-      // replicate it exactly so the column reads the same.
-      const totalOutflow = -downpayment + (year * grossPayout);
+      // Total Outflow = customer's running net cash position vs the
+      // initial downpayment. Smooth monotonic progression: flat at
+      // −downpayment through the pre-payout years, then improves by
+      // the Net Payout each year from policy year 4. Reaches break-
+      // even when cumulative net payouts equal the downpayment.
+      //
+      // Originally we mirrored the spreadsheet's formula (−downpayment
+      // + year × current_gross_payout) but that produced a spurious
+      // year-3 to year-4 jump (e.g. −$56K → −$27K in one step) because
+      // it treated the gross coupon as if it had been received from
+      // policy year 1. Switched to actual cumulative net payouts so
+      // the column reads as a clean running total.
+      const totalOutflow = -downpayment + cumulativeNetPayout;
 
       // Cashflow stream for IRR / chart hover. Net payout posts at the
       // end of the policy year (month index = year * 12).
