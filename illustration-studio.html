@@ -3005,7 +3005,7 @@ body.is-si3-main #advisorSettings {
 .si-projection-table tbody td {
   padding: 9px 14px;
   text-align: right;
-  border-bottom: 1px solid var(--surface-2);
+  border-bottom: 1px solid #ececec;
   color: var(--navy);
   white-space: nowrap;
   font-weight: 500;
@@ -3016,14 +3016,12 @@ body.is-si3-main #advisorSettings {
   color: var(--ink-soft);
   font-weight: 500;
 }
-.si-projection-table tbody tr:nth-child(even) { background: var(--surface-2); }
-.si-projection-table tbody tr.si-milestone-row { background: var(--gold-soft); }
-.si-projection-table tbody tr.si-milestone-row td { font-weight: 600; }
-.si-projection-table tbody tr.si-payout-start td:nth-child(3),
-.si-projection-table tbody tr.si-payout-start td:nth-child(4) {
-  color: var(--gold-dark);
-  font-weight: 600;
-}
+/* Quiet alternation — matches the Excel's calm green/white banding
+   feel without the gold highlights. No milestone-row tint: with the
+   "milestone years only" toggle the entire table is already filtered,
+   and on the full annual view the gold stripes added visual noise. */
+.si-projection-table tbody tr:nth-child(even) td { background: #f9faf8; }
+.si-projection-table tbody tr:hover td { background: #f3eed8; }
 .si-projection-table tbody td.si-negative { color: var(--red); }
 
 .si-warnings {
@@ -3704,16 +3702,16 @@ body.is-si3-main #advisorSettings {
               <span class="si-metric-detail" id="siSummaryInitialDetail">Customer cash on Day 1</span>
             </div>
             <div class="si-metric">
-              <span class="si-metric-label">Bank Loan</span>
-              <strong class="si-metric-value" id="siSummaryLoan">S$0</strong>
-              <span class="si-metric-detail" id="siSummaryLoanDetail">Outstanding for policy term</span>
-            </div>
-            <div class="si-metric">
-              <span class="si-metric-label">Annual Interest</span>
+              <span class="si-metric-label">3 Years Interest</span>
               <strong class="si-metric-value" id="siSummaryInterest">S$0</strong>
-              <span class="si-metric-detail" id="siSummaryInterestDetail">Paid every year of policy</span>
+              <span class="si-metric-detail" id="siSummaryInterestDetail">Initial 3-year commitment</span>
             </div>
             <div class="si-metric si-metric-total">
+              <span class="si-metric-label">Total Capital Out</span>
+              <strong class="si-metric-value" id="siSummaryTotalCapital">S$0</strong>
+              <span class="si-metric-detail">Initial + 3 Yrs Interest</span>
+            </div>
+            <div class="si-metric">
               <span class="si-metric-label">Net Annual Payout</span>
               <strong class="si-metric-value" id="siSummaryNetPayout">S$0</strong>
               <span class="si-metric-detail" id="siSummaryNetPayoutDetail">Coupon minus interest</span>
@@ -3721,7 +3719,7 @@ body.is-si3-main #advisorSettings {
             <div class="si-metric si-metric-rate">
               <span class="si-metric-label">Payout Rate</span>
               <strong class="si-metric-value" id="siSummaryPayoutRate">0.0%</strong>
-              <span class="si-metric-detail">Net payout ÷ initial payment</span>
+              <span class="si-metric-detail">Net payout ÷ total capital out</span>
             </div>
           </div>
           <p class="si-summary-note" id="siSummaryNote"></p>
@@ -5312,10 +5310,15 @@ body.is-si3-main #advisorSettings {
     const financedAmount = premium * financingPct;
     const downpayment = premium - financedAmount;
     const annualInterest = financedAmount * interestRate;
-    // Cumulative interest over the full policy term (informational —
-    // surfaced via summary.totalInterestPaid). For an 80-year horizon
-    // this is a large nominal number; the UI surfaces Annual Interest
-    // as the primary recurring-cost metric.
+    // Reference window for headline payout-rate calculation. The
+    // spreadsheet uses the typical 3-year promotional / initial loan
+    // commitment as the denominator for the Payout Rate metric — even
+    // though interest is paid every year of the policy term, the
+    // initial 3-year commitment is what advisors quote as the "locked
+    // capital" basis for yield calculations.
+    const referenceInterestTermYears = 3;
+    const referenceTotalInterest = annualInterest * referenceInterestTermYears;
+    // Lifetime interest over the full policy term (informational only).
     const totalInterestPaid = annualInterest * years;
 
     const couponRate = num(variant.siCouponRate, 0.036);
@@ -5456,16 +5459,18 @@ body.is-si3-main #advisorSettings {
 
     const irr = irrMonthly(cashFlows);
 
-    // Summary metrics for the 5-card panel. The "interest is for the
-    // entire policy term" model reframes a few of these vs the original
-    // spreadsheet:
-    //   • Bank Loan = financed amount, outstanding for the entire term
-    //   • Annual Interest = recurring annual cost (replaces "3 Yrs Int")
-    //   • Net Annual Payout = coupon − annualInterest (steady state)
-    //   • Payout Rate = Net Annual / Initial Payment (yield on locked
-    //     capital — the customer's downpayment). Interest is recurring
-    //     so it doesn't get rolled into the denominator the way an
-    //     upfront commitment would.
+    // Summary metrics for the 5-card panel — matches the reference
+    // spreadsheet's headline figures:
+    //   1. Initial Payment      = downpayment
+    //   2. 3 Years Interest     = 3 × annualInterest (initial commitment)
+    //   3. Total Capital Out    = downpayment + 3-year interest
+    //   4. Net Annual Payout    = gross coupon − annual interest
+    //   5. Payout Rate          = net annual ÷ total capital out
+    // Interest still applies every year of the projection — the
+    // 3-year window is the spreadsheet's quoted basis for the headline
+    // yield calc, not a literal "stops after 3 years" assumption.
+    const totalCapitalOut = downpayment + referenceTotalInterest;
+    const netAnnualPayout = grossAnnualPayout - annualInterest;
     const summary = {
       premium,
       financingPct,
@@ -5473,15 +5478,14 @@ body.is-si3-main #advisorSettings {
       downpayment,
       interestRate,
       annualInterest,
+      referenceInterestTermYears,
+      referenceTotalInterest,                 // 3 × annualInterest, headline metric
       totalInterestPaid,                      // cumulative over full term — informational
       grossAnnualPayout,
-      netAnnualPayoutDuringFinancing: grossAnnualPayout - annualInterest,
-      // Initial outlay only — interest is recurring, so a "total paid"
-      // figure that mixes upfront + lifetime interest is misleading.
-      initialOutlay: downpayment,
-      // Payout Rate: yield on the customer's locked-in cash (downpayment).
-      payoutRate: downpayment > 0
-        ? (grossAnnualPayout - annualInterest) / downpayment
+      netAnnualPayoutDuringFinancing: netAnnualPayout,
+      totalCapitalOut,
+      payoutRate: totalCapitalOut > 0
+        ? netAnnualPayout / totalCapitalOut
         : 0,
       couponRate,
     };
@@ -7651,16 +7655,12 @@ body.is-si3-main #advisorSettings {
       summary.financingPct > 0
         ? `${percent(1 - (summary.financingPct || 0), 0)} of premium · customer cash`
         : "Full premium paid in cash");
-    setText("siSummaryLoan", fmt(summary.financedAmount || 0));
-    setText("siSummaryLoanDetail",
-      summary.financingPct > 0
-        ? `${pctFmt(summary.financingPct || 0, 0)} of premium · interest-only`
-        : "No financing");
-    setText("siSummaryInterest", fmt(summary.annualInterest || 0));
+    setText("siSummaryInterest", fmt(summary.referenceTotalInterest || 0));
     setText("siSummaryInterestDetail",
       summary.financingPct > 0
-        ? `${pctFmt(summary.interestRate || 0, 2)} on ${fmt(summary.financedAmount || 0)} · every year`
-        : "No interest");
+        ? `${fmt(summary.annualInterest || 0)}/yr × ${summary.referenceInterestTermYears || 3}`
+        : "No financing");
+    setText("siSummaryTotalCapital", fmt(summary.totalCapitalOut || summary.downpayment || 0));
     const netAnnual = summary.netAnnualPayoutDuringFinancing != null
       ? summary.netAnnualPayoutDuringFinancing
       : (summary.grossAnnualPayout || 0);
@@ -7672,7 +7672,7 @@ body.is-si3-main #advisorSettings {
     setText("siSummaryPayoutRate", pctFmt(summary.payoutRate || 0, 2));
     setText("siSummaryNote",
       `Coupon ${pctFmt(summary.couponRate || 0, 2)} p.a. begins policy year ${variant.payoutStartYear || 4}. ` +
-      `Loan principal stays at ${fmt(summary.financedAmount || 0)} throughout the policy term — repaid from policy proceeds at surrender or maturity.`);
+      `Bank finance of ${fmt(summary.financedAmount || 0)} stays outstanding throughout the policy term — repaid from policy proceeds at surrender or maturity.`);
 
     // ----- Death benefit umbrella banner -----
     // Populate the headline (day-1 cover, guaranteed floor) plus a
@@ -7717,7 +7717,7 @@ body.is-si3-main #advisorSettings {
 
     // Update inline hints inside the financing controls (live recompute).
     const setHint = (id, text) => { const el = $(id); if (el) el.textContent = text; };
-    setHint("siFinancedAmountHint", `Bank loans ${fmt(summary.financedAmount || 0)}`);
+    setHint("siFinancedAmountHint", `Bank finance ${fmt(summary.financedAmount || 0)}`);
     setHint("siDownpaymentHint", `Customer cash ${fmt(summary.downpayment || 0)}`);
     setHint("siMonthlyInterestHint",
       summary.financingPct > 0 && summary.interestRate > 0
@@ -7749,8 +7749,8 @@ body.is-si3-main #advisorSettings {
           <tr class="${cls.join(" ")}">
             <td>${row.age}</td>
             <td>${row.year}</td>
-            <td class="${negCls(row.siGrossPayout)}">${row.siGrossPayout ? fmt(row.siGrossPayout) : "—"}</td>
-            <td class="${negCls(row.siNetPayout)}">${row.siNetPayout ? fmt(row.siNetPayout) : "—"}</td>
+            <td class="${negCls(row.siGrossPayout)}">${fmt(row.siGrossPayout || 0)}</td>
+            <td class="${negCls(row.siNetPayout)}">${fmt(row.siNetPayout || 0)}</td>
             <td>${fmt(row.siCumulativeNetPayout)}</td>
             <td class="${negCls(row.siTotalOutflow)}">${fmt(row.siTotalOutflow)}</td>
             <td>${fmt(row.siDeathBenefit)}</td>
