@@ -2547,7 +2547,7 @@ body.is-par-wl-main .ilp-only-deduction {
 }
 body.is-par-wl-main #parWlInfo[hidden] { display: block !important; }
 
-/* ===== SI(III) Premium-Financing UI gating =====
+/* ===== SI Premium-Financing UI gating =====
    When the main variant family is SI3 (Signature Income III) we hide
    essentially every ILP/SLH-specific section: hero, charts, fund
    builder, strategy table, comparison hero, dividend toggles, par-WL
@@ -2594,7 +2594,7 @@ body.is-si3-main #advisorSettings {
 }
 
 /* ===== SI calculator card styling =====
-   Reuses the studio's navy / gold / Geist / Newsreader tokens so SI(III)
+   Reuses the studio's navy / gold / Geist / Newsreader tokens so SI
    feels like a first-class member of the suite rather than a bolt-on. */
 .si-calculator {
   display: flex;
@@ -3654,18 +3654,18 @@ body.is-si3-main #advisorSettings {
         </div>
       </section>
 
-      <!-- ===== SI(III) PREMIUM FINANCING SECTION =====
+      <!-- ===== SI PREMIUM FINANCING SECTION =====
            Visible only when an SI variant is selected (body.is-si3-main).
            Provides: death-benefit umbrella banner, financing inputs
            (premium, financing %/downpayment with 2-way sync, interest
            rate, term), summary metrics card, and the year-by-year
            projection table mirroring the reference spreadsheet column
            layout. -->
-      <section id="siCalculator" class="si-calculator" aria-label="Signature Income financing calculator" hidden>
+      <section id="siCalculator" class="si-calculator" aria-label="SI Premium Financing calculator" hidden>
         <section id="siDeathBenefitBanner" class="benefit-highlight si-db-banner" aria-label="Death benefit umbrella">
           <div class="si-db-banner-intro">
             <p class="eyebrow">Insurance Protection</p>
-            <h2><abbr class="glossary-term" title="Lump sum payable on death or terminal illness. Signature Income (III) provides a death benefit floor of 105% of the single premium plus accumulated non-guaranteed bonuses, paid to beneficiaries regardless of income drawn during the policy term.">Death and Terminal Illness Benefit</abbr></h2>
+            <h2><abbr class="glossary-term" title="Lump sum payable on death or terminal illness. SI provides a death benefit floor of 105% of the single premium plus accumulated non-guaranteed bonuses, paid to beneficiaries regardless of income drawn during the policy term.">Death and Terminal Illness Benefit</abbr></h2>
             <p class="si-db-banner-sub">Insurance umbrella across the income product — guaranteed floor of 105% of premium from day one, with non-guaranteed bonuses on top.</p>
           </div>
           <div class="si-db-banner-headline">
@@ -3678,7 +3678,7 @@ body.is-si3-main #advisorSettings {
 
         <div class="si-card si-inputs-card">
           <div class="si-card-header">
-            <h2>Premium Financing — Manulife Signature Income (III)</h2>
+            <h2>SI Premium Financing</h2>
             <p class="si-subtitle">Interest-only premium financing. Adjust premium, financing %, and interest rate; the projection re-runs live.</p>
           </div>
 
@@ -3776,7 +3776,7 @@ body.is-si3-main #advisorSettings {
                 <input id="siMilestoneOnly" type="checkbox" />
                 Milestone years only
               </label>
-              <span class="si-table-baseline" id="siTableBaseline">Based on Manulife Signature Income (III) PI — Age 40 baseline · 4.25% IRR · Paid Out</span>
+              <span class="si-table-baseline" id="siTableBaseline">Based on SI PI — Age 40 baseline · 4.25% IRR · Paid Out</span>
             </div>
           </div>
           <div class="si-table-scroll">
@@ -4708,13 +4708,12 @@ body.is-si3-main #advisorSettings {
     },
 
     // ──────────────────────────────────────────────────────────────────
-    // Signature Income (III) SGD — Manulife participating endowment with
-    // single-premium funding and a fixed monthly coupon paid from policy
-    // month 37 (year 4) onwards through to maturity at age 120. Optional
-    // premium financing: customer puts down a portion, bank lends the
-    // rest, customer pays interest-only for the first N years (typically
-    // 3). Loan principal is repaid from policy proceeds on surrender or
-    // claim.
+    // SI SGD — participating endowment with single-premium funding and
+    // a fixed monthly coupon paid from policy month 37 (year 4) onwards
+    // through to maturity at age 120. Optional premium financing:
+    // customer puts down a portion, bank lends the rest, customer pays
+    // interest-only for the policy term. Loan principal is repaid from
+    // policy proceeds on surrender or claim.
     //
     // Factor tables transcribed from a baseline PI (Age 40, SGD 700K
     // single premium, Monthly Income = Paid Out, 4.25% IRR scenario).
@@ -4731,7 +4730,7 @@ body.is-si3-main #advisorSettings {
     // and regenerate the tables for materially different entry ages.
     "SI3_SP": {
       key: "SI3_SP",
-      label: "SI(III) · Single Premium",
+      label: "SI Single Premium",
       family: "SI3",
       kind: "par-income-fin",
       currencies: ["SGD"],
@@ -5301,10 +5300,10 @@ body.is-si3-main #advisorSettings {
   }
 
   // ──────────────────────────────────────────────────────────────────
-  // Signature Income (III) simulator with optional premium financing.
+  // SI simulator with optional premium financing.
   //
-  // Math (per the reference spreadsheet, calibrated against the Manulife
-  // PI baseline at age 40, $700K single premium, Paid Out mode, 4.25% IRR):
+  // Math (per the reference spreadsheet, calibrated against the SI PI
+  // baseline at age 40, $700K single premium, Paid Out mode, 4.25% IRR):
   //
   //   premium              = single premium ($)
   //   financingPct         = portion of premium financed by the bank
@@ -5342,7 +5341,7 @@ body.is-si3-main #advisorSettings {
     const years = Math.max(1, maturityAge - baselineAge);
 
     // Financing inputs. Hard cap at 72% — the maximum bank co-share
-    // available in the Singapore market for SI(III) premium financing.
+    // available in the Singapore market for SI premium financing.
     // Interest is paid every year of the policy (no fixed "interest
     // term" — loan stays outstanding until policy surrender / maturity).
     const finEnabled = !!settings.siFinancingEnabled;
@@ -5468,7 +5467,7 @@ body.is-si3-main #advisorSettings {
         surrenderCharge: 0,
         reinvestedDividendBasis: 0,
         lapsed: false,
-        // SI(III)-specific surfaced fields used by the dedicated renderer.
+        // SI-specific surfaced fields used by the dedicated renderer.
         siGrossPayout: grossPayout,
         siNetPayout: netPayout,
         siInterestThisYear: interestThisYear,
@@ -5580,9 +5579,9 @@ body.is-si3-main #advisorSettings {
 
   function simulate(settings, strategy, mode = "custom") {
     const variant = VARIANTS[settings.variantKey] || VARIANTS["10F3"];
-    // Dispatch to the SI(III) financing engine for Signature Income
-    // variants. Coupon-paying participating endowment with optional
-    // premium financing — no fund NAV, no strategy table.
+    // Dispatch to the SI financing engine for SI variants. Coupon-
+    // paying participating endowment with optional premium financing —
+    // no fund NAV, no strategy table.
     if (variant.kind === "par-income-fin") {
       return simulateParIncome(settings, strategy, mode);
     }
@@ -6929,7 +6928,7 @@ body.is-si3-main #advisorSettings {
   }
 
   function enforcePremiumMinimum(clamp = false) {
-    // SI(III) variants read premium from their own input, so the
+    // SI variants read premium from their own input, so the
     // standard annualisedPremium check doesn't apply. The SI engine
     // surfaces its own minimum-premium warning via validateParIncome().
     const variant = model.VARIANTS[fields.variantKey?.value];
@@ -6984,7 +6983,7 @@ body.is-si3-main #advisorSettings {
     const adminOverrideRaw = fields.adminAfterOverride.value.trim();
     const variant = model.VARIANTS[fields.variantKey.value];
     const isSI3 = variant?.kind === "par-income-fin";
-    // When an SI(III) variant is selected, premium and entry age come
+    // When an SI variant is selected, premium and entry age come
     // from the SI-specific inputs rather than the generic ILP/SLH ones.
     // This lets the two control sets coexist without ever overwriting
     // each other's last-entered values during the session.
@@ -7014,7 +7013,7 @@ body.is-si3-main #advisorSettings {
     };
     if (isSI3) {
       settings.siFinancingEnabled = !!(fields.siFinancingEnabled && fields.siFinancingEnabled.checked);
-      // Financing % is capped at 72% (max bank co-share for SI(III)
+      // Financing % is capped at 72% (max bank co-share for SI
       // premium financing in the Singapore market).
       settings.siFinancingPct = Math.min(0.72, Math.max(0, pctInput(fields.siFinancingPct)));
       settings.siInterestRate = pctInput(fields.siInterestRate);
@@ -7658,7 +7657,7 @@ body.is-si3-main #advisorSettings {
     $("fdSettings").hidden = !fields.compareFd.checked;
     $("inflationSettings").hidden = !inflationActive();
     syncSliderReadouts();
-    // SI(III) variants use a dedicated rendering path — skip the
+    // SI variants use a dedicated rendering path — skip the
     // ILP/SLH-shaped renderers entirely. The SI calculator section is
     // the only output panel visible (per .is-si3-main CSS gating), so
     // running the standard renderers would be wasted work and might
@@ -7810,7 +7809,7 @@ body.is-si3-main #advisorSettings {
     // Update baseline caption with the actual entry age the user picked.
     const baselineCaption = $("siTableBaseline");
     if (baselineCaption) {
-      const baseTxt = `Manulife Signature Income (III) PI · Age ${baselineAge} baseline · 4.25% IRR · Paid Out`;
+      const baseTxt = `SI PI · Age ${baselineAge} baseline · 4.25% IRR · Paid Out`;
       baselineCaption.textContent = ageOffset === 0
         ? `Based on ${baseTxt}`
         : `Based on ${baseTxt} — age column shifted ${ageOffset > 0 ? "+" : ""}${ageOffset} yrs`;
@@ -9701,7 +9700,7 @@ body.is-si3-main #advisorSettings {
     }
   }
 
-  // Seed the SI(III) inputs with sensible defaults on first paint.
+  // Seed the SI inputs with sensible defaults on first paint.
   // $200K premium, age 40 (matches the PI baseline), financing on at
   // 72% / 2.00%. Interest is paid for the entire policy term — no
   // separate interest-term input.
@@ -9804,7 +9803,7 @@ body.is-si3-main #advisorSettings {
     });
     ["includeWelcome", "includeAnnualBonus", "includeLoyalty", "compareReinvest", "compareFd", "fdCompound", "deductPiFundMgmt"].forEach((id) => fields[id].addEventListener("change", recalc));
 
-    // ===== SI(III) financing-input handlers =====
+    // ===== SI financing-input handlers =====
     // Premium and entry age live in their own dedicated inputs so the
     // ILP/SLH inputs aren't mutated when the advisor jumps between
     // products. Each input triggers a debounced recalc — the heavy work
@@ -10653,7 +10652,7 @@ body.is-si3-main #advisorSettings {
     populateVariants();
     syncCurrencyOptions();
     enforcePremiumMinimum(true);
-    initSI3Defaults();              // seed SI(III) inputs before binding events
+    initSI3Defaults();              // seed SI inputs before binding events
     bindEvents();
     bindChartEvents();
     bindScenarioMenus();
