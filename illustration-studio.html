@@ -2661,8 +2661,8 @@ body.is-si3-main #advisorSettings {
 .si-db-detail {
   font-size: 11px;
   color: #b8c0c8;
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
-  letter-spacing: -0.005em;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 .si-db-milestones {
   margin: 0;
@@ -2689,17 +2689,17 @@ body.is-si3-main #advisorSettings {
   font-weight: 600;
 }
 .si-db-milestones .si-db-ms-value {
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: #ffffff;
   letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
 .si-db-milestones .si-db-ms-detail {
   font-size: 10px;
   color: #a8b0b8;
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
-  letter-spacing: -0.005em;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 @media (max-width: 1100px) {
   .si-db-banner {
@@ -2759,64 +2759,74 @@ body.is-si3-main #advisorSettings {
   color: var(--muted);
   margin-bottom: 2px;
 }
+/* Match the studio's global input style — same border colour
+   (#cabcaa), white background, 40px height, inset highlight,
+   and font inherited from <body> (Geist sans) — so the SI fields
+   sit naturally alongside the IR / IRG variant / currency selects
+   in the controls bar. */
 .si-input-wrap {
   position: relative;
   display: flex;
   align-items: center;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
+  background: #fff;
+  border: 1px solid #cabcaa;
   border-radius: 4px;
-  padding: 0 12px;
-  height: 36px;
-  transition: border-color 0.15s ease;
+  padding: 0 11px;
+  min-height: 40px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .si-input-wrap:focus-within {
   border-color: var(--gold-dark);
-  box-shadow: 0 0 0 3px var(--gold-glow);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 0 0 3px var(--gold-glow);
 }
 .si-input-wrap input {
   background: transparent;
   border: 0;
   outline: none;
   width: 100%;
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--navy);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
   text-align: right;
   padding: 0;
+  min-height: auto;
+  box-shadow: none;
+  height: auto;
 }
 .si-input-wrap .si-prefix,
 .si-input-wrap .si-suffix {
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
-  font-size: 12px;
+  font: inherit;
+  font-size: 13px;
   color: var(--muted);
   font-weight: 500;
 }
 .si-input-wrap .si-prefix { margin-right: 6px; }
 .si-input-wrap .si-suffix { margin-left: 6px; }
 .si-field > input[type="number"] {
-  background: var(--surface-2);
-  border: 1px solid var(--line);
+  background: #fff;
+  border: 1px solid #cabcaa;
   border-radius: 4px;
-  padding: 0 12px;
-  height: 36px;
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--navy);
+  padding: 8px 11px;
+  min-height: 40px;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .si-field > input[type="number"]:focus {
   border-color: var(--gold-dark);
-  box-shadow: 0 0 0 3px var(--gold-glow);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 0 0 3px var(--gold-glow);
 }
 .si-hint {
-  font-size: 11px;
+  display: block;
+  margin-top: 4px;
   color: var(--muted);
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
-  letter-spacing: -0.005em;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 .si-toggle-field {
   align-self: end;
@@ -2883,18 +2893,22 @@ body.is-si3-main #advisorSettings {
   color: var(--muted);
 }
 .si-metric-value {
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  /* Inherit Geist from <body> — same sans the rest of the studio
+     uses for KPI numbers. tabular-nums keeps the digits aligned
+     across the 5-tile row at consistent widths. */
   font-size: 22px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--navy);
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
   line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 .si-metric-detail {
   font-size: 11px;
   color: var(--muted);
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
-  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
 }
 .si-metric-total .si-metric-value { color: var(--gold-dark); }
 .si-metric-rate .si-metric-value { color: var(--green); }
@@ -2955,9 +2969,9 @@ body.is-si3-main #advisorSettings {
 }
 .si-table-baseline {
   font-size: 11px;
-  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
   color: var(--muted);
-  letter-spacing: -0.005em;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 .si-table-scroll {
   overflow-x: auto;
