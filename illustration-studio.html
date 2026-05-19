@@ -4091,7 +4091,7 @@ body.is-si3-main #advisorSettings {
              reference line for the printed deliverable. -->
         <footer class="si-print-footer" aria-hidden="true">
           <span class="si-print-footer-left">For personal education only — not for external distribution</span>
-          <span class="si-print-footer-right">Manulife Signature Income (III) · 4.25% Illustrated Investment Rate of Return</span>
+          <span class="si-print-footer-right">Signature Income · 4.25% Illustrated Investment Rate of Return</span>
         </footer>
       </section>
 
@@ -8016,18 +8016,30 @@ body.is-si3-main #advisorSettings {
       `Bank finance of ${fmt(summary.financedAmount || 0)} stays outstanding throughout the policy term — repaid from policy proceeds at surrender or maturity.`);
 
     // ----- Death benefit umbrella banner -----
-    // Populate the headline (day-1 cover, guaranteed floor) plus a
-    // milestone grid (Age 65 / Age 80 / Maturity by default; falls back
-    // to specific policy years if the entry age skews milestones past
-    // the projection horizon).
+    // What the BENEFICIARY actually nets if death occurred at that age:
+    //   (death benefit at that age − bank financing still outstanding)
+    //   + total payouts already received to that age (net of interest)
+    //
+    // The bank loan principal stays at financedAmount throughout the
+    // term (per the surrounding spec — repaid from policy proceeds at
+    // surrender / maturity / death), so we subtract it as a flat amount.
+    // Day 1 has no payouts yet, so it's just (DB − financing).
     const annual = result.annual || [];
     const baselineAge = variant.baselineEntryAge || 40;
     const userEntryAge = result.settings?.startAge || baselineAge;
+    const financedAmount = summary.financedAmount || 0;
+    const hasFinancing = financedAmount > 0;
+
     const day1Row = annual[0];
     if (day1Row) {
-      setText("siDbDay1Value", fmt(day1Row.siDeathBenefit));
+      const netDay1 = (day1Row.siDeathBenefit || 0) - financedAmount;
+      setText("siDbDay1Value", fmt(netDay1));
       setText("siDbDay1Label", `Day 1 cover · Age ${userEntryAge}`);
-      setText("siDbDay1Detail", `${pctFmt(day1Row.siDeathBenefit / summary.premium, 0)} of single premium · 4.25% illustrated`);
+      setText("siDbDay1Detail",
+        hasFinancing
+          ? `${fmt(day1Row.siDeathBenefit)} death benefit − ${fmt(financedAmount)} financing`
+          : `${pctFmt(day1Row.siDeathBenefit / summary.premium, 0)} of single premium · day 1`
+      );
     }
 
     const findRowAtAge = (targetAge) => annual.find((r) => r.age === targetAge);
@@ -8038,19 +8050,27 @@ body.is-si3-main #advisorSettings {
     // these fall outside the projection, we replace with a sensible
     // policy-year equivalent so the slot doesn't go blank.
     const milestoneSpecs = [
-      { label: "Age 65", row: findRowAtAge(65) || findRowAtYear(25), context: "Retirement reference" },
-      { label: "Age 80", row: findRowAtAge(80) || findRowAtYear(40), context: "Long-life planning" },
-      { label: "Maturity · Age 120", row: annual[annual.length - 1], context: `Policy year ${annual.length}` },
+      { label: "Age 65", row: findRowAtAge(65) || findRowAtYear(25) },
+      { label: "Age 80", row: findRowAtAge(80) || findRowAtYear(40) },
+      { label: "Maturity · Age 120", row: annual[annual.length - 1] },
     ];
     const milestoneEl = $("siDbMilestones");
     if (milestoneEl) {
       milestoneEl.innerHTML = milestoneSpecs.map((spec) => {
         if (!spec.row) return "";
+        const netDb = (spec.row.siDeathBenefit || 0) - financedAmount;
+        const cumPayout = spec.row.siCumulativeNetPayout || 0;
+        const totalToBeneficiary = netDb + cumPayout;
+        // Detail shows the two components so an advisor can explain
+        // exactly where the headline comes from. The DB component is
+        // "net DB" only when financing applies; otherwise just "DB".
+        const dbLabel = hasFinancing ? "net DB" : "DB";
+        const detail = `${fmt(netDb)} ${dbLabel} + ${fmt(cumPayout)} payouts received`;
         return `
           <li>
             <span class="si-db-ms-label">${spec.label}</span>
-            <span class="si-db-ms-value">${fmt(spec.row.siDeathBenefit)}</span>
-            <span class="si-db-ms-detail">${spec.context} · policy year ${spec.row.year}</span>
+            <span class="si-db-ms-value">${fmt(totalToBeneficiary)}</span>
+            <span class="si-db-ms-detail">${detail}</span>
           </li>
         `;
       }).join("");
