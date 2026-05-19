@@ -2288,91 +2288,213 @@ body.presentation-mode .strategy-table input:disabled {
   .data-table { font-size: 11px; }
 
   /* ===== SI(III) print layout =====
-     For SI variants the paper-deck builder doesn't apply (it's
-     ILP-shaped), so the Print button falls back to native
-     window.print(). These rules tighten the on-screen SI section
-     into a print-friendly deliverable: umbrella banner, inputs card,
-     summary tiles, projection table. */
+     Compact 1-page overview (umbrella + summary + scenario
+     assumptions) followed by the multi-page projection table and
+     disclaimers. Inputs are restyled as STATIC key-value rows in
+     print — no form-field outlines, no toggle slider. */
+
+  /* Page margins leave ~14mm header gutter + ~12mm footer gutter for
+     the branded fixed header / footer to sit in without overlapping
+     content. */
+  body.is-si3-main {
+    /* override the existing @page rule above for SI specifically */
+  }
   body.is-si3-main .topbar,
   body.is-si3-main #scenarioMenu,
   body.is-si3-main .scenario-actions,
-  body.is-si3-main #si-print-hide,
-  body.is-si3-main .ckg-suite-strip { display: none !important; }
+  body.is-si3-main .ckg-suite-strip,
+  body.is-si3-main .usage-banner,
+  body.is-si3-main .si-prep-row {
+    display: none !important;
+  }
+
+  /* Inline print header — appears once at the top of page 1 as a
+     cover line. position: fixed for cross-page repeating is flaky
+     in Chrome's PDF renderer (overlaps content on page 1, doesn't
+     repeat on subsequent pages reliably). Inline flow is far more
+     predictable and gives a clean "Prepared for X · Date" framing
+     above the umbrella banner.
+
+     For per-page branding the user disables the browser's default
+     headers/footers in the print dialog ("More settings" → uncheck
+     "Headers and footers"). The compliance disclaimer + brand line
+     also appears once at the end of the deck on the disclaimers
+     page, which is the natural footer location for printed
+     illustrations. */
+  body.is-si3-main .si-print-header {
+    display: flex !important;
+    padding: 0 0 6mm 0;
+    margin: 0 0 4mm 0;
+    border-bottom: 1px solid #cabcaa;
+    align-items: baseline;
+    justify-content: space-between;
+    font-family: "Geist", "Segoe UI", system-ui, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    page-break-inside: avoid;
+  }
+  body.is-si3-main .si-print-title {
+    font-family: "Newsreader", Georgia, serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: -0.005em;
+  }
+  body.is-si3-main .si-print-meta {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  body.is-si3-main .si-print-sep { margin: 0 6px; color: #cabcaa; }
+
+  /* Inline print footer — appears once at the end of the deck,
+     after the projection table and before the disclaimers section.
+     Drops the position: fixed because that doesn't repeat in
+     Chrome's PDF renderer anyway. */
+  body.is-si3-main .si-print-footer {
+    display: flex !important;
+    padding: 3mm 0 0 0;
+    margin: 4mm 0 0 0;
+    border-top: 1px solid #cabcaa;
+    align-items: baseline;
+    justify-content: space-between;
+    font-family: "Geist", "Segoe UI", system-ui, sans-serif;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  body.is-si3-main .si-print-footer-left { font-weight: 600; }
+  body.is-si3-main .si-print-footer-right { font-style: italic; }
 
   body.is-si3-main .si-calculator {
     margin: 0 !important;
-    gap: 10px !important;
+    gap: 8px !important;
   }
   body.is-si3-main .si-card {
     box-shadow: none !important;
     border: 1px solid #cabcaa !important;
     border-radius: 4px !important;
-    padding: 14px 16px !important;
+    padding: 10px 14px !important;
     page-break-inside: avoid;
     background: #fff !important;
   }
-  body.is-si3-main .si-card-header h2 { font-size: 16px !important; margin: 0 0 4px 0 !important; }
+  body.is-si3-main .si-card-header h2 { font-size: 13px !important; margin: 0 0 3px 0 !important; }
   body.is-si3-main .si-subtitle { display: none !important; }
+
+  /* Inputs card → static scenario assumptions. Strip the form chrome
+     entirely and render as inline key-value pairs sized for a quick
+     read. */
   body.is-si3-main .si-inputs-grid,
   body.is-si3-main .si-financing-grid {
-    gap: 6px 14px !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 4px 16px !important;
   }
-  body.is-si3-main .si-financing-grid { padding-top: 10px !important; }
+  body.is-si3-main .si-financing-grid {
+    padding-top: 8px !important;
+    border-top: 1px dashed var(--line) !important;
+    margin-top: 6px !important;
+  }
   body.is-si3-main .si-input-wrap,
   body.is-si3-main .si-field > input[type="number"] {
-    min-height: 30px !important;
-    padding: 4px 9px !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
   }
-  body.is-si3-main .si-label { font-size: 9.5px !important; letter-spacing: 0.05em !important; }
-  body.is-si3-main .si-hint { font-size: 10px !important; margin-top: 2px !important; }
+  body.is-si3-main .si-input-wrap input { text-align: left !important; padding: 0 !important; }
+  body.is-si3-main .si-input-wrap .si-prefix { margin-right: 2px !important; }
+  body.is-si3-main .si-input-wrap .si-suffix { margin-left: 2px !important; }
+  body.is-si3-main .si-input-wrap input,
+  body.is-si3-main .si-field > input[type="number"],
+  body.is-si3-main .si-input-wrap .si-prefix,
+  body.is-si3-main .si-input-wrap .si-suffix {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: var(--navy) !important;
+  }
+  body.is-si3-main .si-label { font-size: 8.5px !important; letter-spacing: 0.06em !important; margin-bottom: 0 !important; }
+  body.is-si3-main .si-hint { font-size: 9px !important; margin-top: 0 !important; }
+  /* Toggle slider → "Premium Financing: Enabled" static text. */
+  body.is-si3-main .si-switch-slider,
+  body.is-si3-main .si-switch input { display: none !important; }
+  body.is-si3-main .si-switch-text {
+    font-size: 12px !important;
+    color: var(--gold-dark) !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+  body.is-si3-main .si-financing-grid.is-disabled .si-switch-text { color: var(--muted) !important; }
 
+  /* Summary tiles — compact horizontal row. */
   body.is-si3-main .si-summary-grid { gap: 0 !important; }
-  body.is-si3-main .si-metric { padding: 6px 12px !important; }
-  body.is-si3-main .si-metric-label { font-size: 9px !important; }
-  body.is-si3-main .si-metric-value { font-size: 16px !important; line-height: 1.05 !important; }
-  body.is-si3-main .si-metric-detail { font-size: 9.5px !important; }
-  body.is-si3-main .si-summary-note { font-size: 10px !important; margin-top: 8px !important; }
+  body.is-si3-main .si-metric { padding: 6px 10px !important; border-right-color: #ece6d6 !important; }
+  body.is-si3-main .si-metric-label { font-size: 8.5px !important; }
+  body.is-si3-main .si-metric-value { font-size: 14px !important; line-height: 1.05 !important; }
+  body.is-si3-main .si-metric-detail { font-size: 9px !important; }
+  body.is-si3-main .si-summary-note { font-size: 9.5px !important; margin-top: 6px !important; }
 
+  /* Umbrella banner — 2-row grid in print so the 3 milestone tiles
+     get the full content width. On A4 landscape the milestones cell
+     was too narrow to fit all 3 tiles in a single row. */
   body.is-si3-main .si-db-banner {
-    grid-template-columns: 1fr 0.8fr 1.4fr !important;
-    gap: 14px !important;
-    padding: 14px 18px !important;
+    display: grid !important;
+    grid-template-columns: 1.3fr 1fr !important;
+    grid-template-areas:
+      "intro headline"
+      "milestones milestones" !important;
+    gap: 10px 18px !important;
+    padding: 12px 16px !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
     background: var(--navy) !important;
     color: #f8f1dc !important;
   }
-  body.is-si3-main .si-db-banner-intro h2 { font-size: 16px !important; margin: 4px 0 !important; }
-  body.is-si3-main .si-db-banner-sub { font-size: 10px !important; }
-  body.is-si3-main .si-db-banner-headline strong { font-size: 24px !important; }
-  body.is-si3-main .si-db-detail { font-size: 9.5px !important; }
-  body.is-si3-main .si-db-milestones { gap: 6px !important; }
+  body.is-si3-main .si-db-banner-intro { grid-area: intro; }
+  body.is-si3-main .si-db-banner-headline { grid-area: headline; }
+  body.is-si3-main .si-db-milestones { grid-area: milestones; grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+  body.is-si3-main .si-db-banner-intro h2 { font-size: 14px !important; margin: 3px 0 !important; }
+  body.is-si3-main .si-db-banner-sub { font-size: 9.5px !important; max-width: none !important; }
+  body.is-si3-main .si-db-eyebrow { font-size: 9px !important; }
+  body.is-si3-main .si-db-banner-headline strong { font-size: 22px !important; }
+  body.is-si3-main .si-db-detail { font-size: 9px !important; }
   body.is-si3-main .si-db-milestones li {
-    padding: 6px 9px !important;
+    padding: 5px 9px !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  body.is-si3-main .si-db-milestones .si-db-ms-label { font-size: 9px !important; }
-  body.is-si3-main .si-db-milestones .si-db-ms-value { font-size: 13px !important; }
-  body.is-si3-main .si-db-milestones .si-db-ms-detail { font-size: 9px !important; }
+  body.is-si3-main .si-db-milestones .si-db-ms-label { font-size: 8.5px !important; }
+  body.is-si3-main .si-db-milestones .si-db-ms-value { font-size: 12px !important; }
+  body.is-si3-main .si-db-milestones .si-db-ms-detail { font-size: 8.5px !important; }
 
-  body.is-si3-main .si-table-header h3 { font-size: 14px !important; }
+  /* Force the umbrella + summary + inputs to fit on one page; the
+     projection table starts on a fresh page. */
+  body.is-si3-main #siDeathBenefitBanner,
+  body.is-si3-main .si-inputs-card,
+  body.is-si3-main #siSummaryCard { page-break-inside: avoid; }
+  body.is-si3-main .si-table-card { page-break-before: always; }
+
+  body.is-si3-main .si-table-header h3 { font-size: 13px !important; }
   body.is-si3-main .si-table-controls { display: none !important; }
   body.is-si3-main .si-table-scroll { overflow: visible !important; border: 1px solid #cabcaa !important; }
   body.is-si3-main .si-projection-table { font-size: 9.5px !important; }
-  body.is-si3-main .si-projection-table thead {
-    display: table-header-group;       /* repeat on every page */
-  }
+  body.is-si3-main .si-projection-table thead { display: table-header-group; }
   body.is-si3-main .si-projection-table thead th {
+    /* Force position: static — the on-screen sticky positioning fights
+       the print page header at top: 0 and they overlap on pages 2+. */
+    position: static !important;
+    top: auto !important;
+    z-index: auto !important;
     font-size: 9px !important;
-    padding: 6px 8px !important;
+    padding: 5px 7px !important;
     height: auto !important;
     box-shadow: none !important;
     background: #f7f8f7 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  body.is-si3-main .si-projection-table tbody td { padding: 4px 8px !important; }
+  body.is-si3-main .si-projection-table tbody td { padding: 3px 7px !important; }
   body.is-si3-main .si-projection-table tbody tr { page-break-inside: avoid; }
   body.is-si3-main .si-projection-table tbody tr:nth-child(even) td {
     background: #f9faf8 !important;
@@ -2698,6 +2820,41 @@ body.is-si3-main #advisorSettings {
   font-family: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
   color: var(--ink);
 }
+
+/* "Prepared for" + Date row — sits above the umbrella banner. Slim
+   two-column form so it doesn't compete with the banner visually. */
+.si-prep-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 12px 22px;
+  padding: 0 4px;
+}
+.si-prep-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.si-prep-field input {
+  background: #fff;
+  border: 1px solid #cabcaa;
+  border-radius: 4px;
+  padding: 7px 11px;
+  min-height: 36px;
+  font: inherit;
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.si-prep-field input:focus {
+  border-color: var(--gold-dark);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 0 0 3px var(--gold-glow);
+}
+
+/* Print-only fixed header + footer — hidden on screen, repeat at the
+   top / bottom of every printed page via position: fixed. */
+.si-print-header,
+.si-print-footer { display: none; }
 
 /* Death benefit umbrella banner — sits at top of SI section. Inherits
    the .benefit-highlight navy+gold styling from the existing legacy
@@ -3764,6 +3921,34 @@ body.is-si3-main #advisorSettings {
            projection table mirroring the reference spreadsheet column
            layout. -->
       <section id="siCalculator" class="si-calculator" aria-label="SI Premium Financing calculator" hidden>
+        <!-- Print-only deck header — appears once at the top of page 1
+             as a "cover line" above the umbrella banner. Hidden on
+             screen via .si-print-header { display: none } in non-print
+             CSS. Inline (not fixed) because position: fixed cross-page
+             repeating is unreliable in Chrome's PDF renderer. -->
+        <header class="si-print-header" aria-hidden="true">
+          <div class="si-print-title">SI Premium Financing Illustration</div>
+          <div class="si-print-meta">
+            <span id="siPrintClient">Prepared for —</span>
+            <span class="si-print-sep">·</span>
+            <span id="siPrintDate"></span>
+          </div>
+        </header>
+
+        <!-- Client framing — small inline row above the umbrella. Edits
+             feed the print-header element above. Date defaults to today
+             but is editable in case the advisor reprints later. -->
+        <div class="si-prep-row">
+          <label class="si-prep-field">
+            <span class="si-label">Prepared for</span>
+            <input id="siClientName" type="text" placeholder="Client name" autocomplete="off" maxlength="80" />
+          </label>
+          <label class="si-prep-field">
+            <span class="si-label">Date</span>
+            <input id="siPrepDate" type="text" placeholder="DD MMM YYYY" autocomplete="off" maxlength="40" />
+          </label>
+        </div>
+
         <section id="siDeathBenefitBanner" class="benefit-highlight si-db-banner" aria-label="Death benefit umbrella">
           <div class="si-db-banner-intro">
             <p class="eyebrow">Insurance Protection</p>
@@ -3899,6 +4084,15 @@ body.is-si3-main #advisorSettings {
           </div>
           <div id="siWarningsBox" class="si-warnings" hidden></div>
         </div>
+
+        <!-- Print-only inline footer — appears once at the bottom of
+             the deck, after the projection table, before the
+             disclaimers page. Compliance disclaimer + product
+             reference line for the printed deliverable. -->
+        <footer class="si-print-footer" aria-hidden="true">
+          <span class="si-print-footer-left">For personal education only — not for external distribution</span>
+          <span class="si-print-footer-right">Manulife Signature Income (III) · 4.25% Illustrated Investment Rate of Return</span>
+        </footer>
       </section>
 
       <!-- HERO: single big number + composition bar -->
@@ -6343,6 +6537,7 @@ body.is-si3-main #advisorSettings {
     // SI premium-financing fields
     "siPremium", "siEntryAge", "siFinancingEnabled",
     "siFinancingPct", "siDownpayment", "siInterestRate",
+    "siClientName", "siPrepDate",
     "siMilestoneOnly",
   ];
 
@@ -9816,7 +10011,30 @@ body.is-si3-main #advisorSettings {
     }
     if (fields.siFinancingPct && !fields.siFinancingPct.value) fields.siFinancingPct.value = 72;
     if (fields.siInterestRate && !fields.siInterestRate.value) fields.siInterestRate.value = 2;
+    // Auto-populate today's date in the "Prepared on" field if empty.
+    // Format: "DD MMM YYYY" — neutral for both SG and international.
+    if (fields.siPrepDate && !fields.siPrepDate.value) {
+      const d = new Date();
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      fields.siPrepDate.value = `${String(d.getDate()).padStart(2,"0")} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
     syncSIDownpayment("fromPct");
+    syncSIPrintHeader();
+  }
+
+  // Mirror the client name + date into the position:fixed print-only
+  // header so the printed deck shows "Prepared for: <name> · <date>"
+  // at the top of every page.
+  function syncSIPrintHeader() {
+    const clientEl = document.getElementById("siPrintClient");
+    const dateEl = document.getElementById("siPrintDate");
+    if (clientEl) {
+      const name = (fields.siClientName?.value || "").trim();
+      clientEl.textContent = name ? `Prepared for ${name}` : "Prepared for —";
+    }
+    if (dateEl) {
+      dateEl.textContent = (fields.siPrepDate?.value || "").trim();
+    }
   }
 
   function bindEvents() {
@@ -9949,6 +10167,14 @@ body.is-si3-main #advisorSettings {
     }
     if (fields.siInterestRate) {
       fields.siInterestRate.addEventListener("input", recalc);
+    }
+    // Client name + date — purely cosmetic; no recalc needed, just
+    // mirror the values into the print-only fixed header.
+    if (fields.siClientName) {
+      fields.siClientName.addEventListener("input", syncSIPrintHeader);
+    }
+    if (fields.siPrepDate) {
+      fields.siPrepDate.addEventListener("input", syncSIPrintHeader);
     }
     if (fields.siMilestoneOnly) {
       fields.siMilestoneOnly.addEventListener("change", () => {

@@ -29,8 +29,13 @@ await page.pdf({
   path: pdfPath,
   format: 'A4',
   landscape: true,
-  margin: { top: '12mm', right: '12mm', bottom: '12mm', left: '12mm' },
   printBackground: true,
+  // Mirror the CSS @page margin rule (20mm top + 14mm bottom for
+  // the fixed page header/footer to sit in). Playwright's `margin`
+  // option overrides the CSS @page margin when set — and
+  // preferCSSPageSize only governs size, not margins. So we set
+  // both explicitly here and in the CSS to keep them in sync.
+  margin: { top: '12mm', right: '12mm', bottom: '12mm', left: '12mm' },
 });
 console.log('PDF saved to:', pdfPath);
 
