@@ -2478,7 +2478,7 @@ body.presentation-mode .strategy-table input:disabled {
   body.is-si3-main .si-table-header h3 { font-size: 13px !important; }
   body.is-si3-main .si-table-controls { display: none !important; }
   body.is-si3-main .si-table-scroll { overflow: visible !important; border: 1px solid #cabcaa !important; }
-  body.is-si3-main .si-projection-table { font-size: 9.5px !important; }
+  body.is-si3-main .si-projection-table { font-size: 9px !important; }
   body.is-si3-main .si-projection-table thead { display: table-header-group; }
   body.is-si3-main .si-projection-table thead th {
     /* Force position: static — the on-screen sticky positioning fights
@@ -2486,15 +2486,19 @@ body.presentation-mode .strategy-table input:disabled {
     position: static !important;
     top: auto !important;
     z-index: auto !important;
-    font-size: 9px !important;
-    padding: 5px 7px !important;
+    font-size: 8.5px !important;
+    padding: 4px 7px !important;
     height: auto !important;
     box-shadow: none !important;
     background: #f7f8f7 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  body.is-si3-main .si-projection-table tbody td { padding: 3px 7px !important; }
+  /* Tighter row padding to fit the 80-year projection in 2 pages
+     instead of 3. Was 3px top/bottom = ~14px row * 80 rows = 3
+     pages. Now 1.5px + 9px font = ~12px row ≈ 40 rows/page = 2
+     pages total. */
+  body.is-si3-main .si-projection-table tbody td { padding: 1.5px 7px !important; line-height: 1.2 !important; }
   body.is-si3-main .si-projection-table tbody tr { page-break-inside: avoid; }
   body.is-si3-main .si-projection-table tbody tr:nth-child(even) td {
     background: #f9faf8 !important;
@@ -2502,6 +2506,18 @@ body.presentation-mode .strategy-table input:disabled {
     print-color-adjust: exact;
   }
   body.is-si3-main #siWarningsBox { display: none !important; }
+  /* Print tip is a screen-only nudge — never appears in the PDF. */
+  body.is-si3-main .si-print-tip { display: none !important; }
+  /* SI disclaimers + footer share the final page. The disclaimers
+     section starts on a fresh page (page-break-before), and the
+     footer flows inline at the end so it lands at the bottom of
+     that page — no longer squeezed under the last data row. */
+  body.is-si3-main .disclaimers.si-disclaimers { page-break-before: always; }
+  body.is-si3-main .si-print-footer-final {
+    margin-top: 8mm;
+    page-break-before: avoid;
+    page-break-inside: avoid;
+  }
 }
 
 /* ===== RESPONSIVE ===== */
@@ -2805,9 +2821,13 @@ body.is-si3-main .payment-mode-field,
 body.is-si3-main #compareSettings,
 body.is-si3-main #fdSettings,
 body.is-si3-main #goalSeekSettings,
-body.is-si3-main #advisorSettings {
+body.is-si3-main #advisorSettings,
+body.is-si3-main .disclaimers:not(.si-disclaimers) {
   display: none !important;
 }
+/* Show the SI-specific disclaimers when SI variant is active. Hides
+   itself otherwise via the [hidden] attribute in HTML. */
+body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
 
 /* ===== SI calculator card styling =====
    Reuses the studio's navy / gold / Geist / Newsreader tokens so SI
@@ -3218,6 +3238,23 @@ body.is-si3-main #advisorSettings {
   accent-color: var(--gold-dark);
   cursor: pointer;
 }
+/* Print tip — sits next to the milestone toggle on screen, nudges the
+   advisor to disable Chrome's default headers/footers in the print
+   dialog. Hidden in print (it's a screen-only hint). */
+.si-print-tip {
+  font-size: 11px;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+.si-print-tip strong {
+  color: var(--gold-dark);
+  font-style: normal;
+  font-weight: 700;
+  margin-right: 4px;
+}
+.si-print-tip em { font-style: normal; color: var(--ink-soft); font-weight: 500; }
 .si-table-scroll {
   overflow-x: auto;
   border: 1px solid var(--line);
@@ -4063,6 +4100,10 @@ body.is-si3-main #advisorSettings {
                 <input id="siMilestoneOnly" type="checkbox" />
                 Milestone years only
               </label>
+              <span class="si-print-tip" aria-label="Print tip">
+                <strong>Tip:</strong> in the Chrome print dialog, untick
+                <em>More settings → Headers and footers</em> for a cleaner PDF.
+              </span>
             </div>
           </div>
           <div class="si-table-scroll">
@@ -4084,15 +4125,6 @@ body.is-si3-main #advisorSettings {
           </div>
           <div id="siWarningsBox" class="si-warnings" hidden></div>
         </div>
-
-        <!-- Print-only inline footer — appears once at the bottom of
-             the deck, after the projection table, before the
-             disclaimers page. Compliance disclaimer + product
-             reference line for the printed deliverable. -->
-        <footer class="si-print-footer" aria-hidden="true">
-          <span class="si-print-footer-left">For personal education only — not for external distribution</span>
-          <span class="si-print-footer-right">Signature Income · 4.25% Illustrated Investment Rate of Return</span>
-        </footer>
       </section>
 
       <!-- HERO: single big number + composition bar -->
@@ -4402,6 +4434,36 @@ body.is-si3-main #advisorSettings {
           <li><strong>Source documents prevail.</strong> Please refer to the policy contract, product summary and fund factsheets for the full terms, conditions, charges and risk disclosures. In the event of any discrepancy, those documents prevail over this illustration.</li>
         </ul>
       </section>
+
+      <!-- SI-specific disclaimers. The .disclaimers above is keyed to
+           ILP / SLH (fund / NAV / Welcome Bonus etc.) and doesn't apply
+           to a participating endowment with single-premium financing.
+           Shown only when body.is-si3-main; the generic one is hidden
+           via the body.is-si3-main rule in @media print + on-screen. -->
+      <section class="disclaimers si-disclaimers" aria-label="Important disclaimers — Signature Income" hidden>
+        <h2>Important Disclaimers</h2>
+        <ul>
+          <li><strong>Educational purpose only.</strong> This illustration is prepared for educational and discussion purposes between an advisor and client. It is not an offer, solicitation or recommendation to buy or sell any financial product, and is not for distribution or reproduction without authorisation.</li>
+          <li><strong>Not financial advice.</strong> Information shown does not constitute investment, tax or legal advice. Clients should consult a licensed financial advisor and consider their own objectives, financial situation and needs before making any investment decision.</li>
+          <li><strong>Participating policy risk.</strong> Signature Income is a participating whole-life endowment. Premiums are pooled with other policyholders and invested in the insurer's Participating Fund. As a policyholder you share in the fund's <em>investment</em> risk (lower-than-expected returns), <em>insurance</em> risk (higher-than-expected claims) and <em>expense</em> risk (higher-than-expected fund management costs). Any of these can reduce the bonuses or coupon income paid.</li>
+          <li><strong>Non-guaranteed projections.</strong> The 4.25% Illustrated Investment Rate of Return drives both the monthly coupon and the cash value shown here. The lower 3.00% scenario (also in the Policy Illustration) is not shown. Actual bonus rates / coupon payouts may be materially lower than illustrated and are only declared annually by the insurer.</li>
+          <li><strong>Coupon income.</strong> Monthly coupon (annualised 3.60% of single premium at 4.25% IRR) begins from policy month 37 and continues to maturity at age 120. Approximately 1.24% is the guaranteed portion; the remaining ~2.36% is non-guaranteed and depends on Participating Fund performance.</li>
+          <li><strong>Death &amp; Terminal Illness Benefit.</strong> The death benefit floor is 105% of single premium, plus accumulated non-guaranteed bonuses. The "umbrella" framing in this illustration represents the guaranteed insurance coverage element of a participating product — payable to beneficiaries regardless of income drawn during the policy term.</li>
+          <li><strong>Surrender value.</strong> Early surrender values are below total premium paid and may be zero in policy day 1. A Surrender Value Booster Benefit guarantees that total surrender value is at least 80% of single premium. Final surrender value is non-guaranteed and depends on the Participating Fund.</li>
+          <li><strong>Premium financing risks.</strong> Where premium financing is applied (default 72% bank co-share at 2.00% p.a. interest, interest-only) the customer is responsible for ongoing loan interest for the life of the policy. <em>Interest rate risk:</em> rates may rise above the illustrated level, reducing or eliminating net coupon income. <em>Refinancing risk:</em> the loan facility may not be renewed at terms equivalent to those quoted. <em>Margin / repayment risk:</em> the loan principal is repaid from policy proceeds at surrender or maturity; if policy value is less than the loan outstanding, the customer is responsible for the shortfall.</li>
+          <li><strong>Currency &amp; tax.</strong> Premium and benefits are denominated in Singapore Dollars. No tax advice is given; clients should consult their own tax advisor on local tax treatment of life insurance proceeds and premium financing interest.</li>
+          <li><strong>Source documents prevail.</strong> Please refer to the official Policy Illustration, Product Summary, Bundled Product Disclosure Document and Bank Financing Agreement for the full terms, conditions, charges and risk disclosures. In the event of any discrepancy, those documents prevail over this illustration.</li>
+        </ul>
+      </section>
+
+      <!-- Print-only inline footer — sits after the disclaimers section
+           so it lands at the bottom of the disclaimers page rather than
+           being squeezed under the last projection-table row. Hidden on
+           screen via .si-print-footer { display: none } above. -->
+      <footer class="si-print-footer si-print-footer-final" aria-hidden="true">
+        <span class="si-print-footer-left">For personal education only — not for external distribution</span>
+        <span class="si-print-footer-right">Signature Income · 4.25% Illustrated Investment Rate of Return</span>
+      </footer>
 
       <section class="par-wl-info" id="parWlInfo" aria-label="Par-whole-life info" hidden>
         <div class="section-heading">
