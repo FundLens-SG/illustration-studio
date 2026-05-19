@@ -2239,9 +2239,14 @@ body.presentation-mode .strategy-table input:disabled {
 
 /* ===== PRINT ===== */
 @media print {
-  @page { size: A4 landscape; margin: 12mm; }
-
-  body { background: #fff; }
+  /* @page margin: 0 + explicit body padding is the Chrome trick to
+     suppress the browser-default print header/footer (date/title at
+     top, URL/page number at bottom). The browser injects those into
+     the page margin area; with margin: 0 there's no room for them.
+     Content padding is restored on body / main / sections via the
+     SI print rules below so nothing actually goes edge-to-edge. */
+  @page { size: A4 landscape; margin: 0; }
+  body { background: #fff; padding: 12mm; }
 
   .controls,
   .fund-builder-section,
@@ -3375,6 +3380,25 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
 .si-warnings strong { display: block; margin-bottom: 4px; }
 .si-warnings ul { margin: 0; padding-left: 18px; }
 
+/* Prominent non-guarantee callout below the SI disclaimers list.
+   Amber border + emphasised wording so the two key uncertainties
+   (reversionary bonus + financing rate) aren't lost in the long
+   disclaimer list. Visible both on screen and in print. */
+.si-bottom-warning {
+  margin: 16px 0 0 0;
+  padding: 12px 16px;
+  background: var(--amber-soft);
+  border-left: 3px solid var(--amber);
+  border-radius: 4px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  letter-spacing: 0.005em;
+  page-break-inside: avoid;
+}
+.si-bottom-warning strong { color: var(--amber); }
+.si-bottom-warning em { font-style: normal; font-weight: 600; }
+
 @media (max-width: 1100px) {
   .si-inputs-grid { grid-template-columns: 1fr 1fr; }
   .si-financing-grid { grid-template-columns: 1fr 1fr; }
@@ -4454,6 +4478,20 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
           <li><strong>Currency &amp; tax.</strong> Premium and benefits are denominated in Singapore Dollars. No tax advice is given; clients should consult their own tax advisor on local tax treatment of life insurance proceeds and premium financing interest.</li>
           <li><strong>Source documents prevail.</strong> Please refer to the official Policy Illustration, Product Summary, Bundled Product Disclosure Document and Bank Financing Agreement for the full terms, conditions, charges and risk disclosures. In the event of any discrepancy, those documents prevail over this illustration.</li>
         </ul>
+        <!-- Prominent non-guarantee callout below the disclaimers list.
+             Surfaces the two biggest uncertainties in a financed-SI
+             scenario so they're visible at-a-glance, not buried in a
+             bullet point: (a) reversionary / annual bonus from the
+             Participating Fund, and (b) bank financing interest rate. -->
+        <p class="si-bottom-warning" role="note">
+          <strong>Important non-guarantee notice.</strong>
+          The <em>reversionary bonus</em> (and any other non-guaranteed bonus declared annually by the
+          insurer) and the <em>bank's premium-financing interest rate</em> are <strong>both not
+          guaranteed</strong>. The illustrated 4.25% investment rate of return and the 2.00% financing
+          interest rate are assumptions for this projection — actual bonus declarations and floating
+          loan rates may differ materially, and either can reduce or eliminate the net annual payout
+          shown above.
+        </p>
       </section>
 
       <!-- Print-only inline footer — sits after the disclaimers section
@@ -10530,7 +10568,22 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     $("printScenario").addEventListener("click", () => {
       const v = model.VARIANTS[fields.variantKey.value];
       if (v && v.kind === "par-income-fin") {
+        // Chrome injects document.title at the top of every printed
+        // page (e.g. "Illustration Studio") and the page URL at the
+        // bottom. Both are suppressed by @page { margin: 0 } for the
+        // URL footer, but the title still shows. Clear title around
+        // the print call and restore it after `afterprint` fires.
+        const originalTitle = document.title;
+        document.title = "";
+        const restore = () => {
+          document.title = originalTitle;
+          window.removeEventListener("afterprint", restore);
+        };
+        window.addEventListener("afterprint", restore);
         window.print();
+        // Safety restore: some browsers / cancel paths never fire
+        // afterprint. 1s is more than enough for the dialog to open.
+        setTimeout(restore, 1500);
         return;
       }
       if (window.IllustrationStudioPaperDeck && window.IllustrationStudioPaperDeck.print) {
