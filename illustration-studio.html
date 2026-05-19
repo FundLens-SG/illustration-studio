@@ -2746,6 +2746,20 @@ body.is-si3-main #advisorSettings {
   border-top: 1px dashed var(--line);
 }
 .si-financing-grid.is-disabled { opacity: 0.45; pointer-events: none; }
+/* Benchmark row — sits below the financing controls. Two cells:
+   the CPF-OA toggle and the configurable benchmark rate. Mirrors the
+   .si-financing-grid spacing for visual consistency. */
+.si-benchmark-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px 22px;
+  padding: 18px 0 0 0;
+  border-top: 1px dashed var(--line);
+  margin-top: 18px;
+}
+.si-benchmark-grid.is-disabled { opacity: 0.6; }
+.si-benchmark-grid.is-disabled .si-input-wrap,
+.si-benchmark-grid.is-disabled input { pointer-events: none; }
 .si-field {
   display: flex;
   flex-direction: column;
@@ -3080,6 +3094,36 @@ body.is-si3-main #advisorSettings {
 .si-projection-table thead .si-col-income { color: var(--gold-dark); }
 .si-projection-table thead .si-col-cash { color: var(--blue); }
 .si-projection-table thead .si-col-grand { color: var(--green); }
+
+/* CPF-OA benchmark column — sits to the right of Total Received as a
+   reference line. Muted slate-gray to read as "context" rather than
+   "headline", with the same border-left group separator the other
+   column groups use. Hidden by default; .si-cpf-on on the table
+   reveals it. */
+.si-projection-table .si-col-cpf {
+  display: none;
+  text-align: right;
+  white-space: nowrap;
+}
+.si-projection-table.si-cpf-on .si-col-cpf { display: table-cell; }
+.si-projection-table thead .si-col-cpf {
+  color: #5a6b80;
+  border-left: 1px solid #cfc2ad;
+  font-style: italic;
+}
+.si-projection-table tbody .si-col-cpf {
+  color: #5a6b80;
+  border-left: 1px solid #eee7dc;
+  font-style: italic;
+  font-weight: 500;
+}
+.si-cpf-note {
+  margin: 12px 0 0 4px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.si-cpf-note strong { color: var(--ink); font-weight: 700; }
 
 .si-warnings {
   margin-top: 14px;
@@ -3749,6 +3793,26 @@ body.is-si3-main #advisorSettings {
               <span class="si-hint" id="siMonthlyInterestHint">Monthly —</span>
             </label>
           </div>
+
+          <div class="si-benchmark-grid">
+            <label class="si-field si-toggle-field">
+              <span class="si-label">CPF-OA Benchmark</span>
+              <label class="si-switch">
+                <input id="siCpfBenchmarkEnabled" type="checkbox" />
+                <span class="si-switch-slider"></span>
+                <span class="si-switch-text">Compare</span>
+              </label>
+            </label>
+
+            <label class="si-field">
+              <span class="si-label">Benchmark Rate (p.a.)</span>
+              <div class="si-input-wrap">
+                <input id="siCpfRate" type="number" min="0" max="20" step="0.05" />
+                <span class="si-suffix">%</span>
+              </div>
+              <span class="si-hint">Same Total Capital Out · compounded annually</span>
+            </label>
+          </div>
         </div>
 
         <div id="siSummaryCard" class="si-card si-summary-card">
@@ -3805,11 +3869,13 @@ body.is-si3-main #advisorSettings {
                   <th scope="col" class="si-col-cash si-col-cv">Cash Value</th>
                   <th scope="col" class="si-col-cash si-col-cv-fin">Cash Value <span class="si-th-sub">(Minus Financing)</span></th>
                   <th scope="col" class="si-col-grand">Total Received</th>
+                  <th scope="col" class="si-col-cpf">CPF-OA <span class="si-th-sub" id="siCpfColHeaderSub">2.50%</span></th>
                 </tr>
               </thead>
               <tbody id="siProjectionBody"></tbody>
             </table>
           </div>
+          <p id="siCpfNote" class="si-cpf-note" hidden></p>
           <div id="siWarningsBox" class="si-warnings" hidden></div>
         </div>
       </section>
@@ -5375,6 +5441,15 @@ body.is-si3-main #advisorSettings {
     // Lifetime interest over the full policy term (informational only).
     const totalInterestPaid = annualInterest * years;
 
+    // CPF-OA benchmark — when enabled, compound the customer's Total
+    // Capital Out (downpayment + reference 3-yr interest) at the
+    // configured rate annually. Provides an apples-to-apples reference
+    // line: "if the same cash sat in CPF-OA at 2.5% instead of going
+    // into this product, where would it be at year N?"
+    const cpfEnabled = !!settings.siCpfBenchmarkEnabled;
+    const cpfRate = cpfEnabled ? Math.max(0, num(settings.siCpfRate, 0.025)) : 0;
+    const cpfPrincipal = downpayment + referenceTotalInterest;
+
     const couponRate = num(variant.siCouponRate, 0.036);
     const payoutStartYear = variant.payoutStartYear || 4;
     const grossAnnualPayout = premium * couponRate;
@@ -5428,6 +5503,9 @@ body.is-si3-main #advisorSettings {
 
       const cashValueMinusFinancing = cashValue - financedAmount;
       const totalReceived = cumulativeNetPayout + cashValueMinusFinancing;
+      // CPF-OA benchmark — compound principal annually; null when the
+      // benchmark is off so the renderer can short-circuit cleanly.
+      const cpfValue = cpfEnabled ? cpfPrincipal * Math.pow(1 + cpfRate, year) : null;
       // Total Outflow = customer's running net cash position vs the
       // initial downpayment. Smooth monotonic progression: flat at
       // −downpayment through the pre-payout years, then improves by
@@ -5492,6 +5570,7 @@ body.is-si3-main #advisorSettings {
         siDeathBenefit: deathBenefit,
         siTotalOutflow: totalOutflow,
         siTotalReceived: totalReceived,
+        siCpfValue: cpfValue,
       });
 
       monthly.push({
@@ -5547,6 +5626,9 @@ body.is-si3-main #advisorSettings {
         ? netAnnualPayout / totalCapitalOut
         : 0,
       couponRate,
+      cpfEnabled,
+      cpfRate,
+      cpfPrincipal,
     };
 
     return {
@@ -6253,9 +6335,10 @@ body.is-si3-main #advisorSettings {
     "addFundSelection", "fundApplyFromYear", "fundApplyDividendMode",
     "fundDividendOnly", "applyPortfolioAssumptions", "clearPortfolioFunds",
     "annualDividendMonthly",
-    // Signature Income (III) premium-financing fields
+    // SI premium-financing + CPF-OA benchmark fields
     "siPremium", "siEntryAge", "siFinancingEnabled",
     "siFinancingPct", "siDownpayment", "siInterestRate",
+    "siCpfBenchmarkEnabled", "siCpfRate",
     "siMilestoneOnly",
   ];
 
@@ -7031,6 +7114,11 @@ body.is-si3-main #advisorSettings {
       // premium financing in the Singapore market).
       settings.siFinancingPct = Math.min(0.72, Math.max(0, pctInput(fields.siFinancingPct)));
       settings.siInterestRate = pctInput(fields.siInterestRate);
+      // CPF-OA benchmark — opt-in compounding of the customer's Total
+      // Capital Out at a fixed annual rate (default 2.5% = CPF-OA
+      // floor) for an apples-to-apples reference line in the table.
+      settings.siCpfBenchmarkEnabled = !!(fields.siCpfBenchmarkEnabled && fields.siCpfBenchmarkEnabled.checked);
+      settings.siCpfRate = Math.max(0, pctInput(fields.siCpfRate));
     }
     return settings;
   }
@@ -7787,6 +7875,17 @@ body.is-si3-main #advisorSettings {
     const finGrid = $("siFinancingControls");
     if (finGrid) finGrid.classList.toggle("is-disabled", !summary.financingPct);
 
+    // CPF benchmark — toggle column visibility on the projection table,
+    // dim the rate input when the toggle is off, update the column
+    // header sub-label to the active rate.
+    const cpfActive = !!summary.cpfEnabled;
+    const tableEl = $("siProjectionTable");
+    if (tableEl) tableEl.classList.toggle("si-cpf-on", cpfActive);
+    const benchGrid = document.querySelector(".si-benchmark-grid");
+    if (benchGrid) benchGrid.classList.toggle("is-disabled", !cpfActive);
+    const cpfSub = $("siCpfColHeaderSub");
+    if (cpfSub) cpfSub.textContent = pctFmt(summary.cpfRate || 0, 2);
+
     // ----- Projection table -----
     const tbody = $("siProjectionBody");
     if (!tbody) return;
@@ -7814,6 +7913,7 @@ body.is-si3-main #advisorSettings {
             <td class="si-col-cash si-col-cv">${fmt(row.siCashValue)}</td>
             <td class="si-col-cash si-col-cv-fin${negCls(row.siCashValueMinusFinancing)}">${fmt(row.siCashValueMinusFinancing)}</td>
             <td class="si-col-grand">${fmt(row.siTotalReceived)}</td>
+            <td class="si-col-cpf">${row.siCpfValue != null ? fmt(row.siCpfValue) : "—"}</td>
           </tr>
         `;
       })
@@ -7827,6 +7927,32 @@ body.is-si3-main #advisorSettings {
       baselineCaption.textContent = ageOffset === 0
         ? `Based on ${baseTxt}`
         : `Based on ${baseTxt} — age column shifted ${ageOffset > 0 ? "+" : ""}${ageOffset} yrs`;
+    }
+
+    // ----- CPF benchmark footer note -----
+    // Find the first year where the SI total received first exceeds
+    // the CPF-OA benchmark and report the crossover. If SI never
+    // catches up across the horizon, surface the maturity-year
+    // shortfall so the advisor can see the gap explicitly.
+    const cpfNoteEl = $("siCpfNote");
+    if (cpfNoteEl) {
+      if (!cpfActive) {
+        cpfNoteEl.hidden = true;
+        cpfNoteEl.innerHTML = "";
+      } else {
+        const crossover = annual.find((r) => (r.siCpfValue || 0) > 0 && r.siTotalReceived >= r.siCpfValue);
+        const finalRow = annual[annual.length - 1];
+        const finalDelta = (finalRow.siTotalReceived || 0) - (finalRow.siCpfValue || 0);
+        const cpfPrincipal = summary.cpfPrincipal || 0;
+        let body = `<strong>CPF-OA benchmark</strong> compounds ${fmt(cpfPrincipal)} at ${pctFmt(summary.cpfRate || 0, 2)} p.a. — the customer's same Total Capital Out left in the CPF-OA floor instead.`;
+        if (crossover) {
+          body += ` SI overtakes CPF-OA at <strong>policy year ${crossover.year} · age ${crossover.age}</strong> (SI ${fmt(crossover.siTotalReceived)} vs CPF ${fmt(crossover.siCpfValue)}).`;
+        } else {
+          body += ` SI never overtakes CPF-OA across the projection horizon — at maturity (year ${finalRow.year}) SI trails by <strong>${fmt(-finalDelta)}</strong> (${fmt(finalRow.siTotalReceived)} vs ${fmt(finalRow.siCpfValue)}).`;
+        }
+        cpfNoteEl.innerHTML = body;
+        cpfNoteEl.hidden = false;
+      }
     }
 
     // ----- Warnings -----
@@ -9726,6 +9852,9 @@ body.is-si3-main #advisorSettings {
     }
     if (fields.siFinancingPct && !fields.siFinancingPct.value) fields.siFinancingPct.value = 72;
     if (fields.siInterestRate && !fields.siInterestRate.value) fields.siInterestRate.value = 2;
+    // CPF-OA benchmark — off by default; seed 2.5% in the rate field
+    // so when the advisor toggles it on the standard floor is ready.
+    if (fields.siCpfRate && !fields.siCpfRate.value) fields.siCpfRate.value = 2.5;
     syncSIDownpayment("fromPct");
   }
 
@@ -9850,6 +9979,12 @@ body.is-si3-main #advisorSettings {
     }
     if (fields.siInterestRate) {
       fields.siInterestRate.addEventListener("input", recalc);
+    }
+    if (fields.siCpfBenchmarkEnabled) {
+      fields.siCpfBenchmarkEnabled.addEventListener("change", recalc);
+    }
+    if (fields.siCpfRate) {
+      fields.siCpfRate.addEventListener("input", recalc);
     }
     if (fields.siMilestoneOnly) {
       fields.siMilestoneOnly.addEventListener("change", () => {
