@@ -3169,6 +3169,27 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
 }
 .si-metric-total .si-metric-value { color: var(--gold-dark); }
 .si-metric-rate .si-metric-value { color: var(--green); }
+/* Multi-tier tile rendering (SLR Net Annual Payout + Payout Rate
+   show "X yrs 2-5 / Y yrs 6+" stacked). Each tier row is a smaller
+   inline pair than the single-value display so both fit in the
+   same tile width. */
+.si-metric .si-tier-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.si-metric .si-tier-row + .si-tier-row { margin-top: 2px; }
+.si-metric .si-tier-label {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
 .si-summary-note {
   margin: 14px 0 0 4px;
   font-size: 12px;
@@ -3350,6 +3371,23 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
 .si-projection-table thead .si-col-income { color: var(--gold-dark); }
 .si-projection-table thead .si-col-cash { color: var(--blue); }
 .si-projection-table thead .si-col-grand { color: var(--green); }
+/* Death Benefit column — shown for SLR (DB decreases meaningfully
+   over time), hidden for SI. Navy-soft + bordered to read as
+   "insurance protection" without competing with the brass income or
+   blue cash columns. */
+.si-projection-table .si-col-db {
+  border-left: 1px solid #eee7dc;
+  text-align: right;
+  white-space: nowrap;
+}
+.si-projection-table thead .si-col-db {
+  border-left: 1px solid #cfc2ad;
+  color: var(--navy);
+}
+.si-projection-table tbody .si-col-db {
+  color: var(--navy);
+  font-weight: 600;
+}
 
 .si-warnings {
   margin-top: 14px;
@@ -4077,14 +4115,14 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
               <span class="si-metric-detail" id="siSummaryInitialDetail">Customer cash on Day 1</span>
             </div>
             <div class="si-metric">
-              <span class="si-metric-label">3 Years Interest</span>
+              <span class="si-metric-label" id="siSummaryInterestLabel">3 Years Interest</span>
               <strong class="si-metric-value" id="siSummaryInterest">S$0</strong>
               <span class="si-metric-detail" id="siSummaryInterestDetail">Initial 3-year commitment</span>
             </div>
             <div class="si-metric si-metric-total">
               <span class="si-metric-label">Total Capital Out</span>
               <strong class="si-metric-value" id="siSummaryTotalCapital">S$0</strong>
-              <span class="si-metric-detail">Initial + 3 Yrs Interest</span>
+              <span class="si-metric-detail" id="siSummaryTotalCapitalDetail">Initial + 3 Yrs Interest</span>
             </div>
             <div class="si-metric">
               <span class="si-metric-label">Net Annual Payout</span>
@@ -4094,7 +4132,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
             <div class="si-metric si-metric-rate">
               <span class="si-metric-label">Payout Rate</span>
               <strong class="si-metric-value" id="siSummaryPayoutRate">0.0%</strong>
-              <span class="si-metric-detail">Net payout ÷ total capital out</span>
+              <span class="si-metric-detail" id="siSummaryPayoutRateDetail">Net payout ÷ total capital out</span>
             </div>
           </div>
           <p class="si-summary-note" id="siSummaryNote"></p>
@@ -4126,6 +4164,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
                   <th scope="col" class="si-col-income si-col-gross">Payout</th>
                   <th scope="col" class="si-col-income si-col-net">Net Payout</th>
                   <th scope="col" class="si-col-income si-col-total-payout">Total Payout</th>
+                  <th scope="col" class="si-col-db" hidden>Death Benefit</th>
                   <th scope="col" class="si-col-cash si-col-cv">Cash Value</th>
                   <th scope="col" class="si-col-cash si-col-cv-fin">Cash Value <span class="si-th-sub">(Minus Financing)</span></th>
                   <th scope="col" class="si-col-grand">Total Received</th>
@@ -5839,16 +5878,6 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     const financedAmount = premium * financingPct;
     const downpayment = premium - financedAmount;
     const annualInterest = financedAmount * interestRate;
-    // Reference window for headline payout-rate calculation. The
-    // spreadsheet uses the typical 3-year promotional / initial loan
-    // commitment as the denominator for the Payout Rate metric — even
-    // though interest is paid every year of the policy term, the
-    // initial 3-year commitment is what advisors quote as the "locked
-    // capital" basis for yield calculations.
-    const referenceInterestTermYears = 3;
-    const referenceTotalInterest = annualInterest * referenceInterestTermYears;
-    // Lifetime interest over the full policy term (informational only).
-    const totalInterestPaid = annualInterest * years;
 
     // Coupon resolution. Variants supply a tiered siCouponSchedule
     // (list of {fromYear, toYear, rate}); the year-1 rate of the
@@ -5861,6 +5890,18 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     const payoutStartYear = couponSchedule[0].fromYear;
     const headlineCouponRate = couponSchedule[couponSchedule.length - 1].rate;
     const grossAnnualPayout = premium * headlineCouponRate;       // long-term steady-state (Year 6+ for SLR, Year 4+ for SI)
+
+    // Reference window for headline payout-rate calculation: the
+    // number of YEARS the customer pays interest out-of-pocket before
+    // the coupon starts (i.e. policy years prior to the first paying
+    // tier). For SI this is 3 (interest yrs 1-3, payouts start yr 4);
+    // for SLR this is 1 (interest yr 1 only, payouts start yr 2). The
+    // "Total Capital Out" metric uses this for the customer's actual
+    // initial commitment, instead of a hardcoded 3-year assumption.
+    const referenceInterestTermYears = Math.max(0, payoutStartYear - 1);
+    const referenceTotalInterest = annualInterest * referenceInterestTermYears;
+    // Lifetime interest over the full policy term (informational only).
+    const totalInterestPaid = annualInterest * years;
 
     const annual = [];
     const monthly = [];
@@ -6017,6 +6058,21 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     // yield calc, not a literal "stops after 3 years" assumption.
     const totalCapitalOut = downpayment + referenceTotalInterest;
     const netAnnualPayout = grossAnnualPayout - annualInterest;
+    // Per-tier metrics so the summary card can show "S$15,600 yrs 2-5,
+    // S$20,100 yrs 6+" for tiered products like SLR. Single-tier
+    // products (SI) reduce trivially to a single row.
+    const tieredMetrics = couponSchedule.map((tier) => {
+      const grossAnnual = premium * tier.rate;
+      const netAnnual = grossAnnual - annualInterest;
+      return {
+        fromYear: tier.fromYear,
+        toYear: tier.toYear,
+        rate: tier.rate,
+        grossAnnual,
+        netAnnual,
+        payoutRate: totalCapitalOut > 0 ? netAnnual / totalCapitalOut : 0,
+      };
+    });
     const summary = {
       premium,
       financingPct,
@@ -6025,7 +6081,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
       interestRate,
       annualInterest,
       referenceInterestTermYears,
-      referenceTotalInterest,                 // 3 × annualInterest, headline metric
+      referenceTotalInterest,                 // N × annualInterest (N derived from first tier)
       totalInterestPaid,                      // cumulative over full term — informational
       grossAnnualPayout,
       netAnnualPayoutDuringFinancing: netAnnualPayout,
@@ -6036,6 +6092,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
       couponRate: headlineCouponRate,
       couponSchedule,
       payoutStartYear,
+      tieredMetrics,
     };
 
     return {
@@ -8203,21 +8260,61 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
       summary.financingPct > 0
         ? `${percent(1 - (summary.financingPct || 0), 0)} of premium · customer cash`
         : "Full premium paid in cash");
+    // Interest tile labels — derived from the actual reference window.
+    // SI: "3 Years Interest" (yrs 1-3 out-of-pocket before yr 4 payouts).
+    // SLR: "1 Year Interest" (only yr 1 out-of-pocket; payouts start yr 2).
+    const refYrs = summary.referenceInterestTermYears || 0;
+    const refLabel = `${refYrs} Year${refYrs === 1 ? "" : "s"} Interest`;
+    setText("siSummaryInterestLabel", refLabel);
     setText("siSummaryInterest", fmt(summary.referenceTotalInterest || 0));
     setText("siSummaryInterestDetail",
       summary.financingPct > 0
-        ? `${fmt(summary.annualInterest || 0)}/yr × ${summary.referenceInterestTermYears || 3}`
+        ? `${fmt(summary.annualInterest || 0)}/yr × ${refYrs}`
         : "No financing");
     setText("siSummaryTotalCapital", fmt(summary.totalCapitalOut || summary.downpayment || 0));
-    const netAnnual = summary.netAnnualPayoutDuringFinancing != null
-      ? summary.netAnnualPayoutDuringFinancing
-      : (summary.grossAnnualPayout || 0);
-    setText("siSummaryNetPayout", fmt(netAnnual));
-    setText("siSummaryNetPayoutDetail",
-      summary.financingPct > 0
-        ? `${fmt(summary.grossAnnualPayout || 0)} coupon − ${fmt(summary.annualInterest || 0)} interest`
-        : `${pctFmt(summary.couponRate || 0, 1)} coupon, no interest deducted`);
-    setText("siSummaryPayoutRate", pctFmt(summary.payoutRate || 0, 2));
+    setText("siSummaryTotalCapitalDetail", `Initial + ${refYrs} Yr${refYrs === 1 ? "" : "s"} Interest`);
+
+    // Net Annual Payout + Payout Rate tiles. Single-tier (SI) renders
+    // one value as before; multi-tier (SLR) renders stacked values
+    // labelled by year range so the advisor sees both tiers at a
+    // glance.
+    const tiers = summary.tieredMetrics || [];
+    const netPayoutEl = $("siSummaryNetPayout");
+    const payoutRateEl = $("siSummaryPayoutRate");
+    if (tiers.length > 1) {
+      // Multi-tier display
+      const tierLabel = (t, i, arr) => {
+        if (i === arr.length - 1) return `yrs ${t.fromYear}+`;
+        return `yrs ${t.fromYear}-${t.toYear}`;
+      };
+      if (netPayoutEl) {
+        netPayoutEl.innerHTML = tiers.map((t, i, arr) =>
+          `<span class="si-tier-row"><span class="si-tier-value">${fmt(t.netAnnual)}</span><span class="si-tier-label">${tierLabel(t, i, arr)}</span></span>`
+        ).join("");
+      }
+      if (payoutRateEl) {
+        payoutRateEl.innerHTML = tiers.map((t, i, arr) =>
+          `<span class="si-tier-row"><span class="si-tier-value">${pctFmt(t.payoutRate, 2)}</span><span class="si-tier-label">${tierLabel(t, i, arr)}</span></span>`
+        ).join("");
+      }
+      setText("siSummaryNetPayoutDetail",
+        summary.financingPct > 0
+          ? `Coupon ${tiers.map(t => fmt(t.grossAnnual)).join(" / ")} − ${fmt(summary.annualInterest || 0)} interest`
+          : `Coupon ${tiers.map(t => pctFmt(t.rate, 2)).join(" / ")}, no interest`);
+      setText("siSummaryPayoutRateDetail", "Net payout ÷ total capital out");
+    } else {
+      // Single-tier (SI): legacy single-value rendering
+      const netAnnual = summary.netAnnualPayoutDuringFinancing != null
+        ? summary.netAnnualPayoutDuringFinancing
+        : (summary.grossAnnualPayout || 0);
+      if (netPayoutEl) netPayoutEl.textContent = fmt(netAnnual);
+      if (payoutRateEl) payoutRateEl.textContent = pctFmt(summary.payoutRate || 0, 2);
+      setText("siSummaryNetPayoutDetail",
+        summary.financingPct > 0
+          ? `${fmt(summary.grossAnnualPayout || 0)} coupon − ${fmt(summary.annualInterest || 0)} interest`
+          : `${pctFmt(summary.couponRate || 0, 1)} coupon, no interest deducted`);
+      setText("siSummaryPayoutRateDetail", "Net payout ÷ total capital out");
+    }
     // Build a human-readable coupon-schedule string. For flat schedules
     // (one tier) it reads "Coupon X% p.a. begins policy year N." For
     // tiered (SLR) it reads "Coupon X% p.a. years A-B, Y% p.a. years
@@ -8321,6 +8418,14 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     const milestoneOnly = !!(fields.siMilestoneOnly && fields.siMilestoneOnly.checked);
     const milestoneYears = new Set([1, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]);
     const payoutStart = summary.payoutStartYear || variant.payoutStartYear || 4;
+    // Show the Death Benefit column for products where the DB moves
+    // meaningfully over time (SLR — DB decreases by guaranteed income
+    // each year then resets at age 80). SI's DB is near-flat so the
+    // umbrella banner alone is enough.
+    const showDeathBenefit = variant.family === "SLR" || variant.showDeathBenefitColumn === true;
+    // Toggle header column visibility to match.
+    const dbHeaderCell = document.querySelector("#siProjectionTable thead .si-col-db");
+    if (dbHeaderCell) dbHeaderCell.hidden = !showDeathBenefit;
 
     const rows = annual
       .filter((row) => !milestoneOnly || milestoneYears.has(row.year))
@@ -8338,6 +8443,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
             <td class="si-col-income si-col-gross">${fmt(row.siGrossPayout || 0)}</td>
             <td class="si-col-income si-col-net">${fmt(row.siNetPayout || 0)}</td>
             <td class="si-col-income si-col-total-payout">${fmt(row.siCumulativeNetPayout)}</td>
+            <td class="si-col-db" ${showDeathBenefit ? "" : "hidden"}>${fmt(row.siDeathBenefit)}</td>
             <td class="si-col-cash si-col-cv">${fmt(row.siCashValue)}</td>
             <td class="si-col-cash si-col-cv-fin${negCls(row.siCashValueMinusFinancing)}">${fmt(row.siCashValueMinusFinancing)}</td>
             <td class="si-col-grand">${fmt(row.siTotalReceived)}</td>
