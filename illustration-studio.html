@@ -5713,8 +5713,12 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     const baselineAge = variant.baselineEntryAge || 40;
     const startAge = num(settings.startAge, baselineAge);
     const maturityAge = variant.policyMaturityAge || 120;
-    // Project to policy maturity (year 80 for an age-40 baseline).
-    const years = Math.max(1, maturityAge - baselineAge);
+    // Project to policy maturity, NOT a fixed 80-year window. Cap the
+    // horizon at (maturityAge − startAge) so the final row sits at the
+    // policy's actual maturity age regardless of the entry age the
+    // advisor picked. Previously hardcoded to (maturityAge − baselineAge),
+    // which over-ran past age 120 whenever startAge > baselineAge.
+    const years = Math.max(1, maturityAge - startAge);
 
     // Financing inputs. Hard cap at 72% — the maximum bank co-share
     // available in the Singapore market for SI premium financing.
