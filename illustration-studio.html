@@ -2326,50 +2326,31 @@ body.presentation-mode .strategy-table input:disabled {
      also appears once at the end of the deck on the disclaimers
      page, which is the natural footer location for printed
      illustrations. */
-  body.is-si3-main .si-print-header {
-    display: flex !important;
-    padding: 0 0 6mm 0;
-    margin: 0 0 4mm 0;
-    border-bottom: 1px solid #cabcaa;
-    align-items: baseline;
-    justify-content: space-between;
-    font-family: "Geist", "Segoe UI", system-ui, sans-serif;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-    page-break-inside: avoid;
-  }
-  body.is-si3-main .si-print-title {
-    font-family: "Newsreader", Georgia, serif;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--navy);
-    letter-spacing: -0.005em;
-  }
-  body.is-si3-main .si-print-meta {
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 500;
-  }
-  body.is-si3-main .si-print-sep { margin: 0 6px; color: #cabcaa; }
+  /* Print header (product name + client name + date) is kept OUT of
+     the printed deck per advisor request — no Illustration Studio /
+     product / personalised name on the printouts. The screen-side
+     "Prepared for" + date inputs still exist as autosave/record
+     metadata for the advisor; they just don't render in print. */
+  body.is-si3-main .si-print-header { display: none !important; }
 
-  /* Inline print footer — appears once at the end of the deck,
-     after the projection table and before the disclaimers section.
-     Drops the position: fixed because that doesn't repeat in
-     Chrome's PDF renderer anyway. */
+  /* Inline print footer — generic compliance line only. The
+     product-name half (right side) is hidden in print per the same
+     request; the left compliance side stays because it's the
+     not-for-distribution notice required on internal working tools. */
   body.is-si3-main .si-print-footer {
     display: flex !important;
     padding: 3mm 0 0 0;
     margin: 4mm 0 0 0;
     border-top: 1px solid #cabcaa;
     align-items: baseline;
-    justify-content: space-between;
+    justify-content: flex-start;
     font-family: "Geist", "Segoe UI", system-ui, sans-serif;
     font-size: 9px;
     color: var(--muted);
     letter-spacing: 0.02em;
   }
   body.is-si3-main .si-print-footer-left { font-weight: 600; }
-  body.is-si3-main .si-print-footer-right { font-style: italic; }
+  body.is-si3-main .si-print-footer-right { display: none !important; }
 
   body.is-si3-main .si-calculator {
     margin: 0 !important;
@@ -4464,12 +4445,12 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
            to a participating endowment with single-premium financing.
            Shown only when body.is-si3-main; the generic one is hidden
            via the body.is-si3-main rule in @media print + on-screen. -->
-      <section class="disclaimers si-disclaimers" aria-label="Important disclaimers — Signature Income" hidden>
+      <section class="disclaimers si-disclaimers" aria-label="Important disclaimers" hidden>
         <h2>Important Disclaimers</h2>
         <ul>
           <li><strong>Educational purpose only.</strong> This illustration is prepared for educational and discussion purposes between an advisor and client. It is not an offer, solicitation or recommendation to buy or sell any financial product, and is not for distribution or reproduction without authorisation.</li>
           <li><strong>Not financial advice.</strong> Information shown does not constitute investment, tax or legal advice. Clients should consult a licensed financial advisor and consider their own objectives, financial situation and needs before making any investment decision.</li>
-          <li><strong>Participating policy risk.</strong> Signature Income is a participating whole-life endowment. Premiums are pooled with other policyholders and invested in the insurer's Participating Fund. As a policyholder you share in the fund's <em>investment</em> risk (lower-than-expected returns), <em>insurance</em> risk (higher-than-expected claims) and <em>expense</em> risk (higher-than-expected fund management costs). Any of these can reduce the bonuses or coupon income paid.</li>
+          <li><strong>Participating policy risk.</strong> This policy is a participating whole-life endowment. Premiums are pooled with other policyholders and invested in the insurer's Participating Fund. As a policyholder you share in the fund's <em>investment</em> risk (lower-than-expected returns), <em>insurance</em> risk (higher-than-expected claims) and <em>expense</em> risk (higher-than-expected fund management costs). Any of these can reduce the bonuses or coupon income paid.</li>
           <li><strong>Non-guaranteed projections.</strong> The 4.25% Illustrated Investment Rate of Return drives both the monthly coupon and the cash value shown here. The lower 3.00% scenario (also in the Policy Illustration) is not shown. Actual bonus rates / coupon payouts may be materially lower than illustrated and are only declared annually by the insurer.</li>
           <li><strong>Coupon income.</strong> Monthly coupon (annualised 3.60% of single premium at 4.25% IRR) begins from policy month 37 and continues to maturity at age 120. Approximately 1.24% is the guaranteed portion; the remaining ~2.36% is non-guaranteed and depends on Participating Fund performance.</li>
           <li><strong>Death &amp; Terminal Illness Benefit.</strong> The death benefit floor is 105% of single premium, plus accumulated non-guaranteed bonuses. The "umbrella" framing in this illustration represents the guaranteed insurance coverage element of a participating product — payable to beneficiaries regardless of income drawn during the policy term.</li>
@@ -4500,7 +4481,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
            screen via .si-print-footer { display: none } above. -->
       <footer class="si-print-footer si-print-footer-final" aria-hidden="true">
         <span class="si-print-footer-left">For personal education only — not for external distribution</span>
-        <span class="si-print-footer-right">Signature Income · 4.25% Illustrated Investment Rate of Return</span>
+        <span class="si-print-footer-right"></span>
       </footer>
 
       <section class="par-wl-info" id="parWlInfo" aria-label="Par-whole-life info" hidden>
