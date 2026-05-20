@@ -5113,14 +5113,22 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
       premiumTermYears: 1,           // single-pay
       policyMaturityAge: 120,
       baselineEntryAge: 40,          // PI source age
-      payoutStartYear: 4,            // month 37 → policy year 4
-      // Coupon rates as % of single premium (annual). 1.24% guaranteed +
-      // 2.36% non-guaranteed at 4.25% illustrated IRR = 3.60% total.
+      // Tiered coupon schedule — list of {fromYear, toYear, rate} where
+      // rate is annualised % of single premium. For SI the schedule is
+      // trivially flat (single tier from year 4 to maturity). Engine
+      // resolves the rate for each policy year via getCouponRateForYear().
+      siCouponSchedule: [
+        { fromYear: 4, toYear: 80, rate: 0.036 },
+      ],
+      // Legacy / headline single rate — used by summary copy. Picks the
+      // last (long-term) tier of the schedule for products with tiers.
+      siCouponRate: 0.036,
+      // Coupon rate component breakdown (informational). 1.24% guaranteed
+      // + 2.36% non-guaranteed at 4.25% illustrated IRR = 3.60% total.
       // Source PI: guaranteed monthly $8,686/yr ÷ $700K = 1.241%,
       // non-guaranteed @ 4.25% IRR $16,531/yr ÷ $700K = 2.362%.
       siGuaranteedCouponRate:    0.012408,
       siNonGuaranteedCouponRate: 0.023615,
-      siCouponRate:              0.036,        // total @ 4.25% IRR
       siCouponRateLow:           0.023268,     // total @ 3.00% IRR fallback ($16,288 ÷ $700K)
       illustratedIRR:            0.0425,
       minPremiums: { SGD: { Annual: 200000 } },
@@ -5161,12 +5169,107 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
         [70, 1060327], [75, 1060923], [80, 1061557],
       ],
     },
+
+    // ──────────────────────────────────────────────────────────────────
+    // SLR — participating whole-life endowment with single-premium
+    // funding and a TIERED monthly coupon: years 2-5 pay 3.00% p.a.
+    // (months 13-60), years 6 onwards step up to 3.45% p.a. (month 61
+    // through maturity at age 120). Same financing layer as SI.
+    //
+    // Factor tables transcribed from the baseline PI (Age 40, SGD 1M
+    // single premium, Monthly Income = Paid Out, 4.25% IRR scenario,
+    // 20-May-2026 Policy Illustration). Base is $1M so values are
+    // directly per-million (no scaling needed).
+    //
+    // Notable difference vs SI: death benefit DECREASES as monthly
+    // income is paid out (sum insured 105% at year 1 → ~83% by year
+    // 20) then resets to ~100% from age 80 onwards. Surrender value
+    // is anchored at 80% of premium ($800K floor) by the Surrender
+    // Value Booster Benefit, with non-guaranteed bonus layered on top
+    // from year 5 onwards.
+    "SLR_SP": {
+      key: "SLR_SP",
+      label: "SLR Single Premium",
+      family: "SLR",
+      kind: "par-income-fin",
+      currencies: ["SGD"],
+      premiumTermYears: 1,           // single-pay
+      policyMaturityAge: 120,
+      baselineEntryAge: 40,          // PI source age
+      // Tiered coupon: 3.00% p.a. for years 2-5 (months 13-60),
+      // 3.45% p.a. from year 6 onwards (month 61 to maturity). Year 1
+      // has no payout (12-month waiting period before income starts).
+      // Source PI: $2,500/mo × 12 ÷ $1M = 3.00%; $2,875/mo × 12 ÷ $1M
+      // = 3.45%, both at 4.25% illustrated IRR.
+      siCouponSchedule: [
+        { fromYear: 2, toYear: 5,  rate: 0.030  },
+        { fromYear: 6, toYear: 80, rate: 0.0345 },
+      ],
+      siCouponRate: 0.0345,                    // headline = long-term tier
+      // Component breakdown (informational). Years 2-5: $834/mo
+      // guaranteed = 1.0008%, $1,666/mo non-guaranteed = 2.0%; total
+      // 3.0%. Years 6+: $1,000/mo guaranteed = 1.2%, $1,875/mo
+      // non-guaranteed = 2.25%; total 3.45%.
+      siGuaranteedCouponRateEarly:    0.010008,
+      siNonGuaranteedCouponRateEarly: 0.020,
+      siGuaranteedCouponRateLate:     0.012,
+      siNonGuaranteedCouponRateLate:  0.0225,
+      siCouponRateLow:                0.025056, // total @ 3.00% IRR long-term ($25,056 ÷ $1M)
+      illustratedIRR:                 0.0425,
+      minPremiums: { SGD: { Annual: 200000 } },
+      defaultFinancing: {
+        enabled: true,
+        financingPct: 0.72,
+        interestRate: 0.02,
+        interestTermYears: 3,
+      },
+      // Surrender value factor per $1M single premium (= PI dollars
+      // directly since the source PI used $1M premium). 4.25% IRR
+      // Paid Out. Year 1-4 flat at the $800K SV Booster floor; year
+      // 5 onwards layers in non-guaranteed bonus. Maturity at year 80
+      // = $1,002,001.
+      siSurrenderFactor: [
+        [1, 800000],   [2, 800000],   [3, 800000],   [4, 800000],   [5, 800207],
+        [6, 802272],   [7, 803560],   [8, 805337],   [9, 805579],   [10, 806959],
+        [11, 814190],  [12, 823095],  [13, 823112],  [14, 823126],  [15, 823141],
+        [16, 823153],  [17, 823169],  [18, 823185],  [19, 823206],  [20, 823233],
+        [25, 823971],  [30, 824713],  [35, 827644],  [40, 1000001],
+        [45, 1000001], [50, 1000001], [55, 1000001], [60, 1000001], [65, 1000001],
+        [70, 1000001], [75, 1000001], [80, 1002001],
+      ],
+      // Death benefit factor per $1M single premium. Decreases as
+      // monthly income is paid out — typical of "guaranteed income"
+      // whole-life products where the DB is reduced dollar-for-dollar
+      // against the cumulative payout. Resets to ~100% from age 80
+      // (year 40) once the income stream catches up to the sum
+      // insured. Pattern unique to SLR vs SI's slowly-rising curve.
+      siDeathBenefitFactor: [
+        [1, 1050079],  [2, 1040121],  [3, 1030129],  [4, 1020199],  [5, 1010209],
+        [6, 998214],   [7, 986244],   [8, 974270],   [9, 962293],   [10, 950360],
+        [11, 938386],  [12, 926420],  [13, 914451],  [14, 902483],  [15, 890517],
+        [16, 878518],  [17, 866523],  [18, 854546],  [19, 842570],  [20, 830619],
+        [25, 823971],  [30, 824713],  [35, 827644],  [40, 1000001],
+        [45, 1000001], [50, 1000001], [55, 1000001], [60, 1000001], [65, 1000001],
+        [70, 1000001], [75, 1000001], [80, 1002001],
+      ],
+    },
   };
 
-  const VARIANT_ORDER = ["5F1", "6F2", "7F5", "10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10", "SLH_SP", "SLH_3PAY", "SLH_5PAY", "SI3_SP"];
+  const VARIANT_ORDER = ["5F1", "6F2", "7F5", "10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10", "SLH_SP", "SLH_3PAY", "SLH_5PAY", "SI3_SP", "SLR_SP"];
   const PARTIAL_WITHDRAWAL_VARIANTS = new Set(["10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10"]);
   const PAR_WL_VARIANTS = new Set(["SLH_SP", "SLH_3PAY", "SLH_5PAY"]);
-  const PAR_INCOME_VARIANTS = new Set(["SI3_SP"]);
+  const PAR_INCOME_VARIANTS = new Set(["SI3_SP", "SLR_SP"]);
+
+  // Resolve the annual coupon rate for a given policy year against
+  // a variant's siCouponSchedule. Returns 0 if the year falls outside
+  // all tiers (pre-payout years). Used by the par-income-fin engine.
+  function getCouponRateForYear(schedule, year) {
+    if (!Array.isArray(schedule)) return 0;
+    for (const tier of schedule) {
+      if (year >= tier.fromYear && year <= tier.toYear) return tier.rate;
+    }
+    return 0;
+  }
 
   function num(value, fallback = 0) {
     const parsed = Number(value);
@@ -5741,9 +5844,17 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     // Lifetime interest over the full policy term (informational only).
     const totalInterestPaid = annualInterest * years;
 
-    const couponRate = num(variant.siCouponRate, 0.036);
-    const payoutStartYear = variant.payoutStartYear || 4;
-    const grossAnnualPayout = premium * couponRate;
+    // Coupon resolution. Variants supply a tiered siCouponSchedule
+    // (list of {fromYear, toYear, rate}); the year-1 rate of the
+    // first tier doubles as the payoutStartYear (= first paying year).
+    // The headline siCouponRate (last tier, long-term) is what the
+    // summary tile uses for the "Net Annual Payout" figure.
+    const couponSchedule = Array.isArray(variant.siCouponSchedule) && variant.siCouponSchedule.length
+      ? variant.siCouponSchedule
+      : [{ fromYear: variant.payoutStartYear || 4, toYear: years, rate: num(variant.siCouponRate, 0.036) }];
+    const payoutStartYear = couponSchedule[0].fromYear;
+    const headlineCouponRate = couponSchedule[couponSchedule.length - 1].rate;
+    const grossAnnualPayout = premium * headlineCouponRate;       // long-term steady-state (Year 6+ for SLR, Year 4+ for SI)
 
     const annual = [];
     const monthly = [];
@@ -5766,7 +5877,12 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
       const cashValue = sFactor * (premium / 1_000_000);
       const deathBenefit = dbFactor * (premium / 1_000_000);
 
-      const grossPayout = year >= payoutStartYear ? grossAnnualPayout : 0;
+      // Resolve this year's coupon rate from the variant schedule.
+      // SI is flat (3.6% from year 4 to maturity). SLR steps up:
+      // 3.0% years 2-5, 3.45% year 6 to maturity. Pre-tier years
+      // return 0 (no payout).
+      const couponRateThisYear = getCouponRateForYear(couponSchedule, year);
+      const grossPayout = premium * couponRateThisYear;
       // Interest applies for every year while financing is enabled — the
       // reference spreadsheet's "Net Payout" formula assumes the loan
       // rolls at the same rate indefinitely (steady-state view). The
@@ -5775,12 +5891,11 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
       // hard cutoff on when interest stops.
       const interestThisYear = financingPct > 0 ? annualInterest : 0;
       // Net payout = gross payout − annual interest cost.
-      // Years 1-3 (pre-coupon): gross is 0, so net would be negative
-      // (you're paying interest out of pocket). The spreadsheet floors
-      // at zero here, which is what the advisor expects to see in the
-      // table — the actual interest outflow is captured in the summary
-      // and in the Total Outflow column.
-      const netPayout = year >= payoutStartYear
+      // Pre-payout years: gross is 0, so net would be negative (you're
+      // paying interest out of pocket). Floor at zero in the table —
+      // the actual interest outflow is captured in the summary tiles
+      // and in the cumulative interest tracker.
+      const netPayout = couponRateThisYear > 0
         ? grossPayout - interestThisYear
         : 0;
 
@@ -5912,7 +6027,9 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
       payoutRate: totalCapitalOut > 0
         ? netAnnualPayout / totalCapitalOut
         : 0,
-      couponRate,
+      couponRate: headlineCouponRate,
+      couponSchedule,
+      payoutStartYear,
     };
 
     return {
@@ -8096,8 +8213,27 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
         ? `${fmt(summary.grossAnnualPayout || 0)} coupon − ${fmt(summary.annualInterest || 0)} interest`
         : `${pctFmt(summary.couponRate || 0, 1)} coupon, no interest deducted`);
     setText("siSummaryPayoutRate", pctFmt(summary.payoutRate || 0, 2));
+    // Build a human-readable coupon-schedule string. For flat schedules
+    // (one tier) it reads "Coupon X% p.a. begins policy year N." For
+    // tiered (SLR) it reads "Coupon X% p.a. years A-B, Y% p.a. years
+    // C onwards." Pulls directly from summary.couponSchedule so any
+    // future product with a different tier shape works without code
+    // changes.
+    const schedule = summary.couponSchedule || [];
+    const scheduleText = schedule.length === 1
+      ? `Coupon ${pctFmt(schedule[0].rate, 2)} p.a. begins policy year ${schedule[0].fromYear}.`
+      : schedule.map((tier, i) => {
+          const isLast = i === schedule.length - 1;
+          const range = isLast
+            ? `years ${tier.fromYear} onwards`
+            : `years ${tier.fromYear}-${tier.toYear}`;
+          return `${pctFmt(tier.rate, 2)} p.a. ${range}`;
+        }).join(", ");
+    const fullScheduleText = schedule.length === 1
+      ? scheduleText
+      : `Coupon: ${scheduleText}.`;
     setText("siSummaryNote",
-      `Coupon ${pctFmt(summary.couponRate || 0, 2)} p.a. begins policy year ${variant.payoutStartYear || 4}. ` +
+      `${fullScheduleText} ` +
       `Bank finance of ${fmt(summary.financedAmount || 0)} stays outstanding throughout the policy term — repaid from policy proceeds at surrender or maturity.`);
 
     // ----- Death benefit umbrella banner -----
@@ -8179,7 +8315,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     if (!tbody) return;
     const milestoneOnly = !!(fields.siMilestoneOnly && fields.siMilestoneOnly.checked);
     const milestoneYears = new Set([1, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]);
-    const payoutStart = variant.payoutStartYear || 4;
+    const payoutStart = summary.payoutStartYear || variant.payoutStartYear || 4;
 
     const rows = annual
       .filter((row) => !milestoneOnly || milestoneYears.has(row.year))
