@@ -4012,20 +4012,17 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
         <header class="si-print-header" aria-hidden="true">
           <div class="si-print-title">SI Premium Financing Illustration</div>
           <div class="si-print-meta">
-            <span id="siPrintClient">Prepared for —</span>
-            <span class="si-print-sep">·</span>
             <span id="siPrintDate"></span>
           </div>
         </header>
 
-        <!-- Client framing — small inline row above the umbrella. Edits
-             feed the print-header element above. Date defaults to today
-             but is editable in case the advisor reprints later. -->
+        <!-- Date framing — small inline row above the umbrella. Edit
+             feeds the print-header element above. Defaults to today
+             but is editable in case the advisor reprints later. The
+             "Prepared for [client]" input was removed to keep this
+             tool framed as a hypothetical projection rather than a
+             client-specific deliverable. -->
         <div class="si-prep-row">
-          <label class="si-prep-field">
-            <span class="si-label">Prepared for</span>
-            <input id="siClientName" type="text" placeholder="Client name" autocomplete="off" maxlength="80" />
-          </label>
           <label class="si-prep-field">
             <span class="si-label">Date</span>
             <input id="siPrepDate" type="text" placeholder="DD MMM YYYY" autocomplete="off" maxlength="40" />
@@ -4269,7 +4266,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
         <div class="fund-builder-grid">
           <div class="fund-search-wrap">
             <label for="fundSearch">Fund name or code <span class="search-hint">— Enter to add to portfolio</span></label>
-            <input id="fundSearch" type="search" autocomplete="off" placeholder="Manulife…" />
+            <input id="fundSearch" type="search" autocomplete="off" placeholder="Search funds…" />
             <div id="fundSuggestions" class="fund-suggestions" hidden></div>
             <!-- Hidden filter inputs preserved so existing JS bindings keep
                  working; the visible UI lives inside the typeahead dropdown
@@ -4477,7 +4474,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
           <li><strong>Not financial advice.</strong> Information shown does not constitute investment, tax or legal advice. Clients should consult a licensed financial advisor and consider their own objectives, financial situation and needs before making any investment decision.</li>
           <li><strong>Investment risk.</strong> The underlying assets are invested in funds whose values are subject to market fluctuations. Investments carry risks, including the possible loss of the principal amount invested. The value of units in the underlying funds, and any income from them, may rise as well as fall.</li>
           <li><strong>Non-guaranteed projections.</strong> Projected account values, total values, dividends and bonuses shown here are illustrative only, based on the NAV growth and dividend rates entered for each year. They are not guaranteed and may differ materially from actual future performance. Past performance of any fund is not necessarily indicative of future performance.</li>
-          <li><strong>Bonuses and dividends.</strong> Welcome Bonus, Annual Premium Bonus, Loyalty Bonus and dividend payouts are subject to the policy's terms — including premium payment conditions and the actual performance of the underlying funds — and are not guaranteed.</li>
+          <li><strong>Bonuses and dividends.</strong> Any non-guaranteed bonuses or dividend payouts (e.g. welcome / persistency / loyalty bonuses, where applicable) are subject to the policy's terms — including premium payment conditions and the actual performance of the underlying funds — and are not guaranteed.</li>
           <li><strong>Charges.</strong> Projections are net of the admin and partial-withdrawal charges modelled here. The product is subject to other fees and charges set out in the policy contract and product summary, including but not limited to fund management charges, surrender charges and applicable deductions.</li>
           <li><strong>Currency risk.</strong> Where the policy currency differs from the client's reference currency, projected outcomes may be affected by exchange rate fluctuations.</li>
           <li><strong>Capital protection.</strong> The "101% Capital Protected" feature applies only to the Death and Terminal Illness Benefit as defined in the policy contract. Surrender value is not guaranteed and, particularly during the early policy years, may be less than total premiums paid.</li>
@@ -4499,10 +4496,10 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
           <li><strong>Non-guaranteed projections.</strong> The 4.25% Illustrated Investment Rate of Return drives both the monthly coupon and the cash value shown here. The lower 3.00% scenario (also in the Policy Illustration) is not shown. Actual bonus rates / coupon payouts may be materially lower than illustrated and are only declared annually by the insurer.</li>
           <li><strong>Coupon income.</strong> Monthly coupon (annualised 3.60% of single premium at 4.25% IRR) begins from policy month 37 and continues to maturity at age 120. Approximately 1.24% is the guaranteed portion; the remaining ~2.36% is non-guaranteed and depends on Participating Fund performance.</li>
           <li><strong>Death &amp; Terminal Illness Benefit.</strong> The death benefit floor is 105% of single premium, plus accumulated non-guaranteed bonuses. The "umbrella" framing in this illustration represents the guaranteed insurance coverage element of a participating product — payable to beneficiaries regardless of income drawn during the policy term.</li>
-          <li><strong>Surrender value.</strong> Early surrender values are below total premium paid and may be zero in policy day 1. A Surrender Value Booster Benefit guarantees that total surrender value is at least 80% of single premium. Final surrender value is non-guaranteed and depends on the Participating Fund.</li>
+          <li><strong>Surrender value.</strong> Early surrender values are below total premium paid and may be zero in policy day 1. Where a guaranteed-surrender-value floor benefit applies, total surrender value at the floor age is guaranteed at a percentage of single premium (e.g. 80%) as set out in the policy contract. Final surrender value is non-guaranteed and depends on the Participating Fund.</li>
           <li><strong>Premium financing risks.</strong> Where premium financing is applied (default 72% bank co-share at 2.00% p.a. interest, interest-only) the customer is responsible for ongoing loan interest for the life of the policy. <em>Interest rate risk:</em> rates may rise above the illustrated level, reducing or eliminating net coupon income. <em>Refinancing risk:</em> the loan facility may not be renewed at terms equivalent to those quoted. <em>Margin / repayment risk:</em> the loan principal is repaid from policy proceeds at surrender or maturity; if policy value is less than the loan outstanding, the customer is responsible for the shortfall.</li>
           <li><strong>Currency &amp; tax.</strong> Premium and benefits are denominated in Singapore Dollars. No tax advice is given; clients should consult their own tax advisor on local tax treatment of life insurance proceeds and premium financing interest.</li>
-          <li><strong>Source documents prevail.</strong> Please refer to the official Policy Illustration, Product Summary, Bundled Product Disclosure Document and Bank Financing Agreement for the full terms, conditions, charges and risk disclosures. In the event of any discrepancy, those documents prevail over this illustration.</li>
+          <li><strong>Source documents prevail.</strong> Please refer to the official Policy Illustration, Product Summary, Product Disclosure documents and Bank Financing Agreement for the full terms, conditions, charges and risk disclosures. In the event of any discrepancy, those documents prevail over this illustration.</li>
         </ul>
         <!-- Prominent non-guarantee callout below the disclaimers list.
              Surfaces the two biggest uncertainties in a financed-SI
@@ -4537,22 +4534,22 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
           </div>
         </div>
         <p>
-          SLH (Signature Legacy Harvest) is a <abbr class="glossary-term" title="A whole-life policy where premiums are pooled in the insurer's Participating Fund. Policyholders share in the fund's surplus via annual bonus declarations, but bear investment / insurance / expense risk.">participating whole-life policy</abbr> underwritten by Manulife (Singapore) Pte. Ltd.. This illustration projects to policy year 120 using the insurer's <strong>Reinvested</strong> bonus schedule — non-guaranteed <abbr class="glossary-term" title="Bonus declared annually but only crystallised on surrender or claim. The single largest component of an SLH year-120 value.">terminal bonus</abbr> stays inside the policy and compounds the surrender value. The <abbr class="glossary-term" title="A one-off cash withdrawal computed as 50% of accumulated non-guaranteed bonus. Reduces future bonus accrual proportionally.">Adhoc 50% drawdown</abbr> column in the table is <em>informational</em>: it shows how much cash a policyholder could pull from the accumulated non-guaranteed bonus at that policy year.
+          SLH models a <abbr class="glossary-term" title="A whole-life policy where premiums are pooled in the insurer's Participating Fund. Policyholders share in the fund's surplus via annual bonus declarations, but bear investment / insurance / expense risk.">participating whole-life</abbr> variant in this tool. The factor tables used are illustrative and may not reflect any specific insurer's current schedule. This projection runs to policy year 120 using a <strong>Reinvested</strong> bonus schedule — non-guaranteed <abbr class="glossary-term" title="Bonus declared annually but only crystallised on surrender or claim. The single largest component of a participating WL year-120 value.">terminal bonus</abbr> stays inside the policy and compounds the surrender value. The <abbr class="glossary-term" title="A one-off cash withdrawal computed as 50% of accumulated non-guaranteed bonus. Reduces future bonus accrual proportionally.">Adhoc 50% drawdown</abbr> column in the table is <em>informational</em>: it shows how much cash a policyholder could pull from the accumulated non-guaranteed bonus at that policy year.
         </p>
         <p>
           Bonuses, dividends, and the surrender values shown are <strong>not guaranteed</strong> until declared. The guaranteed surrender benefit may be less than total premiums paid, particularly in the early policy years.
         </p>
         <p class="par-wl-info-strong">
-          Key risks of a participating plan — your premiums are pooled with other policyholders' and invested in Manulife's <abbr class="glossary-term" title="The insurer's pooled investment fund whose surplus is shared with par-WL policyholders via annual bonus declarations.">Participating Fund</abbr>. As a policyholder you share in the fund's <strong>investment risk</strong> (lower-than-expected returns), <strong>insurance risk</strong> (higher-than-expected claims), and <strong>expense risk</strong> (higher-than-expected fund management costs). Any of these can reduce the bonuses or dividends you receive.
+          Key risks of a participating plan — your premiums are pooled with other policyholders' and invested in the insurer's <abbr class="glossary-term" title="The insurer's pooled investment fund whose surplus is shared with par-WL policyholders via annual bonus declarations.">Participating Fund</abbr>. As a policyholder you share in the fund's <strong>investment risk</strong> (lower-than-expected returns), <strong>insurance risk</strong> (higher-than-expected claims), and <strong>expense risk</strong> (higher-than-expected fund management costs). Any of these can reduce the bonuses or dividends you receive.
         </p>
         <p class="par-wl-info-fx" id="parWlFxNote">
-          USD values are converted to SGD at the live exchange rate when comparing with SGD-denominated InvestReady plans.
+          USD values are converted to SGD at the live exchange rate when comparing with SGD-denominated ILP variants in this tool.
         </p>
         <p class="par-wl-info-cta">
-          For the official figures and complete terms, refer to the Manulife Policy Illustration, Product Summary, and Bundled Product Disclosure Document. In any discrepancy, those documents prevail over this advisor working tool.
+          For the official figures and complete terms, refer to the Policy Illustration, Product Summary, and Product Disclosure documents issued by the insurer. In any discrepancy, those documents prevail over this advisor working tool.
         </p>
         <p class="par-wl-info-rate">
-          <strong>Illustrated at 7.50% p.a. <abbr class="glossary-term" title="Bonus Realisation rate — the rate at which the participating fund's surplus is illustrated as policy bonuses each year. SLH uses the higher illustrated rate (7.50%).">BR</abbr></strong> — the higher of two Illustrated Investment Rates of Return on the official Policy Illustration. The lower rate (5.25% p.a.) and the actual realised bonus rate may differ materially from this projection.
+          <strong>Illustrated at 7.50% p.a. <abbr class="glossary-term" title="Bonus Realisation rate — the rate at which the participating fund's surplus is illustrated as policy bonuses each year. This tool uses the higher illustrative rate (7.50%).">BR</abbr></strong> — the higher of two illustrative Investment Rates of Return commonly used in par-WL benefit illustrations. A lower rate (e.g. 5.25% p.a.) and the actual realised bonus rate may differ materially from this projection.
         </p>
       </section>
     </main>
@@ -4741,7 +4738,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     "IRG15F10": {
       key: "IRG15F10",
       label: "IRG 15 Years Flexi 10",
-      family: "InvestReady Growth",
+      family: "ILP Growth",
       currencies: ["SGD"],
       mipYears: 15,
       flexiStartYear: 11,
@@ -4770,7 +4767,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     "IRG20F10": {
       key: "IRG20F10",
       label: "IRG 20 Years Flexi 10",
-      family: "InvestReady Growth",
+      family: "ILP Growth",
       currencies: ["SGD"],
       mipYears: 20,
       flexiStartYear: 11,
@@ -6801,7 +6798,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     // SI premium-financing fields
     "siPremium", "siEntryAge", "siFinancingEnabled",
     "siFinancingPct", "siDownpayment", "siInterestRate",
-    "siClientName", "siPrepDate",
+    "siPrepDate",
     "siMilestoneOnly",
   ];
 
@@ -10374,16 +10371,11 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     syncSIPrintHeader();
   }
 
-  // Mirror the client name + date into the position:fixed print-only
-  // header so the printed deck shows "Prepared for: <name> · <date>"
-  // at the top of every page.
+  // Mirror the date into the position:fixed print-only header so the
+  // printed deck shows the prep date at the top of every page. The
+  // client-name field was removed; this header carries only the date.
   function syncSIPrintHeader() {
-    const clientEl = document.getElementById("siPrintClient");
     const dateEl = document.getElementById("siPrintDate");
-    if (clientEl) {
-      const name = (fields.siClientName?.value || "").trim();
-      clientEl.textContent = name ? `Prepared for ${name}` : "Prepared for —";
-    }
     if (dateEl) {
       dateEl.textContent = (fields.siPrepDate?.value || "").trim();
     }
@@ -10520,11 +10512,9 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     if (fields.siInterestRate) {
       fields.siInterestRate.addEventListener("input", recalc);
     }
-    // Client name + date — purely cosmetic; no recalc needed, just
-    // mirror the values into the print-only fixed header.
-    if (fields.siClientName) {
-      fields.siClientName.addEventListener("input", syncSIPrintHeader);
-    }
+    // Date — purely cosmetic; no recalc needed, just mirror the
+    // value into the print-only fixed header. (Client-name field
+    // removed; date is the only field that drives this header now.)
     if (fields.siPrepDate) {
       fields.siPrepDate.addEventListener("input", syncSIPrintHeader);
     }
