@@ -3760,12 +3760,15 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
         </div>
       </div>
       <div class="scenario-actions" aria-label="Scenario actions">
+        <!-- Status pill — shows confirmation after manual saves
+             ("Saved as X", "Loaded X", "Saved to Drive"). The autosave
+             timer that used to write here on every keystroke is gone,
+             so it stays empty until the user actively saves. -->
         <span class="autosave-status" id="autosaveStatus" aria-live="polite"></span>
         <details class="action-menu" id="saveMenu">
           <summary class="btn">Save <span class="caret">▾</span></summary>
           <div class="action-menu-pop">
             <div class="action-menu-section">Browser storage</div>
-            <button type="button" data-save-action="autosave">Update autosave</button>
             <button type="button" data-save-action="named">Save as new scenario…</button>
             <div class="action-menu-section drive-section" id="saveDriveHeading" hidden>Google Drive</div>
             <button type="button" data-save-action="drive" id="saveDriveBtn" hidden>Save to Drive…</button>
@@ -3776,8 +3779,6 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
         <details class="action-menu" id="openMenu">
           <summary class="btn">Open <span class="caret">▾</span></summary>
           <div class="action-menu-pop">
-            <div class="action-menu-section">Browser storage</div>
-            <button type="button" data-open-action="autosave" id="openAutosaveBtn">Restore latest autosave</button>
             <div class="action-menu-section drive-section" id="openDriveHeading" hidden>Google Drive</div>
             <button type="button" data-open-action="drive-signin" id="openDriveSigninBtn" hidden>Sign in to Google Drive</button>
             <div class="action-menu-section" id="namedSavesHeading" hidden>Saved scenarios</div>
@@ -11278,82 +11279,19 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     // preset / loaded scenario doesn't immediately mark the form as
     // dirty. Anything the user types from this point on counts.
     setTimeout(_wireCkgDirtyTracking, 0);
-    // Wire autosave AFTER the initial preset / scenario load so the
-    // first-paint state doesn't trigger a write. Every subsequent input
-    // change debounces a write to the browser-local autosave slot.
-    setTimeout(() => {
-      _autosaveStarted = true;
-      const debounced = scheduleAutosave;
-      document.querySelectorAll(
-        ".controls input, .controls select, .strategy-section input, .strategy-section select, .fund-builder-section input, .fund-builder-section select, .si-calculator input, .si-calculator select, #scenarioNotes"
-      ).forEach((el) => {
-        el.addEventListener("input", debounced);
-        el.addEventListener("change", debounced);
-      });
-      // Surface a hint that an autosave is available — and offer to
-      // restore it inline (one-time, dismissable). We only prompt when:
-      //   - localStorage holds an autosave with a real timestamp
-      //   - the user didn't load a scenario via #hash or embedded data
-      //   - the user didn't already explicitly load a named save
-      //   - we're on the default preset (the only path init() takes when
-      //     none of the above held)
-      try {
-        const raw = window.localStorage.getItem(AUTOSAVE_KEY);
-        if (raw) {
-          const payload = JSON.parse(raw);
-          if (payload && payload._autosavedAt) {
-            const stamp = new Date(payload._autosavedAt).toLocaleTimeString("en-SG", { hour: "2-digit", minute: "2-digit" });
-            _setAutosaveStatus("Autosave from " + stamp, "saved");
-            offerAutosaveRestore(payload._autosavedAt);
-          }
-        }
-      } catch (_e) { /* ignore */ }
-    }, 800);
+    // Autosave was previously wired here (1.2s debounced write to
+    // localStorage on every input/change event, plus a "Restore from
+    // last visit" banner on startup). Removed per advisor request —
+    // save is now strictly manual via the Save dropdown (named
+    // scenarios, Drive sync, Download HTML). Existing autosave data
+    // in localStorage is left untouched but is no longer read or
+    // updated; users won't see the restore banner.
   }
 
-  // One-time inline banner asking if the user wants to restore the
-  // autosave from their last visit. Sits below the topbar, just above
-  // the controls, brass-tinted. Dismisses on action OR on the user
-  // editing anything (so we don't keep nagging while they're working).
-  function offerAutosaveRestore(savedAt) {
-    if (document.getElementById("restoreAutosaveBanner")) return;
-    const stamp = new Date(savedAt);
-    const stampText = stamp.toLocaleString("en-SG", {
-      year: "numeric", month: "short", day: "numeric",
-      hour: "2-digit", minute: "2-digit",
-    });
-    const banner = document.createElement("div");
-    banner.id = "restoreAutosaveBanner";
-    banner.className = "restore-banner";
-    banner.setAttribute("role", "status");
-    banner.innerHTML = `
-      <span><strong>Autosave found</strong> from ${htmlEscape(stampText)}. Restore your last working scenario?</span>
-      <div class="restore-banner-actions">
-        <button type="button" data-restore="yes" class="restore-banner-primary">Restore</button>
-        <button type="button" data-restore="no" class="restore-banner-ghost">Start fresh</button>
-      </div>
-    `;
-    const usageBanner = document.querySelector(".usage-banner");
-    if (usageBanner && usageBanner.parentNode) {
-      usageBanner.parentNode.insertBefore(banner, usageBanner.nextSibling);
-    } else {
-      document.body.insertBefore(banner, document.body.firstChild);
-    }
-    const dismiss = () => banner.remove();
-    banner.querySelector('[data-restore="yes"]').addEventListener("click", () => {
-      loadAutosave();
-      dismiss();
-    });
-    banner.querySelector('[data-restore="no"]').addEventListener("click", dismiss);
-    // Auto-dismiss if the user starts typing/changing anything — no nag.
-    const cancelOnEdit = () => {
-      dismiss();
-      document.removeEventListener("input", cancelOnEdit, true);
-      document.removeEventListener("change", cancelOnEdit, true);
-    };
-    document.addEventListener("input", cancelOnEdit, true);
-    document.addEventListener("change", cancelOnEdit, true);
-  }
+  // offerAutosaveRestore() removed alongside the autosave feature —
+  // no caller remains. scheduleAutosave / writeAutosave / loadAutosave
+  // are kept defined (inert) since named-save and Drive-save paths
+  // still reuse _setAutosaveStatus() for "Saved as X" feedback.
 
   document.addEventListener("DOMContentLoaded", init);
 })();
