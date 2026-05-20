@@ -2171,7 +2171,10 @@ body.presentation-mode .strategy-table input:disabled {
 .usage-banner-strong strong { color: #b03425; }
 .usage-banner-strong span { color: #6b2010; }
 
-.usage-banner strong {
+/* Direct-child only: the banner's HEADER strong gets the loud
+   uppercase treatment. Nested strongs inside the body <span> stay
+   as normal inline bold so in-prose emphasis doesn't shout. */
+.usage-banner > strong {
   display: block;
   min-width: 0;
   max-width: 100%;
@@ -3848,7 +3851,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
 
     <div class="usage-banner usage-banner-strong" role="note" aria-label="Important notice">
       <strong>For personal education only · Not for external distribution · Use at your own risk</strong>
-      <span>This is an internal advisor working tool — not a customer illustration, not an offer, solicitation, or recommendation, and <strong>not a representation of any insurer's actual product</strong>. The factor tables, bonus rates, and projection assumptions used here were transcribed by hand from publicly available materials and <strong>may contain errors, be out of date, or differ from current rate cards</strong>. In any discrepancy, the insurer's official Policy Illustration prevails. The creator of this tool accepts <strong>no liability</strong> for any decision, transaction, loss, or outcome arising from its use. Always verify against the insurer's official documents before discussing any actual product with a client.</span>
+      <span>This is an internal advisor working tool — not a customer illustration, not an offer or recommendation, and not a representation of any insurer's actual product. Factor tables and rates here were transcribed by hand from publicly available materials and may contain errors or be out of date; in any discrepancy the insurer's official Policy Illustration prevails. The creator accepts no liability for any decision, transaction, or outcome arising from its use. Always verify against the insurer's official documents before any client conversation.</span>
     </div>
 
     <main>
