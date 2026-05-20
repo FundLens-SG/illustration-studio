@@ -3195,6 +3195,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
 .si-table-controls {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 14px;
   flex-wrap: wrap;
 }
@@ -3224,14 +3225,15 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
   accent-color: var(--gold-dark);
   cursor: pointer;
 }
-/* Print tip — sits next to the milestone toggle on screen, nudges the
-   advisor to disable Chrome's default headers/footers in the print
-   dialog. Hidden in print (it's a screen-only hint). */
+/* Print tip — block-level italic line above the projection table,
+   nudges the advisor to disable Chrome's default headers/footers in
+   the print dialog. Hidden in print (it's a screen-only hint). */
 .si-print-tip {
+  margin: 4px 0 12px 0;
   font-size: 11px;
   color: var(--muted);
   font-style: italic;
-  line-height: 1.4;
+  line-height: 1.45;
   letter-spacing: 0.01em;
 }
 .si-print-tip strong {
@@ -4106,12 +4108,15 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
                 <input id="siMilestoneOnly" type="checkbox" />
                 Milestone years only
               </label>
-              <span class="si-print-tip" aria-label="Print tip">
-                <strong>Tip:</strong> in the Chrome print dialog, untick
-                <em>More settings → Headers and footers</em> for a cleaner PDF.
-              </span>
             </div>
           </div>
+          <!-- Print hint — relocated out of the table-header row so the
+               milestone toggle can flush right. Small italic line above
+               the table; hidden in print itself (advisor-only nudge). -->
+          <p class="si-print-tip" aria-label="Print tip">
+            <strong>Tip:</strong> when printing this projection, untick
+            <em>More settings → Headers and footers</em> in the Chrome print dialog for a cleaner PDF.
+          </p>
           <div class="si-table-scroll">
             <table id="siProjectionTable" class="si-projection-table">
               <thead>
@@ -6061,10 +6066,9 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     if (minimum !== null && num(settings.annualizedPremium) < minimum) {
       warnings.push(`Single premium is below the ${currencySymbol(settings.currency)}${minimum.toLocaleString()} minimum for this plan.`);
     }
-    const startAge = num(settings.startAge, variant.baselineEntryAge || 40);
-    if (Math.abs(startAge - (variant.baselineEntryAge || 40)) > 5) {
-      warnings.push(`Cash Value and Death Benefit factors are calibrated to entry age ${variant.baselineEntryAge}. Values for entry age ${startAge} are approximate — regenerate the PI for an exact projection.`);
-    }
+    // Entry-age calibration warning removed per advisor request — the
+    // baseline-PI nuance is documented in the SI disclaimers section
+    // rather than nagging via the warnings box on every age change.
     if (settings.siFinancingEnabled) {
       const annualInterest = num(settings.annualizedPremium, 0) * num(settings.siFinancingPct, 0) * num(settings.siInterestRate, 0);
       const grossPayout = num(settings.annualizedPremium, 0) * num(variant.siCouponRate, 0.036);
