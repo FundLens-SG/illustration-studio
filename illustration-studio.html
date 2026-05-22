@@ -8550,8 +8550,8 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
       ? `${money(policyFee, settings.currency)} / mo`
       : "N/A";
     const adminText = variant.adminMode === "vmpp"
-      ? `${percent(variant.adminDuring)} / ${percent(result.settings.adminAfter)} of VMPP`
-      : `${percent(variant.adminDuring)} / ${percent(result.settings.adminAfter)}`;
+      ? `${percent(variant.adminDuring, 2)} / ${percent(result.settings.adminAfter, 2)} of VMPP`
+      : `${percent(variant.adminDuring, 2)} / ${percent(result.settings.adminAfter, 2)}`;
     const extraRows = [];
     if (variant.premiumBonusRate > 0) {
       extraRows.push(`<div><dt>${glossaryAbbr("Premium Bonus")}</dt><dd>${percent(variant.premiumBonusRate)} from Yr ${variant.flexiStartYear}</dd></div>`);
@@ -9864,7 +9864,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
             ${compareResult ? `<td class="col-total">${valueWrapper(row.totalValue, row.year)}</td><td class="col-compare">${valueWrapper(compareRow.totalValue, row.year)}</td>` : `<td class="col-total">${valueWrapper(row.totalValue, row.year)}</td>`}
             ${reinvestAnnual ? `<td class="col-value">${valueWrapper(reinvestRow.accountValue, row.year)}</td>` : ""}
             ${fdAnnual ? `<td class="col-benchmark">${valueWrapper(fdRow.value, row.year)}</td>` : ""}
-            ${showAdvisor ? `<td class="col-charge">${percent(row.adminRate)}</td><td class="col-charge">${percent(row.partialWithdrawalChargeRate)}</td><td class="col-charge">${valueWrapper(row.bonuses, row.year)}</td>` : ""}
+            ${showAdvisor ? `<td class="col-charge">${percent(row.adminRate, 2)}</td><td class="col-charge">${percent(row.partialWithdrawalChargeRate)}</td><td class="col-charge">${valueWrapper(row.bonuses, row.year)}</td>` : ""}
           </tr>
         `; }).join("")}
       </tbody>
