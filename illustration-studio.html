@@ -2884,9 +2884,11 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
   font-size: 12px;
   line-height: 1.45;
 }
-.rrp-important-note strong,
-.rrp-source-note strong {
+.rrp-important-note strong {
   color: var(--red);
+}
+.rrp-source-note strong {
+  color: var(--green);
 }
 .rrp-source-note {
   border-left: 3px solid var(--gold-dark);
@@ -2970,14 +2972,6 @@ canvas#rrpBenefitsChart {
 #rrpProjectionTable td.rrp-col-guaranteed {
   background: #f0f8f4;
 }
-#rrpProjectionTable th.rrp-col-ng-300,
-#rrpProjectionTable td.rrp-col-ng-300 {
-  background: #f1f6fa;
-}
-#rrpProjectionTable th.rrp-col-total-300,
-#rrpProjectionTable td.rrp-col-total-300 {
-  background: #e9f1f7;
-}
 #rrpProjectionTable th.rrp-col-ng-425,
 #rrpProjectionTable td.rrp-col-ng-425 {
   background: #f4f6ed;
@@ -2997,10 +2991,6 @@ canvas#rrpBenefitsChart {
 }
 #rrpProjectionTable thead th.rrp-col-guaranteed {
   box-shadow: inset 0 -3px #73a987;
-}
-#rrpProjectionTable thead th.rrp-col-ng-300,
-#rrpProjectionTable thead th.rrp-col-total-300 {
-  box-shadow: inset 0 -3px #6f9fbd;
 }
 #rrpProjectionTable thead th.rrp-col-ng-425,
 #rrpProjectionTable thead th.rrp-col-total-425 {
@@ -4229,8 +4219,8 @@ canvas#rrpBenefitsChart {
               <strong>Guaranteed income + non-guaranteed cash bonus</strong>
             </div>
             <div class="rrp-feature">
-              <span>Illustrated rates</span>
-              <strong>3.00% and 4.25% IIRR views</strong>
+              <span>Illustrated basis</span>
+              <strong>4.25% IIRR only</strong>
             </div>
           </div>
         </div>
@@ -4261,16 +4251,6 @@ canvas#rrpBenefitsChart {
             </label>
 
             <label class="si-field">
-              <span class="si-label">Income View</span>
-              <select id="rrpIirrView">
-                <option value="425">4.25% IIRR</option>
-                <option value="300">3.00% IIRR</option>
-                <option value="both">3.00% and 4.25%</option>
-              </select>
-              <span class="si-hint">Total income target uses this view; Both uses 4.25%</span>
-            </label>
-
-            <label class="si-field">
               <span class="si-label">Generate From</span>
               <select id="rrpInputMode">
                 <option value="income">Total Income</option>
@@ -4297,11 +4277,8 @@ canvas#rrpBenefitsChart {
               <span class="si-hint" id="rrpPremiumHint">Calculated from total income</span>
             </label>
             <input id="rrpGmi" type="hidden" value="1000" />
+            <input id="rrpIirrView" type="hidden" value="425" />
           </div>
-
-          <p class="rrp-important-note">
-            <strong>Important:</strong> RRP figures generated here are extrapolated from uploaded policy illustrations and are approximate only. They are not official Manulife policy illustrations, are not guaranteed to be 100% accurate, and must be validated against an official policy illustration before client use or application.
-          </p>
         </div>
 
         <div id="rrpSummaryCard" class="si-card si-summary-card">
@@ -4326,11 +4303,6 @@ canvas#rrpBenefitsChart {
               <strong class="si-metric-value" id="rrpSummaryGmi">S$0</strong>
               <span class="si-metric-detail" id="rrpSummaryGmiDetail">Used to generate illustration</span>
             </div>
-            <div class="si-metric" id="rrpSummaryMetric300">
-              <span class="si-metric-label">Total Monthly Income 3.00%</span>
-              <strong class="si-metric-value" id="rrpSummaryTotal300">S$0</strong>
-              <span class="si-metric-detail" id="rrpSummaryTotal300Detail">Guaranteed + NG cash bonus</span>
-            </div>
             <div class="si-metric si-metric-total" id="rrpSummaryMetric425">
               <span class="si-metric-label">Total Monthly Income 4.25%</span>
               <strong class="si-metric-value" id="rrpSummaryTotal425">S$0</strong>
@@ -4354,8 +4326,8 @@ canvas#rrpBenefitsChart {
 
         <div class="si-card">
           <div class="si-card-header">
-            <h2>Source And Estimation</h2>
-            <p class="si-subtitle">Shows whether the selected scenario is an exact source illustration or an interpolated/extrapolated age estimate.</p>
+            <h2>Source Basis</h2>
+            <p class="si-subtitle">Exact source row or estimated row used for this approximation.</p>
           </div>
           <p class="rrp-source-note" id="rrpSourceNote"></p>
           <div class="rrp-pill-row" id="rrpSourcePills"></div>
@@ -4379,8 +4351,6 @@ canvas#rrpBenefitsChart {
                   <th scope="col" class="si-col-year">Policy Year</th>
                   <th scope="col" class="rrp-col-premium">Premium</th>
                   <th scope="col" class="rrp-col-guaranteed">Guaranteed Income</th>
-                  <th scope="col" class="rrp-col-300 rrp-col-ng-300">NG Income 3.00%</th>
-                  <th scope="col" class="rrp-col-300 rrp-col-total-300">Total Income 3.00%</th>
                   <th scope="col" class="rrp-col-425 rrp-col-ng-425">NG Income 4.25%</th>
                   <th scope="col" class="rrp-col-425 rrp-col-total-425">Total Income 4.25%</th>
                   <th scope="col" class="rrp-col-cumulative">Cumulative Income</th>
@@ -4389,6 +4359,18 @@ canvas#rrpBenefitsChart {
               <tbody id="rrpProjectionBody"></tbody>
             </table>
           </div>
+        </div>
+
+        <div class="si-card rrp-disclaimer-card">
+          <div class="si-card-header">
+            <h2>Important Disclaimer</h2>
+          </div>
+          <p class="rrp-important-note">
+            <strong>Important:</strong> RRP figures generated here are extrapolated from uploaded policy illustrations and are approximate only. They are not official Manulife policy illustrations, are not guaranteed to be 100% accurate, and must be validated against an official policy illustration before client use or application.
+          </p>
+          <p class="rrp-important-note">
+            The 4.25% Illustrated Investment Rate of Return is non-guaranteed and is used purely for illustration. Actual non-guaranteed income, bonuses and total benefits may be lower than shown and depend on future participating fund performance and insurer declarations.
+          </p>
           <div id="rrpWarningsBox" class="si-warnings" hidden></div>
         </div>
       </section>
@@ -6684,7 +6666,7 @@ canvas#rrpBenefitsChart {
   }
 
   function rrpIncomeBasis(settings) {
-    return String(settings.rrpIirrView || "425") === "300" ? "300" : "425";
+    return "425";
   }
 
   function rrpBasisTotalMonthly(row, basis) {
@@ -6799,11 +6781,6 @@ canvas#rrpBenefitsChart {
     }
 
     const method = row?.estimation_method || "not_available";
-    if (method === "source_exact") {
-      notes.push("Source-exact row found in the uploaded RRP illustrations; scaling by total income or premium is still approximate and must be checked against an official PI.");
-    } else if (row) {
-      notes.push("Important: this row is interpolated or extrapolated from uploaded RRP illustrations. Treat figures as approximate and validate with an official PI.");
-    }
 
     return {
       valid: blockers.length === 0,
@@ -8647,7 +8624,7 @@ canvas#rrpBenefitsChart {
     if (premiumLabel) premiumLabel.textContent = isSingle ? "Single Premium" : "Annual Premium";
     if (targetHint) {
       targetHint.textContent = premiumIsSource
-        ? "Calculated from premium using selected income view"
+        ? "Calculated from premium using 4.25% illustrated basis"
         : "Guaranteed + non-guaranteed monthly income";
     }
     if (premiumHint) {
@@ -8719,6 +8696,7 @@ canvas#rrpBenefitsChart {
       fields.rrpPremium.step = term === "single" ? 1000 : 100;
     }
     if (fields.rrpGmi && !fields.rrpGmi.value) fields.rrpGmi.value = 1000;
+    if (fields.rrpIirrView) fields.rrpIirrView.value = "425";
 
     const limits = constants.entryAgeLimits?.[termKey]?.[String(fields.rrpRetirementAge.value)];
     if (Array.isArray(limits) && limits.length >= 2) {
@@ -9548,34 +9526,21 @@ canvas#rrpBenefitsChart {
 
   function rrpViewFlags(view) {
     return {
-      show300: view === "both" || view === "300",
-      show425: view === "both" || view === "425",
+      show425: true,
     };
   }
 
   function syncRRPViewVisibility(view) {
-    const { show300, show425 } = rrpViewFlags(view);
-    const metric300 = $("rrpSummaryMetric300");
+    const { show425 } = rrpViewFlags(view);
     const metric425 = $("rrpSummaryMetric425");
-    if (metric300) metric300.hidden = !show300;
     if (metric425) metric425.hidden = !show425;
-    return { show300, show425 };
+    return { show425 };
   }
 
   function renderRRPBenefitsMetric(summary, view, fmt) {
-    const label = view === "300"
-      ? "Total Benefits 3.00%"
-      : view === "425"
-        ? "Total Benefits 4.25%"
-        : "Total Benefits";
-    const value = view === "300"
-      ? fmt(summary.totalBenefits300 || 0)
-      : view === "425"
-        ? fmt(summary.totalBenefits425 || 0)
-        : `${fmt(summary.totalBenefits300 || 0)} / ${fmt(summary.totalBenefits425 || 0)}`;
-    const detail = view === "both"
-      ? "3.00% / 4.25% all income received"
-      : `All projected income at ${view === "300" ? "3.00%" : "4.25%"} IIRR`;
+    const label = "Total Benefits 4.25%";
+    const value = fmt(summary.totalBenefits425 || 0);
+    const detail = "All projected income at 4.25% IIRR";
     const labelEl = $("rrpSummaryBenefitsLabel");
     if (labelEl) labelEl.textContent = label;
     const valueEl = $("rrpSummaryBenefits");
@@ -9595,11 +9560,10 @@ canvas#rrpBenefitsChart {
       return;
     }
 
-    const { show300, show425 } = rrpViewFlags(view);
+    const { show425 } = rrpViewFlags(view);
     card.hidden = false;
     if (subtitle) {
-      const viewLabel = view === "both" ? "3.00% and 4.25% IIRR" : `${view === "300" ? "3.00%" : "4.25%"} IIRR`;
-      subtitle.textContent = `Cumulative premiums paid compared with cumulative total benefits at ${viewLabel}.`;
+      subtitle.textContent = "Cumulative premiums paid compared with cumulative total benefits at 4.25% IIRR.";
     }
 
     const series = [
@@ -9610,13 +9574,6 @@ canvas#rrpBenefitsChart {
         values: annual.map((row) => Number(row.totalBasicPaid || 0)),
       },
     ];
-    if (show300) {
-      series.push({
-        label: "Total benefits 3.00%",
-        color: "#4d83a6",
-        values: annual.map((row) => Number(row.rrpCumulativeTotalIncome300 || 0)),
-      });
-    }
     if (show425) {
       series.push({
         label: "Total benefits 4.25%",
@@ -9750,8 +9707,8 @@ canvas#rrpBenefitsChart {
     if (!result) return;
     const summary = result.rrpSummary || result.final?.rrpSummary || {};
     const currency = result.settings?.currency || "SGD";
-    const view = fields.rrpIirrView?.value || "both";
-    const { show300, show425 } = syncRRPViewVisibility(view);
+    const view = "425";
+    const { show425 } = syncRRPViewVisibility(view);
     const fmt = (v) => money(v, currency, 0);
     const setText = (id, text) => { const el = $(id); if (el) el.textContent = text; };
     const setHtml = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
@@ -9770,13 +9727,11 @@ canvas#rrpBenefitsChart {
       setText("rrpSummaryPremiumDetail", "Review validation notes");
       setText("rrpSummaryTotalPremium", "Blocked");
       setText("rrpSummaryTotalPremiumDetail", "No illustration generated");
-      setText("rrpSummaryBenefitsLabel", view === "300" ? "Total Benefits 3.00%" : view === "425" ? "Total Benefits 4.25%" : "Total Benefits");
+      setText("rrpSummaryBenefitsLabel", "Total Benefits 4.25%");
       setText("rrpSummaryBenefits", "Blocked");
       setText("rrpSummaryBenefitsDetail", "No income generated");
       setText("rrpSummaryGmi", fmt(summary.targetTotalIncome || 0));
       setText("rrpSummaryGmiDetail", "Total income target");
-      setText("rrpSummaryTotal300", "Blocked");
-      setText("rrpSummaryTotal300Detail", "Invalid scenario");
       setText("rrpSummaryTotal425", "Blocked");
       setText("rrpSummaryTotal425Detail", "Invalid scenario");
       setText("rrpSummaryNote", "This RRP scenario is blocked by product rules or missing source data.");
@@ -9785,7 +9740,7 @@ canvas#rrpBenefitsChart {
       setHtml("rrpSourceNote", `<strong>Cannot create illustration.</strong> ${(summary.blockers || []).map(htmlEscape).join(" ")}`);
       setHtml("rrpSourcePills", `<span class="rrp-pill is-estimated">Blocked</span>`);
       const tbody = $("rrpProjectionBody");
-      if (tbody) tbody.innerHTML = `<tr><td colspan="9">No projection generated for invalid RRP assumptions.</td></tr>`;
+      if (tbody) tbody.innerHTML = `<tr><td colspan="7">No projection generated for invalid RRP assumptions.</td></tr>`;
       const warnEl = $("rrpWarningsBox");
       if (warnEl) {
         const blockers = summary.blockers || [];
@@ -9798,7 +9753,7 @@ canvas#rrpBenefitsChart {
     }
 
     updateRRPDerivedInputs(summary);
-    const basisLabel = summary.inputBasis === "300" ? "3.00%" : "4.25%";
+    const basisLabel = "4.25%";
     setText("rrpSummaryPremium", fmt(summary.premiumPayable || 0));
     setText("rrpSummaryPremiumDetail", summary.isSinglePremium ? "Single premium" : `Annual premium x ${summary.premiumTermYears} years`);
     setText("rrpSummaryTotalPremium", fmt(summary.totalPremiumsPaid || 0));
@@ -9807,33 +9762,17 @@ canvas#rrpBenefitsChart {
     setText("rrpSummaryGmi", fmt(summary.targetTotalIncome || 0));
     setText("rrpSummaryGmiDetail",
       `Generated from ${summary.inputMode === "premium" ? "premium" : "total income"} at ${basisLabel} IIRR; implied guaranteed income ${fmt(summary.guaranteedMonthlyIncome || 0)}`);
-    setText("rrpSummaryTotal300", fmt(summary.totalMonthly300 || 0));
-    setText("rrpSummaryTotal300Detail",
-      `${fmt(summary.ngMonthly300 || 0)} non-guaranteed cash bonus; guaranteed ${fmt(summary.guaranteedMonthlyIncome || 0)}`);
     setText("rrpSummaryTotal425", fmt(summary.totalMonthly425 || 0));
     setText("rrpSummaryTotal425Detail",
       `${fmt(summary.ngMonthly425 || 0)} non-guaranteed cash bonus; guaranteed ${fmt(summary.guaranteedMonthlyIncome || 0)}`);
-    const yield300 = Number.isFinite(summary.illustratedYield300)
-      ? `${Number(summary.illustratedYield300).toFixed(2)}%`
-      : "n.m.";
     const yield425 = Number.isFinite(summary.illustratedYield425)
       ? `${Number(summary.illustratedYield425).toFixed(2)}%`
       : "n.m.";
-    const benefitParts = [];
-    const yieldParts = [];
-    if (show300) {
-      benefitParts.push(`${fmt(summary.totalBenefits300 || 0)} at 3.00% IIRR`);
-      yieldParts.push(`${yield300} at 3.00%`);
-    }
-    if (show425) {
-      benefitParts.push(`${fmt(summary.totalBenefits425 || 0)} at 4.25% IIRR`);
-      yieldParts.push(`${yield425} at 4.25%`);
-    }
     setText("rrpSummaryNote",
       `Income period ${summary.payoutPeriodLabel}; projected income ages ${summary.payoutStartAge}-${summary.payoutEndAge}. ` +
       `Total income target basis: ${basisLabel} IIRR. ` +
-      `Estimated total benefits: ${benefitParts.join(", ")}. ` +
-      `Illustrated yield at maturity: ${yieldParts.join(" / ")} p.a.`);
+      `Estimated total benefits: ${fmt(summary.totalBenefits425 || 0)} at 4.25% IIRR. ` +
+      `Illustrated yield at maturity: ${yield425} p.a.`);
     renderRRPBenefitsChart(result, summary, view, currency);
 
     const pdfs = String(summary.sourcePdfs || "")
@@ -9842,10 +9781,9 @@ canvas#rrpBenefitsChart {
       .filter(Boolean);
     const sourcePdfCount = Number(summary.sourcePdfCount || pdfs.length || 0);
     setHtml("rrpSourceNote",
-      `<strong>${isExact ? "Source-exact base row." : "Estimated age row."}</strong> ` +
-      `Using ${htmlEscape(methodLabel.toLowerCase())} data for age ${result.settings.rrpAge}, retirement ${summary.retirementAge}, ` +
-      `${htmlEscape(summary.premiumTermLabel)}, payout ${htmlEscape(summary.payoutPeriodLabel)}. ` +
-      `Figures scale linearly to the selected ${summary.inputMode === "premium" ? "premium" : "total income"} and remain approximate.`);
+      `<strong>${isExact ? "Source-exact row." : "Estimated row."}</strong> ` +
+      `Age ${result.settings.rrpAge}, retirement ${summary.retirementAge}, ` +
+      `${htmlEscape(summary.premiumTermLabel)}, payout ${htmlEscape(summary.payoutPeriodLabel)}.`);
     const pills = [
       `<span class="rrp-pill ${isExact ? "is-exact" : "is-estimated"}">${htmlEscape(methodLabel)}</span>`,
       summary.anchorAges ? `<span class="rrp-pill">Anchor ages ${htmlEscape(summary.anchorAges)}</span>` : "",
@@ -9856,7 +9794,6 @@ canvas#rrpBenefitsChart {
 
     const table = $("rrpProjectionTable");
     if (table) {
-      table.querySelectorAll(".rrp-col-300").forEach((cell) => { cell.hidden = !show300; });
       table.querySelectorAll(".rrp-col-425").forEach((cell) => { cell.hidden = !show425; });
     }
 
@@ -9875,11 +9812,7 @@ canvas#rrpBenefitsChart {
       const rows = (result.annual || [])
         .filter((row) => !milestoneOnly || milestoneYears.has(row.year) || row.rrpPremiumPaid > 0 || row.rrpIncomeYear)
         .map((row) => {
-          const cumulative = view === "300"
-            ? fmt(row.rrpCumulativeTotalIncome300 || 0)
-            : view === "425"
-              ? fmt(row.rrpCumulativeTotalIncome425 || 0)
-              : `${fmt(row.rrpCumulativeTotalIncome300 || 0)} / ${fmt(row.rrpCumulativeTotalIncome425 || 0)}`;
+          const cumulative = fmt(row.rrpCumulativeTotalIncome425 || 0);
           const cls = ["si-projection-row"];
           if (milestoneYears.has(row.year)) cls.push("si-milestone-row");
           if (row.rrpIncomeYear && row.age === summary.payoutStartAge) cls.push("si-payout-start");
@@ -9889,15 +9822,13 @@ canvas#rrpBenefitsChart {
               <td class="si-col-year">${row.year}</td>
               <td class="rrp-col-premium">${fmt(row.rrpPremiumPaid || 0)}</td>
               <td class="rrp-col-guaranteed">${fmt(row.rrpGuaranteedAnnualIncome || 0)}</td>
-              <td class="rrp-col-300 rrp-col-ng-300" ${show300 ? "" : "hidden"}>${fmt(row.rrpNgAnnual300 || 0)}</td>
-              <td class="rrp-col-300 rrp-col-total-300" ${show300 ? "" : "hidden"}>${fmt(row.rrpTotalAnnual300 || 0)}</td>
               <td class="rrp-col-425 rrp-col-ng-425" ${show425 ? "" : "hidden"}>${fmt(row.rrpNgAnnual425 || 0)}</td>
               <td class="rrp-col-425 rrp-col-total-425" ${show425 ? "" : "hidden"}>${fmt(row.rrpTotalAnnual425 || 0)}</td>
               <td class="rrp-col-cumulative">${cumulative}</td>
             </tr>
           `;
         }).join("");
-      tbody.innerHTML = rows || `<tr><td colspan="9">No rows to show.</td></tr>`;
+      tbody.innerHTML = rows || `<tr><td colspan="7">No rows to show.</td></tr>`;
     }
 
     const warnEl = $("rrpWarningsBox");
@@ -11834,7 +11765,7 @@ canvas#rrpBenefitsChart {
     if (fields.rrpTargetIncome && !fields.rrpTargetIncome.value) fields.rrpTargetIncome.value = 1000;
     if (fields.rrpPremium && !fields.rrpPremium.value) fields.rrpPremium.value = "";
     if (fields.rrpGmi && !fields.rrpGmi.value) fields.rrpGmi.value = 1000;
-    if (fields.rrpIirrView && !fields.rrpIirrView.value) fields.rrpIirrView.value = "425";
+    if (fields.rrpIirrView) fields.rrpIirrView.value = "425";
     syncRRPControls();
     syncRRPInputModeUi();
   }
