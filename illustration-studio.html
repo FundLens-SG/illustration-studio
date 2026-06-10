@@ -2920,6 +2920,67 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
   background: #fff4f1;
   color: var(--red);
 }
+.rrp-derived-field {
+  opacity: 0.68;
+}
+.rrp-derived-field .si-label,
+.rrp-derived-field .si-hint {
+  color: var(--muted);
+}
+.rrp-derived-field .si-input-wrap,
+.rrp-derived-field input {
+  background: #edf0ef !important;
+  color: #68737c !important;
+  cursor: pointer;
+}
+
+#rrpProjectionTable th.rrp-col-premium,
+#rrpProjectionTable td.rrp-col-premium {
+  background: #fff8eb;
+}
+#rrpProjectionTable th.rrp-col-guaranteed,
+#rrpProjectionTable td.rrp-col-guaranteed {
+  background: #f0f8f4;
+}
+#rrpProjectionTable th.rrp-col-ng-300,
+#rrpProjectionTable td.rrp-col-ng-300 {
+  background: #f1f6fa;
+}
+#rrpProjectionTable th.rrp-col-total-300,
+#rrpProjectionTable td.rrp-col-total-300 {
+  background: #e9f1f7;
+}
+#rrpProjectionTable th.rrp-col-ng-425,
+#rrpProjectionTable td.rrp-col-ng-425 {
+  background: #f4f6ed;
+}
+#rrpProjectionTable th.rrp-col-total-425,
+#rrpProjectionTable td.rrp-col-total-425 {
+  background: #eaf3df;
+  font-weight: 700;
+}
+#rrpProjectionTable th.rrp-col-cumulative,
+#rrpProjectionTable td.rrp-col-cumulative {
+  background: #f5f3ee;
+  font-weight: 650;
+}
+#rrpProjectionTable thead th.rrp-col-premium {
+  box-shadow: inset 0 -3px #d6a87a;
+}
+#rrpProjectionTable thead th.rrp-col-guaranteed {
+  box-shadow: inset 0 -3px #73a987;
+}
+#rrpProjectionTable thead th.rrp-col-ng-300,
+#rrpProjectionTable thead th.rrp-col-total-300 {
+  box-shadow: inset 0 -3px #6f9fbd;
+}
+#rrpProjectionTable thead th.rrp-col-ng-425,
+#rrpProjectionTable thead th.rrp-col-total-425 {
+  box-shadow: inset 0 -3px #87a85d;
+}
+#rrpProjectionTable thead th.rrp-col-cumulative {
+  box-shadow: inset 0 -3px #a9987d;
+}
 
 @media (max-width: 760px) {
   .rrp-feature-grid {
@@ -4137,7 +4198,7 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
             </div>
             <div class="rrp-feature">
               <span>Income mix</span>
-              <strong>Guaranteed GMI + non-guaranteed cash bonus</strong>
+              <strong>Guaranteed income + non-guaranteed cash bonus</strong>
             </div>
             <div class="rrp-feature">
               <span>Illustrated rates</span>
@@ -4172,23 +4233,42 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
             </label>
 
             <label class="si-field">
-              <span class="si-label">Guaranteed Monthly Income</span>
-              <div class="si-input-wrap">
-                <span class="si-prefix">S$</span>
-                <input id="rrpGmi" type="number" min="250" max="190000" step="10" inputmode="numeric" />
-              </div>
-              <span class="si-hint">S$250 to S$190,000, in S$10 steps</span>
+              <span class="si-label">Income View</span>
+              <select id="rrpIirrView">
+                <option value="425">4.25% IIRR</option>
+                <option value="300">3.00% IIRR</option>
+                <option value="both">3.00% and 4.25%</option>
+              </select>
+              <span class="si-hint">Total income target uses this view; Both uses 4.25%</span>
             </label>
 
             <label class="si-field">
-              <span class="si-label">Income View</span>
-              <select id="rrpIirrView">
-                <option value="both">3.00% and 4.25%</option>
-                <option value="425">4.25% IIRR</option>
-                <option value="300">3.00% IIRR</option>
+              <span class="si-label">Generate From</span>
+              <select id="rrpInputMode">
+                <option value="income">Total Income</option>
+                <option value="premium">Premium</option>
               </select>
-              <span class="si-hint">Non-guaranteed values are not guaranteed</span>
+              <span class="si-hint">The other field is calculated and greyed out</span>
             </label>
+
+            <label class="si-field" id="rrpTargetIncomeField">
+              <span class="si-label">Total Income</span>
+              <div class="si-input-wrap">
+                <span class="si-prefix">S$</span>
+                <input id="rrpTargetIncome" type="number" min="0" step="10" inputmode="numeric" />
+              </div>
+              <span class="si-hint" id="rrpTargetIncomeHint">Guaranteed + non-guaranteed monthly income</span>
+            </label>
+
+            <label class="si-field" id="rrpPremiumField">
+              <span class="si-label" id="rrpPremiumLabel">Premium</span>
+              <div class="si-input-wrap">
+                <span class="si-prefix">S$</span>
+                <input id="rrpPremium" type="number" min="0" step="100" inputmode="numeric" />
+              </div>
+              <span class="si-hint" id="rrpPremiumHint">Calculated from total income</span>
+            </label>
+            <input id="rrpGmi" type="hidden" value="1000" />
           </div>
 
           <p class="rrp-important-note">
@@ -4209,19 +4289,19 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
               <span class="si-metric-detail" id="rrpSummaryTotalPremiumDetail">Across premium term</span>
             </div>
             <div class="si-metric">
-              <span class="si-metric-label">Guaranteed Monthly Income</span>
+              <span class="si-metric-label">Total Income Target</span>
               <strong class="si-metric-value" id="rrpSummaryGmi">S$0</strong>
-              <span class="si-metric-detail" id="rrpSummaryGmiDetail">Contractual GMI target</span>
+              <span class="si-metric-detail" id="rrpSummaryGmiDetail">Used to generate illustration</span>
             </div>
             <div class="si-metric">
               <span class="si-metric-label">Total Monthly Income 3.00%</span>
               <strong class="si-metric-value" id="rrpSummaryTotal300">S$0</strong>
-              <span class="si-metric-detail" id="rrpSummaryTotal300Detail">GMI + NG cash bonus</span>
+              <span class="si-metric-detail" id="rrpSummaryTotal300Detail">Guaranteed + NG cash bonus</span>
             </div>
             <div class="si-metric si-metric-total">
               <span class="si-metric-label">Total Monthly Income 4.25%</span>
               <strong class="si-metric-value" id="rrpSummaryTotal425">S$0</strong>
-              <span class="si-metric-detail" id="rrpSummaryTotal425Detail">GMI + NG cash bonus</span>
+              <span class="si-metric-detail" id="rrpSummaryTotal425Detail">Guaranteed + NG cash bonus</span>
             </div>
           </div>
           <p class="si-summary-note" id="rrpSummaryNote"></p>
@@ -4252,13 +4332,13 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
                 <tr>
                   <th scope="col" class="si-col-age">Age</th>
                   <th scope="col" class="si-col-year">Policy Year</th>
-                  <th scope="col">Premium</th>
-                  <th scope="col">Guaranteed Income</th>
-                  <th scope="col" class="rrp-col-300">NG Income 3.00%</th>
-                  <th scope="col" class="rrp-col-300">Total Income 3.00%</th>
-                  <th scope="col" class="rrp-col-425">NG Income 4.25%</th>
-                  <th scope="col" class="rrp-col-425">Total Income 4.25%</th>
-                  <th scope="col">Cumulative Income</th>
+                  <th scope="col" class="rrp-col-premium">Premium</th>
+                  <th scope="col" class="rrp-col-guaranteed">Guaranteed Income</th>
+                  <th scope="col" class="rrp-col-300 rrp-col-ng-300">NG Income 3.00%</th>
+                  <th scope="col" class="rrp-col-300 rrp-col-total-300">Total Income 3.00%</th>
+                  <th scope="col" class="rrp-col-425 rrp-col-ng-425">NG Income 4.25%</th>
+                  <th scope="col" class="rrp-col-425 rrp-col-total-425">Total Income 4.25%</th>
+                  <th scope="col" class="rrp-col-cumulative">Cumulative Income</th>
                 </tr>
               </thead>
               <tbody id="rrpProjectionBody"></tbody>
@@ -6558,7 +6638,53 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
     return rrpIsSinglePremium(term) && Math.round(age) === 45 && Math.round(retirementAge) === 50;
   }
 
-  function validateRRP(settings, variant, row) {
+  function rrpIncomeBasis(settings) {
+    return String(settings.rrpIirrView || "425") === "300" ? "300" : "425";
+  }
+
+  function rrpBasisTotalMonthly(row, basis) {
+    return basis === "300"
+      ? num(row?.estimated_total_monthly_income_iirr_300_for_gmi_1000, 0)
+      : num(row?.estimated_total_monthly_income_iirr_425_for_gmi_1000, 0);
+  }
+
+  function rrpBasisPremium(row, term) {
+    return rrpIsSinglePremium(term)
+      ? num(row?.estimated_single_premium_for_gmi_1000, 0)
+      : num(row?.estimated_annual_premium_for_gmi_1000, 0);
+  }
+
+  function rrpSolveInputs(settings, row, term) {
+    const inputMode = settings.rrpInputMode === "premium" ? "premium" : "income";
+    const inputBasis = rrpIncomeBasis(settings);
+    const totalMonthlyBasis = rrpBasisTotalMonthly(row, inputBasis);
+    const premiumBasis = rrpBasisPremium(row, term);
+    let scale = 0;
+    let targetTotalIncome = num(settings.rrpTargetIncome, 0);
+    let premiumPayable = num(settings.rrpPremium, 0);
+
+    if (inputMode === "premium") {
+      scale = premiumBasis > 0 ? premiumPayable / premiumBasis : 0;
+      targetTotalIncome = totalMonthlyBasis * scale;
+    } else {
+      scale = totalMonthlyBasis > 0 ? targetTotalIncome / totalMonthlyBasis : 0;
+      premiumPayable = premiumBasis * scale;
+    }
+
+    const gmi = num(row?.guaranteed_monthly_income_basis, 1000) * scale;
+    return {
+      inputMode,
+      inputBasis,
+      scale,
+      targetTotalIncome,
+      premiumPayable,
+      gmi,
+      totalMonthlyBasis,
+      premiumBasis,
+    };
+  }
+
+  function validateRRP(settings, variant, row, solved) {
     const blockers = [];
     const notes = [];
     const term = rrpVariantTerm(variant);
@@ -6566,7 +6692,7 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
     const age = Math.round(num(settings.rrpAge ?? settings.startAge, 40));
     const retirementAge = Math.round(num(settings.rrpRetirementAge, 65));
     const payoutPeriod = normalizeRrpPayout(settings.rrpPayoutPeriod || 10);
-    const gmi = num(settings.rrpGmi, 1000);
+    const gmi = num(solved?.gmi ?? settings.rrpGmi, 1000);
     const gmiMin = num(RRP_CONSTANTS.gmiMin, 250);
     const gmiMax = num(RRP_CONSTANTS.gmiMax, 190000);
     const gmiIncrement = num(RRP_CONSTANTS.gmiIncrement, 10);
@@ -6607,10 +6733,21 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
       }
     }
 
+    if (solved?.inputMode === "premium") {
+      if (!Number.isFinite(solved.premiumPayable) || solved.premiumPayable <= 0) {
+        blockers.push("Premium must be greater than S$0.");
+      }
+    } else if (!Number.isFinite(solved?.targetTotalIncome) || (solved?.targetTotalIncome ?? 0) <= 0) {
+      blockers.push("Total income must be greater than S$0.");
+    }
+
     if (!Number.isFinite(gmi) || gmi < gmiMin || gmi > gmiMax) {
-      blockers.push(`Guaranteed Monthly Income must be between S$${gmiMin.toLocaleString()} and S$${gmiMax.toLocaleString()}.`);
-    } else if (Math.abs((gmi - gmiMin) % gmiIncrement) > 1e-9 && Math.abs((gmi - gmiMin) % gmiIncrement - gmiIncrement) > 1e-9) {
-      blockers.push(`Guaranteed Monthly Income must be in S$${gmiIncrement.toLocaleString()} increments.`);
+      blockers.push(`The selected input implies guaranteed monthly income of S$${Math.round(gmi || 0).toLocaleString()}, outside the product range of S$${gmiMin.toLocaleString()} to S$${gmiMax.toLocaleString()}.`);
+    } else if (gmiIncrement > 0) {
+      const remainder = Math.abs((gmi - gmiMin) % gmiIncrement);
+      if (remainder > 0.01 && Math.abs(remainder - gmiIncrement) > 0.01) {
+        notes.push(`The selected input implies guaranteed monthly income of about S$${Math.round(gmi).toLocaleString()}; official illustrations may round to eligible GMI increments.`);
+      }
     }
     if (!row && RRP_GRID.length) {
       blockers.push("No parsed or estimated RRP source row exists for this age, retirement age, premium term, and payout period.");
@@ -6618,7 +6755,7 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
 
     const method = row?.estimation_method || "not_available";
     if (method === "source_exact") {
-      notes.push("Source-exact row found in the uploaded RRP illustrations; scaling by GMI is still approximate and must be checked against an official PI.");
+      notes.push("Source-exact row found in the uploaded RRP illustrations; scaling by total income or premium is still approximate and must be checked against an official PI.");
     } else if (row) {
       notes.push("Important: this row is interpolated or extrapolated from uploaded RRP illustrations. Treat figures as approximate and validate with an official PI.");
     }
@@ -6637,9 +6774,10 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
     const age = Math.round(num(settings.rrpAge ?? settings.startAge, 40));
     const retirementAge = Math.round(num(settings.rrpRetirementAge, 65));
     const payoutPeriod = normalizeRrpPayout(settings.rrpPayoutPeriod || 10);
-    const gmi = num(settings.rrpGmi, 1000);
     const row = rrpFindGridRow({ age, retirementAge, premiumTerm: term, payoutPeriod });
-    const validation = validateRRP(settings, variant, row);
+    const solved = rrpSolveInputs(settings, row, term);
+    const gmi = solved.gmi;
+    const validation = validateRRP(settings, variant, row, solved);
     const commonSettings = {
       ...settings,
       startAge: age,
@@ -6670,6 +6808,10 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
             payoutPeriod,
             retirementAge,
             gmi,
+            targetTotalIncome: solved.targetTotalIncome,
+            premiumPayable: solved.premiumPayable,
+            inputMode: solved.inputMode,
+            inputBasis: solved.inputBasis,
           },
         },
         cashFlows: [],
@@ -6682,17 +6824,21 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
           payoutPeriod,
           retirementAge,
           gmi,
+          targetTotalIncome: solved.targetTotalIncome,
+          premiumPayable: solved.premiumPayable,
+          inputMode: solved.inputMode,
+          inputBasis: solved.inputBasis,
         },
         warnings: [...validation.blockers, ...validation.notes],
       };
     }
 
-    const scale = gmi / num(row.guaranteed_monthly_income_basis, 1000);
+    const scale = solved.scale;
     const isSingle = rrpIsSinglePremium(term);
     const premiumTermYears = isSingle ? 1 : Number(term);
-    const annualPremium = isSingle ? 0 : num(row.estimated_annual_premium_for_gmi_1000, 0) * scale;
-    const singlePremium = isSingle ? num(row.estimated_single_premium_for_gmi_1000, 0) * scale : 0;
-    const premiumPayable = isSingle ? singlePremium : annualPremium;
+    const annualPremium = isSingle ? 0 : solved.premiumPayable;
+    const singlePremium = isSingle ? solved.premiumPayable : 0;
+    const premiumPayable = solved.premiumPayable;
     const totalPremiumsPaid = num(row.estimated_total_premiums_paid_for_gmi_1000, 0) * scale;
     const ngMonthly300 = num(row.estimated_non_guaranteed_monthly_income_iirr_300_for_gmi_1000, 0) * scale;
     const ngMonthly425 = num(row.estimated_non_guaranteed_monthly_income_iirr_425_for_gmi_1000, 0) * scale;
@@ -6815,6 +6961,9 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
       payoutStartAge,
       payoutEndAge,
       gmi,
+      inputMode: solved.inputMode,
+      inputBasis: solved.inputBasis,
+      targetTotalIncome: solved.targetTotalIncome,
       annualPremium,
       singlePremium,
       premiumPayable,
@@ -7533,6 +7682,7 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
     "siMilestoneOnly",
     // RRP (III) illustrator fields
     "rrpAge", "rrpRetirementAge", "rrpPayoutPeriod",
+    "rrpInputMode", "rrpTargetIncome", "rrpPremium",
     "rrpGmi", "rrpIirrView", "rrpMilestoneOnly",
   ];
 
@@ -8279,8 +8429,8 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
     // from the SI-specific inputs rather than the generic ILP/SLH ones.
     // This lets the two control sets coexist without ever overwriting
     // each other's last-entered values during the session.
-    const annualizedPremium = isRRP && fields.rrpGmi
-      ? numberValue(fields.rrpGmi)
+    const annualizedPremium = isRRP && fields.rrpInputMode
+      ? (fields.rrpInputMode.value === "premium" ? numberValue(fields.rrpPremium) : numberValue(fields.rrpTargetIncome))
       : isSI3 && fields.siPremium
         ? numberValue(fields.siPremium)
         : numberValue(fields.annualizedPremium);
@@ -8318,7 +8468,10 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
       settings.rrpAge = numberValue(fields.rrpAge);
       settings.rrpRetirementAge = numberValue(fields.rrpRetirementAge);
       settings.rrpPayoutPeriod = fields.rrpPayoutPeriod.value;
-      settings.rrpGmi = numberValue(fields.rrpGmi);
+      settings.rrpInputMode = fields.rrpInputMode.value;
+      settings.rrpTargetIncome = numberValue(fields.rrpTargetIncome);
+      settings.rrpPremium = numberValue(fields.rrpPremium);
+      settings.rrpGmi = fields.rrpGmi ? numberValue(fields.rrpGmi) : 0;
       settings.rrpIirrView = fields.rrpIirrView.value;
     }
     return settings;
@@ -8417,12 +8570,73 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
     updateParWlBodyClasses();
   }
 
-  function syncRRPControls() {
-    if (!fields.rrpAge || !fields.rrpRetirementAge || !fields.rrpPayoutPeriod) return;
+  function rrpInputModeValue() {
+    return fields.rrpInputMode?.value === "premium" ? "premium" : "income";
+  }
+
+  function rrpCurrentTerm() {
     const variant = model.VARIANTS[fields.variantKey?.value];
-    const term = variant?.kind === "rrp" && model.rrpVariantTerm
+    return variant?.kind === "rrp" && model.rrpVariantTerm
       ? model.rrpVariantTerm(variant)
       : "single";
+  }
+
+  function syncRRPInputModeUi() {
+    if (!fields.rrpInputMode || !fields.rrpTargetIncome || !fields.rrpPremium) return;
+    const mode = rrpInputModeValue();
+    const premiumIsSource = mode === "premium";
+    const term = rrpCurrentTerm();
+    const isSingle = model.rrpIsSinglePremium ? model.rrpIsSinglePremium(term) : term === "single";
+    const premiumLabel = $("rrpPremiumLabel");
+    const targetHint = $("rrpTargetIncomeHint");
+    const premiumHint = $("rrpPremiumHint");
+    const targetField = $("rrpTargetIncomeField");
+    const premiumField = $("rrpPremiumField");
+
+    fields.rrpTargetIncome.readOnly = premiumIsSource;
+    fields.rrpPremium.readOnly = !premiumIsSource;
+    fields.rrpTargetIncome.setAttribute("aria-readonly", String(premiumIsSource));
+    fields.rrpPremium.setAttribute("aria-readonly", String(!premiumIsSource));
+    if (targetField) targetField.classList.toggle("rrp-derived-field", premiumIsSource);
+    if (premiumField) premiumField.classList.toggle("rrp-derived-field", !premiumIsSource);
+    if (premiumLabel) premiumLabel.textContent = isSingle ? "Single Premium" : "Annual Premium";
+    if (targetHint) {
+      targetHint.textContent = premiumIsSource
+        ? "Calculated from premium using selected income view"
+        : "Guaranteed + non-guaranteed monthly income";
+    }
+    if (premiumHint) {
+      premiumHint.textContent = premiumIsSource
+        ? "Used to generate illustration"
+        : "Calculated from total income";
+    }
+    fields.rrpTargetIncome.step = "10";
+    fields.rrpPremium.step = isSingle ? "1000" : "100";
+  }
+
+  function setRRPInputMode(mode) {
+    if (!fields.rrpInputMode) return;
+    const next = mode === "premium" ? "premium" : "income";
+    if (fields.rrpInputMode.value !== next) fields.rrpInputMode.value = next;
+    syncRRPInputModeUi();
+  }
+
+  function updateRRPDerivedInputs(summary) {
+    if (!summary) return;
+    const mode = summary.inputMode === "premium" ? "premium" : "income";
+    if (fields.rrpGmi) fields.rrpGmi.value = roundInput(summary.gmi ?? summary.guaranteedMonthlyIncome ?? 0, 2);
+    if (mode === "premium" && fields.rrpTargetIncome) {
+      fields.rrpTargetIncome.value = roundInput(summary.targetTotalIncome || 0);
+    }
+    if (mode === "income" && fields.rrpPremium) {
+      fields.rrpPremium.value = roundInput(summary.premiumPayable || 0);
+    }
+    syncRRPInputModeUi();
+  }
+
+  function syncRRPControls() {
+    if (!fields.rrpAge || !fields.rrpRetirementAge || !fields.rrpPayoutPeriod) return;
+    const term = rrpCurrentTerm();
     const termKey = term === "single" ? "single" : String(Number(term));
     const constants = model.RRP_CONSTANTS || {};
     const retirementAges = Array.isArray(constants.retirementAges) && constants.retirementAges.length
@@ -8450,13 +8664,16 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
       ? payoutKey(currentPayout)
       : (payoutKeys[0] || "10");
 
-    const gmiMin = Number(constants.gmiMin || 250);
-    const gmiMax = Number(constants.gmiMax || 190000);
-    const gmiIncrement = Number(constants.gmiIncrement || 10);
-    fields.rrpGmi.min = gmiMin;
-    fields.rrpGmi.max = gmiMax;
-    fields.rrpGmi.step = gmiIncrement;
-    if (!fields.rrpGmi.value) fields.rrpGmi.value = 1000;
+    if (fields.rrpTargetIncome) {
+      fields.rrpTargetIncome.min = 0;
+      fields.rrpTargetIncome.step = 10;
+      if (!fields.rrpTargetIncome.value) fields.rrpTargetIncome.value = 1000;
+    }
+    if (fields.rrpPremium) {
+      fields.rrpPremium.min = 0;
+      fields.rrpPremium.step = term === "single" ? 1000 : 100;
+    }
+    if (fields.rrpGmi && !fields.rrpGmi.value) fields.rrpGmi.value = 1000;
 
     const limits = constants.entryAgeLimits?.[termKey]?.[String(fields.rrpRetirementAge.value)];
     if (Array.isArray(limits) && limits.length >= 2) {
@@ -8465,6 +8682,7 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
       const hint = $("rrpAgeHint");
       if (hint) hint.textContent = `${limits[0]}-${limits[1]} ALB for ${term === "single" ? "single premium" : `${term} year premium`} / retirement ${fields.rrpRetirementAge.value}`;
     }
+    syncRRPInputModeUi();
   }
 
   // Body-class state machine for par-WL UI gating:
@@ -9302,12 +9520,13 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
     const isExact = summary.method === "source_exact";
 
     if (!summary.valid) {
+      syncRRPInputModeUi();
       setText("rrpSummaryPremium", "Blocked");
       setText("rrpSummaryPremiumDetail", "Review validation notes");
       setText("rrpSummaryTotalPremium", "Blocked");
       setText("rrpSummaryTotalPremiumDetail", "No illustration generated");
-      setText("rrpSummaryGmi", fmt(summary.gmi || 0));
-      setText("rrpSummaryGmiDetail", "Requested GMI");
+      setText("rrpSummaryGmi", fmt(summary.targetTotalIncome || 0));
+      setText("rrpSummaryGmiDetail", "Total income target");
       setText("rrpSummaryTotal300", "Blocked");
       setText("rrpSummaryTotal300Detail", "Invalid scenario");
       setText("rrpSummaryTotal425", "Blocked");
@@ -9328,18 +9547,21 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
       return;
     }
 
+    updateRRPDerivedInputs(summary);
+    const basisLabel = summary.inputBasis === "300" ? "3.00%" : "4.25%";
     setText("rrpSummaryPremium", fmt(summary.premiumPayable || 0));
     setText("rrpSummaryPremiumDetail", summary.isSinglePremium ? "Single premium" : `Annual premium x ${summary.premiumTermYears} years`);
     setText("rrpSummaryTotalPremium", fmt(summary.totalPremiumsPaid || 0));
     setText("rrpSummaryTotalPremiumDetail", summary.premiumTermLabel || "Premium term");
-    setText("rrpSummaryGmi", fmt(summary.guaranteedMonthlyIncome || 0));
-    setText("rrpSummaryGmiDetail", `${summary.payoutPeriodLabel} from age ${summary.payoutStartAge}`);
+    setText("rrpSummaryGmi", fmt(summary.targetTotalIncome || 0));
+    setText("rrpSummaryGmiDetail",
+      `Generated from ${summary.inputMode === "premium" ? "premium" : "total income"} at ${basisLabel} IIRR; implied guaranteed income ${fmt(summary.guaranteedMonthlyIncome || 0)}`);
     setText("rrpSummaryTotal300", fmt(summary.totalMonthly300 || 0));
     setText("rrpSummaryTotal300Detail",
-      `${fmt(summary.ngMonthly300 || 0)} non-guaranteed cash bonus`);
+      `${fmt(summary.ngMonthly300 || 0)} non-guaranteed cash bonus; guaranteed ${fmt(summary.guaranteedMonthlyIncome || 0)}`);
     setText("rrpSummaryTotal425", fmt(summary.totalMonthly425 || 0));
     setText("rrpSummaryTotal425Detail",
-      `${fmt(summary.ngMonthly425 || 0)} non-guaranteed cash bonus`);
+      `${fmt(summary.ngMonthly425 || 0)} non-guaranteed cash bonus; guaranteed ${fmt(summary.guaranteedMonthlyIncome || 0)}`);
     const yield300 = Number.isFinite(summary.illustratedYield300)
       ? `${Number(summary.illustratedYield300).toFixed(2)}%`
       : "n.m.";
@@ -9348,6 +9570,7 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
       : "n.m.";
     setText("rrpSummaryNote",
       `Income period ${summary.payoutPeriodLabel}; projected income ages ${summary.payoutStartAge}-${summary.payoutEndAge}. ` +
+      `Total income target basis: ${basisLabel} IIRR. ` +
       `Estimated total benefits: ${fmt(summary.totalBenefits300 || 0)} at 3.00% IIRR, ${fmt(summary.totalBenefits425 || 0)} at 4.25% IIRR. ` +
       `Illustrated yield at maturity: ${yield300} / ${yield425} p.a.`);
 
@@ -9360,7 +9583,7 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
       `<strong>${isExact ? "Source-exact base row." : "Estimated age row."}</strong> ` +
       `Using ${htmlEscape(methodLabel.toLowerCase())} data for age ${result.settings.rrpAge}, retirement ${summary.retirementAge}, ` +
       `${htmlEscape(summary.premiumTermLabel)}, payout ${htmlEscape(summary.payoutPeriodLabel)}. ` +
-      `Figures scale linearly from GMI S$1,000 to the selected GMI and remain approximate.`);
+      `Figures scale linearly to the selected ${summary.inputMode === "premium" ? "premium" : "total income"} and remain approximate.`);
     const pills = [
       `<span class="rrp-pill ${isExact ? "is-exact" : "is-estimated"}">${htmlEscape(methodLabel)}</span>`,
       summary.anchorAges ? `<span class="rrp-pill">Anchor ages ${htmlEscape(summary.anchorAges)}</span>` : "",
@@ -9404,13 +9627,13 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
             <tr class="${cls.join(" ")}">
               <td class="si-col-age">${row.age}</td>
               <td class="si-col-year">${row.year}</td>
-              <td>${fmt(row.rrpPremiumPaid || 0)}</td>
-              <td>${fmt(row.rrpGuaranteedAnnualIncome || 0)}</td>
-              <td class="rrp-col-300" ${show300 ? "" : "hidden"}>${fmt(row.rrpNgAnnual300 || 0)}</td>
-              <td class="rrp-col-300" ${show300 ? "" : "hidden"}>${fmt(row.rrpTotalAnnual300 || 0)}</td>
-              <td class="rrp-col-425" ${show425 ? "" : "hidden"}>${fmt(row.rrpNgAnnual425 || 0)}</td>
-              <td class="rrp-col-425" ${show425 ? "" : "hidden"}>${fmt(row.rrpTotalAnnual425 || 0)}</td>
-              <td>${cumulative}</td>
+              <td class="rrp-col-premium">${fmt(row.rrpPremiumPaid || 0)}</td>
+              <td class="rrp-col-guaranteed">${fmt(row.rrpGuaranteedAnnualIncome || 0)}</td>
+              <td class="rrp-col-300 rrp-col-ng-300" ${show300 ? "" : "hidden"}>${fmt(row.rrpNgAnnual300 || 0)}</td>
+              <td class="rrp-col-300 rrp-col-total-300" ${show300 ? "" : "hidden"}>${fmt(row.rrpTotalAnnual300 || 0)}</td>
+              <td class="rrp-col-425 rrp-col-ng-425" ${show425 ? "" : "hidden"}>${fmt(row.rrpNgAnnual425 || 0)}</td>
+              <td class="rrp-col-425 rrp-col-total-425" ${show425 ? "" : "hidden"}>${fmt(row.rrpTotalAnnual425 || 0)}</td>
+              <td class="rrp-col-cumulative">${cumulative}</td>
             </tr>
           `;
         }).join("");
@@ -11338,9 +11561,13 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
     if (fields.rrpAge && !fields.rrpAge.value) fields.rrpAge.value = 40;
     if (fields.rrpRetirementAge && !fields.rrpRetirementAge.value) fields.rrpRetirementAge.value = 65;
     if (fields.rrpPayoutPeriod && !fields.rrpPayoutPeriod.value) fields.rrpPayoutPeriod.value = "10";
+    if (fields.rrpInputMode && !fields.rrpInputMode.value) fields.rrpInputMode.value = "income";
+    if (fields.rrpTargetIncome && !fields.rrpTargetIncome.value) fields.rrpTargetIncome.value = 1000;
+    if (fields.rrpPremium && !fields.rrpPremium.value) fields.rrpPremium.value = "";
     if (fields.rrpGmi && !fields.rrpGmi.value) fields.rrpGmi.value = 1000;
-    if (fields.rrpIirrView && !fields.rrpIirrView.value) fields.rrpIirrView.value = "both";
+    if (fields.rrpIirrView && !fields.rrpIirrView.value) fields.rrpIirrView.value = "425";
     syncRRPControls();
+    syncRRPInputModeUi();
   }
 
   // Mirror the date into the position:fixed print-only header so the
@@ -11513,12 +11740,33 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
     if (fields.rrpPayoutPeriod) {
       fields.rrpPayoutPeriod.addEventListener("change", recalc);
     }
-    if (fields.rrpGmi) {
-      fields.rrpGmi.addEventListener("input", recalc);
+    if (fields.rrpInputMode) {
+      fields.rrpInputMode.addEventListener("change", () => {
+        syncRRPInputModeUi();
+        recalc();
+      });
+    }
+    if (fields.rrpTargetIncome) {
+      fields.rrpTargetIncome.addEventListener("pointerdown", () => {
+        if (rrpInputModeValue() !== "income") setRRPInputMode("income");
+      });
+      fields.rrpTargetIncome.addEventListener("input", () => {
+        setRRPInputMode("income");
+        recalc();
+      });
+    }
+    if (fields.rrpPremium) {
+      fields.rrpPremium.addEventListener("pointerdown", () => {
+        if (rrpInputModeValue() !== "premium") setRRPInputMode("premium");
+      });
+      fields.rrpPremium.addEventListener("input", () => {
+        setRRPInputMode("premium");
+        recalc();
+      });
     }
     if (fields.rrpIirrView) {
       fields.rrpIirrView.addEventListener("change", () => {
-        if (state.results) renderRRP(state.results);
+        recalc();
       });
     }
     if (fields.rrpMilestoneOnly) {
