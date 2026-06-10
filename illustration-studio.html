@@ -2788,6 +2788,21 @@ body.is-si3-main .par-wl-info {
   display: none !important;
 }
 body.is-si3-main #siCalculator[hidden] { display: block !important; }
+
+body.is-rrp-main #heroSummary,
+body.is-rrp-main #comparisonHero,
+body.is-rrp-main #legacyProtectionBanner,
+body.is-rrp-main #parWlProtectionBanner,
+body.is-rrp-main .chart-grid,
+body.is-rrp-main .status-row,
+body.is-rrp-main #fundBuilderSection,
+body.is-rrp-main #strategySection,
+body.is-rrp-main #compareStrategySection,
+body.is-rrp-main .detail-section,
+body.is-rrp-main .par-wl-info {
+  display: none !important;
+}
+body.is-rrp-main #rrpCalculator[hidden] { display: block !important; }
 /* Trim the controls panel down for SI3 — fund picker, dividends,
    compare, goal-seek, advisor settings, NAV bulk-apply tools etc.
    are all irrelevant for a single-premium coupon product. We also
@@ -2817,6 +2832,100 @@ body.is-si3-main .disclaimers:not(.si-disclaimers) {
 /* Show the SI-specific disclaimers when SI variant is active. Hides
    itself otherwise via the [hidden] attribute in HTML. */
 body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
+
+body.is-rrp-main .ilp-only-controls,
+body.is-rrp-main .par-wl-only-controls,
+body.is-rrp-main .compare-block,
+body.is-rrp-main .goal-seek-block,
+body.is-rrp-main .inflation-block,
+body.is-rrp-main .bulk-strategy-block,
+body.is-rrp-main .historical-tools,
+body.is-rrp-main .input-group[aria-label="Client inputs"],
+body.is-rrp-main .toggle-groups,
+body.is-rrp-main .payment-mode-field,
+body.is-rrp-main #compareSettings,
+body.is-rrp-main #fdSettings,
+body.is-rrp-main #goalSeekSettings,
+body.is-rrp-main #advisorSettings,
+body.is-rrp-main .disclaimers:not(.si-disclaimers) {
+  display: none !important;
+}
+
+.rrp-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.rrp-feature {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.rrp-feature span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.rrp-feature strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.25;
+}
+.rrp-important-note,
+.rrp-source-note {
+  margin: 10px 0 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.rrp-important-note strong,
+.rrp-source-note strong {
+  color: var(--red);
+}
+.rrp-source-note {
+  border-left: 3px solid var(--gold-dark);
+  padding-left: 12px;
+}
+.rrp-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.rrp-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 9px;
+  color: var(--ink-soft);
+  background: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+.rrp-pill.is-exact {
+  border-color: rgba(47, 107, 93, 0.35);
+  background: var(--green-soft);
+  color: var(--green);
+}
+.rrp-pill.is-estimated {
+  border-color: rgba(159, 61, 53, 0.28);
+  background: #fff4f1;
+  color: var(--red);
+}
+
+@media (max-width: 760px) {
+  .rrp-feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* ===== SI calculator card styling =====
    Reuses the studio's navy / gold / Geist / Newsreader tokens so SI
@@ -3999,6 +4108,166 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
         </div>
       </section>
 
+      <!-- ===== RRP (III) ILLUSTRATOR SECTION =====
+           Visible only when an RRP variant is selected. Figures are
+           scaled from the parsed RetireReady Plus (III) policy
+           illustrations and the generated age grid. -->
+      <section id="rrpCalculator" class="si-calculator rrp-calculator" aria-label="RRP III illustrator" hidden>
+        <div class="si-card">
+          <div class="si-card-header">
+            <h2>RetireReady Plus (III)</h2>
+            <p class="si-subtitle">Participating endowment illustrator based on the uploaded policy illustrations.</p>
+          </div>
+          <div class="rrp-feature-grid">
+            <div class="rrp-feature">
+              <span>Plan type</span>
+              <strong>Participating endowment</strong>
+            </div>
+            <div class="rrp-feature">
+              <span>Premium terms</span>
+              <strong>SP, 5, 10, 15, 20 years</strong>
+            </div>
+            <div class="rrp-feature">
+              <span>Retirement ages</span>
+              <strong>50, 55, 60, 65, 70</strong>
+            </div>
+            <div class="rrp-feature">
+              <span>Income periods</span>
+              <strong>5, 10, 15, 20 years or lifetime</strong>
+            </div>
+            <div class="rrp-feature">
+              <span>Income mix</span>
+              <strong>Guaranteed GMI + non-guaranteed cash bonus</strong>
+            </div>
+            <div class="rrp-feature">
+              <span>Illustrated rates</span>
+              <strong>3.00% and 4.25% IIRR views</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="si-card si-inputs-card">
+          <div class="si-card-header">
+            <h2>RRP Illustration Inputs</h2>
+            <p class="si-subtitle">Select the RRP premium term from the product dropdown, then set the income assumptions here.</p>
+          </div>
+
+          <div class="si-inputs-grid">
+            <label class="si-field">
+              <span class="si-label">Current Age</span>
+              <input id="rrpAge" type="number" min="18" max="65" step="1" />
+              <span class="si-hint" id="rrpAgeHint">Age last birthday</span>
+            </label>
+
+            <label class="si-field">
+              <span class="si-label">Target Retirement Age</span>
+              <select id="rrpRetirementAge"></select>
+              <span class="si-hint">Income starts one month after this policy anniversary</span>
+            </label>
+
+            <label class="si-field">
+              <span class="si-label">Income Payout Period</span>
+              <select id="rrpPayoutPeriod"></select>
+              <span class="si-hint">Availability follows the parsed RRP grid</span>
+            </label>
+
+            <label class="si-field">
+              <span class="si-label">Guaranteed Monthly Income</span>
+              <div class="si-input-wrap">
+                <span class="si-prefix">S$</span>
+                <input id="rrpGmi" type="number" min="250" max="190000" step="10" inputmode="numeric" />
+              </div>
+              <span class="si-hint">S$250 to S$190,000, in S$10 steps</span>
+            </label>
+
+            <label class="si-field">
+              <span class="si-label">Income View</span>
+              <select id="rrpIirrView">
+                <option value="both">3.00% and 4.25%</option>
+                <option value="425">4.25% IIRR</option>
+                <option value="300">3.00% IIRR</option>
+              </select>
+              <span class="si-hint">Non-guaranteed values are not guaranteed</span>
+            </label>
+          </div>
+
+          <p class="rrp-important-note">
+            <strong>Important:</strong> RRP figures generated here are extrapolated from uploaded policy illustrations and are approximate only. They are not official Manulife policy illustrations, are not guaranteed to be 100% accurate, and must be validated against an official policy illustration before client use or application.
+          </p>
+        </div>
+
+        <div id="rrpSummaryCard" class="si-card si-summary-card">
+          <div class="si-summary-grid">
+            <div class="si-metric">
+              <span class="si-metric-label">Premium Payable</span>
+              <strong class="si-metric-value" id="rrpSummaryPremium">S$0</strong>
+              <span class="si-metric-detail" id="rrpSummaryPremiumDetail">Estimated</span>
+            </div>
+            <div class="si-metric">
+              <span class="si-metric-label">Total Premiums</span>
+              <strong class="si-metric-value" id="rrpSummaryTotalPremium">S$0</strong>
+              <span class="si-metric-detail" id="rrpSummaryTotalPremiumDetail">Across premium term</span>
+            </div>
+            <div class="si-metric">
+              <span class="si-metric-label">Guaranteed Monthly Income</span>
+              <strong class="si-metric-value" id="rrpSummaryGmi">S$0</strong>
+              <span class="si-metric-detail" id="rrpSummaryGmiDetail">Contractual GMI target</span>
+            </div>
+            <div class="si-metric">
+              <span class="si-metric-label">Total Monthly Income 3.00%</span>
+              <strong class="si-metric-value" id="rrpSummaryTotal300">S$0</strong>
+              <span class="si-metric-detail" id="rrpSummaryTotal300Detail">GMI + NG cash bonus</span>
+            </div>
+            <div class="si-metric si-metric-total">
+              <span class="si-metric-label">Total Monthly Income 4.25%</span>
+              <strong class="si-metric-value" id="rrpSummaryTotal425">S$0</strong>
+              <span class="si-metric-detail" id="rrpSummaryTotal425Detail">GMI + NG cash bonus</span>
+            </div>
+          </div>
+          <p class="si-summary-note" id="rrpSummaryNote"></p>
+        </div>
+
+        <div class="si-card">
+          <div class="si-card-header">
+            <h2>Source And Estimation</h2>
+            <p class="si-subtitle">Shows whether the selected scenario is an exact source illustration or an interpolated/extrapolated age estimate.</p>
+          </div>
+          <p class="rrp-source-note" id="rrpSourceNote"></p>
+          <div class="rrp-pill-row" id="rrpSourcePills"></div>
+        </div>
+
+        <div class="si-card si-table-card">
+          <div class="si-table-header">
+            <h3>Year-by-year Projection</h3>
+            <div class="si-table-controls">
+              <label class="si-toggle-inline">
+                <input id="rrpMilestoneOnly" type="checkbox" />
+                Milestone years only
+              </label>
+            </div>
+          </div>
+          <div class="si-table-scroll">
+            <table id="rrpProjectionTable" class="si-projection-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="si-col-age">Age</th>
+                  <th scope="col" class="si-col-year">Policy Year</th>
+                  <th scope="col">Premium</th>
+                  <th scope="col">Guaranteed Income</th>
+                  <th scope="col" class="rrp-col-300">NG Income 3.00%</th>
+                  <th scope="col" class="rrp-col-300">Total Income 3.00%</th>
+                  <th scope="col" class="rrp-col-425">NG Income 4.25%</th>
+                  <th scope="col" class="rrp-col-425">Total Income 4.25%</th>
+                  <th scope="col">Cumulative Income</th>
+                </tr>
+              </thead>
+              <tbody id="rrpProjectionBody"></tbody>
+            </table>
+          </div>
+          <div id="rrpWarningsBox" class="si-warnings" hidden></div>
+        </div>
+      </section>
+
       <!-- ===== SI PREMIUM FINANCING SECTION =====
            Visible only when an SI variant is selected (body.is-si3-main).
            Provides: death-benefit umbrella banner, financing inputs
@@ -4557,6 +4826,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
       </section>
     </main>
 
+    <script src="assets/rrp3-rates.js"></script>
     <script>
 (function (root) {
   "use strict";
@@ -5298,12 +5568,73 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
         [70, 1000001], [75, 1000001], [80, 1002001],
       ],
     },
+
+    "RRP_SP": {
+      key: "RRP_SP",
+      label: "RRP SP",
+      family: "RRP",
+      kind: "rrp",
+      currencies: ["SGD"],
+      rrpPremiumTerm: "single",
+      premiumTermYears: 1,
+      minPremiums: { SGD: { Annual: 1 } },
+    },
+    "RRP_5": {
+      key: "RRP_5",
+      label: "RRP 5",
+      family: "RRP",
+      kind: "rrp",
+      currencies: ["SGD"],
+      rrpPremiumTerm: 5,
+      premiumTermYears: 5,
+      minPremiums: { SGD: { Annual: 1 } },
+    },
+    "RRP_10": {
+      key: "RRP_10",
+      label: "RRP 10",
+      family: "RRP",
+      kind: "rrp",
+      currencies: ["SGD"],
+      rrpPremiumTerm: 10,
+      premiumTermYears: 10,
+      minPremiums: { SGD: { Annual: 1 } },
+    },
+    "RRP_15": {
+      key: "RRP_15",
+      label: "RRP 15",
+      family: "RRP",
+      kind: "rrp",
+      currencies: ["SGD"],
+      rrpPremiumTerm: 15,
+      premiumTermYears: 15,
+      minPremiums: { SGD: { Annual: 1 } },
+    },
+    "RRP_20": {
+      key: "RRP_20",
+      label: "RRP 20",
+      family: "RRP",
+      kind: "rrp",
+      currencies: ["SGD"],
+      rrpPremiumTerm: 20,
+      premiumTermYears: 20,
+      minPremiums: { SGD: { Annual: 1 } },
+    },
   };
 
-  const VARIANT_ORDER = ["5F1", "6F2", "7F5", "10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10", "SLH_SP", "SLH_3PAY", "SLH_5PAY", "SI3_SP", "SLR_SP"];
+  const VARIANT_ORDER = ["5F1", "6F2", "7F5", "10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10", "SLH_SP", "SLH_3PAY", "SLH_5PAY", "SI3_SP", "SLR_SP", "RRP_SP", "RRP_5", "RRP_10", "RRP_15", "RRP_20"];
   const PARTIAL_WITHDRAWAL_VARIANTS = new Set(["10F3", "10F5", "10F8", "13F10", "IRG15F10", "IRG20F10"]);
   const PAR_WL_VARIANTS = new Set(["SLH_SP", "SLH_3PAY", "SLH_5PAY"]);
   const PAR_INCOME_VARIANTS = new Set(["SI3_SP", "SLR_SP"]);
+  const RRP_VARIANTS = new Set(["RRP_SP", "RRP_5", "RRP_10", "RRP_15", "RRP_20"]);
+  const RRP3_DATA = root.RRP3_RATES || {};
+  const RRP_CONSTANTS = RRP3_DATA.productConstants || {};
+  const RRP_GRID = Array.isArray(RRP3_DATA.estimatedAgeGrid) ? RRP3_DATA.estimatedAgeGrid : [];
+  const RRP_RETIREMENT_AGES = Array.isArray(RRP_CONSTANTS.retirementAges) && RRP_CONSTANTS.retirementAges.length
+    ? RRP_CONSTANTS.retirementAges
+    : [50, 55, 60, 65, 70];
+  const RRP_PAYOUT_PERIODS = Array.isArray(RRP_CONSTANTS.payoutPeriods) && RRP_CONSTANTS.payoutPeriods.length
+    ? RRP_CONSTANTS.payoutPeriods
+    : [5, 10, 15, 20, "lifetime"];
 
   // Resolve the annual coupon rate for a given policy year against
   // a variant's siCouponSchedule. Returns 0 if the year falls outside
@@ -6136,8 +6467,398 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     return warnings;
   }
 
+  function normalizeRrpTerm(value) {
+    if (value === "single" || value === "SP" || value === "sp") return "single";
+    const n = Number(value);
+    return Number.isFinite(n) ? n : value;
+  }
+
+  function rrpTermKey(value) {
+    const term = normalizeRrpTerm(value);
+    return term === "single" ? "single" : String(term);
+  }
+
+  function normalizeRrpPayout(value) {
+    const raw = String(value ?? "").toLowerCase();
+    if (raw.includes("life")) return "lifetime";
+    const n = Number(value);
+    return Number.isFinite(n) ? n : value;
+  }
+
+  function rrpPayoutKey(value) {
+    const payout = normalizeRrpPayout(value);
+    return payout === "lifetime" ? "lifetime" : String(payout);
+  }
+
+  function rrpVariantTerm(variant) {
+    if (!variant) return "single";
+    return normalizeRrpTerm(variant.rrpPremiumTerm ?? variant.premiumPaymentTerm ?? variant.premiumTermYears);
+  }
+
+  function rrpIsSinglePremium(term) {
+    return normalizeRrpTerm(term) === "single";
+  }
+
+  function rrpPayoutYears(payout, retirementAge) {
+    const value = normalizeRrpPayout(payout);
+    if (value === "lifetime") return Math.max(1, 120 - retirementAge);
+    return Math.max(1, Number(value) || 1);
+  }
+
+  function rrpPayoutLabel(payout) {
+    const value = normalizeRrpPayout(payout);
+    return value === "lifetime" ? "Lifetime" : `${value} Years`;
+  }
+
+  function rrpTermLabel(term) {
+    const value = normalizeRrpTerm(term);
+    return value === "single" ? "Single Premium" : `${value} Years`;
+  }
+
+  function rrpGridRowsForTerm(term) {
+    const key = rrpTermKey(term);
+    return RRP_GRID.filter((row) => rrpTermKey(row.premium_payment_term) === key);
+  }
+
+  function rrpAvailablePayoutsForTerm(term) {
+    const seen = new Map();
+    rrpGridRowsForTerm(term).forEach((row) => {
+      const payout = normalizeRrpPayout(row.income_payout_period);
+      seen.set(rrpPayoutKey(payout), payout);
+    });
+    const order = new Map(RRP_PAYOUT_PERIODS.map((p, index) => [rrpPayoutKey(p), index]));
+    return Array.from(seen.values()).sort((a, b) => {
+      const ia = order.has(rrpPayoutKey(a)) ? order.get(rrpPayoutKey(a)) : 99;
+      const ib = order.has(rrpPayoutKey(b)) ? order.get(rrpPayoutKey(b)) : 99;
+      return ia - ib;
+    });
+  }
+
+  function rrpFindGridRow({ age, retirementAge, premiumTerm, payoutPeriod }) {
+    const ageNum = Math.round(Number(age));
+    const retireNum = Math.round(Number(retirementAge));
+    const termKey = rrpTermKey(premiumTerm);
+    const payoutKey = rrpPayoutKey(payoutPeriod);
+    return RRP_GRID.find((row) =>
+      Math.round(Number(row.life_insured_age)) === ageNum
+      && Math.round(Number(row.target_retirement_age)) === retireNum
+      && rrpTermKey(row.premium_payment_term) === termKey
+      && rrpPayoutKey(row.income_payout_period) === payoutKey
+    ) || null;
+  }
+
+  function rrpEntryAgeLimits(term, retirementAge) {
+    const limits = RRP_CONSTANTS.entryAgeLimits || {};
+    const termLimits = limits[rrpTermKey(term)] || {};
+    const pair = termLimits[String(retirementAge)];
+    return Array.isArray(pair) && pair.length >= 2 ? pair : null;
+  }
+
+  function rrpSpecialSinglePayException(age, retirementAge, term) {
+    return rrpIsSinglePremium(term) && Math.round(age) === 45 && Math.round(retirementAge) === 50;
+  }
+
+  function validateRRP(settings, variant, row) {
+    const blockers = [];
+    const notes = [];
+    const term = rrpVariantTerm(variant);
+    const termKey = rrpTermKey(term);
+    const age = Math.round(num(settings.rrpAge ?? settings.startAge, 40));
+    const retirementAge = Math.round(num(settings.rrpRetirementAge, 65));
+    const payoutPeriod = normalizeRrpPayout(settings.rrpPayoutPeriod || 10);
+    const gmi = num(settings.rrpGmi, 1000);
+    const gmiMin = num(RRP_CONSTANTS.gmiMin, 250);
+    const gmiMax = num(RRP_CONSTANTS.gmiMax, 190000);
+    const gmiIncrement = num(RRP_CONSTANTS.gmiIncrement, 10);
+
+    if (!RRP_GRID.length) {
+      blockers.push("RRP rate table is not loaded. Check that assets/rrp3-rates.js is available.");
+    }
+    if (!variant?.currencies?.includes(settings.currency)) {
+      blockers.push(`${variant?.label || "RRP"} is only available in SGD in this tool.`);
+    }
+    if (!RRP_RETIREMENT_AGES.includes(retirementAge)) {
+      blockers.push("Target retirement age must be 50, 55, 60, 65, or 70.");
+    }
+    const availablePayouts = rrpAvailablePayoutsForTerm(term);
+    if (availablePayouts.length && !availablePayouts.some((p) => rrpPayoutKey(p) === rrpPayoutKey(payoutPeriod))) {
+      blockers.push(`${rrpPayoutLabel(payoutPeriod)} payout is not product-valid for ${rrpTermLabel(term)}.`);
+    }
+    const limits = rrpEntryAgeLimits(term, retirementAge);
+    if (limits && (age < limits[0] || age > limits[1])) {
+      blockers.push(`Entry age must be ${limits[0]}-${limits[1]} for ${rrpTermLabel(term)} with retirement age ${retirementAge}.`);
+    }
+    if (retirementAge <= age) {
+      blockers.push("Target retirement age must be above current age.");
+    }
+
+    const accumulationGap = retirementAge - age;
+    if (rrpIsSinglePremium(term)) {
+      if (accumulationGap < 7 && !rrpSpecialSinglePayException(age, retirementAge, term)) {
+        blockers.push("Single-premium RRP needs at least 7 years from current age to target retirement age, except the age 45 to retirement 50 source case.");
+      }
+    } else {
+      const premiumYears = Number(termKey);
+      if (retirementAge < age + premiumYears) {
+        blockers.push("Target retirement age falls before the selected premium payment term is completed.");
+      }
+      if (premiumYears + accumulationGap < 7) {
+        blockers.push("Premium payment term plus years to target retirement age must be at least 7 years.");
+      }
+    }
+
+    if (!Number.isFinite(gmi) || gmi < gmiMin || gmi > gmiMax) {
+      blockers.push(`Guaranteed Monthly Income must be between S$${gmiMin.toLocaleString()} and S$${gmiMax.toLocaleString()}.`);
+    } else if (Math.abs((gmi - gmiMin) % gmiIncrement) > 1e-9 && Math.abs((gmi - gmiMin) % gmiIncrement - gmiIncrement) > 1e-9) {
+      blockers.push(`Guaranteed Monthly Income must be in S$${gmiIncrement.toLocaleString()} increments.`);
+    }
+    if (!row && RRP_GRID.length) {
+      blockers.push("No parsed or estimated RRP source row exists for this age, retirement age, premium term, and payout period.");
+    }
+
+    const method = row?.estimation_method || "not_available";
+    if (method === "source_exact") {
+      notes.push("Source-exact row found in the uploaded RRP illustrations; scaling by GMI is still approximate and must be checked against an official PI.");
+    } else if (row) {
+      notes.push("Important: this row is interpolated or extrapolated from uploaded RRP illustrations. Treat figures as approximate and validate with an official PI.");
+    }
+
+    return {
+      valid: blockers.length === 0,
+      blockers,
+      notes,
+      method,
+    };
+  }
+
+  function simulateRRP(settings, strategy, mode = "custom") {
+    const variant = VARIANTS[settings.variantKey];
+    const term = rrpVariantTerm(variant);
+    const age = Math.round(num(settings.rrpAge ?? settings.startAge, 40));
+    const retirementAge = Math.round(num(settings.rrpRetirementAge, 65));
+    const payoutPeriod = normalizeRrpPayout(settings.rrpPayoutPeriod || 10);
+    const gmi = num(settings.rrpGmi, 1000);
+    const row = rrpFindGridRow({ age, retirementAge, premiumTerm: term, payoutPeriod });
+    const validation = validateRRP(settings, variant, row);
+    const commonSettings = {
+      ...settings,
+      startAge: age,
+      rrpAge: age,
+      rrpRetirementAge: retirementAge,
+      rrpPayoutPeriod: payoutPeriod,
+      rrpGmi: gmi,
+    };
+
+    if (!validation.valid || !row) {
+      return {
+        mode,
+        variant,
+        settings: commonSettings,
+        annual: [],
+        monthly: [],
+        final: {
+          year: 0,
+          age,
+          totalValue: 0,
+          totalBasicPaid: 0,
+          rrpSummary: {
+            valid: false,
+            blockers: validation.blockers,
+            notes: validation.notes,
+            method: validation.method,
+            premiumTerm: term,
+            payoutPeriod,
+            retirementAge,
+            gmi,
+          },
+        },
+        cashFlows: [],
+        rrpSummary: {
+          valid: false,
+          blockers: validation.blockers,
+          notes: validation.notes,
+          method: validation.method,
+          premiumTerm: term,
+          payoutPeriod,
+          retirementAge,
+          gmi,
+        },
+        warnings: [...validation.blockers, ...validation.notes],
+      };
+    }
+
+    const scale = gmi / num(row.guaranteed_monthly_income_basis, 1000);
+    const isSingle = rrpIsSinglePremium(term);
+    const premiumTermYears = isSingle ? 1 : Number(term);
+    const annualPremium = isSingle ? 0 : num(row.estimated_annual_premium_for_gmi_1000, 0) * scale;
+    const singlePremium = isSingle ? num(row.estimated_single_premium_for_gmi_1000, 0) * scale : 0;
+    const premiumPayable = isSingle ? singlePremium : annualPremium;
+    const totalPremiumsPaid = num(row.estimated_total_premiums_paid_for_gmi_1000, 0) * scale;
+    const ngMonthly300 = num(row.estimated_non_guaranteed_monthly_income_iirr_300_for_gmi_1000, 0) * scale;
+    const ngMonthly425 = num(row.estimated_non_guaranteed_monthly_income_iirr_425_for_gmi_1000, 0) * scale;
+    const totalMonthly300 = gmi + ngMonthly300;
+    const totalMonthly425 = gmi + ngMonthly425;
+    const payoutYears = rrpPayoutYears(payoutPeriod, retirementAge);
+    const payoutStartAge = retirementAge + 1;
+    const payoutEndAge = normalizeRrpPayout(payoutPeriod) === "lifetime"
+      ? 120
+      : retirementAge + payoutYears;
+    const projectionYears = Math.max(1, payoutEndAge - age);
+    const annual = [];
+    const monthly = [];
+    const cf300 = new Array(projectionYears * 12 + 1).fill(0);
+    const cf425 = new Array(projectionYears * 12 + 1).fill(0);
+
+    let cumulativePremiums = 0;
+    let cumulativeGuaranteedIncome = 0;
+    let cumulativeTotalIncome300 = 0;
+    let cumulativeTotalIncome425 = 0;
+
+    for (let year = 1; year <= projectionYears; year += 1) {
+      const rowAge = age + year;
+      const premiumPaid = isSingle
+        ? (year === 1 ? singlePremium : 0)
+        : (year <= premiumTermYears ? annualPremium : 0);
+      if (premiumPaid > 0) {
+        const monthIndex = isSingle ? 0 : (year - 1) * 12;
+        cf300[monthIndex] -= premiumPaid;
+        cf425[monthIndex] -= premiumPaid;
+      }
+      cumulativePremiums += premiumPaid;
+
+      const isIncomeYear = rowAge >= payoutStartAge && rowAge <= payoutEndAge;
+      const guaranteedAnnualIncome = isIncomeYear ? gmi * 12 : 0;
+      const ngAnnual300 = isIncomeYear ? ngMonthly300 * 12 : 0;
+      const ngAnnual425 = isIncomeYear ? ngMonthly425 * 12 : 0;
+      const totalAnnual300 = guaranteedAnnualIncome + ngAnnual300;
+      const totalAnnual425 = guaranteedAnnualIncome + ngAnnual425;
+      if (isIncomeYear) {
+        cf300[year * 12] += totalAnnual300;
+        cf425[year * 12] += totalAnnual425;
+      }
+      cumulativeGuaranteedIncome += guaranteedAnnualIncome;
+      cumulativeTotalIncome300 += totalAnnual300;
+      cumulativeTotalIncome425 += totalAnnual425;
+
+      const annualRow = {
+        year,
+        age: rowAge,
+        premiums: premiumPaid,
+        topUps: 0,
+        bonuses: 0,
+        grossDividends: 0,
+        cashDividends: totalAnnual425,
+        reinvestedDividends: 0,
+        totalReinvestedDividends: 0,
+        adminCharges: 0,
+        policyFees: 0,
+        shortfallCharges: 0,
+        coiCharges: 0,
+        optionalDeductions: 0,
+        dividendWithdrawals: totalAnnual425,
+        partialWithdrawals: 0,
+        withdrawalCharges: 0,
+        accountValue: 0,
+        surrenderValue: 0,
+        deathBenefit: 0,
+        cashWithdrawals: cumulativeTotalIncome425,
+        totalValue: cumulativeTotalIncome425 - cumulativePremiums,
+        totalBasicPaid: cumulativePremiums,
+        totalTopUps: 0,
+        lapsed: false,
+        rrpPremiumPaid: premiumPaid,
+        rrpGuaranteedAnnualIncome: guaranteedAnnualIncome,
+        rrpNgAnnual300: ngAnnual300,
+        rrpNgAnnual425: ngAnnual425,
+        rrpTotalAnnual300: totalAnnual300,
+        rrpTotalAnnual425: totalAnnual425,
+        rrpCumulativeGuaranteedIncome: cumulativeGuaranteedIncome,
+        rrpCumulativeTotalIncome300: cumulativeTotalIncome300,
+        rrpCumulativeTotalIncome425: cumulativeTotalIncome425,
+        rrpIncomeYear: isIncomeYear,
+      };
+      annual.push(annualRow);
+      monthly.push({
+        month: year * 12,
+        year,
+        age: rowAge,
+        accountValue: 0,
+        surrenderValue: 0,
+        deathBenefit: 0,
+        cashDividends: totalAnnual425,
+        cashWithdrawals: cumulativeTotalIncome425,
+        totalValue: cumulativeTotalIncome425 - cumulativePremiums,
+        totalBasicPaid: cumulativePremiums,
+        totalTopUps: 0,
+        lapsed: false,
+      });
+    }
+
+    const finalRow = annual[annual.length - 1] || {};
+    const summary = {
+      valid: true,
+      blockers: validation.blockers,
+      notes: validation.notes,
+      method: row.estimation_method || "estimated",
+      anchorAges: row.anchor_ages || "",
+      proxySlopeKeys: row.proxy_slope_keys || "",
+      sourcePdfs: row.source_pdfs || "",
+      sourcePdfCount: Number(row.source_pdf_count || 0),
+      premiumTerm: term,
+      premiumTermLabel: rrpTermLabel(term),
+      premiumTermYears,
+      isSinglePremium: isSingle,
+      retirementAge,
+      payoutPeriod,
+      payoutPeriodLabel: rrpPayoutLabel(payoutPeriod),
+      payoutYears,
+      payoutStartAge,
+      payoutEndAge,
+      gmi,
+      annualPremium,
+      singlePremium,
+      premiumPayable,
+      totalPremiumsPaid,
+      guaranteedMonthlyIncome: gmi,
+      ngMonthly300,
+      ngMonthly425,
+      totalMonthly300,
+      totalMonthly425,
+      totalGuaranteedBenefits: gmi * 12 * payoutYears,
+      totalBenefits300: num(row.estimated_total_benefits_iirr_300_for_gmi_1000, 0) * scale,
+      totalBenefits425: num(row.estimated_total_benefits_iirr_425_for_gmi_1000, 0) * scale,
+      illustratedYield300: num(row.estimated_total_illustrated_yield_maturity_iirr_300_pct_pa, null),
+      illustratedYield425: num(row.estimated_total_illustrated_yield_maturity_iirr_425_pct_pa, null),
+      cashBonusRate300: num(row.cash_bonus_rate_iirr_300, 0),
+      cashBonusRate425: num(row.cash_bonus_rate_iirr_425, 0),
+      row,
+    };
+
+    return {
+      mode,
+      variant,
+      settings: commonSettings,
+      annual,
+      monthly,
+      final: {
+        ...finalRow,
+        irr300: irrMonthly(cf300),
+        irr425: irrMonthly(cf425),
+        bonusTotal: summary.totalBenefits425 - summary.totalGuaranteedBenefits,
+        netCapital: totalPremiumsPaid,
+        rrpSummary: summary,
+      },
+      cashFlows: cf425,
+      rrpSummary: summary,
+      warnings: validation.notes,
+    };
+  }
+
   function simulate(settings, strategy, mode = "custom") {
     const variant = VARIANTS[settings.variantKey] || VARIANTS["10F3"];
+    if (variant.kind === "rrp") {
+      return simulateRRP(settings, strategy, mode);
+    }
     // Dispatch to the SI financing engine for SI variants. Coupon-
     // paying participating endowment with optional premium financing —
     // no fund NAV, no strategy table.
@@ -6664,6 +7385,10 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     VARIANT_ORDER,
     PAR_WL_VARIANTS,
     PAR_INCOME_VARIANTS,
+    RRP_VARIANTS,
+    RRP3_DATA,
+    RRP_CONSTANTS,
+    RRP_GRID,
     annualizedMinimum,
     currencySymbol,
     defaultStrategy,
@@ -6674,6 +7399,9 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     premiumForYear,
     simulate,
     simulateParIncome,
+    simulateRRP,
+    rrpAvailablePayoutsForTerm,
+    rrpVariantTerm,
     solvePremiumForTarget,
     validate,
     welcomeRate,
@@ -6803,6 +7531,9 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     "siFinancingPct", "siDownpayment", "siInterestRate",
     "siPrepDate",
     "siMilestoneOnly",
+    // RRP (III) illustrator fields
+    "rrpAge", "rrpRetirementAge", "rrpPayoutPeriod",
+    "rrpGmi", "rrpIirrView", "rrpMilestoneOnly",
   ];
 
   function $(id) { return document.getElementById(id); }
@@ -7492,7 +8223,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     // standard annualisedPremium check doesn't apply. The SI engine
     // surfaces its own minimum-premium warning via validateParIncome().
     const variant = model.VARIANTS[fields.variantKey?.value];
-    if (variant?.kind === "par-income-fin") return true;
+    if (variant?.kind === "par-income-fin" || variant?.kind === "rrp") return true;
     const minimum = currentMinimumPremium();
     if (!fields.annualizedPremium || minimum === null) return true;
     fields.annualizedPremium.min = minimum;
@@ -7543,16 +8274,21 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     const adminOverrideRaw = fields.adminAfterOverride.value.trim();
     const variant = model.VARIANTS[fields.variantKey.value];
     const isSI3 = variant?.kind === "par-income-fin";
+    const isRRP = variant?.kind === "rrp";
     // When an SI variant is selected, premium and entry age come
     // from the SI-specific inputs rather than the generic ILP/SLH ones.
     // This lets the two control sets coexist without ever overwriting
     // each other's last-entered values during the session.
-    const annualizedPremium = isSI3 && fields.siPremium
-      ? numberValue(fields.siPremium)
-      : numberValue(fields.annualizedPremium);
-    const startAge = isSI3 && fields.siEntryAge
-      ? numberValue(fields.siEntryAge)
-      : numberValue(fields.startAge);
+    const annualizedPremium = isRRP && fields.rrpGmi
+      ? numberValue(fields.rrpGmi)
+      : isSI3 && fields.siPremium
+        ? numberValue(fields.siPremium)
+        : numberValue(fields.annualizedPremium);
+    const startAge = isRRP && fields.rrpAge
+      ? numberValue(fields.rrpAge)
+      : isSI3 && fields.siEntryAge
+        ? numberValue(fields.siEntryAge)
+        : numberValue(fields.startAge);
     const settings = {
       variantKey: fields.variantKey.value,
       currency: fields.currency.value,
@@ -7578,11 +8314,32 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
       settings.siFinancingPct = Math.min(0.72, Math.max(0, pctInput(fields.siFinancingPct)));
       settings.siInterestRate = pctInput(fields.siInterestRate);
     }
+    if (isRRP) {
+      settings.rrpAge = numberValue(fields.rrpAge);
+      settings.rrpRetirementAge = numberValue(fields.rrpRetirementAge);
+      settings.rrpPayoutPeriod = fields.rrpPayoutPeriod.value;
+      settings.rrpGmi = numberValue(fields.rrpGmi);
+      settings.rrpIirrView = fields.rrpIirrView.value;
+    }
     return settings;
   }
 
   function currentComparisonSettings(settings = currentSettings()) {
     const variant = model.VARIANTS[settings.variantKey];
+    if (variant?.kind === "rrp") {
+      return {
+        showCustom: false,
+        compareVariantKey: fields.compareVariantKey.value,
+        compareAnnualizedPremium: numberValue(fields.compareAnnualizedPremium),
+        showReinvest: false,
+        showFd: false,
+        fdRate: pctInput(fields.fdRate),
+        fdFundingMode: fields.fdFundingMode.value,
+        fdAmount: numberValue(fields.fdAmount),
+        fdCompound: fields.fdCompound.checked,
+        fdFundingYears: 0,
+      };
+    }
     return {
       showCustom: fields.compareCustom.checked,
       compareVariantKey: fields.compareVariantKey.value,
@@ -7660,6 +8417,56 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     updateParWlBodyClasses();
   }
 
+  function syncRRPControls() {
+    if (!fields.rrpAge || !fields.rrpRetirementAge || !fields.rrpPayoutPeriod) return;
+    const variant = model.VARIANTS[fields.variantKey?.value];
+    const term = variant?.kind === "rrp" && model.rrpVariantTerm
+      ? model.rrpVariantTerm(variant)
+      : "single";
+    const termKey = term === "single" ? "single" : String(Number(term));
+    const constants = model.RRP_CONSTANTS || {};
+    const retirementAges = Array.isArray(constants.retirementAges) && constants.retirementAges.length
+      ? constants.retirementAges
+      : [50, 55, 60, 65, 70];
+    const currentRetirement = fields.rrpRetirementAge.value || "65";
+    fields.rrpRetirementAge.innerHTML = retirementAges
+      .map((age) => `<option value="${age}">${age}</option>`)
+      .join("");
+    fields.rrpRetirementAge.value = retirementAges.map(String).includes(String(currentRetirement))
+      ? String(currentRetirement)
+      : String(retirementAges[retirementAges.length - 1]);
+
+    const payouts = model.rrpAvailablePayoutsForTerm
+      ? model.rrpAvailablePayoutsForTerm(term)
+      : [10, 15, 20, "lifetime"];
+    const currentPayout = fields.rrpPayoutPeriod.value || "10";
+    const payoutLabel = (value) => String(value).toLowerCase().includes("life") ? "Lifetime" : `${value} Years`;
+    const payoutKey = (value) => String(value).toLowerCase().includes("life") ? "lifetime" : String(Number(value));
+    fields.rrpPayoutPeriod.innerHTML = payouts
+      .map((value) => `<option value="${htmlEscape(payoutKey(value))}">${htmlEscape(payoutLabel(value))}</option>`)
+      .join("");
+    const payoutKeys = payouts.map(payoutKey);
+    fields.rrpPayoutPeriod.value = payoutKeys.includes(payoutKey(currentPayout))
+      ? payoutKey(currentPayout)
+      : (payoutKeys[0] || "10");
+
+    const gmiMin = Number(constants.gmiMin || 250);
+    const gmiMax = Number(constants.gmiMax || 190000);
+    const gmiIncrement = Number(constants.gmiIncrement || 10);
+    fields.rrpGmi.min = gmiMin;
+    fields.rrpGmi.max = gmiMax;
+    fields.rrpGmi.step = gmiIncrement;
+    if (!fields.rrpGmi.value) fields.rrpGmi.value = 1000;
+
+    const limits = constants.entryAgeLimits?.[termKey]?.[String(fields.rrpRetirementAge.value)];
+    if (Array.isArray(limits) && limits.length >= 2) {
+      fields.rrpAge.min = limits[0];
+      fields.rrpAge.max = limits[1];
+      const hint = $("rrpAgeHint");
+      if (hint) hint.textContent = `${limits[0]}-${limits[1]} ALB for ${term === "single" ? "single premium" : `${term} year premium`} / retirement ${fields.rrpRetirementAge.value}`;
+    }
+  }
+
   // Body-class state machine for par-WL UI gating:
   //   .is-par-wl-main       — main variant is SLH (hide main strategy table)
   //   .is-par-wl-compare    — compare variant is SLH (hide compare strategy)
@@ -7678,20 +8485,25 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     const compareVariant = compareEnabled && compareKey ? model.VARIANTS[compareKey] : null;
     const mainIsParWl = mainVariant?.kind === "par-wl";
     const compareIsParWl = compareVariant?.kind === "par-wl";
-    const compareIsIlp = compareEnabled && compareVariant && compareVariant.kind !== "par-wl";
+    const compareIsIlp = compareEnabled && compareVariant && !["par-wl", "par-income-fin", "rrp"].includes(compareVariant.kind);
     const mainIsSI3 = mainVariant?.kind === "par-income-fin";
+    const mainIsRRP = mainVariant?.kind === "rrp";
 
     document.body.classList.toggle("is-par-wl", mainIsParWl);                  // backwards-compat alias
     document.body.classList.toggle("is-par-wl-main", mainIsParWl);
     document.body.classList.toggle("is-par-wl-compare", compareIsParWl);
-    document.body.classList.toggle("hide-ilp-controls", mainIsParWl && !compareIsIlp);
+    document.body.classList.toggle("hide-ilp-controls", (mainIsParWl || mainIsRRP) && !compareIsIlp);
     document.body.classList.toggle("is-si3-main", mainIsSI3);
+    document.body.classList.toggle("is-rrp-main", mainIsRRP);
 
     // Toggle SI section visibility — kept as a hidden attribute (not just
     // CSS) so the section doesn't briefly flash during initial load
     // before classes are applied.
     const siCalc = document.getElementById("siCalculator");
     if (siCalc) siCalc.hidden = !mainIsSI3;
+    const rrpCalc = document.getElementById("rrpCalculator");
+    if (rrpCalc) rrpCalc.hidden = !mainIsRRP;
+    if (mainIsRRP) syncRRPControls();
 
     const parWlInfo = document.getElementById("parWlInfo");
     if (parWlInfo) parWlInfo.hidden = !mainIsParWl;
@@ -8227,6 +9039,10 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
       renderSI3(results);
       return;
     }
+    if (customVariant?.kind === "rrp") {
+      renderRRP(results);
+      return;
+    }
     renderChecks(results.custom);
     renderAssumptions(results.custom);
     renderHero(results);
@@ -8464,6 +9280,150 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
         warnEl.hidden = false;
         warnEl.innerHTML = `<strong>Note</strong><ul>${ws.map((w) => `<li>${w}</li>`).join("")}</ul>`;
       }
+    }
+  }
+
+  function renderRRP(results) {
+    const result = results.custom;
+    if (!result) return;
+    const summary = result.rrpSummary || result.final?.rrpSummary || {};
+    const currency = result.settings?.currency || "SGD";
+    const view = fields.rrpIirrView?.value || "both";
+    const fmt = (v) => money(v, currency, 0);
+    const setText = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+    const setHtml = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+    const methodLabel = {
+      source_exact: "Source exact",
+      interpolated: "Interpolated",
+      extrapolated: "Extrapolated",
+      extrapolated_proxy_slope: "Extrapolated proxy slope",
+      not_available: "Not available",
+    }[summary.method] || String(summary.method || "Estimated");
+    const isExact = summary.method === "source_exact";
+
+    if (!summary.valid) {
+      setText("rrpSummaryPremium", "Blocked");
+      setText("rrpSummaryPremiumDetail", "Review validation notes");
+      setText("rrpSummaryTotalPremium", "Blocked");
+      setText("rrpSummaryTotalPremiumDetail", "No illustration generated");
+      setText("rrpSummaryGmi", fmt(summary.gmi || 0));
+      setText("rrpSummaryGmiDetail", "Requested GMI");
+      setText("rrpSummaryTotal300", "Blocked");
+      setText("rrpSummaryTotal300Detail", "Invalid scenario");
+      setText("rrpSummaryTotal425", "Blocked");
+      setText("rrpSummaryTotal425Detail", "Invalid scenario");
+      setText("rrpSummaryNote", "This RRP scenario is blocked by product rules or missing source data.");
+      setHtml("rrpSourceNote", `<strong>Cannot create illustration.</strong> ${(summary.blockers || []).map(htmlEscape).join(" ")}`);
+      setHtml("rrpSourcePills", `<span class="rrp-pill is-estimated">Blocked</span>`);
+      const tbody = $("rrpProjectionBody");
+      if (tbody) tbody.innerHTML = `<tr><td colspan="9">No projection generated for invalid RRP assumptions.</td></tr>`;
+      const warnEl = $("rrpWarningsBox");
+      if (warnEl) {
+        const blockers = summary.blockers || [];
+        warnEl.hidden = !blockers.length;
+        warnEl.innerHTML = blockers.length
+          ? `<strong>Review inputs</strong><ul>${blockers.map((w) => `<li>${htmlEscape(w)}</li>`).join("")}</ul>`
+          : "";
+      }
+      return;
+    }
+
+    setText("rrpSummaryPremium", fmt(summary.premiumPayable || 0));
+    setText("rrpSummaryPremiumDetail", summary.isSinglePremium ? "Single premium" : `Annual premium x ${summary.premiumTermYears} years`);
+    setText("rrpSummaryTotalPremium", fmt(summary.totalPremiumsPaid || 0));
+    setText("rrpSummaryTotalPremiumDetail", summary.premiumTermLabel || "Premium term");
+    setText("rrpSummaryGmi", fmt(summary.guaranteedMonthlyIncome || 0));
+    setText("rrpSummaryGmiDetail", `${summary.payoutPeriodLabel} from age ${summary.payoutStartAge}`);
+    setText("rrpSummaryTotal300", fmt(summary.totalMonthly300 || 0));
+    setText("rrpSummaryTotal300Detail",
+      `${fmt(summary.ngMonthly300 || 0)} non-guaranteed cash bonus`);
+    setText("rrpSummaryTotal425", fmt(summary.totalMonthly425 || 0));
+    setText("rrpSummaryTotal425Detail",
+      `${fmt(summary.ngMonthly425 || 0)} non-guaranteed cash bonus`);
+    const yield300 = Number.isFinite(summary.illustratedYield300)
+      ? `${Number(summary.illustratedYield300).toFixed(2)}%`
+      : "n.m.";
+    const yield425 = Number.isFinite(summary.illustratedYield425)
+      ? `${Number(summary.illustratedYield425).toFixed(2)}%`
+      : "n.m.";
+    setText("rrpSummaryNote",
+      `Income period ${summary.payoutPeriodLabel}; projected income ages ${summary.payoutStartAge}-${summary.payoutEndAge}. ` +
+      `Estimated total benefits: ${fmt(summary.totalBenefits300 || 0)} at 3.00% IIRR, ${fmt(summary.totalBenefits425 || 0)} at 4.25% IIRR. ` +
+      `Illustrated yield at maturity: ${yield300} / ${yield425} p.a.`);
+
+    const pdfs = String(summary.sourcePdfs || "")
+      .split(";")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const sourcePdfCount = Number(summary.sourcePdfCount || pdfs.length || 0);
+    setHtml("rrpSourceNote",
+      `<strong>${isExact ? "Source-exact base row." : "Estimated age row."}</strong> ` +
+      `Using ${htmlEscape(methodLabel.toLowerCase())} data for age ${result.settings.rrpAge}, retirement ${summary.retirementAge}, ` +
+      `${htmlEscape(summary.premiumTermLabel)}, payout ${htmlEscape(summary.payoutPeriodLabel)}. ` +
+      `Figures scale linearly from GMI S$1,000 to the selected GMI and remain approximate.`);
+    const pills = [
+      `<span class="rrp-pill ${isExact ? "is-exact" : "is-estimated"}">${htmlEscape(methodLabel)}</span>`,
+      summary.anchorAges ? `<span class="rrp-pill">Anchor ages ${htmlEscape(summary.anchorAges)}</span>` : "",
+      sourcePdfCount ? `<span class="rrp-pill">${sourcePdfCount} source PDF${sourcePdfCount === 1 ? "" : "s"}</span>` : "",
+      summary.proxySlopeKeys ? `<span class="rrp-pill">Proxy slope ${htmlEscape(summary.proxySlopeKeys)}</span>` : "",
+    ].filter(Boolean).join("");
+    setHtml("rrpSourcePills", pills);
+
+    const table = $("rrpProjectionTable");
+    const show300 = view === "both" || view === "300";
+    const show425 = view === "both" || view === "425";
+    if (table) {
+      table.querySelectorAll(".rrp-col-300").forEach((cell) => { cell.hidden = !show300; });
+      table.querySelectorAll(".rrp-col-425").forEach((cell) => { cell.hidden = !show425; });
+    }
+
+    const tbody = $("rrpProjectionBody");
+    if (tbody) {
+      const milestoneOnly = !!(fields.rrpMilestoneOnly && fields.rrpMilestoneOnly.checked);
+      const startAge = Number(result.settings.rrpAge || result.settings.startAge || 0);
+      const milestoneYears = new Set([
+        1,
+        summary.premiumTermYears,
+        Math.max(1, summary.retirementAge - startAge),
+        Math.max(1, summary.payoutStartAge - startAge),
+        Math.max(1, summary.payoutEndAge - startAge),
+      ]);
+      for (let y = 5; y <= (result.annual || []).length; y += 5) milestoneYears.add(y);
+      const rows = (result.annual || [])
+        .filter((row) => !milestoneOnly || milestoneYears.has(row.year) || row.rrpPremiumPaid > 0 || row.rrpIncomeYear)
+        .map((row) => {
+          const cumulative = view === "300"
+            ? fmt(row.rrpCumulativeTotalIncome300 || 0)
+            : view === "425"
+              ? fmt(row.rrpCumulativeTotalIncome425 || 0)
+              : `${fmt(row.rrpCumulativeTotalIncome300 || 0)} / ${fmt(row.rrpCumulativeTotalIncome425 || 0)}`;
+          const cls = ["si-projection-row"];
+          if (milestoneYears.has(row.year)) cls.push("si-milestone-row");
+          if (row.rrpIncomeYear && row.age === summary.payoutStartAge) cls.push("si-payout-start");
+          return `
+            <tr class="${cls.join(" ")}">
+              <td class="si-col-age">${row.age}</td>
+              <td class="si-col-year">${row.year}</td>
+              <td>${fmt(row.rrpPremiumPaid || 0)}</td>
+              <td>${fmt(row.rrpGuaranteedAnnualIncome || 0)}</td>
+              <td class="rrp-col-300" ${show300 ? "" : "hidden"}>${fmt(row.rrpNgAnnual300 || 0)}</td>
+              <td class="rrp-col-300" ${show300 ? "" : "hidden"}>${fmt(row.rrpTotalAnnual300 || 0)}</td>
+              <td class="rrp-col-425" ${show425 ? "" : "hidden"}>${fmt(row.rrpNgAnnual425 || 0)}</td>
+              <td class="rrp-col-425" ${show425 ? "" : "hidden"}>${fmt(row.rrpTotalAnnual425 || 0)}</td>
+              <td>${cumulative}</td>
+            </tr>
+          `;
+        }).join("");
+      tbody.innerHTML = rows || `<tr><td colspan="9">No rows to show.</td></tr>`;
+    }
+
+    const warnEl = $("rrpWarningsBox");
+    if (warnEl) {
+      const warnings = [...(summary.notes || []), ...(result.warnings || []).filter((w) => !(summary.notes || []).includes(w))];
+      warnEl.hidden = !warnings.length;
+      warnEl.innerHTML = warnings.length
+        ? `<strong>Important note</strong><ul>${warnings.map((w) => `<li>${htmlEscape(w)}</li>`).join("")}</ul>`
+        : "";
     }
   }
 
@@ -10374,6 +11334,15 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     syncSIPrintHeader();
   }
 
+  function initRRPDefaults() {
+    if (fields.rrpAge && !fields.rrpAge.value) fields.rrpAge.value = 40;
+    if (fields.rrpRetirementAge && !fields.rrpRetirementAge.value) fields.rrpRetirementAge.value = 65;
+    if (fields.rrpPayoutPeriod && !fields.rrpPayoutPeriod.value) fields.rrpPayoutPeriod.value = "10";
+    if (fields.rrpGmi && !fields.rrpGmi.value) fields.rrpGmi.value = 1000;
+    if (fields.rrpIirrView && !fields.rrpIirrView.value) fields.rrpIirrView.value = "both";
+    syncRRPControls();
+  }
+
   // Mirror the date into the position:fixed print-only header so the
   // printed deck shows the prep date at the top of every page. The
   // client-name field was removed; this header carries only the date.
@@ -10525,6 +11494,36 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
       fields.siMilestoneOnly.addEventListener("change", () => {
         // Skip the heavy recompute — just re-render the table.
         if (state.results) renderSI3(state.results);
+      });
+    }
+
+    // ===== RRP input handlers =====
+    if (fields.rrpAge) {
+      fields.rrpAge.addEventListener("input", () => {
+        syncRRPControls();
+        recalc();
+      });
+    }
+    if (fields.rrpRetirementAge) {
+      fields.rrpRetirementAge.addEventListener("change", () => {
+        syncRRPControls();
+        recalc();
+      });
+    }
+    if (fields.rrpPayoutPeriod) {
+      fields.rrpPayoutPeriod.addEventListener("change", recalc);
+    }
+    if (fields.rrpGmi) {
+      fields.rrpGmi.addEventListener("input", recalc);
+    }
+    if (fields.rrpIirrView) {
+      fields.rrpIirrView.addEventListener("change", () => {
+        if (state.results) renderRRP(state.results);
+      });
+    }
+    if (fields.rrpMilestoneOnly) {
+      fields.rrpMilestoneOnly.addEventListener("change", () => {
+        if (state.results) renderRRP(state.results);
       });
     }
 
@@ -10792,7 +11791,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     // tailored for the SI calculator section.
     $("printScenario").addEventListener("click", () => {
       const v = model.VARIANTS[fields.variantKey.value];
-      if (v && v.kind === "par-income-fin") {
+      if (v && (v.kind === "par-income-fin" || v.kind === "rrp")) {
         // Chrome injects document.title at the top of every printed
         // page (e.g. "Illustration Studio") and the page URL at the
         // bottom. Both are suppressed by @page { margin: 0 } for the
@@ -11362,6 +12361,7 @@ body.is-si3-main .disclaimers.si-disclaimers { display: block !important; }
     syncCurrencyOptions();
     enforcePremiumMinimum(true);
     initSI3Defaults();              // seed SI inputs before binding events
+    initRRPDefaults();              // seed RRP inputs before binding events
     bindEvents();
     bindChartEvents();
     bindScenarioMenus();
