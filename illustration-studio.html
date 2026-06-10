@@ -2934,6 +2934,34 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
   cursor: pointer;
 }
 
+.rrp-summary-grid {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.rrp-summary-grid .si-metric {
+  min-width: 0;
+}
+
+.rrp-chart-card {
+  border-top: 3px solid rgba(95, 143, 61, 0.42);
+}
+
+.rrp-chart-stage {
+  position: relative;
+  width: 100%;
+  margin-top: 6px;
+}
+
+canvas#rrpBenefitsChart {
+  display: block;
+  width: 100%;
+  height: 320px;
+}
+
+.rrp-chart-legend {
+  margin: 8px 0 0;
+}
+
 #rrpProjectionTable th.rrp-col-premium,
 #rrpProjectionTable td.rrp-col-premium {
   background: #fff8eb;
@@ -4277,7 +4305,7 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
         </div>
 
         <div id="rrpSummaryCard" class="si-card si-summary-card">
-          <div class="si-summary-grid">
+          <div class="si-summary-grid rrp-summary-grid">
             <div class="si-metric">
               <span class="si-metric-label">Premium Payable</span>
               <strong class="si-metric-value" id="rrpSummaryPremium">S$0</strong>
@@ -4288,23 +4316,40 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
               <strong class="si-metric-value" id="rrpSummaryTotalPremium">S$0</strong>
               <span class="si-metric-detail" id="rrpSummaryTotalPremiumDetail">Across premium term</span>
             </div>
+            <div class="si-metric si-metric-total" id="rrpSummaryMetricBenefits">
+              <span class="si-metric-label" id="rrpSummaryBenefitsLabel">Total Benefits</span>
+              <strong class="si-metric-value" id="rrpSummaryBenefits">S$0</strong>
+              <span class="si-metric-detail" id="rrpSummaryBenefitsDetail">All income added together</span>
+            </div>
             <div class="si-metric">
               <span class="si-metric-label">Total Income Target</span>
               <strong class="si-metric-value" id="rrpSummaryGmi">S$0</strong>
               <span class="si-metric-detail" id="rrpSummaryGmiDetail">Used to generate illustration</span>
             </div>
-            <div class="si-metric">
+            <div class="si-metric" id="rrpSummaryMetric300">
               <span class="si-metric-label">Total Monthly Income 3.00%</span>
               <strong class="si-metric-value" id="rrpSummaryTotal300">S$0</strong>
               <span class="si-metric-detail" id="rrpSummaryTotal300Detail">Guaranteed + NG cash bonus</span>
             </div>
-            <div class="si-metric si-metric-total">
+            <div class="si-metric si-metric-total" id="rrpSummaryMetric425">
               <span class="si-metric-label">Total Monthly Income 4.25%</span>
               <strong class="si-metric-value" id="rrpSummaryTotal425">S$0</strong>
               <span class="si-metric-detail" id="rrpSummaryTotal425Detail">Guaranteed + NG cash bonus</span>
             </div>
           </div>
           <p class="si-summary-note" id="rrpSummaryNote"></p>
+        </div>
+
+        <div class="si-card rrp-chart-card" id="rrpChartCard">
+          <div class="si-card-header">
+            <h2>Premiums vs Total Benefits</h2>
+            <p class="si-subtitle" id="rrpChartSubtitle">Cumulative premiums paid compared with all income received over the payout years.</p>
+          </div>
+          <div class="rrp-chart-stage">
+            <canvas id="rrpBenefitsChart" width="1100" height="320"></canvas>
+          </div>
+          <div class="chart-legend rrp-chart-legend" id="rrpBenefitsLegend"></div>
+          <p class="chart-hint">Total benefits are cumulative projected income, not an official surrender value or guaranteed quote.</p>
         </div>
 
         <div class="si-card">
@@ -6974,8 +7019,8 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
       totalMonthly300,
       totalMonthly425,
       totalGuaranteedBenefits: gmi * 12 * payoutYears,
-      totalBenefits300: num(row.estimated_total_benefits_iirr_300_for_gmi_1000, 0) * scale,
-      totalBenefits425: num(row.estimated_total_benefits_iirr_425_for_gmi_1000, 0) * scale,
+      totalBenefits300: cumulativeTotalIncome300,
+      totalBenefits425: cumulativeTotalIncome425,
       illustratedYield300: num(row.estimated_total_illustrated_yield_maturity_iirr_300_pct_pa, null),
       illustratedYield425: num(row.estimated_total_illustrated_yield_maturity_iirr_425_pct_pa, null),
       cashBonusRate300: num(row.cash_bonus_rate_iirr_300, 0),
@@ -9501,12 +9546,212 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
     }
   }
 
+  function rrpViewFlags(view) {
+    return {
+      show300: view === "both" || view === "300",
+      show425: view === "both" || view === "425",
+    };
+  }
+
+  function syncRRPViewVisibility(view) {
+    const { show300, show425 } = rrpViewFlags(view);
+    const metric300 = $("rrpSummaryMetric300");
+    const metric425 = $("rrpSummaryMetric425");
+    if (metric300) metric300.hidden = !show300;
+    if (metric425) metric425.hidden = !show425;
+    return { show300, show425 };
+  }
+
+  function renderRRPBenefitsMetric(summary, view, fmt) {
+    const label = view === "300"
+      ? "Total Benefits 3.00%"
+      : view === "425"
+        ? "Total Benefits 4.25%"
+        : "Total Benefits";
+    const value = view === "300"
+      ? fmt(summary.totalBenefits300 || 0)
+      : view === "425"
+        ? fmt(summary.totalBenefits425 || 0)
+        : `${fmt(summary.totalBenefits300 || 0)} / ${fmt(summary.totalBenefits425 || 0)}`;
+    const detail = view === "both"
+      ? "3.00% / 4.25% all income received"
+      : `All projected income at ${view === "300" ? "3.00%" : "4.25%"} IIRR`;
+    const labelEl = $("rrpSummaryBenefitsLabel");
+    if (labelEl) labelEl.textContent = label;
+    const valueEl = $("rrpSummaryBenefits");
+    if (valueEl) valueEl.textContent = value;
+    const detailEl = $("rrpSummaryBenefitsDetail");
+    if (detailEl) detailEl.textContent = detail;
+  }
+
+  function renderRRPBenefitsChart(result, summary, view, currency) {
+    const card = $("rrpChartCard");
+    const canvas = $("rrpBenefitsChart");
+    const legend = $("rrpBenefitsLegend");
+    const subtitle = $("rrpChartSubtitle");
+    const annual = result?.annual || [];
+    if (!card || !canvas || !annual.length) {
+      if (card) card.hidden = true;
+      return;
+    }
+
+    const { show300, show425 } = rrpViewFlags(view);
+    card.hidden = false;
+    if (subtitle) {
+      const viewLabel = view === "both" ? "3.00% and 4.25% IIRR" : `${view === "300" ? "3.00%" : "4.25%"} IIRR`;
+      subtitle.textContent = `Cumulative premiums paid compared with cumulative total benefits at ${viewLabel}.`;
+    }
+
+    const series = [
+      {
+        label: "Total premiums paid",
+        color: "#b9824f",
+        dash: [6, 5],
+        values: annual.map((row) => Number(row.totalBasicPaid || 0)),
+      },
+    ];
+    if (show300) {
+      series.push({
+        label: "Total benefits 3.00%",
+        color: "#4d83a6",
+        values: annual.map((row) => Number(row.rrpCumulativeTotalIncome300 || 0)),
+      });
+    }
+    if (show425) {
+      series.push({
+        label: "Total benefits 4.25%",
+        color: "#5f8f3d",
+        values: annual.map((row) => Number(row.rrpCumulativeTotalIncome425 || 0)),
+      });
+    }
+
+    if (legend) {
+      legend.innerHTML = series.map((item) => {
+        const swatch = item.dash
+          ? `<i class="dashed" style="--line-color:${item.color}; background:${item.color}"></i>`
+          : `<i style="background:${item.color}"></i>`;
+        return `<span>${swatch}${htmlEscape(item.label)}</span>`;
+      }).join("");
+    }
+
+    const ctx = canvas.getContext("2d");
+    const ratio = window.devicePixelRatio || 1;
+    const cssWidth = canvas.clientWidth || 1100;
+    const compact = cssWidth < 620;
+    const cssHeight = compact ? 360 : 320;
+    canvas.width = Math.round(cssWidth * ratio);
+    canvas.height = Math.round(cssHeight * ratio);
+    canvas.style.height = `${cssHeight}px`;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+    const width = cssWidth;
+    const height = cssHeight;
+    const pad = compact
+      ? { top: 24, right: 18, bottom: 60, left: 66 }
+      : { top: 24, right: 96, bottom: 54, left: 78 };
+    const allValues = series.flatMap((item) => item.values);
+    const max = Math.max(1, ...allValues) * 1.08;
+    const min = 0;
+    const labels = annual.map((row) => `Y${row.year}`);
+    const xAt = (i) => pad.left + (i / Math.max(1, labels.length - 1)) * (width - pad.left - pad.right);
+    const yAt = (v) => height - pad.bottom - ((v - min) / (max - min || 1)) * (height - pad.top - pad.bottom);
+    const fmtAxis = (value) => compactMoney(value, currency);
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.strokeStyle = "#eee7dc";
+    ctx.lineWidth = 1;
+    ctx.fillStyle = "#736a5b";
+    ctx.font = compact ? "11px Arial" : "12px Arial";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    for (let i = 0; i <= 4; i += 1) {
+      const value = min + ((max - min) * i) / 4;
+      const y = yAt(value);
+      ctx.beginPath();
+      ctx.moveTo(pad.left, y);
+      ctx.lineTo(width - pad.right, y);
+      ctx.stroke();
+      ctx.fillText(fmtAxis(value), pad.left - 10, y);
+    }
+
+    const payoutStartYear = Math.max(1, Number(summary.payoutStartAge || 0) - Number(result.settings?.rrpAge || result.settings?.startAge || 0));
+    const premiumEndYear = Math.max(1, Number(summary.premiumTermYears || 1));
+    [
+      { year: premiumEndYear, label: "Premiums end", color: "rgba(185, 130, 79, 0.55)" },
+      { year: payoutStartYear, label: "Income starts", color: "rgba(95, 143, 61, 0.55)" },
+    ].forEach((marker) => {
+      if (marker.year < 1 || marker.year > annual.length) return;
+      const x = xAt(marker.year - 1);
+      ctx.strokeStyle = marker.color;
+      ctx.setLineDash([4, 5]);
+      ctx.beginPath();
+      ctx.moveTo(x, pad.top);
+      ctx.lineTo(x, height - pad.bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      if (!compact) {
+        ctx.fillStyle = "#736a5b";
+        ctx.font = "10px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.fillText(marker.label, x, pad.top - 4);
+      }
+    });
+
+    series.forEach((item) => {
+      ctx.strokeStyle = item.color;
+      ctx.lineWidth = item.dash ? 2 : 2.7;
+      ctx.setLineDash(item.dash || []);
+      ctx.beginPath();
+      item.values.forEach((value, index) => {
+        const x = xAt(index);
+        const y = yAt(value);
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+
+    const labelStep = Math.max(1, Math.ceil(labels.length / (compact ? 5 : 9)));
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    labels.forEach((label, index) => {
+      if (index % labelStep !== 0 && index !== labels.length - 1) return;
+      const x = xAt(index);
+      const row = annual[index];
+      ctx.fillStyle = "#736a5b";
+      ctx.font = compact ? "11px Arial" : "12px Arial";
+      ctx.fillText(label, x, height - pad.bottom + 12);
+      ctx.fillStyle = "#9a8d76";
+      ctx.font = compact ? "10px Arial" : "11px Arial";
+      ctx.fillText(`A${row.age}`, x, height - pad.bottom + 26);
+    });
+
+    if (!compact) {
+      series.forEach((item, index) => {
+        const lastValue = item.values[item.values.length - 1] || 0;
+        const x = width - pad.right + 10;
+        const y = Math.max(pad.top + 12, Math.min(height - pad.bottom - 10, yAt(lastValue) + (index - 1) * 8));
+        ctx.fillStyle = item.color;
+        ctx.font = "bold 11px Arial";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText(fmtAxis(lastValue), x, y);
+      });
+    }
+  }
+
   function renderRRP(results) {
     const result = results.custom;
     if (!result) return;
     const summary = result.rrpSummary || result.final?.rrpSummary || {};
     const currency = result.settings?.currency || "SGD";
     const view = fields.rrpIirrView?.value || "both";
+    const { show300, show425 } = syncRRPViewVisibility(view);
     const fmt = (v) => money(v, currency, 0);
     const setText = (id, text) => { const el = $(id); if (el) el.textContent = text; };
     const setHtml = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
@@ -9525,6 +9770,9 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
       setText("rrpSummaryPremiumDetail", "Review validation notes");
       setText("rrpSummaryTotalPremium", "Blocked");
       setText("rrpSummaryTotalPremiumDetail", "No illustration generated");
+      setText("rrpSummaryBenefitsLabel", view === "300" ? "Total Benefits 3.00%" : view === "425" ? "Total Benefits 4.25%" : "Total Benefits");
+      setText("rrpSummaryBenefits", "Blocked");
+      setText("rrpSummaryBenefitsDetail", "No income generated");
       setText("rrpSummaryGmi", fmt(summary.targetTotalIncome || 0));
       setText("rrpSummaryGmiDetail", "Total income target");
       setText("rrpSummaryTotal300", "Blocked");
@@ -9532,6 +9780,8 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
       setText("rrpSummaryTotal425", "Blocked");
       setText("rrpSummaryTotal425Detail", "Invalid scenario");
       setText("rrpSummaryNote", "This RRP scenario is blocked by product rules or missing source data.");
+      const chartCard = $("rrpChartCard");
+      if (chartCard) chartCard.hidden = true;
       setHtml("rrpSourceNote", `<strong>Cannot create illustration.</strong> ${(summary.blockers || []).map(htmlEscape).join(" ")}`);
       setHtml("rrpSourcePills", `<span class="rrp-pill is-estimated">Blocked</span>`);
       const tbody = $("rrpProjectionBody");
@@ -9553,6 +9803,7 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
     setText("rrpSummaryPremiumDetail", summary.isSinglePremium ? "Single premium" : `Annual premium x ${summary.premiumTermYears} years`);
     setText("rrpSummaryTotalPremium", fmt(summary.totalPremiumsPaid || 0));
     setText("rrpSummaryTotalPremiumDetail", summary.premiumTermLabel || "Premium term");
+    renderRRPBenefitsMetric(summary, view, fmt);
     setText("rrpSummaryGmi", fmt(summary.targetTotalIncome || 0));
     setText("rrpSummaryGmiDetail",
       `Generated from ${summary.inputMode === "premium" ? "premium" : "total income"} at ${basisLabel} IIRR; implied guaranteed income ${fmt(summary.guaranteedMonthlyIncome || 0)}`);
@@ -9568,11 +9819,22 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
     const yield425 = Number.isFinite(summary.illustratedYield425)
       ? `${Number(summary.illustratedYield425).toFixed(2)}%`
       : "n.m.";
+    const benefitParts = [];
+    const yieldParts = [];
+    if (show300) {
+      benefitParts.push(`${fmt(summary.totalBenefits300 || 0)} at 3.00% IIRR`);
+      yieldParts.push(`${yield300} at 3.00%`);
+    }
+    if (show425) {
+      benefitParts.push(`${fmt(summary.totalBenefits425 || 0)} at 4.25% IIRR`);
+      yieldParts.push(`${yield425} at 4.25%`);
+    }
     setText("rrpSummaryNote",
       `Income period ${summary.payoutPeriodLabel}; projected income ages ${summary.payoutStartAge}-${summary.payoutEndAge}. ` +
       `Total income target basis: ${basisLabel} IIRR. ` +
-      `Estimated total benefits: ${fmt(summary.totalBenefits300 || 0)} at 3.00% IIRR, ${fmt(summary.totalBenefits425 || 0)} at 4.25% IIRR. ` +
-      `Illustrated yield at maturity: ${yield300} / ${yield425} p.a.`);
+      `Estimated total benefits: ${benefitParts.join(", ")}. ` +
+      `Illustrated yield at maturity: ${yieldParts.join(" / ")} p.a.`);
+    renderRRPBenefitsChart(result, summary, view, currency);
 
     const pdfs = String(summary.sourcePdfs || "")
       .split(";")
@@ -9593,8 +9855,6 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
     setHtml("rrpSourcePills", pills);
 
     const table = $("rrpProjectionTable");
-    const show300 = view === "both" || view === "300";
-    const show425 = view === "both" || view === "425";
     if (table) {
       table.querySelectorAll(".rrp-col-300").forEach((cell) => { cell.hidden = !show300; });
       table.querySelectorAll(".rrp-col-425").forEach((cell) => { cell.hidden = !show425; });
@@ -10637,9 +10897,18 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
         if (tr) tr.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     });
-    window.addEventListener("resize", () => {
-      if (state.results) drawChart(buildChartSeries(state.results), currentSettings());
-    });
+    window.addEventListener("resize", redrawActiveChart);
+  }
+
+  function redrawActiveChart() {
+    if (!state.results) return;
+    const variant = state.results.custom?.variant;
+    if (variant?.kind === "rrp") {
+      renderRRP(state.results);
+      return;
+    }
+    if (variant?.kind === "par-income-fin") return;
+    drawChart(buildChartSeries(state.results), currentSettings());
   }
 
   // ===== ANNUAL TABLE =====
@@ -12027,7 +12296,7 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
       document.body.classList.remove("presentation-mode");
       $("exitPresentation").hidden = true;
       // After leaving presentation mode the canvas needs a redraw at new size
-      if (state.results) drawChart(buildChartSeries(state.results), currentSettings());
+      redrawActiveChart();
     });
     // Print PDF button → open the canonical paper deck in a fresh
     // window via the shared builder. The deck declares @page A4
