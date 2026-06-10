@@ -2894,6 +2894,27 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
   border-left: 3px solid var(--gold-dark);
   padding-left: 12px;
 }
+.si-field.is-error input,
+.si-field.is-error select {
+  border-color: var(--red);
+  background: #fff8f6;
+  box-shadow: 0 0 0 3px rgba(177, 65, 43, 0.14);
+}
+.si-field-error {
+  display: block;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid #d67b67;
+  border-radius: 4px;
+  background: #fff1ee;
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.si-field-error[hidden] {
+  display: none !important;
+}
 .rrp-pill-row {
   display: flex;
   flex-wrap: wrap;
@@ -4236,6 +4257,7 @@ canvas#rrpBenefitsChart {
               <span class="si-label">Current Age</span>
               <input id="rrpAge" type="number" min="18" max="65" step="1" />
               <span class="si-hint" id="rrpAgeHint">Age last birthday</span>
+              <span class="si-field-error" id="rrpAgeError" hidden></span>
             </label>
 
             <label class="si-field">
@@ -6641,6 +6663,129 @@ canvas#rrpBenefitsChart {
     });
   }
 
+  function rrpRowsForScenario({ retirementAge, premiumTerm, payoutPeriod }) {
+    const retireNum = Math.round(Number(retirementAge));
+    const termKey = rrpTermKey(premiumTerm);
+    const payoutKey = rrpPayoutKey(payoutPeriod);
+    return RRP_GRID
+      .filter((row) =>
+        Math.round(Number(row.target_retirement_age)) === retireNum
+        && rrpTermKey(row.premium_payment_term) === termKey
+        && rrpPayoutKey(row.income_payout_period) === payoutKey
+      )
+      .sort((a, b) => Math.round(Number(a.life_insured_age)) - Math.round(Number(b.life_insured_age)));
+  }
+
+  function rrpFiniteNumber(value) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  function rrpEstimateNumeric(left, right, targetAge, key) {
+    const leftValue = rrpFiniteNumber(left?.[key]);
+    const rightValue = rrpFiniteNumber(right?.[key]);
+    if (leftValue === null && rightValue === null) return null;
+    if (leftValue === null) return rightValue;
+    if (rightValue === null) return leftValue;
+    const leftAge = Math.round(Number(left.life_insured_age));
+    const rightAge = Math.round(Number(right.life_insured_age));
+    if (leftAge === rightAge) return leftValue;
+    return leftValue + ((rightValue - leftValue) * ((targetAge - leftAge) / (rightAge - leftAge)));
+  }
+
+  function rrpFinalizeEstimatedRow(row, term, payoutPeriod, retirementAge) {
+    const gmi = num(row.guaranteed_monthly_income_basis, 1000);
+    const payoutYears = rrpPayoutYears(payoutPeriod, retirementAge);
+    ["300", "425"].forEach((basis) => {
+      const rateKey = `cash_bonus_rate_iirr_${basis}`;
+      const ngKey = `estimated_non_guaranteed_monthly_income_iirr_${basis}_for_gmi_1000`;
+      const totalKey = `estimated_total_monthly_income_iirr_${basis}_for_gmi_1000`;
+      const benefitKey = `estimated_total_benefits_iirr_${basis}_for_gmi_1000`;
+      if (row[rateKey] !== null && row[rateKey] !== undefined) row[rateKey] = Math.max(0, num(row[rateKey], 0));
+      row[ngKey] = Math.max(0, num(row[ngKey], 0));
+      row[totalKey] = gmi + row[ngKey];
+      row[benefitKey] = row[totalKey] * 12 * payoutYears;
+    });
+    [
+      "premium_rate_per_10_gmi",
+      "estimated_annual_premium_for_gmi_1000",
+      "estimated_single_premium_for_gmi_1000",
+      "estimated_total_premiums_paid_for_gmi_1000",
+      "estimated_total_illustrated_yield_maturity_iirr_300_pct_pa",
+      "estimated_total_illustrated_yield_maturity_iirr_425_pct_pa",
+    ].forEach((key) => {
+      if (row[key] !== null && row[key] !== undefined) row[key] = Math.max(0, num(row[key], 0));
+    });
+    if (rrpIsSinglePremium(term)) {
+      row.estimated_annual_premium_for_gmi_1000 = null;
+    } else {
+      row.estimated_single_premium_for_gmi_1000 = null;
+    }
+    return row;
+  }
+
+  function rrpEstimateGridRow({ age, retirementAge, premiumTerm, payoutPeriod }) {
+    const ageNum = Math.round(Number(age));
+    const retireNum = Math.round(Number(retirementAge));
+    const limits = rrpEntryAgeLimits(premiumTerm, retireNum);
+    if (limits && (ageNum < limits[0] || ageNum > limits[1])) return null;
+
+    const rows = rrpRowsForScenario({ retirementAge: retireNum, premiumTerm, payoutPeriod });
+    if (!rows.length) return null;
+
+    if (rows.length === 1) {
+      const only = rows[0];
+      return rrpFinalizeEstimatedRow({
+        ...only,
+        life_insured_age: ageNum,
+        estimation_method: "extrapolated_flat",
+        anchor_ages: String(only.life_insured_age),
+        proxy_slope_keys: "single nearest age",
+        source_pdf_count: Number(only.source_pdf_count || 0),
+      }, premiumTerm, payoutPeriod, retireNum);
+    }
+
+    let left = null;
+    let right = null;
+    for (let index = 0; index < rows.length; index += 1) {
+      const rowAge = Math.round(Number(rows[index].life_insured_age));
+      if (rowAge < ageNum) left = rows[index];
+      if (rowAge > ageNum && !right) right = rows[index];
+    }
+    if (!left || !right) {
+      if (ageNum < Math.round(Number(rows[0].life_insured_age))) {
+        [left, right] = [rows[0], rows[1]];
+      } else {
+        [left, right] = [rows[rows.length - 2], rows[rows.length - 1]];
+      }
+    }
+    if (!left || !right) return null;
+
+    const estimated = { ...left };
+    const keys = new Set([...Object.keys(left), ...Object.keys(right)]);
+    keys.forEach((key) => {
+      const value = rrpEstimateNumeric(left, right, ageNum, key);
+      if (value !== null) estimated[key] = value;
+    });
+    const leftAge = Math.round(Number(left.life_insured_age));
+    const rightAge = Math.round(Number(right.life_insured_age));
+    const minAge = Math.round(Number(rows[0].life_insured_age));
+    const maxAge = Math.round(Number(rows[rows.length - 1].life_insured_age));
+    estimated.life_insured_age = ageNum;
+    estimated.target_retirement_age = retireNum;
+    estimated.premium_payment_term = rrpTermKey(premiumTerm);
+    estimated.income_payout_period = normalizeRrpPayout(payoutPeriod);
+    estimated.guaranteed_monthly_income_basis = 1000;
+    estimated.estimation_method = ageNum >= minAge && ageNum <= maxAge ? "interpolated_runtime" : "extrapolated_runtime";
+    estimated.anchor_ages = `${leftAge};${rightAge}`;
+    estimated.proxy_slope_keys = `runtime age slope ${leftAge}-${rightAge}`;
+    estimated.source_pdf_count = Math.max(Number(left.source_pdf_count || 0), Number(right.source_pdf_count || 0));
+    estimated.source_pdfs = [left.source_pdfs, right.source_pdfs]
+      .filter(Boolean)
+      .join(";");
+    return rrpFinalizeEstimatedRow(estimated, premiumTerm, payoutPeriod, retireNum);
+  }
+
   function rrpFindGridRow({ age, retirementAge, premiumTerm, payoutPeriod }) {
     const ageNum = Math.round(Number(age));
     const retireNum = Math.round(Number(retirementAge));
@@ -6651,7 +6796,7 @@ canvas#rrpBenefitsChart {
       && Math.round(Number(row.target_retirement_age)) === retireNum
       && rrpTermKey(row.premium_payment_term) === termKey
       && rrpPayoutKey(row.income_payout_period) === payoutKey
-    ) || null;
+    ) || rrpEstimateGridRow({ age: ageNum, retirementAge: retireNum, premiumTerm, payoutPeriod });
   }
 
   function rrpEntryAgeLimits(term, retirementAge) {
@@ -6714,6 +6859,11 @@ canvas#rrpBenefitsChart {
   function validateRRP(settings, variant, row, solved) {
     const blockers = [];
     const notes = [];
+    let ageBlocker = "";
+    const addAgeBlocker = (message) => {
+      blockers.push(message);
+      if (!ageBlocker) ageBlocker = message;
+    };
     const term = rrpVariantTerm(variant);
     const termKey = rrpTermKey(term);
     const age = Math.round(num(settings.rrpAge ?? settings.startAge, 40));
@@ -6739,24 +6889,24 @@ canvas#rrpBenefitsChart {
     }
     const limits = rrpEntryAgeLimits(term, retirementAge);
     if (limits && (age < limits[0] || age > limits[1])) {
-      blockers.push(`Entry age must be ${limits[0]}-${limits[1]} for ${rrpTermLabel(term)} with retirement age ${retirementAge}.`);
+      addAgeBlocker(`Entry age must be ${limits[0]}-${limits[1]} for ${rrpTermLabel(term)} with retirement age ${retirementAge}.`);
     }
     if (retirementAge <= age) {
-      blockers.push("Target retirement age must be above current age.");
+      addAgeBlocker("Target retirement age must be above current age.");
     }
 
     const accumulationGap = retirementAge - age;
     if (rrpIsSinglePremium(term)) {
-      if (accumulationGap < 7 && !rrpSpecialSinglePayException(age, retirementAge, term)) {
-        blockers.push("Single-premium RRP needs at least 7 years from current age to target retirement age, except the age 45 to retirement 50 source case.");
+      if (accumulationGap < 5 && !rrpSpecialSinglePayException(age, retirementAge, term)) {
+        addAgeBlocker("Single-premium RRP needs at least 5 years from current age to target retirement age.");
       }
     } else {
       const premiumYears = Number(termKey);
       if (retirementAge < age + premiumYears) {
-        blockers.push("Target retirement age falls before the selected premium payment term is completed.");
+        addAgeBlocker("Target retirement age falls before the selected premium payment term is completed.");
       }
       if (premiumYears + accumulationGap < 7) {
-        blockers.push("Premium payment term plus years to target retirement age must be at least 7 years.");
+        addAgeBlocker("Premium payment term plus years to target retirement age must be at least 7 years.");
       }
     }
 
@@ -6768,15 +6918,15 @@ canvas#rrpBenefitsChart {
       blockers.push("Total income must be greater than S$0.");
     }
 
-    if (!Number.isFinite(gmi) || gmi < gmiMin || gmi > gmiMax) {
+    if (row && (!Number.isFinite(gmi) || gmi < gmiMin || gmi > gmiMax)) {
       blockers.push(`The selected input implies guaranteed monthly income of S$${Math.round(gmi || 0).toLocaleString()}, outside the product range of S$${gmiMin.toLocaleString()} to S$${gmiMax.toLocaleString()}.`);
-    } else if (gmiIncrement > 0) {
+    } else if (row && gmiIncrement > 0) {
       const remainder = Math.abs((gmi - gmiMin) % gmiIncrement);
       if (remainder > 0.01 && Math.abs(remainder - gmiIncrement) > 0.01) {
         notes.push(`The selected input implies guaranteed monthly income of about S$${Math.round(gmi).toLocaleString()}; official illustrations may round to eligible GMI increments.`);
       }
     }
-    if (!row && RRP_GRID.length) {
+    if (!row && RRP_GRID.length && !ageBlocker) {
       blockers.push("No parsed or estimated RRP source row exists for this age, retirement age, premium term, and payout period.");
     }
 
@@ -6787,6 +6937,7 @@ canvas#rrpBenefitsChart {
       blockers,
       notes,
       method,
+      ageBlocker,
     };
   }
 
@@ -6826,6 +6977,7 @@ canvas#rrpBenefitsChart {
             blockers: validation.blockers,
             notes: validation.notes,
             method: validation.method,
+            ageBlocker: validation.ageBlocker,
             premiumTerm: term,
             payoutPeriod,
             retirementAge,
@@ -6842,6 +6994,7 @@ canvas#rrpBenefitsChart {
           blockers: validation.blockers,
           notes: validation.notes,
           method: validation.method,
+          ageBlocker: validation.ageBlocker,
           premiumTerm: term,
           payoutPeriod,
           retirementAge,
@@ -6968,6 +7121,7 @@ canvas#rrpBenefitsChart {
       blockers: validation.blockers,
       notes: validation.notes,
       method: row.estimation_method || "estimated",
+      ageBlocker: validation.ageBlocker,
       anchorAges: row.anchor_ages || "",
       proxySlopeKeys: row.proxy_slope_keys || "",
       sourcePdfs: row.source_pdfs || "",
@@ -8603,6 +8757,17 @@ canvas#rrpBenefitsChart {
       : "single";
   }
 
+  function setRRPAgeError(message = "") {
+    const field = fields.rrpAge?.closest(".si-field");
+    const error = $("rrpAgeError");
+    if (!fields.rrpAge || !field || !error) return;
+    const hasError = !!message;
+    field.classList.toggle("is-error", hasError);
+    fields.rrpAge.setAttribute("aria-invalid", String(hasError));
+    error.hidden = !hasError;
+    error.textContent = message;
+  }
+
   function syncRRPInputModeUi() {
     if (!fields.rrpInputMode || !fields.rrpTargetIncome || !fields.rrpPremium) return;
     const mode = rrpInputModeValue();
@@ -9716,10 +9881,14 @@ canvas#rrpBenefitsChart {
       source_exact: "Source exact",
       interpolated: "Interpolated",
       extrapolated: "Extrapolated",
+      interpolated_runtime: "Interpolated",
+      extrapolated_runtime: "Extrapolated",
+      extrapolated_flat: "Extrapolated",
       extrapolated_proxy_slope: "Extrapolated proxy slope",
       not_available: "Not available",
     }[summary.method] || String(summary.method || "Estimated");
     const isExact = summary.method === "source_exact";
+    setRRPAgeError(summary.ageBlocker || "");
 
     if (!summary.valid) {
       syncRRPInputModeUi();
