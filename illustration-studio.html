@@ -4220,28 +4220,28 @@ canvas#rrpBenefitsChart {
           </div>
           <div class="rrp-feature-grid">
             <div class="rrp-feature">
-              <span>Plan type</span>
-              <strong>Participating endowment</strong>
+              <span>Retrenchment Benefit</span>
+              <strong>50% of annual premium after 30 days retrenched or unemployed</strong>
             </div>
             <div class="rrp-feature">
-              <span>Premium terms</span>
-              <strong>SP, 5, 10, 15, 20 years</strong>
+              <span>Premium Freeze Option</span>
+              <strong>Stop premiums for 1 year while keeping the policy in force</strong>
             </div>
             <div class="rrp-feature">
-              <span>Retirement ages</span>
-              <strong>50, 55, 60, 65, 70</strong>
+              <span>Additional Disability Income</span>
+              <strong>Extra 0.5x or 1x monthly income benefit during payout</strong>
             </div>
             <div class="rrp-feature">
-              <span>Income periods</span>
-              <strong>5, 10, 15, 20 years or lifetime</strong>
+              <span>Disability Waiver</span>
+              <strong>Waiver of future premiums if unable to perform 2 of 6 ADLs</strong>
             </div>
             <div class="rrp-feature">
-              <span>Income mix</span>
-              <strong>Guaranteed income + non-guaranteed cash bonus</strong>
+              <span>Amend Payout Period</span>
+              <strong>May amend after policy start and at least 2 years before retirement age</strong>
             </div>
             <div class="rrp-feature">
-              <span>Illustrated basis</span>
-              <strong>4.25% IIRR only</strong>
+              <span>Illustration Basis</span>
+              <strong>Estimated from uploaded PIs at 4.25% IIRR only</strong>
             </div>
           </div>
         </div>
@@ -4306,11 +4306,11 @@ canvas#rrpBenefitsChart {
         <div id="rrpSummaryCard" class="si-card si-summary-card">
           <div class="si-summary-grid rrp-summary-grid">
             <div class="si-metric">
-              <span class="si-metric-label">Premium Payable</span>
+              <span class="si-metric-label" id="rrpSummaryPremiumLabel">Premium Payable</span>
               <strong class="si-metric-value" id="rrpSummaryPremium">S$0</strong>
               <span class="si-metric-detail" id="rrpSummaryPremiumDetail">Estimated</span>
             </div>
-            <div class="si-metric">
+            <div class="si-metric" id="rrpSummaryTotalPremiumMetric">
               <span class="si-metric-label">Total Premiums</span>
               <strong class="si-metric-value" id="rrpSummaryTotalPremium">S$0</strong>
               <span class="si-metric-detail" id="rrpSummaryTotalPremiumDetail">Across premium term</span>
@@ -9889,6 +9889,10 @@ canvas#rrpBenefitsChart {
     }[summary.method] || String(summary.method || "Estimated");
     const isExact = summary.method === "source_exact";
     setRRPAgeError(summary.ageBlocker || "");
+    const isSinglePremiumSummary = summary.isSinglePremium || rrpCurrentTerm() === "single";
+    setText("rrpSummaryPremiumLabel", isSinglePremiumSummary ? "Single Premium Payable" : "Premium Payable");
+    const totalPremiumMetric = $("rrpSummaryTotalPremiumMetric");
+    if (totalPremiumMetric) totalPremiumMetric.hidden = isSinglePremiumSummary;
 
     if (!summary.valid) {
       syncRRPInputModeUi();
@@ -9924,7 +9928,7 @@ canvas#rrpBenefitsChart {
     updateRRPDerivedInputs(summary);
     const basisLabel = "4.25%";
     setText("rrpSummaryPremium", fmt(summary.premiumPayable || 0));
-    setText("rrpSummaryPremiumDetail", summary.isSinglePremium ? "Single premium" : `Annual premium x ${summary.premiumTermYears} years`);
+    setText("rrpSummaryPremiumDetail", summary.isSinglePremium ? "Single premium payable" : `Annual premium x ${summary.premiumTermYears} years`);
     setText("rrpSummaryTotalPremium", fmt(summary.totalPremiumsPaid || 0));
     setText("rrpSummaryTotalPremiumDetail", summary.premiumTermLabel || "Premium term");
     renderRRPBenefitsMetric(summary, view, fmt);
