@@ -4229,7 +4229,7 @@ canvas#rrpBenefitsChart {
             </div>
             <div class="rrp-feature">
               <span>Additional Disability Income</span>
-              <strong>Extra 0.5x or 1x monthly income benefit during payout</strong>
+              <strong>During payout: +0.5x monthly income if unable to perform 2 of 6 ADLs; +1x if unable to perform 3 of 6 ADLs</strong>
             </div>
             <div class="rrp-feature">
               <span>Disability Waiver</span>
@@ -4238,10 +4238,6 @@ canvas#rrpBenefitsChart {
             <div class="rrp-feature">
               <span>Amend Payout Period</span>
               <strong>May amend after policy start and at least 2 years before retirement age</strong>
-            </div>
-            <div class="rrp-feature">
-              <span>Illustration Basis</span>
-              <strong>Estimated from uploaded PIs at 4.25% IIRR only</strong>
             </div>
           </div>
         </div>
@@ -4321,9 +4317,9 @@ canvas#rrpBenefitsChart {
               <span class="si-metric-detail" id="rrpSummaryBenefitsDetail">All income added together</span>
             </div>
             <div class="si-metric">
-              <span class="si-metric-label">Total Income Target</span>
+              <span class="si-metric-label">Guaranteed Monthly Income</span>
               <strong class="si-metric-value" id="rrpSummaryGmi">S$0</strong>
-              <span class="si-metric-detail" id="rrpSummaryGmiDetail">Used to generate illustration</span>
+              <span class="si-metric-detail" id="rrpSummaryGmiDetail">Guaranteed base used for the estimate</span>
             </div>
             <div class="si-metric si-metric-total" id="rrpSummaryMetric425">
               <span class="si-metric-label">Total Monthly Income 4.25%</span>
@@ -9903,8 +9899,8 @@ canvas#rrpBenefitsChart {
       setText("rrpSummaryBenefitsLabel", "Total Benefits 4.25%");
       setText("rrpSummaryBenefits", "Blocked");
       setText("rrpSummaryBenefitsDetail", "No income generated");
-      setText("rrpSummaryGmi", fmt(summary.targetTotalIncome || 0));
-      setText("rrpSummaryGmiDetail", "Total income target");
+      setText("rrpSummaryGmi", summary.gmi ? fmt(summary.gmi) : "Blocked");
+      setText("rrpSummaryGmiDetail", "Guaranteed monthly income");
       setText("rrpSummaryTotal425", "Blocked");
       setText("rrpSummaryTotal425Detail", "Invalid scenario");
       setText("rrpSummaryNote", "This RRP scenario is blocked by product rules or missing source data.");
@@ -9932,9 +9928,9 @@ canvas#rrpBenefitsChart {
     setText("rrpSummaryTotalPremium", fmt(summary.totalPremiumsPaid || 0));
     setText("rrpSummaryTotalPremiumDetail", summary.premiumTermLabel || "Premium term");
     renderRRPBenefitsMetric(summary, view, fmt);
-    setText("rrpSummaryGmi", fmt(summary.targetTotalIncome || 0));
+    setText("rrpSummaryGmi", fmt(summary.guaranteedMonthlyIncome || 0));
     setText("rrpSummaryGmiDetail",
-      `Generated from ${summary.inputMode === "premium" ? "premium" : "total income"} at ${basisLabel} IIRR; implied guaranteed income ${fmt(summary.guaranteedMonthlyIncome || 0)}`);
+      `Implied from ${summary.inputMode === "premium" ? "premium" : "total income"} at ${basisLabel} IIRR`);
     setText("rrpSummaryTotal425", fmt(summary.totalMonthly425 || 0));
     setText("rrpSummaryTotal425Detail",
       `${fmt(summary.ngMonthly425 || 0)} non-guaranteed cash bonus; guaranteed ${fmt(summary.guaranteedMonthlyIncome || 0)}`);
