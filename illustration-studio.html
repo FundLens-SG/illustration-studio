@@ -2975,10 +2975,42 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
   margin-top: 6px;
 }
 
+.rrp-chart-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 8px;
+}
+.rrp-chart-highlight {
+  min-width: 0;
+  border: 1px solid #e6ded2;
+  border-radius: 8px;
+  background: #fbfaf7;
+  padding: 9px 11px;
+}
+.rrp-chart-highlight span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.rrp-chart-highlight strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.25;
+}
+.rrp-chart-highlight.is-accent strong {
+  color: var(--green);
+}
+
 canvas#rrpBenefitsChart {
   display: block;
   width: 100%;
-  height: 320px;
+  height: 360px;
 }
 
 .rrp-chart-legend {
@@ -3023,6 +3055,9 @@ canvas#rrpBenefitsChart {
 
 @media (max-width: 760px) {
   .rrp-feature-grid {
+    grid-template-columns: 1fr;
+  }
+  .rrp-chart-highlights {
     grid-template-columns: 1fr;
   }
 }
@@ -4332,14 +4367,15 @@ canvas#rrpBenefitsChart {
 
         <div class="si-card rrp-chart-card" id="rrpChartCard">
           <div class="si-card-header">
-            <h2>Premiums vs Total Benefits</h2>
-            <p class="si-subtitle" id="rrpChartSubtitle">Cumulative premiums paid compared with all income received over the payout years.</p>
+            <h2>Projected Income Payback</h2>
+            <p class="si-subtitle" id="rrpChartSubtitle">Payout-focused view of projected income against premium outlay.</p>
           </div>
+          <div class="rrp-chart-highlights" id="rrpChartHighlights"></div>
           <div class="rrp-chart-stage">
             <canvas id="rrpBenefitsChart" width="1100" height="320"></canvas>
           </div>
           <div class="chart-legend rrp-chart-legend" id="rrpBenefitsLegend"></div>
-          <p class="chart-hint">Total benefits are cumulative projected income, not an official surrender value or guaranteed quote.</p>
+          <p class="chart-hint">Chart focuses on payout years for readability. Total benefits are projected income, not an official surrender value or guaranteed quote.</p>
         </div>
 
         <div class="si-card si-table-card">
@@ -9706,48 +9742,67 @@ canvas#rrpBenefitsChart {
     const canvas = $("rrpBenefitsChart");
     const legend = $("rrpBenefitsLegend");
     const subtitle = $("rrpChartSubtitle");
+    const highlights = $("rrpChartHighlights");
     const annual = result?.annual || [];
-    if (!card || !canvas || !annual.length) {
+    const incomeRows = annual.filter((row) => row.rrpIncomeYear && Number(row.rrpTotalAnnual425 || 0) > 0);
+    if (!card || !canvas || !incomeRows.length) {
       if (card) card.hidden = true;
       return;
     }
 
-    const { show425 } = rrpViewFlags(view);
     card.hidden = false;
-    if (subtitle) {
-      subtitle.textContent = "Cumulative premiums paid compared with cumulative total benefits at 4.25% IIRR.";
-    }
+    const fmt = (value) => money(value, currency, 0);
+    const fmtAxis = (value) => compactMoney(value, currency);
+    const premiumTotal = Number(summary.totalPremiumsPaid || incomeRows[incomeRows.length - 1]?.totalBasicPaid || 0);
+    const totalBenefits = Number(summary.totalBenefits425 || incomeRows[incomeRows.length - 1]?.rrpCumulativeTotalIncome425 || 0);
+    const annualIncomeValues = incomeRows.map((row) => Number(row.rrpTotalAnnual425 || 0));
+    const cumulativeValues = incomeRows.map((row) => Number(row.rrpCumulativeTotalIncome425 || 0));
+    const breakEvenIndex = premiumTotal > 0
+      ? cumulativeValues.findIndex((value) => value >= premiumTotal)
+      : -1;
+    const breakEvenRow = breakEvenIndex >= 0 ? incomeRows[breakEvenIndex] : null;
+    const breakEvenText = breakEvenRow
+      ? `Age ${breakEvenRow.age} / payout year ${breakEvenIndex + 1}`
+      : "After illustrated payout";
+    const multipleText = premiumTotal > 0
+      ? `${(totalBenefits / premiumTotal).toFixed(1)}x premium`
+      : "Projected income";
 
-    const series = [
-      {
-        label: "Total premiums paid",
-        color: "#b9824f",
-        dash: [6, 5],
-        values: annual.map((row) => Number(row.totalBasicPaid || 0)),
-      },
-    ];
-    if (show425) {
-      series.push({
-        label: "Total benefits 4.25%",
-        color: "#5f8f3d",
-        values: annual.map((row) => Number(row.rrpCumulativeTotalIncome425 || 0)),
-      });
+    if (subtitle) {
+      const first = incomeRows[0];
+      const last = incomeRows[incomeRows.length - 1];
+      subtitle.textContent = `Payout-year view from age ${first.age} to ${last.age}; premiums are shown as the payback benchmark.`;
+    }
+    if (highlights) {
+      highlights.innerHTML = `
+        <div class="rrp-chart-highlight is-accent">
+          <span>Income Payback</span>
+          <strong>${htmlEscape(breakEvenText)}</strong>
+        </div>
+        <div class="rrp-chart-highlight">
+          <span>Total Projected Income</span>
+          <strong>${htmlEscape(fmt(totalBenefits))}</strong>
+        </div>
+        <div class="rrp-chart-highlight">
+          <span>Premium Benchmark</span>
+          <strong>${htmlEscape(fmt(premiumTotal))} · ${htmlEscape(multipleText)}</strong>
+        </div>
+      `;
     }
 
     if (legend) {
-      legend.innerHTML = series.map((item) => {
-        const swatch = item.dash
-          ? `<i class="dashed" style="--line-color:${item.color}; background:${item.color}"></i>`
-          : `<i style="background:${item.color}"></i>`;
-        return `<span>${swatch}${htmlEscape(item.label)}</span>`;
-      }).join("");
+      legend.innerHTML = [
+        `<span><i class="area" style="background:#b8d79f"></i>Annual total income</span>`,
+        `<span><i style="background:#5f8f3d"></i>Cumulative income 4.25%</span>`,
+        `<span><i class="dashed" style="--line-color:#b9824f"></i>Premium benchmark</span>`,
+      ].join("");
     }
 
     const ctx = canvas.getContext("2d");
     const ratio = window.devicePixelRatio || 1;
     const cssWidth = canvas.clientWidth || 1100;
     const compact = cssWidth < 620;
-    const cssHeight = compact ? 360 : 320;
+    const cssHeight = compact ? 390 : 360;
     canvas.width = Math.round(cssWidth * ratio);
     canvas.height = Math.round(cssHeight * ratio);
     canvas.style.height = `${cssHeight}px`;
@@ -9756,19 +9811,33 @@ canvas#rrpBenefitsChart {
     const width = cssWidth;
     const height = cssHeight;
     const pad = compact
-      ? { top: 24, right: 18, bottom: 60, left: 66 }
-      : { top: 24, right: 96, bottom: 54, left: 78 };
-    const allValues = series.flatMap((item) => item.values);
-    const max = Math.max(1, ...allValues) * 1.08;
+      ? { top: 24, right: 18, bottom: 66, left: 66 }
+      : { top: 28, right: 128, bottom: 66, left: 78 };
+    const plotWidth = width - pad.left - pad.right;
+    const plotHeight = height - pad.top - pad.bottom;
+    const max = Math.max(1, premiumTotal, totalBenefits, ...annualIncomeValues) * 1.15;
     const min = 0;
-    const labels = annual.map((row) => `Y${row.year}`);
-    const xAt = (i) => pad.left + (i / Math.max(1, labels.length - 1)) * (width - pad.left - pad.right);
+    const xAt = (i) => incomeRows.length === 1
+      ? pad.left + plotWidth / 2
+      : pad.left + (i / Math.max(1, incomeRows.length - 1)) * plotWidth;
     const yAt = (v) => height - pad.bottom - ((v - min) / (max - min || 1)) * (height - pad.top - pad.bottom);
-    const fmtAxis = (value) => compactMoney(value, currency);
 
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = "#fffdf9";
+    ctx.strokeStyle = "#eee7dc";
+    ctx.lineWidth = 1;
+    if (ctx.roundRect) {
+      ctx.beginPath();
+      ctx.roundRect(pad.left, pad.top, plotWidth, plotHeight, 8);
+      ctx.fill();
+      ctx.stroke();
+    } else {
+      ctx.fillRect(pad.left, pad.top, plotWidth, plotHeight);
+      ctx.strokeRect(pad.left, pad.top, plotWidth, plotHeight);
+    }
 
     ctx.strokeStyle = "#eee7dc";
     ctx.lineWidth = 1;
@@ -9786,15 +9855,85 @@ canvas#rrpBenefitsChart {
       ctx.fillText(fmtAxis(value), pad.left - 10, y);
     }
 
-    const payoutStartYear = Math.max(1, Number(summary.payoutStartAge || 0) - Number(result.settings?.rrpAge || result.settings?.startAge || 0));
-    const premiumEndYear = Math.max(1, Number(summary.premiumTermYears || 1));
-    [
-      { year: premiumEndYear, label: "Premiums end", color: "rgba(185, 130, 79, 0.55)" },
-      { year: payoutStartYear, label: "Income starts", color: "rgba(95, 143, 61, 0.55)" },
-    ].forEach((marker) => {
-      if (marker.year < 1 || marker.year > annual.length) return;
-      const x = xAt(marker.year - 1);
-      ctx.strokeStyle = marker.color;
+    const premiumY = yAt(premiumTotal);
+    ctx.strokeStyle = "#b9824f";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 5]);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, premiumY);
+    ctx.lineTo(width - pad.right, premiumY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#b9824f";
+    ctx.font = "bold 11px Arial";
+    ctx.textAlign = compact ? "left" : "left";
+    ctx.textBaseline = "bottom";
+    ctx.fillText("Premium benchmark", compact ? pad.left : width - pad.right + 10, premiumY - 4);
+    if (!compact) {
+      ctx.textBaseline = "top";
+      ctx.fillText(fmtAxis(premiumTotal), width - pad.right + 10, premiumY + 3);
+    }
+
+    const barSlot = plotWidth / Math.max(1, incomeRows.length);
+    const barWidth = Math.max(compact ? 5 : 8, Math.min(compact ? 18 : 34, barSlot * 0.52));
+    annualIncomeValues.forEach((value, index) => {
+      const x = xAt(index) - barWidth / 2;
+      const y = yAt(value);
+      const h = Math.max(1, height - pad.bottom - y);
+      const gradient = ctx.createLinearGradient(0, y, 0, height - pad.bottom);
+      gradient.addColorStop(0, "rgba(144, 184, 101, 0.72)");
+      gradient.addColorStop(1, "rgba(212, 227, 186, 0.75)");
+      ctx.fillStyle = gradient;
+      if (ctx.roundRect) {
+        ctx.beginPath();
+        ctx.roundRect(x, y, barWidth, h, 4);
+        ctx.fill();
+      } else {
+        ctx.fillRect(x, y, barWidth, h);
+      }
+    });
+
+    ctx.fillStyle = "rgba(95, 143, 61, 0.12)";
+    ctx.beginPath();
+    cumulativeValues.forEach((value, index) => {
+      const x = xAt(index);
+      const y = yAt(value);
+      if (index === 0) ctx.moveTo(x, height - pad.bottom);
+      ctx.lineTo(x, y);
+    });
+    ctx.lineTo(xAt(cumulativeValues.length - 1), height - pad.bottom);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = "#5f8f3d";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    cumulativeValues.forEach((value, index) => {
+      const x = xAt(index);
+      const y = yAt(value);
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    const pointStep = Math.max(1, Math.ceil(incomeRows.length / (compact ? 7 : 14)));
+    cumulativeValues.forEach((value, index) => {
+      if (index % pointStep !== 0 && index !== cumulativeValues.length - 1 && index !== breakEvenIndex) return;
+      const x = xAt(index);
+      const y = yAt(value);
+      ctx.fillStyle = index === breakEvenIndex ? "#b9824f" : "#5f8f3d";
+      ctx.beginPath();
+      ctx.arc(x, y, index === breakEvenIndex ? 4.5 : 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+
+    if (breakEvenIndex >= 0) {
+      const x = xAt(breakEvenIndex);
+      ctx.strokeStyle = "rgba(185, 130, 79, 0.5)";
+      ctx.lineWidth = 1.5;
       ctx.setLineDash([4, 5]);
       ctx.beginPath();
       ctx.moveTo(x, pad.top);
@@ -9802,55 +9941,37 @@ canvas#rrpBenefitsChart {
       ctx.stroke();
       ctx.setLineDash([]);
       if (!compact) {
-        ctx.fillStyle = "#736a5b";
-        ctx.font = "10px Arial";
+        ctx.fillStyle = "#7a5a37";
+        ctx.font = "bold 11px Arial";
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
-        ctx.fillText(marker.label, x, pad.top - 4);
+        ctx.fillText("Income payback", x, pad.top - 5);
       }
-    });
+    }
 
-    series.forEach((item) => {
-      ctx.strokeStyle = item.color;
-      ctx.lineWidth = item.dash ? 2 : 2.7;
-      ctx.setLineDash(item.dash || []);
-      ctx.beginPath();
-      item.values.forEach((value, index) => {
-        const x = xAt(index);
-        const y = yAt(value);
-        if (index === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-      ctx.setLineDash([]);
-    });
-
-    const labelStep = Math.max(1, Math.ceil(labels.length / (compact ? 5 : 9)));
+    const labelStep = Math.max(1, Math.ceil(incomeRows.length / (compact ? 5 : 9)));
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-    labels.forEach((label, index) => {
-      if (index % labelStep !== 0 && index !== labels.length - 1) return;
+    incomeRows.forEach((row, index) => {
+      if (index % labelStep !== 0 && index !== incomeRows.length - 1) return;
       const x = xAt(index);
-      const row = annual[index];
       ctx.fillStyle = "#736a5b";
       ctx.font = compact ? "11px Arial" : "12px Arial";
-      ctx.fillText(label, x, height - pad.bottom + 12);
+      ctx.fillText(`P${index + 1}`, x, height - pad.bottom + 12);
       ctx.fillStyle = "#9a8d76";
       ctx.font = compact ? "10px Arial" : "11px Arial";
       ctx.fillText(`A${row.age}`, x, height - pad.bottom + 26);
     });
 
     if (!compact) {
-      series.forEach((item, index) => {
-        const lastValue = item.values[item.values.length - 1] || 0;
-        const x = width - pad.right + 10;
-        const y = Math.max(pad.top + 12, Math.min(height - pad.bottom - 10, yAt(lastValue) + (index - 1) * 8));
-        ctx.fillStyle = item.color;
-        ctx.font = "bold 11px Arial";
-        ctx.textAlign = "left";
-        ctx.textBaseline = "middle";
-        ctx.fillText(fmtAxis(lastValue), x, y);
-      });
+      const finalValue = cumulativeValues[cumulativeValues.length - 1] || 0;
+      const x = width - pad.right + 10;
+      const y = Math.max(pad.top + 12, Math.min(height - pad.bottom - 10, yAt(finalValue)));
+      ctx.fillStyle = "#5f8f3d";
+      ctx.font = "bold 11px Arial";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText(fmtAxis(finalValue), x, y);
     }
   }
 
