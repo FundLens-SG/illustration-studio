@@ -2507,106 +2507,6 @@ body.presentation-mode .strategy-table input:disabled {
     page-break-before: avoid;
     page-break-inside: avoid;
   }
-
-  /* ===== RRP (III) print layout =====
-     Mirrors the SI print approach: no product/name header (advisor
-     request — see SI notes above), inputs restyled as static
-     key-values, advisor-only metadata (estimation pills, alternatives,
-     warnings) stripped, projection table on its own page with a
-     repeating header, disclaimers on the final page. */
-  body.is-rrp-main .topbar,
-  body.is-rrp-main #scenarioMenu,
-  body.is-rrp-main .scenario-actions,
-  body.is-rrp-main .ckg-suite-strip,
-  body.is-rrp-main .usage-banner,
-  body.is-rrp-main .rrp-estimation-meta,
-  body.is-rrp-main #rrpAltCard,
-  body.is-rrp-main #rrpWarningsBox,
-  body.is-rrp-main .si-table-controls {
-    display: none !important;
-  }
-  body.is-rrp-main .si-calculator { margin: 0 !important; gap: 8px !important; }
-  body.is-rrp-main .si-card {
-    box-shadow: none !important;
-    border: 1px solid #cabcaa !important;
-    border-radius: 4px !important;
-    padding: 10px 14px !important;
-    page-break-inside: avoid;
-    background: #fff !important;
-  }
-  body.is-rrp-main .si-card-header h2 { font-size: 13px !important; margin: 0 0 3px 0 !important; }
-  body.is-rrp-main .si-subtitle { display: none !important; }
-
-  /* Inputs card → static scenario assumptions (same trick as SI). */
-  body.is-rrp-main .si-inputs-grid { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; gap: 4px 16px !important; }
-  body.is-rrp-main .si-inputs-grid .si-input-wrap,
-  body.is-rrp-main .si-inputs-grid .si-field > input[type="number"],
-  body.is-rrp-main .si-inputs-grid .si-field > select {
-    border: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    min-height: 0 !important;
-    height: auto !important;
-    appearance: none;
-    -webkit-appearance: none;
-  }
-  body.is-rrp-main .si-inputs-grid .si-input-wrap input { text-align: left !important; padding: 0 !important; }
-  body.is-rrp-main .si-inputs-grid .si-input-wrap input,
-  body.is-rrp-main .si-inputs-grid .si-field > input[type="number"],
-  body.is-rrp-main .si-inputs-grid .si-field > select,
-  body.is-rrp-main .si-inputs-grid .si-input-wrap .si-prefix {
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    color: var(--navy) !important;
-  }
-  body.is-rrp-main .si-inputs-grid .si-label { font-size: 8.5px !important; letter-spacing: 0.06em !important; margin-bottom: 0 !important; }
-  body.is-rrp-main .si-inputs-grid .si-hint,
-  body.is-rrp-main .si-inputs-grid .si-field-error { display: none !important; }
-  body.is-rrp-main .rrp-derived-field { opacity: 1 !important; }
-  body.is-rrp-main .rrp-derived-field .si-input-wrap,
-  body.is-rrp-main .rrp-derived-field input { background: transparent !important; color: var(--navy) !important; }
-
-  /* Feature cards + summary tiles — compact. */
-  body.is-rrp-main .rrp-feature-grid { gap: 6px; }
-  body.is-rrp-main .rrp-feature { padding: 6px 9px; }
-  body.is-rrp-main .rrp-feature strong { font-size: 11px; }
-  body.is-rrp-main .rrp-feature-note { font-size: 8.5px; }
-  body.is-rrp-main .si-summary-grid { gap: 0 !important; }
-  body.is-rrp-main .si-metric { padding: 6px 10px !important; }
-  body.is-rrp-main .si-metric-label { font-size: 8.5px !important; }
-  body.is-rrp-main .si-metric-value { font-size: 14px !important; line-height: 1.05 !important; }
-  body.is-rrp-main .si-metric-detail { font-size: 9px !important; }
-  body.is-rrp-main .si-summary-note { font-size: 9.5px !important; margin-top: 6px !important; }
-  body.is-rrp-main .rrp-g-share,
-  body.is-rrp-main .rrp-phase-seg {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  body.is-rrp-main .rrp-chart-highlight { padding: 6px 9px; }
-  body.is-rrp-main .rrp-chart-highlight strong { font-size: 12px; }
-
-  /* Projection table on a fresh page, header repeating across pages. */
-  body.is-rrp-main .si-table-card { page-break-before: always; }
-  body.is-rrp-main .si-table-header h3 { font-size: 13px !important; }
-  body.is-rrp-main .si-table-scroll { overflow: visible !important; border: 1px solid #cabcaa !important; }
-  body.is-rrp-main .si-projection-table { font-size: 9px !important; }
-  body.is-rrp-main .si-projection-table thead { display: table-header-group; }
-  body.is-rrp-main .si-projection-table thead th {
-    position: static !important;
-    top: auto !important;
-    z-index: auto !important;
-    font-size: 8.5px !important;
-    padding: 4px 7px !important;
-    height: auto !important;
-    box-shadow: none !important;
-    background: #f7f8f7 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  body.is-rrp-main .si-projection-table tbody td { padding: 1.5px 7px !important; line-height: 1.2 !important; }
-  body.is-rrp-main .si-projection-table tbody tr { page-break-inside: avoid; }
-  body.is-rrp-main .rrp-disclaimer-card { page-break-before: always; }
 }
 
 /* ===== RESPONSIVE ===== */
@@ -2977,6 +2877,14 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
   font-size: 14px;
   line-height: 1.25;
 }
+.rrp-feature-note {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  font-style: normal;
+  line-height: 1.35;
+}
 .rrp-important-note,
 .rrp-source-note {
   margin: 10px 0 0;
@@ -3077,7 +2985,7 @@ body.is-rrp-main .disclaimers:not(.si-disclaimers) {
 
 .rrp-chart-highlights {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin: 12px 0 8px;
 }
@@ -3153,185 +3061,12 @@ canvas#rrpBenefitsChart {
   box-shadow: inset 0 -3px #a9987d;
 }
 
-/* ===== RRP presentation upgrades =====
-   Feature-card notes, phase ribbon, guaranteed-share bar, alternatives
-   table, ×-premium column, phase row banding, estimation-meta block. */
-.rrp-feature-note {
-  display: block;
-  margin-top: 5px;
-  color: var(--muted);
-  font-size: 11px;
-  font-style: normal;
-  line-height: 1.35;
-}
-
-/* Pay → Grow → Receive ribbon. Segments flex-grow proportionally to
-   the number of years in each phase so the bar doubles as a rough
-   visual timeline without plotting values. */
-.rrp-phase-ribbon {
-  display: flex;
-  gap: 4px;
-  margin: 10px 0 2px;
-}
-.rrp-phase-seg {
-  min-width: 0;
-  flex: 1 1 0;
-  border-radius: 7px;
-  padding: 7px 11px;
-  border: 1px solid var(--line);
-  background: var(--surface-2);
-  position: relative;
-}
-.rrp-phase-seg .rrp-phase-tag {
-  display: block;
-  font-size: 9.5px;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.rrp-phase-seg .rrp-phase-main {
-  display: block;
-  margin-top: 2px;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.rrp-phase-seg .rrp-phase-detail {
-  display: block;
-  margin-top: 1px;
-  font-size: 10.5px;
-  color: var(--ink-soft);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.rrp-phase-seg.is-pay {
-  border-color: rgba(214, 168, 122, 0.55);
-  background: #fdf6ea;
-  box-shadow: inset 0 2px 0 #d6a87a;
-}
-.rrp-phase-seg.is-grow {
-  background: #f7f6f2;
-  box-shadow: inset 0 2px 0 #c9c2b4;
-}
-.rrp-phase-seg.is-receive {
-  border-color: rgba(95, 143, 61, 0.45);
-  background: #f3f8ec;
-  box-shadow: inset 0 2px 0 #87a85d;
-}
-
-/* Guaranteed-share mini bar inside the Total Monthly Income tile. */
-.rrp-g-share {
-  display: block;
-  margin-top: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: #e3ecd6;
-  overflow: hidden;
-}
-.rrp-g-share-fill {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: #4f7d33;
-}
-.rrp-g-share-caption {
-  display: block;
-  margin-top: 4px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--ink-soft);
-}
-.rrp-g-share[hidden],
-.rrp-g-share-caption[hidden] {
-  display: none !important;
-}
-
-/* Chip sub-line (e.g. guaranteed-only payback under the total payback). */
-.rrp-chart-highlight .rrp-chip-sub {
-  display: block;
-  margin-top: 3px;
-  color: var(--muted);
-  font-size: 10.5px;
-  font-weight: 650;
-  line-height: 1.3;
-}
-
-/* ×-premium column in the projection table. */
-#rrpProjectionTable th.rrp-col-multiple,
-#rrpProjectionTable td.rrp-col-multiple {
-  background: #f1efe7;
-  font-weight: 650;
-}
-#rrpProjectionTable thead th.rrp-col-multiple {
-  box-shadow: inset 0 -3px #8d7f63;
-}
-
-/* Phase banding — first cell gets an inset bar (gold while paying,
-   green while receiving); waiting-phase rows render muted. The
-   column-tinted cells keep their own backgrounds, so banding rides on
-   the Age cell + text colour instead of full-row backgrounds. */
-#rrpProjectionTable tr.rrp-row-pay td.si-col-age {
-  box-shadow: inset 3px 0 0 #d6a87a;
-}
-#rrpProjectionTable tr.rrp-row-receive td.si-col-age {
-  box-shadow: inset 3px 0 0 #87a85d;
-}
-#rrpProjectionTable tr.rrp-row-grow td {
-  color: #8d8676;
-}
-
-/* Alternatives mini-table. */
-.rrp-alt-table td:first-child {
-  font-weight: 700;
-}
-.rrp-alt-table tr.rrp-alt-current td {
-  background: #f3f8ec;
-  box-shadow: inset 0 1px 0 rgba(95, 143, 61, 0.25), inset 0 -1px 0 rgba(95, 143, 61, 0.25);
-}
-.rrp-alt-badge {
-  display: inline-block;
-  margin-left: 6px;
-  padding: 1px 7px;
-  border-radius: 999px;
-  border: 1px solid rgba(95, 143, 61, 0.4);
-  background: #fff;
-  color: var(--green);
-  font-size: 9.5px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-/* Estimation-basis block — advisor metadata inside the disclaimer
-   card. Hidden in presentation mode + print (client-facing views). */
-.rrp-estimation-meta {
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px dashed var(--line);
-}
-body.presentation-mode .rrp-estimation-meta {
-  display: none !important;
-}
-
 @media (max-width: 760px) {
   .rrp-feature-grid {
     grid-template-columns: 1fr;
   }
   .rrp-chart-highlights {
     grid-template-columns: 1fr;
-  }
-  .rrp-phase-ribbon {
-    flex-direction: column;
-  }
-  .rrp-phase-seg .rrp-phase-main,
-  .rrp-phase-seg .rrp-phase-detail {
-    white-space: normal;
   }
 }
 
@@ -4610,16 +4345,6 @@ body.presentation-mode .rrp-estimation-meta {
               <strong class="si-metric-value" id="rrpSummaryBenefits">S$0</strong>
               <span class="si-metric-detail" id="rrpSummaryBenefitsDetail">All income added together</span>
             </div>
-            <div class="si-metric" id="rrpSummaryMetricMultiple">
-              <span class="si-metric-label">Income Multiple</span>
-              <strong class="si-metric-value" id="rrpSummaryMultiple">—</strong>
-              <span class="si-metric-detail" id="rrpSummaryMultipleDetail">Total income ÷ total premiums</span>
-            </div>
-            <div class="si-metric" id="rrpSummaryMetricPayback">
-              <span class="si-metric-label">Income Payback</span>
-              <strong class="si-metric-value" id="rrpSummaryPayback">—</strong>
-              <span class="si-metric-detail" id="rrpSummaryPaybackDetail">Cumulative income ≥ premiums paid</span>
-            </div>
             <div class="si-metric">
               <span class="si-metric-label">Guaranteed Monthly Income</span>
               <strong class="si-metric-value" id="rrpSummaryGmi">S$0</strong>
@@ -4629,8 +4354,6 @@ body.presentation-mode .rrp-estimation-meta {
               <span class="si-metric-label">Total Monthly Income 4.25%</span>
               <strong class="si-metric-value" id="rrpSummaryTotal425">S$0</strong>
               <span class="si-metric-detail" id="rrpSummaryTotal425Detail">Guaranteed + NG cash bonus</span>
-              <span class="rrp-g-share" id="rrpGShare" hidden><i class="rrp-g-share-fill" id="rrpGShareFill"></i></span>
-              <span class="rrp-g-share-caption" id="rrpGShareCaption" hidden></span>
             </div>
           </div>
           <p class="si-summary-note" id="rrpSummaryNote"></p>
@@ -4641,11 +4364,6 @@ body.presentation-mode .rrp-estimation-meta {
             <h2>Projected Income Payback</h2>
             <p class="si-subtitle" id="rrpChartSubtitle">Payout-focused view of projected income against premium outlay.</p>
           </div>
-          <!-- Pay → Grow → Receive orientation ribbon. Restores the
-               "when do I pay / wait / receive" context the payout-only
-               chart loses, without re-plotting the flat accumulation
-               years. Rendered by renderRRPPhaseRibbon(). -->
-          <div class="rrp-phase-ribbon" id="rrpPhaseRibbon" hidden></div>
           <div class="rrp-chart-highlights" id="rrpChartHighlights"></div>
           <div class="rrp-chart-stage">
             <canvas id="rrpBenefitsChart" width="1100" height="320"></canvas>
@@ -4675,40 +4393,11 @@ body.presentation-mode .rrp-estimation-meta {
                   <th scope="col" class="rrp-col-425 rrp-col-ng-425">NG Income 4.25%</th>
                   <th scope="col" class="rrp-col-425 rrp-col-total-425">Total Income 4.25%</th>
                   <th scope="col" class="rrp-col-cumulative">Cumulative Income</th>
-                  <th scope="col" class="rrp-col-multiple">× Premiums</th>
                 </tr>
               </thead>
               <tbody id="rrpProjectionBody"></tbody>
             </table>
           </div>
-        </div>
-
-        <!-- Scenario alternatives — the same premium re-illustrated
-             across every payout period the parsed grid allows for this
-             premium term. Helps steer the "which payout period"
-             conversation without regenerating one at a time. Hidden in
-             print and whenever fewer than 2 periods are product-valid. -->
-        <div class="si-card rrp-alt-card" id="rrpAltCard" hidden>
-          <div class="si-card-header">
-            <h2>Same Premium, Other Payout Periods</h2>
-            <p class="si-subtitle" id="rrpAltSubtitle">How the same premium illustrates across the payout periods available for this premium term.</p>
-          </div>
-          <div class="si-table-scroll">
-            <table class="si-projection-table rrp-alt-table" id="rrpAltTable">
-              <thead>
-                <tr>
-                  <th scope="col">Payout Period</th>
-                  <th scope="col">Income Ages</th>
-                  <th scope="col">Monthly Income 4.25%</th>
-                  <th scope="col">Total Income 4.25%</th>
-                  <th scope="col">× Premiums</th>
-                  <th scope="col">Income Payback</th>
-                </tr>
-              </thead>
-              <tbody id="rrpAltBody"></tbody>
-            </table>
-          </div>
-          <p class="chart-hint">Same entry age, retirement age and premium — only the income payout period changes. All values at 4.25% IIRR; estimates only.</p>
         </div>
 
         <div class="si-card rrp-disclaimer-card">
@@ -4722,14 +4411,6 @@ body.presentation-mode .rrp-estimation-meta {
             The 4.25% Illustrated Investment Rate of Return is non-guaranteed and is used purely for illustration. Actual non-guaranteed income, bonuses and total benefits may be lower than shown and depend on future participating fund performance and insurer declarations.
           </p>
           <div id="rrpWarningsBox" class="si-warnings" hidden></div>
-          <!-- Estimation basis — advisor-only metadata (method pill,
-               anchor ages, source PDF count). renderRRP() populates
-               these; hidden in presentation mode and in print so the
-               client-facing views stay clean. -->
-          <div class="rrp-estimation-meta" id="rrpEstimationMeta">
-            <p class="rrp-source-note" id="rrpSourceNote"></p>
-            <div class="rrp-pill-row" id="rrpSourcePills"></div>
-          </div>
         </div>
       </section>
 
@@ -10050,59 +9731,6 @@ body.presentation-mode .rrp-estimation-meta {
     if (detailEl) detailEl.textContent = detail;
   }
 
-  // ===== Shared RRP payback stats =====
-  // One place for the payback math so the chart, chips, summary tiles,
-  // projection table and alternatives strip never disagree. All values
-  // derive from the simulateRRP() annual rows.
-  function computeRrpStats(result) {
-    const summary = result?.rrpSummary || result?.final?.rrpSummary || {};
-    const annual = result?.annual || [];
-    const incomeRows = annual.filter((row) => row.rrpIncomeYear && Number(row.rrpTotalAnnual425 || 0) > 0);
-    const premiumTotal = Number(summary.totalPremiumsPaid || incomeRows[incomeRows.length - 1]?.totalBasicPaid || 0);
-    const cumulative = incomeRows.map((row) => Number(row.rrpCumulativeTotalIncome425 || 0));
-    const cumulativeG = incomeRows.map((row) => Number(row.rrpCumulativeGuaranteedIncome || 0));
-    const annualIncome = incomeRows.map((row) => Number(row.rrpTotalAnnual425 || 0));
-    const annualG = incomeRows.map((row) => Number(row.rrpGuaranteedAnnualIncome || 0));
-    const paybackIndex = premiumTotal > 0 ? cumulative.findIndex((value) => value >= premiumTotal) : -1;
-    const paybackIndexG = premiumTotal > 0 ? cumulativeG.findIndex((value) => value >= premiumTotal) : -1;
-    const totalBenefits = Number(summary.totalBenefits425 || cumulative[cumulative.length - 1] || 0);
-    const multiple = premiumTotal > 0 ? totalBenefits / premiumTotal : null;
-    const pctReturnedAtEnd = premiumTotal > 0 && cumulative.length
-      ? (cumulative[cumulative.length - 1] || 0) / premiumTotal
-      : null;
-    const isLifetime = String(summary.payoutPeriod) === "lifetime";
-    // Lifetime payouts model to age 120 — anchor the story on ~SG life
-    // expectancy instead so the headline doesn't assume living to 120.
-    let age85 = null;
-    if (isLifetime) {
-      const idx = incomeRows.findIndex((row) => Number(row.age) === 85);
-      if (idx >= 0) {
-        age85 = {
-          index: idx,
-          cumulative: cumulative[idx],
-          multiple: premiumTotal > 0 ? cumulative[idx] / premiumTotal : null,
-        };
-      }
-    }
-    return {
-      incomeRows,
-      premiumTotal,
-      cumulative,
-      cumulativeG,
-      annualIncome,
-      annualG,
-      paybackIndex,
-      paybackIndexG,
-      paybackRow: paybackIndex >= 0 ? incomeRows[paybackIndex] : null,
-      paybackRowG: paybackIndexG >= 0 ? incomeRows[paybackIndexG] : null,
-      totalBenefits,
-      multiple,
-      pctReturnedAtEnd,
-      isLifetime,
-      age85,
-    };
-  }
-
   // ===== Variant-aware feature cards =====
   // Facts per the Manulife RRP (III) technical deck (14 Sep 2025):
   //   - Retrenchment: regular pay 50% of annual-mode premium; SP 12.5%
@@ -10178,257 +9806,63 @@ body.presentation-mode .rrp-estimation-meta {
     `).join("");
   }
 
-  // ===== Pay → Grow → Receive phase ribbon =====
-  // Orients the client on when money goes in, when it compounds, and
-  // when income flows — context the payout-only chart deliberately
-  // omits. Segments flex-grow by phase length so the ribbon reads as a
-  // rough timeline.
-  function renderRRPPhaseRibbon(result, summary, currency) {
-    const el = $("rrpPhaseRibbon");
-    if (!el) return;
-    if (!summary || !summary.valid) {
-      el.hidden = true;
-      el.innerHTML = "";
-      return;
-    }
-    const fmt = (value) => money(value, currency, 0);
-    const entryAge = Math.round(Number(result.settings.rrpAge || result.settings.startAge || 0));
-    const isSingle = !!summary.isSinglePremium;
-    const termYears = Math.max(1, Number(summary.premiumTermYears || 1));
-    const payEndAge = isSingle ? entryAge : entryAge + termYears - 1;
-    const growStartAge = payEndAge + 1;
-    const growEndAge = summary.retirementAge;
-    const growYears = Math.max(0, growEndAge - payEndAge);
-    const receiveYears = Math.max(1, summary.payoutEndAge - summary.payoutStartAge + 1);
-    const isLifetime = String(summary.payoutPeriod) === "lifetime";
-    const segments = [];
-    segments.push({
-      cls: "is-pay",
-      tag: "Pay",
-      main: isSingle ? `Once · age ${entryAge}` : `Ages ${entryAge}-${payEndAge}`,
-      detail: isSingle
-        ? `${fmt(summary.premiumPayable || 0)} single premium`
-        : `${fmt(summary.premiumPayable || 0)}/yr × ${termYears} = ${fmt(summary.totalPremiumsPaid || 0)}`,
-      grow: isSingle ? 1 : termYears,
-    });
-    if (growYears > 0) {
-      segments.push({
-        cls: "is-grow",
-        tag: "Grow",
-        main: growStartAge >= growEndAge ? `Age ${growEndAge}` : `Ages ${growStartAge}-${growEndAge}`,
-        detail: "Participating fund accumulates — no withdrawals",
-        grow: growYears,
-      });
-    }
-    segments.push({
-      cls: "is-receive",
-      tag: "Receive",
-      main: `Ages ${summary.payoutStartAge}-${summary.payoutEndAge}${isLifetime ? " (lifetime)" : ""}`,
-      detail: `${fmt(summary.totalMonthly425 || 0)}/mo at 4.25% IIRR`,
-      grow: receiveYears,
-    });
-    const totalYears = segments.reduce((acc, seg) => acc + seg.grow, 0) || 1;
-    el.innerHTML = segments.map((seg) => `
-      <div class="rrp-phase-seg ${seg.cls}" style="flex-grow:${Math.max(1, Math.round((seg.grow / totalYears) * 100))}">
-        <span class="rrp-phase-tag">${htmlEscape(seg.tag)}</span>
-        <span class="rrp-phase-main">${htmlEscape(seg.main)}</span>
-        <span class="rrp-phase-detail">${htmlEscape(seg.detail)}</span>
-      </div>
-    `).join("");
-    el.hidden = false;
-  }
-
-  // ===== Same-premium alternatives strip =====
-  // Re-runs the estimator once per product-valid payout period at the
-  // current premium so the "which payout period" conversation doesn't
-  // need five manual regenerations. Skips blocked combos silently.
-  function renderRRPAlternatives(result, summary, currency) {
-    const card = $("rrpAltCard");
-    const tbody = $("rrpAltBody");
-    if (!card || !tbody) return;
-    if (!summary || !summary.valid || !(Number(summary.premiumPayable) > 0)) {
-      card.hidden = true;
-      tbody.innerHTML = "";
-      return;
-    }
-    const payouts = model.rrpAvailablePayoutsForTerm
-      ? model.rrpAvailablePayoutsForTerm(summary.premiumTerm)
-      : [];
-    if (payouts.length < 2) {
-      card.hidden = true;
-      tbody.innerHTML = "";
-      return;
-    }
-    const fmt = (value) => money(value, currency, 0);
-    const payoutKey = (value) => String(value).toLowerCase().includes("life") ? "lifetime" : String(Number(value));
-    const currentKey = payoutKey(summary.payoutPeriod);
-    const rows = payouts.map((payout) => {
-      const key = payoutKey(payout);
-      const altResult = key === currentKey
-        ? result
-        : model.simulate({
-            ...result.settings,
-            rrpPayoutPeriod: key,
-            rrpInputMode: "premium",
-            rrpPremium: summary.premiumPayable,
-            rrpTargetIncome: 0,
-          }, [], "rrp-alt");
-      const altSummary = altResult?.rrpSummary;
-      if (!altSummary || !altSummary.valid) return "";
-      const stats = computeRrpStats(altResult);
-      const payback = stats.paybackRow
-        ? `Age ${stats.paybackRow.age} · yr ${stats.paybackIndex + 1}`
-        : (stats.pctReturnedAtEnd !== null
-          ? `Not reached (${Math.round(stats.pctReturnedAtEnd * 100)}%)`
-          : "Not reached");
-      const isCurrent = key === currentKey;
-      return `
-        <tr class="${isCurrent ? "rrp-alt-current" : ""}">
-          <td>${htmlEscape(altSummary.payoutPeriodLabel)}${isCurrent ? '<span class="rrp-alt-badge">Current</span>' : ""}</td>
-          <td>${altSummary.payoutStartAge}-${altSummary.payoutEndAge}</td>
-          <td>${fmt(altSummary.totalMonthly425 || 0)}</td>
-          <td>${fmt(altSummary.totalBenefits425 || 0)}</td>
-          <td>${stats.multiple !== null ? `${stats.multiple.toFixed(1)}×` : "—"}</td>
-          <td>${htmlEscape(payback)}</td>
-        </tr>
-      `;
-    }).filter(Boolean);
-    if (rows.length < 2) {
-      card.hidden = true;
-      tbody.innerHTML = "";
-      return;
-    }
-    tbody.innerHTML = rows.join("");
-    const sub = $("rrpAltSubtitle");
-    if (sub) {
-      sub.textContent = `${summary.isSinglePremium ? "Single premium" : "Annual premium"} ${fmt(summary.premiumPayable)}, entry age ${result.settings.rrpAge}, retirement age ${summary.retirementAge} — only the payout period changes.`;
-    }
-    card.hidden = false;
-  }
-
-  // ===== RRP chart hover plumbing =====
-  // Geometry + draw closure live module-scoped (NOT in `state`) so
-  // scenario save/load never serialises them. Pointer listeners attach
-  // once per canvas; each render swaps the closure they call.
-  let rrpChartHover = null;
-  let rrpMilestoneTouched = false;
-
-  function rrpNiceStep(rawStep) {
-    if (!Number.isFinite(rawStep) || rawStep <= 0) return 1;
-    const exp = Math.pow(10, Math.floor(Math.log10(rawStep)));
-    const fraction = rawStep / exp;
-    const nice = fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 2.5 ? 2.5 : fraction <= 5 ? 5 : 10;
-    return nice * exp;
-  }
-
-  function bindRrpChartPointer(canvas) {
-    if (canvas.dataset.rrpHoverBound) return;
-    canvas.dataset.rrpHoverBound = "1";
-    const indexAt = (event) => {
-      if (!rrpChartHover || !rrpChartHover.xs || !rrpChartHover.xs.length) return null;
-      const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      let best = null;
-      let bestDist = Infinity;
-      rrpChartHover.xs.forEach((cx, index) => {
-        const dist = Math.abs(cx - x);
-        if (dist < bestDist) {
-          bestDist = dist;
-          best = index;
-        }
-      });
-      return bestDist <= Math.max(18, rrpChartHover.snapRadius || 18) ? best : null;
-    };
-    canvas.addEventListener("pointermove", (event) => {
-      if (!rrpChartHover) return;
-      const index = indexAt(event);
-      if (index !== rrpChartHover.activeIndex) {
-        rrpChartHover.activeIndex = index;
-        rrpChartHover.draw(index);
-      }
-    });
-    canvas.addEventListener("pointerleave", () => {
-      if (!rrpChartHover || rrpChartHover.activeIndex === null) return;
-      rrpChartHover.activeIndex = null;
-      rrpChartHover.draw(null);
-    });
-  }
-
   function renderRRPBenefitsChart(result, summary, view, currency) {
     const card = $("rrpChartCard");
     const canvas = $("rrpBenefitsChart");
     const legend = $("rrpBenefitsLegend");
     const subtitle = $("rrpChartSubtitle");
     const highlights = $("rrpChartHighlights");
-    const stats = computeRrpStats(result);
-    const incomeRows = stats.incomeRows;
+    const annual = result?.annual || [];
+    const incomeRows = annual.filter((row) => row.rrpIncomeYear && Number(row.rrpTotalAnnual425 || 0) > 0);
     if (!card || !canvas || !incomeRows.length) {
       if (card) card.hidden = true;
-      rrpChartHover = null;
       return;
     }
 
     card.hidden = false;
     const fmt = (value) => money(value, currency, 0);
     const fmtAxis = (value) => compactMoney(value, currency);
-    const premiumTotal = stats.premiumTotal;
-    const totalBenefits = stats.totalBenefits;
-    const annualIncomeValues = stats.annualIncome;
-    const annualGuaranteedValues = stats.annualG;
-    const cumulativeValues = stats.cumulative;
-    const cumulativeGuaranteedValues = stats.cumulativeG;
-    const breakEvenIndex = stats.paybackIndex;
-    const breakEvenRow = stats.paybackRow;
-    const gBreakEvenIndex = stats.paybackIndexG;
-    const lastRow = incomeRows[incomeRows.length - 1];
+    const premiumTotal = Number(summary.totalPremiumsPaid || incomeRows[incomeRows.length - 1]?.totalBasicPaid || 0);
+    const totalBenefits = Number(summary.totalBenefits425 || incomeRows[incomeRows.length - 1]?.rrpCumulativeTotalIncome425 || 0);
+    const annualIncomeValues = incomeRows.map((row) => Number(row.rrpTotalAnnual425 || 0));
+    const cumulativeValues = incomeRows.map((row) => Number(row.rrpCumulativeTotalIncome425 || 0));
+    const breakEvenIndex = premiumTotal > 0
+      ? cumulativeValues.findIndex((value) => value >= premiumTotal)
+      : -1;
+    const breakEvenRow = breakEvenIndex >= 0 ? incomeRows[breakEvenIndex] : null;
     const breakEvenText = breakEvenRow
-      ? `Age ${breakEvenRow.age} · payout year ${breakEvenIndex + 1}`
-      : (stats.pctReturnedAtEnd !== null
-        ? `Not reached — ${Math.round(stats.pctReturnedAtEnd * 100)}% of premiums returned by age ${lastRow.age}`
-        : "Not reached in payout period");
-    const gBreakEvenText = stats.paybackRowG
-      ? `Guaranteed-only: age ${stats.paybackRowG.age}`
-      : "Guaranteed-only: not reached";
-    const multipleText = stats.multiple !== null ? `${stats.multiple.toFixed(1)}× premiums` : "";
+      ? `Age ${breakEvenRow.age} / payout year ${breakEvenIndex + 1}`
+      : "After illustrated payout";
+    const multipleText = premiumTotal > 0
+      ? `${(totalBenefits / premiumTotal).toFixed(1)}x premium`
+      : "Projected income";
 
     if (subtitle) {
       const first = incomeRows[0];
-      subtitle.textContent = `Payout-year view from age ${first.age} to ${lastRow.age}; premiums are shown as the payback benchmark.`;
+      const last = incomeRows[incomeRows.length - 1];
+      subtitle.textContent = `Payout-year view from age ${first.age} to ${last.age}; premiums are shown as the payback benchmark.`;
     }
     if (highlights) {
-      const chips = [`
+      highlights.innerHTML = `
         <div class="rrp-chart-highlight is-accent">
           <span>Income Payback</span>
           <strong>${htmlEscape(breakEvenText)}</strong>
-          <span class="rrp-chip-sub">${htmlEscape(gBreakEvenText)}</span>
-        </div>`, `
+        </div>
         <div class="rrp-chart-highlight">
           <span>Total Projected Income</span>
-          <strong>${htmlEscape(fmt(totalBenefits))}${multipleText ? ` · ${htmlEscape(multipleText)}` : ""}</strong>
-          <span class="rrp-chip-sub">All payout years at 4.25% IIRR</span>
-        </div>`, `
+          <strong>${htmlEscape(fmt(totalBenefits))}</strong>
+        </div>
         <div class="rrp-chart-highlight">
-          <span>Total Premiums</span>
-          <strong>${htmlEscape(fmt(premiumTotal))}</strong>
-          <span class="rrp-chip-sub">Payback benchmark</span>
-        </div>`];
-      if (stats.age85) {
-        chips.push(`
-        <div class="rrp-chart-highlight">
-          <span>By Age 85</span>
-          <strong>${htmlEscape(fmt(stats.age85.cumulative))}${stats.age85.multiple !== null ? ` · ${stats.age85.multiple.toFixed(1)}×` : ""}</strong>
-          <span class="rrp-chip-sub">Lifetime payout, life-expectancy anchor</span>
-        </div>`);
-      }
-      highlights.innerHTML = chips.join("");
+          <span>Premium Benchmark</span>
+          <strong>${htmlEscape(fmt(premiumTotal))} · ${htmlEscape(multipleText)}</strong>
+        </div>
+      `;
     }
 
     if (legend) {
       legend.innerHTML = [
-        `<span><i style="background:#4f7d33"></i>Guaranteed income (annual)</span>`,
-        `<span><i class="area" style="background:#c3dcab"></i>NG cash bonus (annual)</span>`,
+        `<span><i class="area" style="background:#b8d79f"></i>Annual total income</span>`,
         `<span><i style="background:#5f8f3d"></i>Cumulative income 4.25%</span>`,
-        `<span><i class="dashed" style="--line-color:#2f6b5d"></i>Cumulative guaranteed</span>`,
         `<span><i class="dashed" style="--line-color:#b9824f"></i>Premium benchmark</span>`,
       ].join("");
     }
@@ -10446,322 +9880,168 @@ body.presentation-mode .rrp-estimation-meta {
     const width = cssWidth;
     const height = cssHeight;
     const pad = compact
-      ? { top: 26, right: 18, bottom: 66, left: 66 }
-      : { top: 30, right: 128, bottom: 66, left: 78 };
+      ? { top: 24, right: 18, bottom: 66, left: 66 }
+      : { top: 28, right: 128, bottom: 66, left: 78 };
     const plotWidth = width - pad.left - pad.right;
     const plotHeight = height - pad.top - pad.bottom;
-    const plotBottom = height - pad.bottom;
-
-    // Left axis: cumulative scale with round-number ticks (no more
-    // S$138k / S$104k / S$69k oddities from max-times-1.15-divided-by-4).
-    const rawMax = Math.max(1, premiumTotal, totalBenefits);
-    const tickStep = rrpNiceStep((rawMax * 1.08) / 4);
-    const axisMax = tickStep * 4 >= rawMax * 1.02 ? tickStep * 4 : tickStep * 5;
-    const tickCount = Math.round(axisMax / tickStep);
-    const yAt = (value) => plotBottom - (value / axisMax) * plotHeight;
-
-    // Bars: own scale in the bottom ~40% of the plot so flat annual
-    // income stays readable against a cumulative axis 10-20x larger.
-    const barMax = rrpNiceStep((Math.max(1, ...annualIncomeValues) * 1.1) / 2) * 2;
-    const barZone = plotHeight * 0.4;
-    const yBar = (value) => plotBottom - (value / barMax) * barZone;
-
-    const xAt = (index) => incomeRows.length === 1
+    const max = Math.max(1, premiumTotal, totalBenefits, ...annualIncomeValues) * 1.15;
+    const min = 0;
+    const xAt = (i) => incomeRows.length === 1
       ? pad.left + plotWidth / 2
-      : pad.left + (index / Math.max(1, incomeRows.length - 1)) * plotWidth;
-    const xs = incomeRows.map((_, index) => xAt(index));
+      : pad.left + (i / Math.max(1, incomeRows.length - 1)) * plotWidth;
+    const yAt = (v) => height - pad.bottom - ((v - min) / (max - min || 1)) * (height - pad.top - pad.bottom);
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = "#fffdf9";
+    ctx.strokeStyle = "#eee7dc";
+    ctx.lineWidth = 1;
+    if (ctx.roundRect) {
+      ctx.beginPath();
+      ctx.roundRect(pad.left, pad.top, plotWidth, plotHeight, 8);
+      ctx.fill();
+      ctx.stroke();
+    } else {
+      ctx.fillRect(pad.left, pad.top, plotWidth, plotHeight);
+      ctx.strokeRect(pad.left, pad.top, plotWidth, plotHeight);
+    }
+
+    ctx.strokeStyle = "#eee7dc";
+    ctx.lineWidth = 1;
+    ctx.fillStyle = "#736a5b";
+    ctx.font = compact ? "11px Arial" : "12px Arial";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    for (let i = 0; i <= 4; i += 1) {
+      const value = min + ((max - min) * i) / 4;
+      const y = yAt(value);
+      ctx.beginPath();
+      ctx.moveTo(pad.left, y);
+      ctx.lineTo(width - pad.right, y);
+      ctx.stroke();
+      ctx.fillText(fmtAxis(value), pad.left - 10, y);
+    }
+
+    const premiumY = yAt(premiumTotal);
+    ctx.strokeStyle = "#b9824f";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 5]);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, premiumY);
+    ctx.lineTo(width - pad.right, premiumY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#b9824f";
+    ctx.font = "bold 11px Arial";
+    ctx.textAlign = compact ? "left" : "left";
+    ctx.textBaseline = "bottom";
+    ctx.fillText("Premium benchmark", compact ? pad.left : width - pad.right + 10, premiumY - 4);
+    if (!compact) {
+      ctx.textBaseline = "top";
+      ctx.fillText(fmtAxis(premiumTotal), width - pad.right + 10, premiumY + 3);
+    }
+
     const barSlot = plotWidth / Math.max(1, incomeRows.length);
     const barWidth = Math.max(compact ? 5 : 8, Math.min(compact ? 18 : 34, barSlot * 0.52));
-    const labelStep = Math.max(1, Math.ceil(incomeRows.length / (compact ? 5 : 9)));
-    const pointStep = Math.max(1, Math.ceil(incomeRows.length / (compact ? 7 : 14)));
-
-    const draw = (hoverIndex) => {
-      ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.fillStyle = "#fffdf9";
-      ctx.strokeStyle = "#eee7dc";
-      ctx.lineWidth = 1;
+    annualIncomeValues.forEach((value, index) => {
+      const x = xAt(index) - barWidth / 2;
+      const y = yAt(value);
+      const h = Math.max(1, height - pad.bottom - y);
+      const gradient = ctx.createLinearGradient(0, y, 0, height - pad.bottom);
+      gradient.addColorStop(0, "rgba(144, 184, 101, 0.72)");
+      gradient.addColorStop(1, "rgba(212, 227, 186, 0.75)");
+      ctx.fillStyle = gradient;
       if (ctx.roundRect) {
         ctx.beginPath();
-        ctx.roundRect(pad.left, pad.top, plotWidth, plotHeight, 8);
+        ctx.roundRect(x, y, barWidth, h, 4);
         ctx.fill();
-        ctx.stroke();
       } else {
-        ctx.fillRect(pad.left, pad.top, plotWidth, plotHeight);
-        ctx.strokeRect(pad.left, pad.top, plotWidth, plotHeight);
+        ctx.fillRect(x, y, barWidth, h);
       }
+    });
 
-      ctx.strokeStyle = "#eee7dc";
-      ctx.lineWidth = 1;
+    ctx.fillStyle = "rgba(95, 143, 61, 0.12)";
+    ctx.beginPath();
+    cumulativeValues.forEach((value, index) => {
+      const x = xAt(index);
+      const y = yAt(value);
+      if (index === 0) ctx.moveTo(x, height - pad.bottom);
+      ctx.lineTo(x, y);
+    });
+    ctx.lineTo(xAt(cumulativeValues.length - 1), height - pad.bottom);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = "#5f8f3d";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    cumulativeValues.forEach((value, index) => {
+      const x = xAt(index);
+      const y = yAt(value);
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    const pointStep = Math.max(1, Math.ceil(incomeRows.length / (compact ? 7 : 14)));
+    cumulativeValues.forEach((value, index) => {
+      if (index % pointStep !== 0 && index !== cumulativeValues.length - 1 && index !== breakEvenIndex) return;
+      const x = xAt(index);
+      const y = yAt(value);
+      ctx.fillStyle = index === breakEvenIndex ? "#b9824f" : "#5f8f3d";
+      ctx.beginPath();
+      ctx.arc(x, y, index === breakEvenIndex ? 4.5 : 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+
+    if (breakEvenIndex >= 0) {
+      const x = xAt(breakEvenIndex);
+      ctx.strokeStyle = "rgba(185, 130, 79, 0.5)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 5]);
+      ctx.beginPath();
+      ctx.moveTo(x, pad.top);
+      ctx.lineTo(x, height - pad.bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      if (!compact) {
+        ctx.fillStyle = "#7a5a37";
+        ctx.font = "bold 11px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.fillText("Income payback", x, pad.top - 5);
+      }
+    }
+
+    const labelStep = Math.max(1, Math.ceil(incomeRows.length / (compact ? 5 : 9)));
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    incomeRows.forEach((row, index) => {
+      if (index % labelStep !== 0 && index !== incomeRows.length - 1) return;
+      const x = xAt(index);
       ctx.fillStyle = "#736a5b";
       ctx.font = compact ? "11px Arial" : "12px Arial";
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
-      for (let i = 0; i <= tickCount; i += 1) {
-        const value = tickStep * i;
-        const y = yAt(value);
-        ctx.beginPath();
-        ctx.moveTo(pad.left, y);
-        ctx.lineTo(width - pad.right, y);
-        ctx.stroke();
-        ctx.fillText(fmtAxis(value), pad.left - 10, y);
-      }
+      ctx.fillText(`P${index + 1}`, x, height - pad.bottom + 12);
+      ctx.fillStyle = "#9a8d76";
+      ctx.font = compact ? "10px Arial" : "11px Arial";
+      ctx.fillText(`A${row.age}`, x, height - pad.bottom + 26);
+    });
 
-      // Stacked bars — NG total behind (light), guaranteed in front
-      // (solid) so the guaranteed share reads at a glance.
-      incomeRows.forEach((row, index) => {
-        const total = annualIncomeValues[index];
-        const guaranteed = annualGuaranteedValues[index];
-        const x = xs[index] - barWidth / 2;
-        const yTotal = yBar(total);
-        const hTotal = Math.max(1, plotBottom - yTotal);
-        ctx.fillStyle = hoverIndex === index ? "rgba(173, 205, 137, 0.95)" : "rgba(195, 220, 171, 0.85)";
-        if (ctx.roundRect) {
-          ctx.beginPath();
-          ctx.roundRect(x, yTotal, barWidth, hTotal, 3);
-          ctx.fill();
-        } else {
-          ctx.fillRect(x, yTotal, barWidth, hTotal);
-        }
-        if (guaranteed > 0) {
-          const yG = yBar(guaranteed);
-          const hG = Math.max(1, plotBottom - yG);
-          ctx.fillStyle = hoverIndex === index ? "#43702a" : "#4f7d33";
-          if (ctx.roundRect) {
-            ctx.beginPath();
-            ctx.roundRect(x, yG, barWidth, hG, 2);
-            ctx.fill();
-          } else {
-            ctx.fillRect(x, yG, barWidth, hG);
-          }
-        }
-      });
-
-      // Mini right axis for the bar scale (annual income per year).
-      if (!compact) {
-        ctx.strokeStyle = "#9bb87f";
-        ctx.fillStyle = "#7d9a63";
-        ctx.font = "10px Arial";
-        ctx.textAlign = "left";
-        ctx.textBaseline = "middle";
-        [barMax / 2, barMax].forEach((value) => {
-          const y = yBar(value);
-          ctx.beginPath();
-          ctx.moveTo(width - pad.right, y);
-          ctx.lineTo(width - pad.right + 5, y);
-          ctx.stroke();
-          ctx.fillText(`${fmtAxis(value)}/yr`, width - pad.right + 8, y);
-        });
-      }
-
-      const premiumY = yAt(premiumTotal);
-      ctx.strokeStyle = "#b9824f";
-      ctx.lineWidth = 2;
-      ctx.setLineDash([6, 5]);
-      ctx.beginPath();
-      ctx.moveTo(pad.left, premiumY);
-      ctx.lineTo(width - pad.right, premiumY);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle = "#b9824f";
+    if (!compact) {
+      const finalValue = cumulativeValues[cumulativeValues.length - 1] || 0;
+      const x = width - pad.right + 10;
+      const y = Math.max(pad.top + 12, Math.min(height - pad.bottom - 10, yAt(finalValue)));
+      ctx.fillStyle = "#5f8f3d";
       ctx.font = "bold 11px Arial";
       ctx.textAlign = "left";
-      ctx.textBaseline = "bottom";
-      ctx.fillText("Premium benchmark", compact ? pad.left : width - pad.right + 10, premiumY - 4);
-      if (!compact) {
-        ctx.textBaseline = "top";
-        ctx.fillText(fmtAxis(premiumTotal), width - pad.right + 10, premiumY + 3);
-      }
-
-      ctx.fillStyle = "rgba(95, 143, 61, 0.10)";
-      ctx.beginPath();
-      cumulativeValues.forEach((value, index) => {
-        const x = xs[index];
-        const y = yAt(value);
-        if (index === 0) ctx.moveTo(x, plotBottom);
-        ctx.lineTo(x, y);
-      });
-      ctx.lineTo(xs[cumulativeValues.length - 1], plotBottom);
-      ctx.closePath();
-      ctx.fill();
-
-      // Cumulative guaranteed — dashed teal line under the total. The
-      // compliant "even on guaranteed income alone" storyline.
-      ctx.strokeStyle = "#2f6b5d";
-      ctx.lineWidth = 2;
-      ctx.setLineDash([7, 5]);
-      ctx.beginPath();
-      cumulativeGuaranteedValues.forEach((value, index) => {
-        const x = xs[index];
-        const y = yAt(value);
-        if (index === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      ctx.strokeStyle = "#5f8f3d";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      cumulativeValues.forEach((value, index) => {
-        const x = xs[index];
-        const y = yAt(value);
-        if (index === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-
-      cumulativeValues.forEach((value, index) => {
-        const isKeyDot = index === breakEvenIndex || index === cumulativeValues.length - 1 || index === hoverIndex;
-        if (index % pointStep !== 0 && !isKeyDot) return;
-        const x = xs[index];
-        const y = yAt(value);
-        ctx.fillStyle = index === breakEvenIndex ? "#b9824f" : "#5f8f3d";
-        ctx.beginPath();
-        ctx.arc(x, y, index === breakEvenIndex || index === hoverIndex ? 4.5 : 3.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "#fff";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      });
-
-      // Guaranteed-only payback marker — diamond on the teal line.
-      if (gBreakEvenIndex >= 0) {
-        const x = xs[gBreakEvenIndex];
-        const y = yAt(cumulativeGuaranteedValues[gBreakEvenIndex]);
-        ctx.fillStyle = "#2f6b5d";
-        ctx.beginPath();
-        ctx.moveTo(x, y - 5.5);
-        ctx.lineTo(x + 5.5, y);
-        ctx.lineTo(x, y + 5.5);
-        ctx.lineTo(x - 5.5, y);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = "#fff";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      }
-
-      if (breakEvenIndex >= 0) {
-        const x = xs[breakEvenIndex];
-        ctx.strokeStyle = "rgba(185, 130, 79, 0.5)";
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([4, 5]);
-        ctx.beginPath();
-        ctx.moveTo(x, pad.top);
-        ctx.lineTo(x, plotBottom);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        if (!compact) {
-          ctx.fillStyle = "#7a5a37";
-          ctx.font = "bold 11px Arial";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "bottom";
-          ctx.fillText("Income payback", x, pad.top - 5);
-        }
-      }
-
-      // Age-85 anchor for lifetime payouts — keeps the headline from
-      // resting on living to 120.
-      if (stats.age85 && stats.age85.index !== breakEvenIndex) {
-        const x = xs[stats.age85.index];
-        ctx.strokeStyle = "rgba(115, 106, 91, 0.45)";
-        ctx.lineWidth = 1;
-        ctx.setLineDash([2, 4]);
-        ctx.beginPath();
-        ctx.moveTo(x, pad.top + (compact ? 2 : 14));
-        ctx.lineTo(x, plotBottom);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        if (!compact) {
-          ctx.fillStyle = "#736a5b";
-          ctx.font = "bold 10px Arial";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "bottom";
-          ctx.fillText("Age 85", x, pad.top + 12);
-        }
-      }
-
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      incomeRows.forEach((row, index) => {
-        if (index % labelStep !== 0 && index !== incomeRows.length - 1) return;
-        const x = xs[index];
-        ctx.fillStyle = "#736a5b";
-        ctx.font = compact ? "11px Arial" : "12px Arial";
-        ctx.fillText(`P${index + 1}`, x, plotBottom + 12);
-        ctx.fillStyle = "#9a8d76";
-        ctx.font = compact ? "10px Arial" : "11px Arial";
-        ctx.fillText(`A${row.age}`, x, plotBottom + 26);
-      });
-
-      if (!compact) {
-        const finalValue = cumulativeValues[cumulativeValues.length - 1] || 0;
-        const x = width - pad.right + 10;
-        const y = Math.max(pad.top + 12, Math.min(plotBottom - 10, yAt(finalValue)));
-        ctx.fillStyle = "#5f8f3d";
-        ctx.font = "bold 11px Arial";
-        ctx.textAlign = "left";
-        ctx.textBaseline = "middle";
-        ctx.fillText(fmtAxis(finalValue), x, y);
-      }
-
-      // Hover crosshair + tooltip.
-      if (hoverIndex !== null && hoverIndex >= 0 && hoverIndex < incomeRows.length) {
-        const row = incomeRows[hoverIndex];
-        const x = xs[hoverIndex];
-        ctx.strokeStyle = "rgba(29, 43, 58, 0.35)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(x, pad.top);
-        ctx.lineTo(x, plotBottom);
-        ctx.stroke();
-
-        const guaranteed = annualGuaranteedValues[hoverIndex];
-        const nonGuaranteed = Math.max(0, annualIncomeValues[hoverIndex] - guaranteed);
-        const cumulative = cumulativeValues[hoverIndex];
-        const lines = [
-          `Payout year ${hoverIndex + 1} · Age ${row.age}`,
-          `Annual income ${fmt(annualIncomeValues[hoverIndex])}`,
-          `${fmt(guaranteed)} guaranteed + ${fmt(nonGuaranteed)} NG`,
-          `Cumulative ${fmt(cumulative)}`,
-        ];
-        if (premiumTotal > 0) {
-          const returnedRatio = cumulative / premiumTotal;
-          lines.push(returnedRatio >= 1
-            ? `${returnedRatio.toFixed(2)}× premiums returned`
-            : `${Math.round(returnedRatio * 100)}% of premiums returned`);
-        }
-        ctx.font = "11px Arial";
-        const boxWidth = Math.max(...lines.map((line) => ctx.measureText(line).width)) + 20;
-        const lineHeight = 15;
-        const boxHeight = lines.length * lineHeight + 12;
-        let boxX = x + 12;
-        if (boxX + boxWidth > width - 4) boxX = x - 12 - boxWidth;
-        const boxY = Math.max(4, Math.min(pad.top + 6, plotBottom - boxHeight));
-        ctx.fillStyle = "rgba(29, 43, 58, 0.92)";
-        if (ctx.roundRect) {
-          ctx.beginPath();
-          ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 6);
-          ctx.fill();
-        } else {
-          ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-        }
-        ctx.fillStyle = "#f4f1e8";
-        ctx.textAlign = "left";
-        ctx.textBaseline = "top";
-        lines.forEach((line, lineIndex) => {
-          ctx.font = lineIndex === 0 ? "bold 11px Arial" : "11px Arial";
-          ctx.fillText(line, boxX + 10, boxY + 7 + lineIndex * lineHeight);
-        });
-      }
-    };
-
-    rrpChartHover = { draw, xs, snapRadius: Math.max(14, barSlot / 2), activeIndex: null };
-    bindRrpChartPointer(canvas);
-    draw(null);
+      ctx.textBaseline = "middle";
+      ctx.fillText(fmtAxis(finalValue), x, y);
+    }
   }
 
   function renderRRP(results) {
@@ -10801,28 +10081,17 @@ body.presentation-mode .rrp-estimation-meta {
       setText("rrpSummaryBenefitsLabel", "Total Benefits 4.25%");
       setText("rrpSummaryBenefits", "Blocked");
       setText("rrpSummaryBenefitsDetail", "No income generated");
-      setText("rrpSummaryMultiple", "—");
-      setText("rrpSummaryMultipleDetail", "Total income ÷ total premiums");
-      setText("rrpSummaryPayback", "—");
-      setText("rrpSummaryPaybackDetail", "No illustration generated");
       setText("rrpSummaryGmi", summary.gmi ? fmt(summary.gmi) : "Blocked");
       setText("rrpSummaryGmiDetail", "Guaranteed monthly income");
       setText("rrpSummaryTotal425", "Blocked");
       setText("rrpSummaryTotal425Detail", "Invalid scenario");
-      const gShareBlocked = $("rrpGShare");
-      if (gShareBlocked) gShareBlocked.hidden = true;
-      const gShareCaptionBlocked = $("rrpGShareCaption");
-      if (gShareCaptionBlocked) gShareCaptionBlocked.hidden = true;
       setText("rrpSummaryNote", "This RRP scenario is blocked by product rules or missing source data.");
       const chartCard = $("rrpChartCard");
       if (chartCard) chartCard.hidden = true;
-      rrpChartHover = null;
-      renderRRPPhaseRibbon(result, summary, currency);
-      renderRRPAlternatives(result, summary, currency);
       setHtml("rrpSourceNote", `<strong>Cannot create illustration.</strong> ${(summary.blockers || []).map(htmlEscape).join(" ")}`);
       setHtml("rrpSourcePills", `<span class="rrp-pill is-estimated">Blocked</span>`);
       const tbody = $("rrpProjectionBody");
-      if (tbody) tbody.innerHTML = `<tr><td colspan="8">No projection generated for invalid RRP assumptions.</td></tr>`;
+      if (tbody) tbody.innerHTML = `<tr><td colspan="7">No projection generated for invalid RRP assumptions.</td></tr>`;
       const warnEl = $("rrpWarningsBox");
       if (warnEl) {
         const blockers = summary.blockers || [];
@@ -10835,7 +10104,6 @@ body.presentation-mode .rrp-estimation-meta {
     }
 
     updateRRPDerivedInputs(summary);
-    const stats = computeRrpStats(result);
     renderRRPFeatureCards(summary, result.variant);
     const basisLabel = "4.25%";
     setText("rrpSummaryPremium", fmt(summary.premiumPayable || 0));
@@ -10843,38 +10111,12 @@ body.presentation-mode .rrp-estimation-meta {
     setText("rrpSummaryTotalPremium", fmt(summary.totalPremiumsPaid || 0));
     setText("rrpSummaryTotalPremiumDetail", summary.premiumTermLabel || "Premium term");
     renderRRPBenefitsMetric(summary, view, fmt);
-    setText("rrpSummaryMultiple", stats.multiple !== null ? `${stats.multiple.toFixed(1)}×` : "—");
-    setText("rrpSummaryMultipleDetail",
-      stats.multiple !== null
-        ? `${fmt(stats.totalBenefits)} ÷ ${fmt(stats.premiumTotal)} premiums`
-        : "Total income ÷ total premiums");
-    setText("rrpSummaryPayback", stats.paybackRow ? `Age ${stats.paybackRow.age}` : "Not reached");
-    setText("rrpSummaryPaybackDetail",
-      stats.paybackRow
-        ? `Payout year ${stats.paybackIndex + 1}${stats.paybackRowG ? ` · guaranteed-only age ${stats.paybackRowG.age}` : " · guaranteed-only not reached"}`
-        : (stats.pctReturnedAtEnd !== null
-          ? `${Math.round(stats.pctReturnedAtEnd * 100)}% of premiums returned by age ${summary.payoutEndAge}`
-          : "Cumulative income stays below premiums"));
     setText("rrpSummaryGmi", fmt(summary.guaranteedMonthlyIncome || 0));
     setText("rrpSummaryGmiDetail",
       `Implied from ${summary.inputMode === "premium" ? "premium" : "total income"} at ${basisLabel} IIRR`);
     setText("rrpSummaryTotal425", fmt(summary.totalMonthly425 || 0));
     setText("rrpSummaryTotal425Detail",
-      `${fmt((summary.totalMonthly425 || 0) * 12)}/yr · ${fmt(summary.guaranteedMonthlyIncome || 0)} guaranteed + ${fmt(summary.ngMonthly425 || 0)} NG cash bonus`);
-    const gShareEl = $("rrpGShare");
-    const gShareFillEl = $("rrpGShareFill");
-    const gShareCaptionEl = $("rrpGShareCaption");
-    const totalMonthlyForShare = Number(summary.totalMonthly425 || 0);
-    if (gShareEl && gShareFillEl && gShareCaptionEl && totalMonthlyForShare > 0) {
-      const gSharePct = Math.max(0, Math.min(100, (Number(summary.guaranteedMonthlyIncome || 0) / totalMonthlyForShare) * 100));
-      gShareFillEl.style.width = `${gSharePct.toFixed(1)}%`;
-      gShareCaptionEl.textContent = `${Math.round(gSharePct)}% of monthly income is guaranteed`;
-      gShareEl.hidden = false;
-      gShareCaptionEl.hidden = false;
-    } else {
-      if (gShareEl) gShareEl.hidden = true;
-      if (gShareCaptionEl) gShareCaptionEl.hidden = true;
-    }
+      `${fmt(summary.ngMonthly425 || 0)} non-guaranteed cash bonus; guaranteed ${fmt(summary.guaranteedMonthlyIncome || 0)}`);
     const yield425 = Number.isFinite(summary.illustratedYield425)
       ? `${Number(summary.illustratedYield425).toFixed(2)}%`
       : "n.m.";
@@ -10883,9 +10125,7 @@ body.presentation-mode .rrp-estimation-meta {
       `Total income target basis: ${basisLabel} IIRR. ` +
       `Estimated total benefits: ${fmt(summary.totalBenefits425 || 0)} at 4.25% IIRR. ` +
       `Illustrated yield at maturity: ${yield425} p.a.`);
-    renderRRPPhaseRibbon(result, summary, currency);
     renderRRPBenefitsChart(result, summary, view, currency);
-    renderRRPAlternatives(result, summary, currency);
 
     const pdfs = String(summary.sourcePdfs || "")
       .split(";")
@@ -10911,11 +10151,6 @@ body.presentation-mode .rrp-estimation-meta {
 
     const tbody = $("rrpProjectionBody");
     if (tbody) {
-      // Long projections (e.g. 20-pay + lifetime ≈ 90 rows) default to
-      // the milestone view; respect the toggle once the user touches it.
-      if (fields.rrpMilestoneOnly && !rrpMilestoneTouched) {
-        fields.rrpMilestoneOnly.checked = (result.annual || []).length > 40;
-      }
       const milestoneOnly = !!(fields.rrpMilestoneOnly && fields.rrpMilestoneOnly.checked);
       const startAge = Number(result.settings.rrpAge || result.settings.startAge || 0);
       const milestoneYears = new Set([
@@ -10926,24 +10161,13 @@ body.presentation-mode .rrp-estimation-meta {
         Math.max(1, summary.payoutEndAge - startAge),
       ]);
       for (let y = 5; y <= (result.annual || []).length; y += 5) milestoneYears.add(y);
-      if (stats.paybackRow) milestoneYears.add(stats.paybackRow.year);
-      if (stats.paybackRowG) milestoneYears.add(stats.paybackRowG.year);
-      if (stats.age85) milestoneYears.add(stats.incomeRows[stats.age85.index].year);
-      const premiumTotalForMultiple = stats.premiumTotal;
       const rows = (result.annual || [])
-        .filter((row) => !milestoneOnly || milestoneYears.has(row.year))
+        .filter((row) => !milestoneOnly || milestoneYears.has(row.year) || row.rrpPremiumPaid > 0 || row.rrpIncomeYear)
         .map((row) => {
-          const cumulativeValue = Number(row.rrpCumulativeTotalIncome425 || 0);
-          const cumulative = fmt(cumulativeValue);
-          const multipleCell = premiumTotalForMultiple > 0 && cumulativeValue > 0
-            ? `${(cumulativeValue / premiumTotalForMultiple).toFixed(2)}×`
-            : "—";
+          const cumulative = fmt(row.rrpCumulativeTotalIncome425 || 0);
           const cls = ["si-projection-row"];
           if (milestoneYears.has(row.year)) cls.push("si-milestone-row");
           if (row.rrpIncomeYear && row.age === summary.payoutStartAge) cls.push("si-payout-start");
-          if (row.rrpPremiumPaid > 0) cls.push("rrp-row-pay");
-          else if (row.rrpIncomeYear) cls.push("rrp-row-receive");
-          else cls.push("rrp-row-grow");
           return `
             <tr class="${cls.join(" ")}">
               <td class="si-col-age">${row.age}</td>
@@ -10953,11 +10177,10 @@ body.presentation-mode .rrp-estimation-meta {
               <td class="rrp-col-425 rrp-col-ng-425" ${show425 ? "" : "hidden"}>${fmt(row.rrpNgAnnual425 || 0)}</td>
               <td class="rrp-col-425 rrp-col-total-425" ${show425 ? "" : "hidden"}>${fmt(row.rrpTotalAnnual425 || 0)}</td>
               <td class="rrp-col-cumulative">${cumulative}</td>
-              <td class="rrp-col-multiple">${multipleCell}</td>
             </tr>
           `;
         }).join("");
-      tbody.innerHTML = rows || `<tr><td colspan="8">No rows to show.</td></tr>`;
+      tbody.innerHTML = rows || `<tr><td colspan="7">No rows to show.</td></tr>`;
     }
 
     const warnEl = $("rrpWarningsBox");
@@ -13100,7 +12323,6 @@ body.presentation-mode .rrp-estimation-meta {
     }
     if (fields.rrpMilestoneOnly) {
       fields.rrpMilestoneOnly.addEventListener("change", () => {
-        rrpMilestoneTouched = true;
         if (state.results) renderRRP(state.results);
       });
     }
