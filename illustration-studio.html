@@ -9834,8 +9834,8 @@ canvas#rrpBenefitsChart {
       ? `Age ${breakEvenRow.age} / payout year ${breakEvenIndex + 1}`
       : "After illustrated payout";
     const multipleText = premiumTotal > 0
-      ? `${(totalBenefits / premiumTotal).toFixed(1)}x premium`
-      : "Projected income";
+      ? ` · ${(totalBenefits / premiumTotal).toFixed(1)}× premiums`
+      : "";
 
     if (subtitle) {
       const first = incomeRows[0];
@@ -9850,11 +9850,11 @@ canvas#rrpBenefitsChart {
         </div>
         <div class="rrp-chart-highlight">
           <span>Total Projected Income</span>
-          <strong>${htmlEscape(fmt(totalBenefits))}</strong>
+          <strong>${htmlEscape(fmt(totalBenefits))}${htmlEscape(multipleText)}</strong>
         </div>
         <div class="rrp-chart-highlight">
-          <span>Premium Benchmark</span>
-          <strong>${htmlEscape(fmt(premiumTotal))} · ${htmlEscape(multipleText)}</strong>
+          <span>Total Premiums</span>
+          <strong>${htmlEscape(fmt(premiumTotal))}</strong>
         </div>
       `;
     }
@@ -9884,7 +9884,17 @@ canvas#rrpBenefitsChart {
       : { top: 28, right: 128, bottom: 66, left: 78 };
     const plotWidth = width - pad.left - pad.right;
     const plotHeight = height - pad.top - pad.bottom;
-    const max = Math.max(1, premiumTotal, totalBenefits, ...annualIncomeValues) * 1.15;
+    // Round-number axis: pick a clean tick step (1/2/2.5/5 ladder) so
+    // labels read S$3.5m / S$7m instead of max-times-1.15 oddities.
+    const niceStep = (raw) => {
+      const exp = Math.pow(10, Math.floor(Math.log10(raw)));
+      const f = raw / exp;
+      return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * exp;
+    };
+    const rawMax = Math.max(1, premiumTotal, totalBenefits);
+    const tickStep = niceStep((rawMax * 1.08) / 4);
+    const max = tickStep * 4 >= rawMax * 1.02 ? tickStep * 4 : tickStep * 5;
+    const tickCount = Math.round(max / tickStep);
     const min = 0;
     const xAt = (i) => incomeRows.length === 1
       ? pad.left + plotWidth / 2
@@ -9914,8 +9924,8 @@ canvas#rrpBenefitsChart {
     ctx.font = compact ? "11px Arial" : "12px Arial";
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
-    for (let i = 0; i <= 4; i += 1) {
-      const value = min + ((max - min) * i) / 4;
+    for (let i = 0; i <= tickCount; i += 1) {
+      const value = tickStep * i;
       const y = yAt(value);
       ctx.beginPath();
       ctx.moveTo(pad.left, y);
@@ -9945,9 +9955,16 @@ canvas#rrpBenefitsChart {
 
     const barSlot = plotWidth / Math.max(1, incomeRows.length);
     const barWidth = Math.max(compact ? 5 : 8, Math.min(compact ? 18 : 34, barSlot * 0.52));
+    // Bars use their own scale capped at the bottom ~40% of the plot —
+    // flat annual income (~1/10 of the cumulative axis) would otherwise
+    // render as unreadable nubs. The last bar carries its value so the
+    // separate scale explains itself without a second axis.
+    const barMax = Math.max(1, ...annualIncomeValues) * 1.15;
+    const barZone = plotHeight * 0.4;
+    const yBarAt = (v) => height - pad.bottom - (v / barMax) * barZone;
     annualIncomeValues.forEach((value, index) => {
       const x = xAt(index) - barWidth / 2;
-      const y = yAt(value);
+      const y = yBarAt(value);
       const h = Math.max(1, height - pad.bottom - y);
       const gradient = ctx.createLinearGradient(0, y, 0, height - pad.bottom);
       gradient.addColorStop(0, "rgba(144, 184, 101, 0.72)");
@@ -9961,6 +9978,14 @@ canvas#rrpBenefitsChart {
         ctx.fillRect(x, y, barWidth, h);
       }
     });
+    const lastBarValue = annualIncomeValues[annualIncomeValues.length - 1] || 0;
+    if (lastBarValue > 0) {
+      ctx.fillStyle = "#7d9a63";
+      ctx.font = compact ? "bold 9px Arial" : "bold 10px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText(`${fmtAxis(lastBarValue)}/yr`, xAt(annualIncomeValues.length - 1), yBarAt(lastBarValue) - 4);
+    }
 
     ctx.fillStyle = "rgba(95, 143, 61, 0.12)";
     ctx.beginPath();
