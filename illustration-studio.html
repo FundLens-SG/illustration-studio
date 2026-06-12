@@ -4368,7 +4368,7 @@ canvas#rrpBenefitsChart {
 
         <div class="si-card rrp-chart-card" id="rrpChartCard">
           <div class="si-card-header">
-            <h2>Projected Income Payback</h2>
+            <h2>Projected Income Breakeven</h2>
             <p class="si-subtitle" id="rrpChartSubtitle">Payout-focused view of projected income against premium outlay.</p>
           </div>
           <div class="rrp-chart-highlights" id="rrpChartHighlights"></div>
@@ -9953,12 +9953,12 @@ canvas#rrpBenefitsChart {
     if (subtitle) {
       const first = incomeRows[0];
       const last = incomeRows[incomeRows.length - 1];
-      subtitle.textContent = `Payout-year view from age ${first.age} to ${last.age}; premiums are shown as the payback benchmark.`;
+      subtitle.textContent = `Payout-year view from age ${first.age} to ${last.age}; premiums are shown as the breakeven benchmark.`;
     }
     if (highlights) {
       highlights.innerHTML = `
         <div class="rrp-chart-highlight is-accent">
-          <span>Income Payback</span>
+          <span>Income Breakeven</span>
           <strong>${htmlEscape(breakEvenText)}</strong>
         </div>
         <div class="rrp-chart-highlight">
@@ -10077,12 +10077,18 @@ canvas#rrpBenefitsChart {
     ctx.setLineDash([]);
     ctx.fillStyle = "#b9824f";
     ctx.font = "bold 11px Arial";
-    ctx.textAlign = compact ? "left" : "left";
+    ctx.textAlign = "left";
     ctx.textBaseline = "bottom";
-    ctx.fillText("Premium benchmark", compact ? pad.left : width - pad.right + 10, premiumY - 4);
+    // Clamp so the label never runs off the canvas edge at narrower
+    // viewport widths.
+    const benchmarkLabel = "Premium benchmark";
+    const benchmarkLabelX = compact
+      ? pad.left
+      : Math.min(width - pad.right + 10, width - ctx.measureText(benchmarkLabel).width - 4);
+    ctx.fillText(benchmarkLabel, benchmarkLabelX, premiumY - 4);
     if (!compact) {
       ctx.textBaseline = "top";
-      ctx.fillText(fmtAxis(premiumTotal), width - pad.right + 10, premiumY + 3);
+      ctx.fillText(fmtAxis(premiumTotal), benchmarkLabelX, premiumY + 3);
     }
 
     const barSlot = plotWidth / Math.max(1, incomeRows.length);
@@ -10162,7 +10168,7 @@ canvas#rrpBenefitsChart {
         ctx.font = "bold 11px Arial";
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
-        ctx.fillText("Income payback", x, pad.top - 5);
+        ctx.fillText("Income breakeven", x, pad.top - 5);
       }
     }
 
