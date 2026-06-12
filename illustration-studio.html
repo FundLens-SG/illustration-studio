@@ -3021,6 +3021,13 @@ canvas#rrpBenefitsChart {
   height: 360px;
 }
 
+.rrp-chart-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .rrp-chart-legend {
   margin: 8px 0 0;
 }
@@ -4367,6 +4374,9 @@ canvas#rrpBenefitsChart {
           <div class="rrp-chart-highlights" id="rrpChartHighlights"></div>
           <div class="rrp-chart-stage">
             <canvas id="rrpBenefitsChart" width="1100" height="320"></canvas>
+            <!-- Hover layer — crosshair + tooltip draw here so the
+                 chart canvas never re-renders on pointer moves. -->
+            <canvas id="rrpBenefitsOverlay" class="rrp-chart-overlay" aria-hidden="true"></canvas>
           </div>
           <div class="chart-legend rrp-chart-legend" id="rrpBenefitsLegend"></div>
           <p class="chart-hint">Chart focuses on payout years for readability. Total benefits are projected income, not an official surrender value or guaranteed quote.</p>
@@ -9806,6 +9816,102 @@ canvas#rrpBenefitsChart {
     `).join("");
   }
 
+  // ===== RRP chart hover (overlay canvas) =====
+  // Crosshair + tooltip draw on a transparent overlay stacked above the
+  // chart, so pointer moves never re-render the chart itself. Geometry
+  // is stashed module-side at render time (NOT in `state` — scenario
+  // save/load must never serialise it).
+  let rrpChartHoverGeo = null;
+  let rrpOverlayBound = false;
+
+  function syncRrpOverlay(canvas) {
+    const overlay = $("rrpBenefitsOverlay");
+    if (!overlay) return;
+    overlay.width = canvas.width;
+    overlay.height = canvas.height;
+    overlay.style.height = canvas.style.height;
+    const ratio = window.devicePixelRatio || 1;
+    overlay.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
+    if (rrpOverlayBound) return;
+    rrpOverlayBound = true;
+    overlay.addEventListener("pointermove", drawRrpHover);
+    overlay.addEventListener("pointerleave", clearRrpHover);
+  }
+
+  function clearRrpHover() {
+    const overlay = $("rrpBenefitsOverlay");
+    if (!overlay) return;
+    const geo = rrpChartHoverGeo;
+    overlay.getContext("2d").clearRect(0, 0, geo ? geo.width : overlay.width, geo ? geo.height : overlay.height);
+  }
+
+  function drawRrpHover(event) {
+    const overlay = $("rrpBenefitsOverlay");
+    const geo = rrpChartHoverGeo;
+    if (!overlay || !geo || !geo.xs.length) return;
+    const rect = overlay.getBoundingClientRect();
+    const pointerX = event.clientX - rect.left;
+    let index = null;
+    let bestDist = Infinity;
+    geo.xs.forEach((cx, i) => {
+      const dist = Math.abs(cx - pointerX);
+      if (dist < bestDist) {
+        bestDist = dist;
+        index = i;
+      }
+    });
+    if (index === null || bestDist > geo.snapRadius) {
+      clearRrpHover();
+      return;
+    }
+    const row = geo.rows[index];
+    const fmt = (value) => money(value, geo.currency, 0);
+    const annual = Number(row.rrpTotalAnnual425 || 0);
+    const cumulative = Number(row.rrpCumulativeTotalIncome425 || 0);
+    const lines = [
+      `Payout year ${index + 1} · Age ${row.age}`,
+      `Annual income ${fmt(annual)}`,
+      `Cumulative ${fmt(cumulative)}`,
+    ];
+    if (geo.premiumTotal > 0) {
+      const returned = cumulative / geo.premiumTotal;
+      lines.push(returned >= 1
+        ? `${returned.toFixed(2)}× premiums returned`
+        : `${Math.round(returned * 100)}% of premiums returned`);
+    }
+    const ctx = overlay.getContext("2d");
+    ctx.clearRect(0, 0, geo.width, geo.height);
+    const cx = geo.xs[index];
+    ctx.strokeStyle = "rgba(29, 43, 58, 0.35)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx, geo.padTop);
+    ctx.lineTo(cx, geo.plotBottom);
+    ctx.stroke();
+    ctx.font = "11px Arial";
+    const boxWidth = Math.max(...lines.map((line) => ctx.measureText(line).width)) + 20;
+    const lineHeight = 15;
+    const boxHeight = lines.length * lineHeight + 12;
+    let boxX = cx + 12;
+    if (boxX + boxWidth > geo.width - 4) boxX = cx - 12 - boxWidth;
+    const boxY = Math.max(4, geo.padTop + 6);
+    ctx.fillStyle = "rgba(29, 43, 58, 0.92)";
+    if (ctx.roundRect) {
+      ctx.beginPath();
+      ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 6);
+      ctx.fill();
+    } else {
+      ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+    }
+    ctx.fillStyle = "#f4f1e8";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    lines.forEach((line, lineIndex) => {
+      ctx.font = lineIndex === 0 ? "bold 11px Arial" : "11px Arial";
+      ctx.fillText(line, boxX + 10, boxY + 7 + lineIndex * lineHeight);
+    });
+  }
+
   function renderRRPBenefitsChart(result, summary, view, currency) {
     const card = $("rrpChartCard");
     const canvas = $("rrpBenefitsChart");
@@ -9816,6 +9922,7 @@ canvas#rrpBenefitsChart {
     const incomeRows = annual.filter((row) => row.rrpIncomeYear && Number(row.rrpTotalAnnual425 || 0) > 0);
     if (!card || !canvas || !incomeRows.length) {
       if (card) card.hidden = true;
+      rrpChartHoverGeo = null;
       return;
     }
 
@@ -9830,9 +9937,15 @@ canvas#rrpBenefitsChart {
       ? cumulativeValues.findIndex((value) => value >= premiumTotal)
       : -1;
     const breakEvenRow = breakEvenIndex >= 0 ? incomeRows[breakEvenIndex] : null;
+    const lastIncomeRow = incomeRows[incomeRows.length - 1];
+    const pctReturnedAtEnd = premiumTotal > 0 && cumulativeValues.length
+      ? (cumulativeValues[cumulativeValues.length - 1] || 0) / premiumTotal
+      : null;
     const breakEvenText = breakEvenRow
       ? `Age ${breakEvenRow.age} / payout year ${breakEvenIndex + 1}`
-      : "After illustrated payout";
+      : (pctReturnedAtEnd !== null
+        ? `Not reached — ${Math.round(pctReturnedAtEnd * 100)}% of premiums returned by age ${lastIncomeRow.age}`
+        : "Not reached in payout period");
     const multipleText = premiumTotal > 0
       ? ` · ${(totalBenefits / premiumTotal).toFixed(1)}× premiums`
       : "";
@@ -9918,6 +10031,25 @@ canvas#rrpBenefitsChart {
       ctx.strokeRect(pad.left, pad.top, plotWidth, plotHeight);
     }
 
+    // Before/after payback washes — neutral while premiums are still
+    // being recovered, pale green once cumulative income exceeds them.
+    // Replaces the old area fill under the line: the bars carry the
+    // per-year story now, and this shading carries the payback story.
+    if (breakEvenIndex >= 0) {
+      const splitX = xAt(breakEvenIndex);
+      ctx.save();
+      if (ctx.roundRect) {
+        ctx.beginPath();
+        ctx.roundRect(pad.left, pad.top, plotWidth, plotHeight, 8);
+        ctx.clip();
+      }
+      ctx.fillStyle = "rgba(190, 183, 167, 0.10)";
+      ctx.fillRect(pad.left, pad.top, splitX - pad.left, plotHeight);
+      ctx.fillStyle = "rgba(95, 143, 61, 0.07)";
+      ctx.fillRect(splitX, pad.top, width - pad.right - splitX, plotHeight);
+      ctx.restore();
+    }
+
     ctx.strokeStyle = "#eee7dc";
     ctx.lineWidth = 1;
     ctx.fillStyle = "#736a5b";
@@ -9984,20 +10116,11 @@ canvas#rrpBenefitsChart {
       ctx.font = compact ? "bold 9px Arial" : "bold 10px Arial";
       ctx.textAlign = "center";
       ctx.textBaseline = "bottom";
-      ctx.fillText(`${fmtAxis(lastBarValue)}/yr`, xAt(annualIncomeValues.length - 1), yBarAt(lastBarValue) - 4);
+      let barLabelY = yBarAt(lastBarValue) - 4;
+      // Keep the /yr label off the premium benchmark dashes.
+      if (Math.abs(barLabelY - premiumY) < 12) barLabelY = premiumY - 12;
+      ctx.fillText(`${fmtAxis(lastBarValue)}/yr`, xAt(annualIncomeValues.length - 1), barLabelY);
     }
-
-    ctx.fillStyle = "rgba(95, 143, 61, 0.12)";
-    ctx.beginPath();
-    cumulativeValues.forEach((value, index) => {
-      const x = xAt(index);
-      const y = yAt(value);
-      if (index === 0) ctx.moveTo(x, height - pad.bottom);
-      ctx.lineTo(x, y);
-    });
-    ctx.lineTo(xAt(cumulativeValues.length - 1), height - pad.bottom);
-    ctx.closePath();
-    ctx.fill();
 
     ctx.strokeStyle = "#5f8f3d";
     ctx.lineWidth = 3;
@@ -10043,7 +10166,11 @@ canvas#rrpBenefitsChart {
       }
     }
 
-    const labelStep = Math.max(1, Math.ceil(incomeRows.length / (compact ? 5 : 9)));
+    // Short payouts get every P-label; the skip logic only matters for
+    // 15/20-year and lifetime payouts where labels would crowd.
+    const labelStep = incomeRows.length <= (compact ? 6 : 12)
+      ? 1
+      : Math.max(1, Math.ceil(incomeRows.length / (compact ? 5 : 9)));
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
     incomeRows.forEach((row, index) => {
@@ -10060,13 +10187,31 @@ canvas#rrpBenefitsChart {
     if (!compact) {
       const finalValue = cumulativeValues[cumulativeValues.length - 1] || 0;
       const x = width - pad.right + 10;
-      const y = Math.max(pad.top + 12, Math.min(height - pad.bottom - 10, yAt(finalValue)));
+      let y = Math.max(pad.top + 12, Math.min(height - pad.bottom - 10, yAt(finalValue)));
+      // Keep the final-value label clear of the benchmark's two text
+      // lines when total income lands near the premium level.
+      if (Math.abs(y - premiumY) < 16) y = Math.max(pad.top + 12, premiumY - 18);
       ctx.fillStyle = "#5f8f3d";
       ctx.font = "bold 11px Arial";
       ctx.textAlign = "left";
       ctx.textBaseline = "middle";
       ctx.fillText(fmtAxis(finalValue), x, y);
     }
+
+    // Stash hover geometry + size the overlay (tooltip layer).
+    rrpChartHoverGeo = {
+      xs: incomeRows.map((_, index) => xAt(index)),
+      rows: incomeRows,
+      premiumTotal,
+      currency,
+      padTop: pad.top,
+      plotBottom: height - pad.bottom,
+      width,
+      height,
+      snapRadius: Math.max(14, barSlot / 2),
+    };
+    syncRrpOverlay(canvas);
+    clearRrpHover();
   }
 
   function renderRRP(results) {
