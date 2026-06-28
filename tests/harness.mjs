@@ -41,6 +41,33 @@ export function loadModel() {
   return model;
 }
 
+let cachedView = null;
+
+// Load the pure view-layer helpers (assets/illustration-view.js) in a vm
+// sandbox. No DOM, no rate data needed — it's pure derived-value math.
+export function loadView() {
+  if (cachedView) return cachedView;
+  const sandbox = {};
+  sandbox.window = sandbox;
+  sandbox.globalThis = sandbox;
+  sandbox.module = { exports: {} };
+  sandbox.Math = Math;
+  sandbox.Number = Number;
+  sandbox.Array = Array;
+  sandbox.Object = Object;
+  sandbox.String = String;
+  sandbox.JSON = JSON;
+  vm.createContext(sandbox);
+  const code = readFileSync(resolve(repoRoot, "assets/illustration-view.js"), "utf8");
+  vm.runInContext(code, sandbox, { filename: "assets/illustration-view.js" });
+  const view = sandbox.IRView || sandbox.module.exports;
+  if (!view || typeof view.computeRrpStats !== "function") {
+    throw new Error("view module failed to load: IRView.computeRrpStats missing");
+  }
+  cachedView = view;
+  return view;
+}
+
 // Minimal settings shapes per engine — mirror what the UI's
 // currentSettings() produces for the fields each engine reads. Kept here
 // so tests construct scenarios without the DOM.

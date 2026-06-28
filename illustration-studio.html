@@ -4076,7 +4076,6 @@ canvas#rrpBenefitsChart {
             <button type="button" data-save-action="drive" id="saveDriveBtn" hidden>Save to Drive…</button>
             <div class="action-menu-section">File</div>
             <button type="button" data-save-action="json">Download scenario (.json)…</button>
-            <button type="button" data-save-action="disk">Download full page (.html)…</button>
           </div>
         </details>
         <details class="action-menu" id="openMenu">
@@ -4103,7 +4102,6 @@ canvas#rrpBenefitsChart {
         <input id="loadScenarioFile" type="file" accept=".html,text/html,.json,application/json" hidden />
         <!-- Legacy IDs preserved as hidden so existing JS bindings keep
              working. The Save / Open dropdowns above route through them. -->
-        <button id="saveHtmlScenario" type="button" hidden tabindex="-1" aria-hidden="true">Save HTML</button>
         <button id="loadHtmlScenario" type="button" hidden tabindex="-1" aria-hidden="true">Load HTML</button>
       </div>
     </header>
@@ -4985,6 +4983,7 @@ canvas#rrpBenefitsChart {
 
     <script src="assets/rrp3-rates.js"></script>
     <script src="assets/illustration-model.js"></script>
+    <script src="assets/illustration-view.js"></script>
     <script src="fund-library-afl.js"></script>
     <script src="assets/paper-deck.js"></script>
     <script>
@@ -4992,6 +4991,8 @@ canvas#rrpBenefitsChart {
   "use strict";
 
   const model = window.IRModel;
+  // Pure view-layer derived-value helpers (see assets/illustration-view.js).
+  const { computeRrpStats, parWlMilestones } = window.IRView;
   const state = {
     strategy: [],
     compareStrategy: [],
@@ -7139,8 +7140,11 @@ canvas#rrpBenefitsChart {
     const legend = $("rrpBenefitsLegend");
     const subtitle = $("rrpChartSubtitle");
     const highlights = $("rrpChartHighlights");
-    const annual = result?.annual || [];
-    const incomeRows = annual.filter((row) => row.rrpIncomeYear && Number(row.rrpTotalAnnual425 || 0) > 0);
+    // Derived payback/multiple math lives in the pure, unit-tested
+    // computeRrpStats (assets/illustration-view.js). The render below only
+    // turns those numbers into pixels and strings.
+    const stats = computeRrpStats(result, summary);
+    const incomeRows = stats.incomeRows;
     if (!card || !canvas || !incomeRows.length) {
       if (card) card.hidden = true;
       rrpChartHoverGeo = null;
@@ -7150,25 +7154,21 @@ canvas#rrpBenefitsChart {
     card.hidden = false;
     const fmt = (value) => money(value, currency, 0);
     const fmtAxis = (value) => compactMoney(value, currency);
-    const premiumTotal = Number(summary.totalPremiumsPaid || incomeRows[incomeRows.length - 1]?.totalBasicPaid || 0);
-    const totalBenefits = Number(summary.totalBenefits425 || incomeRows[incomeRows.length - 1]?.rrpCumulativeTotalIncome425 || 0);
-    const annualIncomeValues = incomeRows.map((row) => Number(row.rrpTotalAnnual425 || 0));
-    const cumulativeValues = incomeRows.map((row) => Number(row.rrpCumulativeTotalIncome425 || 0));
-    const breakEvenIndex = premiumTotal > 0
-      ? cumulativeValues.findIndex((value) => value >= premiumTotal)
-      : -1;
-    const breakEvenRow = breakEvenIndex >= 0 ? incomeRows[breakEvenIndex] : null;
-    const lastIncomeRow = incomeRows[incomeRows.length - 1];
-    const pctReturnedAtEnd = premiumTotal > 0 && cumulativeValues.length
-      ? (cumulativeValues[cumulativeValues.length - 1] || 0) / premiumTotal
-      : null;
+    const premiumTotal = stats.premiumTotal;
+    const totalBenefits = stats.totalBenefits;
+    const annualIncomeValues = stats.annualIncomeValues;
+    const cumulativeValues = stats.cumulativeValues;
+    const breakEvenIndex = stats.breakEvenIndex;
+    const breakEvenRow = stats.breakEvenRow;
+    const lastIncomeRow = stats.lastIncomeRow;
+    const pctReturnedAtEnd = stats.pctReturnedAtEnd;
     const breakEvenText = breakEvenRow
       ? `Age ${breakEvenRow.age} / payout year ${breakEvenIndex + 1}`
       : (pctReturnedAtEnd !== null
         ? `Not reached — ${Math.round(pctReturnedAtEnd * 100)}% of premiums returned by age ${lastIncomeRow.age}`
         : "Not reached in payout period");
-    const multipleText = premiumTotal > 0
-      ? ` · ${(totalBenefits / premiumTotal).toFixed(1)}× premiums`
+    const multipleText = stats.multiple !== null
+      ? ` · ${stats.multiple.toFixed(1)}× premiums`
       : "";
 
     if (subtitle) {
@@ -7601,40 +7601,8 @@ canvas#rrpBenefitsChart {
     `;
   }
 
-  // Compute par-WL milestones: the year at which the policy first crosses
-  // an interesting threshold. The user's framing in the spec is:
-  //   • Breakeven (G + non-G) — first year totalSV ≥ premiums paid
-  //   • Official breakeven (G) — first year guaranteed SV ≥ premiums paid
-  //   • Capital × N — first year totalSV ≥ N × premiums paid
-  // All thresholds use cumulative basic premium paid at that year (so
-  // for 3-Pay / 5-Pay the threshold itself rises until the premium term
-  // ends).
-  function parWlMilestones(result) {
-    const annual = result.annual || [];
-    const findFirst = (predicate) => {
-      const row = annual.find(predicate);
-      return row ? row.year : null;
-    };
-    // In BR mode, cumulative cash income has been realised out of the
-    // policy. The advisor cares about TOTAL WEALTH (= remaining policy
-    // value + cumulative realised cash), not just policy value, when
-    // judging "have I doubled my money / 4× / 8×". Without this, BR
-    // mode would show "Not reached" for Capital × 4 / × 8 because the
-    // policy value alone is artificially capped by the recurring 7%
-    // drawdown — even though the customer has actually received many
-    // multiples of their premium back via realised cash.
-    const wealthOf = (r) => (r.brTotalWealth != null ? r.brTotalWealth : (r.totalValue || 0));
-    const breakevenTotal = findFirst((r) => wealthOf(r) >= (r.totalBasicPaid || 0) && (r.totalBasicPaid || 0) > 0);
-    const breakevenGuaranteed = findFirst((r) => (r.surrenderValue || 0) >= (r.totalBasicPaid || 0) && (r.totalBasicPaid || 0) > 0);
-    const findMultiple = (mult) => findFirst((r) => (r.totalBasicPaid || 0) > 0 && wealthOf(r) >= mult * (r.totalBasicPaid || 0));
-    return {
-      breakevenTotal,
-      breakevenGuaranteed,
-      multiple2: findMultiple(2),
-      multiple4: findMultiple(4),
-      multiple8: findMultiple(8),
-    };
-  }
+  // parWlMilestones now lives in assets/illustration-view.js (pure +
+  // unit-tested); imported via the destructure near the top of this IIFE.
 
   function renderAssumptions(result) {
     const variant = result.variant;
@@ -9218,19 +9186,6 @@ canvas#rrpBenefitsChart {
     history.replaceState(null, "", hash);
   }
 
-  function buildCurrentDocumentHtml(payload) {
-    const clone = document.documentElement.cloneNode(true);
-    let script = clone.querySelector("#investready-scenario-data");
-    if (!script) {
-      script = document.createElement("script");
-      script.id = "investready-scenario-data";
-      script.type = "application/json";
-      clone.querySelector("head").appendChild(script);
-    }
-    script.textContent = JSON.stringify(payload, null, 2).replace(/<\/script/gi, "<\\/script");
-    return `<!doctype html>\n${clone.outerHTML}`;
-  }
-
   function downloadText(filename, text, type) {
     const blob = new Blob([text], { type });
     const url = URL.createObjectURL(blob);
@@ -9430,23 +9385,11 @@ canvas#rrpBenefitsChart {
       .slice(0, 80);
   }
 
-  function saveHtmlScenario() {
-    const payload = currentScenarioPayload();
-    const html = buildCurrentDocumentHtml(payload);
-    const date = new Date().toISOString().slice(0, 10);
-    // Prefer the active scenario name (from the most recent Save-as / load
-    // of a named save) for the filename, with the variant + date kept as
-    // suffix so two scenarios for the same client stay distinguishable.
-    const niceName = _filenameSafe(state.currentScenarioName);
-    const filename = niceName
-      ? `${niceName} — ${payload.settings.variantKey} ${date}.html`
-      : `illustration-studio-${payload.settings.variantKey}-${date}.html`;
-    downloadText(filename, html, "text/html;charset=utf-8");
-    _ckgDirty = false;   // Save HTML cleared the dirty flag
-    // Cross-tool activity log (ckgtools landing): one event per
-    // finalized illustration. No-op when not signed into the hub.
-    try { window.ckgTrackIllustration && window.ckgTrackIllustration(payload); } catch (_e) {}
-  }
+  // Executable-HTML scenario saves (a full runnable page clone) have been
+  // retired — the canonical save is inert, checksummed JSON
+  // (downloadJsonScenario). Legacy .html saves still OPEN: the load path
+  // extracts their embedded JSON via DOMParser without executing them
+  // (extractScenarioPayload / loadEmbeddedScenario).
 
   // ── ckg leave-guard wiring ─────────────────────────────────────────
   // Track dirty state so the suite-strip / dock / palette / tab-close
@@ -10039,7 +9982,6 @@ canvas#rrpBenefitsChart {
       renderCompareStrategyTable();
       recalc();
     });
-    $("saveHtmlScenario").addEventListener("click", saveHtmlScenario);
     $("loadHtmlScenario").addEventListener("click", () => fields.loadScenarioFile.click());
     $("copyShareLink").addEventListener("click", copyShareLink);
     fields.loadScenarioFile.addEventListener("change", () => loadHtmlScenarioFile(fields.loadScenarioFile.files[0]));
@@ -10511,9 +10453,6 @@ canvas#rrpBenefitsChart {
         } else if (action === "json") {
           await downloadJsonScenario();
           _setAutosaveStatus("Downloaded scenario (.json)", "saved");
-        } else if (action === "disk") {
-          saveHtmlScenario();
-          _setAutosaveStatus("Downloaded full page (.html)", "saved");
         } else if (action === "drive") {
           const defaultName = state.currentScenarioName || "";
           const name = window.prompt("Save to Drive as… (e.g. client name)", defaultName);

@@ -61,9 +61,11 @@ The top **`Save ▾`** dropdown offers three paths:
 |---|---|---|
 | Update autosave | `localStorage["ckg-illustration-autosave"]` | No |
 | Save as new scenario… | `localStorage["ckg-illustration-save:<name>"]` | No |
-| Download HTML… | File saved to disk; uses the named-save name if available, otherwise `illustration-studio-<variant>-<date>.html` | Yes (you control the file) |
+| Download scenario (.json)… | Inert JSON file saved to disk (`<name> — <variant> <date>.json`), carrying a SHA-256 integrity checksum | Yes (you control the file) |
 
-The matching **`Open ▾`** dropdown lists the latest autosave, every named save (with timestamp + delete ×), and a `Open HTML from disk…` action that loads any HTML scenario file produced by the Save action.
+The downloaded scenario is **inert data** re-rendered by the app on load — not a runnable HTML page. On load the app recomputes the checksum and flags the file as *integrity verified*, *FAILED* (modified/corrupted), or *unsigned*. (The old self-contained `.html` save has been retired; legacy `.html` saves still **open** — their embedded scenario JSON is extracted via `DOMParser` without executing the page.)
+
+The matching **`Open ▾`** dropdown lists the latest autosave, every named save (with timestamp + delete ×), and an `Open scenario from disk…` action that loads a `.json` (or legacy `.html`) scenario file.
 
 **Autosave** fires 1.2s after every meaningful input change. The status caption next to the dropdowns reads `Autosaved · 10:37 am` in brass when fresh, amber if a write fails. On next visit the app starts from the default preset but offers a one-click `Restore latest autosave` in the Open menu.
 

@@ -62,8 +62,15 @@ Across the whole matrix: no `NaN`/`Infinity` reaches outputs, premiums
 never negative, IRR within ±100%, par-WL surrender value never negative,
 and RRP cumulative income is monotonic non-decreasing.
 
+### `view.test.mjs` — the view layer's derived numbers
+The client-facing values DERIVED from a result in the UI —
+`computeRrpStats` (RRP payback age / income multiple / % of premiums
+returned) and `parWlMilestones` (par-WL breakeven + capital-multiple
+years), both in `assets/illustration-view.js`. These used to be computed
+inline in the render layer and slipped the model-only gate.
+
 ## Files
-- `harness.mjs` — vm loader + per-engine settings builders + `findNonFinite`
+- `harness.mjs` — vm loaders (`loadModel`, `loadView`) + per-engine settings builders + `findNonFinite`
 - `scenarios.mjs` — shared scenario matrix + fingerprint helpers
-- `*.test.mjs` — the three layers above
+- `*.test.mjs` — the four layers above
 - `snapshots/engines.json` — golden-master baseline (committed)
