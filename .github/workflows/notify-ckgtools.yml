@@ -3,9 +3,26 @@ name: Notify ckgtools
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
+  # Golden-master + validation + invariant tests for the math engines.
+  # The deploy notify below is gated on this passing, so a number-changing
+  # regression can never sync to ckgtools / production.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Run engine tests
+        run: npm test
+
   notify:
+    needs: test
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Dispatch tool-updated event to ckgtools
