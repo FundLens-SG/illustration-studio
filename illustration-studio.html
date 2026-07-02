@@ -8209,7 +8209,7 @@ canvas#rrpBenefitsChart {
       setText("siiSummaryPayable", "Blocked");
       setText("siiSummaryPayableDetail", "No illustration generated");
       setText("siiSummaryMonthlyIncome", summary.targetMonthlyIncome ? fmt(summary.targetMonthlyIncome) : "Blocked");
-      setText("siiSummaryMonthlyIncomeDetail", "Requested target");
+      setText("siiSummaryMonthlyIncomeDetail", summary.inputMode === "premium" ? "Calculated from premium" : "Requested target");
       setText("siiSummaryReferenceValue", "Blocked");
       setText("siiSummaryReferenceValueDetail", "Invalid scenario");
       setText("siiSummaryNetYield", "Blocked");

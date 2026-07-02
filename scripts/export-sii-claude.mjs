@@ -509,7 +509,7 @@ function simulateSiiExportFast({ age, term, incomeStartYear, annualisedPremium }
   if (annualisedPremium < premiumBounds.minAnnualPlannedPremium || annualisedPremium > premiumBounds.maxAnnualPlannedPremium) {
     blockers.push(`Annualised premium must be between US$${premiumBounds.minAnnualPlannedPremium.toLocaleString()} and US$${premiumBounds.maxAnnualPlannedPremium.toLocaleString()} for ${model.siiTermLabel(termNum)}.`);
   }
-  if (targetMonthlyIncome < bounds.minMonthlyIncome || targetMonthlyIncome > bounds.maxMonthlyIncome) {
+  if (targetMonthlyIncome > bounds.maxMonthlyIncome) {
     blockers.push(`Target monthly income must be between US$${bounds.minMonthlyIncome.toLocaleString()} and US$${bounds.maxMonthlyIncome.toLocaleString()} for income start year ${incomeStartYear}.`);
   }
   if (blend?.method === "age_shifted_source") {

@@ -2630,7 +2630,9 @@
     if (solved.inputPremium < premiumBounds.minAnnualPlannedPremium || solved.inputPremium > premiumBounds.maxAnnualPlannedPremium) {
       blockers.push(`${inputPremiumLabel} must be between US$${premiumBounds.minAnnualPlannedPremium.toLocaleString()} and US$${premiumBounds.maxAnnualPlannedPremium.toLocaleString()} for ${siiTermLabel(termNum)}.`);
     }
-    if (solved.targetMonthlyIncome < bounds.minMonthlyIncome || solved.targetMonthlyIncome > bounds.maxMonthlyIncome) {
+    const incomeBelowMin = solved.targetMonthlyIncome < bounds.minMonthlyIncome;
+    const incomeAboveMax = solved.targetMonthlyIncome > bounds.maxMonthlyIncome;
+    if ((solved.inputMode === "income" && incomeBelowMin) || incomeAboveMax) {
       blockers.push(`Target monthly income must be between US$${bounds.minMonthlyIncome.toLocaleString()} and US$${bounds.maxMonthlyIncome.toLocaleString()} for income start year ${incomeStartYear}.`);
     }
     const allSourceAges = Array.isArray(SII_DATA?.source?.sourceAges)

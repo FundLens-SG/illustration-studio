@@ -133,3 +133,42 @@ test("SII annualised premium minimum tracks premium term", () => {
   assert.equal(s.valid, false, "annualised premium below term minimum should block");
   assert.ok((s.blockers || []).some((msg) => msg.includes("Annualised premium") && msg.includes("US$20,000")), (s.blockers || []).join("; "));
 });
+
+test("SII premium mode accepts term minimum even when calculated income is below target-income floor", () => {
+  const r = m.simulate({
+    variantKey: "SII",
+    currency: "USD",
+    paymentFrequency: "Annual",
+    startAge: 46,
+    siiAge: 46,
+    siiPremiumTerm: 4,
+    siiIncomeStartYear: 4,
+    siiInputMode: "premium",
+    siiAnnualPlannedPremium: 25000,
+    siiTargetMonthlyIncome: 0,
+  }, [], "validate");
+  const s = r.siiSummary || {};
+  assert.equal(s.valid, true, `premium-mode minimum case should be valid: ${(s.blockers || []).join("; ")}`);
+  assert.equal(Math.round(s.inputPremium), 25000);
+  assert.equal(Math.round(s.totalPlannedPremium), 100000);
+  assert.ok(Number(s.targetMonthlyIncome) < 300, `fixture should stay below income floor, got ${s.targetMonthlyIncome}`);
+  assert.ok((r.annual || []).some((row) => row.year === 4 && Number(row.siiAnnualIncome) > 0), "income should start in PY4");
+});
+
+test("SII income mode still blocks requested income below start-year floor", () => {
+  const r = m.simulate({
+    variantKey: "SII",
+    currency: "USD",
+    paymentFrequency: "Annual",
+    startAge: 46,
+    siiAge: 46,
+    siiPremiumTerm: 4,
+    siiIncomeStartYear: 4,
+    siiInputMode: "income",
+    siiAnnualPlannedPremium: 25000,
+    siiTargetMonthlyIncome: 250,
+  }, [], "validate");
+  const s = r.siiSummary || {};
+  assert.equal(s.valid, false, "requested income below PY4 floor should block in income mode");
+  assert.ok((s.blockers || []).some((msg) => msg.includes("Target monthly income") && msg.includes("US$300")), (s.blockers || []).join("; "));
+});
