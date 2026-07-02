@@ -3135,6 +3135,7 @@ canvas#rrpBenefitsChart {
   gap: 18px;
   cursor: pointer;
   list-style: none;
+  border-radius: 6px;
 }
 .sii-charges-card summary::-webkit-details-marker {
   display: none;
@@ -3147,13 +3148,26 @@ canvas#rrpBenefitsChart {
 }
 .sii-charges-pill {
   flex: 0 0 auto;
-  border: 1px solid rgba(47, 107, 93, 0.28);
-  border-radius: 999px;
-  background: var(--green-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(47, 107, 93, 0.36);
+  border-radius: 6px;
+  background: #f2faf7;
   color: var(--green);
-  padding: 8px 12px;
+  padding: 9px 12px;
   font-size: 12px;
   font-weight: 800;
+  box-shadow: 0 1px 0 rgba(47, 107, 93, 0.08);
+}
+.sii-charges-pill::after {
+  content: "View breakdown";
+  border-left: 1px solid rgba(47, 107, 93, 0.22);
+  padding-left: 8px;
+  color: var(--ink);
+}
+.sii-charges-card[open] .sii-charges-pill::after {
+  content: "Hide breakdown";
 }
 .sii-charges-body {
   margin-top: 14px;
@@ -4712,9 +4726,9 @@ canvas#rrpBenefitsChart {
           <summary>
             <span class="sii-charges-title">
               <strong>Charges and Bonuses</strong>
-              <span id="siiChargesSummaryLine">Collapsed view shows net yield; expand for total fees and year-by-year charges.</span>
+              <span id="siiChargesSummaryLine">Net illustrated yield after current charges and bonuses; open for the full fee breakdown.</span>
             </span>
-            <strong class="sii-charges-pill" id="siiChargesCollapsed">Net yield n.m.</strong>
+            <strong class="sii-charges-pill" id="siiChargesCollapsed">Net yield n.m.; drag n.m.</strong>
           </summary>
           <div class="sii-charges-body">
             <div class="sii-charge-totals" id="siiChargeTotals"></div>
@@ -8253,10 +8267,10 @@ canvas#rrpBenefitsChart {
         : "After current charges and bonuses");
     setText("siiChargesCollapsed",
       Number.isFinite(netYield)
-        ? `Net ${percent(netYield, 2)} | spread ${Number.isFinite(spread) ? percent(spread, 2) : "n.m."}`
-        : "Net yield n.m.");
+        ? `Net yield ${percent(netYield, 2)}; drag ${Number.isFinite(spread) ? percent(spread, 2) : "n.m."}`
+        : "Net yield n.m.; drag n.m.");
     setText("siiChargesSummaryLine",
-      `Estimated total charges ${fmt(summary.cumulativeChargesEstimate || 0)}; policy booster ${fmt(summary.cumulativeBoosterEstimate || 0)}. Expand for breakdown.`);
+      `Total charges ${fmt(summary.cumulativeChargesEstimate || 0)} less policy booster ${fmt(summary.cumulativeBoosterEstimate || 0)}. Drag is vs the 6.35% index assumption; open for fee breakdown.`);
     const sourceText = summary.sourceLabels ? `Sources: ${summary.sourceLabels}.` : "Source estimate generated from uploaded PIs.";
     setText("siiSummaryNote",
       `Income starts policy year ${summary.incomeStartYear} at age ${summary.incomeStartAge}. ` +
