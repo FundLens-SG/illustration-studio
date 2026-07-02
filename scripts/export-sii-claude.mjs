@@ -737,6 +737,11 @@ for (let age = constants.entryAgeMin ?? 0; age <= (constants.entryAgeMax ?? 70);
         final_surrender_value: n(summary.finalSurrenderValue, 2),
         final_death_benefit: n(summary.finalDeathBenefit, 2),
         total_benefits_at_projection: n(summary.totalBenefitsAtProjection, 2),
+        net_illustrated_yield_pct_pa: pct(summary.currentIllustratedYield, 6),
+        index_account_assumption_pct_pa: n(constants.indexAssumedCreditingRateCurrentPct, 2),
+        blended_drag_vs_index_assumption_pct: pct(Number.isFinite(summary.currentIllustratedYield)
+          ? (toNum(constants.indexAssumedCreditingRateCurrentPct, 6.35) / 100) - summary.currentIllustratedYield
+          : null, 6),
         face_amount_estimate: n(summary.faceAmount, 2),
         total_premium_charge_estimate: n(summary.totalPremiumChargeEstimate, 2),
         total_policy_fee_estimate: n(summary.totalPolicyFeeEstimate, 2),
@@ -806,6 +811,9 @@ writeCsv(resolve(outDir, "sii_claude_all_extrapolations_annualised_100k.csv"), e
   "final_surrender_value",
   "final_death_benefit",
   "total_benefits_at_projection",
+  "net_illustrated_yield_pct_pa",
+  "index_account_assumption_pct_pa",
+  "blended_drag_vs_index_assumption_pct",
   "face_amount_estimate",
   "total_premium_charge_estimate",
   "total_policy_fee_estimate",
@@ -913,6 +921,7 @@ These SII figures are derived from uploaded policy illustrations and extrapolate
 - Sparse term/start cases use inverse-distance weighting across premium term, income start year, and age.
 - Income is aligned to the selected income start year. Source payout curves are shifted so payout year 1 lands on the selected policy year; income before the selected start year is forced to zero.
 - User-facing premium input is annualised premium for 2-pay to 10-pay and single premium for SP.
+- The full extrapolation grid uses \`net_illustrated_yield_pct_pa\` as the collapsed annualised representation of charges blended with bonuses, and \`blended_drag_vs_index_assumption_pct\` as the spread against the 6.35% Index Account illustration assumption.
 - Charges and bonuses include premium charge, policy fee, admin fee estimate, policy value booster, net fees after booster, surrender/unvested drag, and parsed effect of deductions.
 - Early-year SII IRR values outside sane bounds are displayed as \`n.m.\` in the UI and exported as blank/null where applicable.
 `;

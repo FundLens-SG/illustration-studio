@@ -1,6 +1,6 @@
 # SII Claude Export
 
-Generated: 2026-07-02T16:24:06.667Z
+Generated: 2026-07-02T16:26:24.407Z
 
 ## Important Caveat
 
@@ -45,5 +45,6 @@ These SII figures are derived from uploaded policy illustrations and extrapolate
 - Sparse term/start cases use inverse-distance weighting across premium term, income start year, and age.
 - Income is aligned to the selected income start year. Source payout curves are shifted so payout year 1 lands on the selected policy year; income before the selected start year is forced to zero.
 - User-facing premium input is annualised premium for 2-pay to 10-pay and single premium for SP.
+- The full extrapolation grid uses `net_illustrated_yield_pct_pa` as the collapsed annualised representation of charges blended with bonuses, and `blended_drag_vs_index_assumption_pct` as the spread against the 6.35% Index Account illustration assumption.
 - Charges and bonuses include premium charge, policy fee, admin fee estimate, policy value booster, net fees after booster, surrender/unvested drag, and parsed effect of deductions.
 - Early-year SII IRR values outside sane bounds are displayed as `n.m.` in the UI and exported as blank/null where applicable.
