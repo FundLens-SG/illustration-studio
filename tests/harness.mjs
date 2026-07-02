@@ -136,6 +136,7 @@ export function siiSettings(overrides = {}) {
     siiPremiumTerm: "single",
     siiIncomeStartYear: 4,
     siiInputMode: "premium",
+    siiAnnualPlannedPremium: 100000,
     siiTotalPlannedPremium: 100000,
     siiTargetMonthlyIncome: 0,
     projectionYears: 79,

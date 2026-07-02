@@ -3158,6 +3158,40 @@ canvas#rrpBenefitsChart {
 .sii-charges-body {
   margin-top: 14px;
 }
+.sii-charge-totals {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.sii-charge-total {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 9px 10px;
+  min-width: 0;
+}
+.sii-charge-total span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.sii-charge-total strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.2;
+}
+.sii-charge-total.is-bonus strong {
+  color: var(--green);
+}
+.sii-charge-total.is-net strong {
+  color: var(--gold-dark);
+}
 #siiProjectionTable th.sii-col-premium,
 #siiProjectionTable td.sii-col-premium {
   background: #fff8eb;
@@ -3203,6 +3237,9 @@ canvas#rrpBenefitsChart {
   }
   .sii-account-strip {
     grid-template-columns: 1fr;
+  }
+  .sii-charge-totals {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -4587,7 +4624,7 @@ canvas#rrpBenefitsChart {
         <div class="si-card si-inputs-card">
           <div class="si-card-header">
             <h2>SII Illustration Inputs</h2>
-            <p class="si-subtitle">Set premium term, income start year, and solve from either target income or total planned premium.</p>
+            <p class="si-subtitle">Set premium term, income start year, and solve from either target income or annualised premium.</p>
           </div>
 
           <div class="si-inputs-grid">
@@ -4613,7 +4650,7 @@ canvas#rrpBenefitsChart {
             <label class="si-field">
               <span class="si-label">Generate From</span>
               <select id="siiInputMode">
-                <option value="premium">Total Planned Premium</option>
+                <option value="premium">Annualised Premium</option>
                 <option value="income">Target Monthly Income</option>
               </select>
               <span class="si-hint">The other field is calculated and greyed out</span>
@@ -4629,12 +4666,12 @@ canvas#rrpBenefitsChart {
             </label>
 
             <label class="si-field" id="siiPremiumField">
-              <span class="si-label" id="siiPremiumLabel">Total Planned Premium</span>
+              <span class="si-label" id="siiPremiumLabel">Annualised Premium</span>
               <div class="si-input-wrap">
                 <span class="si-prefix">US$</span>
                 <input id="siiTotalPlannedPremium" type="number" min="100000" step="1000" inputmode="numeric" />
               </div>
-              <span class="si-hint" id="siiPremiumHint">Min US$100,000; max US$166m</span>
+              <span class="si-hint" id="siiPremiumHint">Term-specific minimum applies</span>
             </label>
           </div>
           <span class="si-field-error" id="siiInputError" hidden></span>
@@ -4675,11 +4712,12 @@ canvas#rrpBenefitsChart {
           <summary>
             <span class="sii-charges-title">
               <strong>Charges and Bonuses</strong>
-              <span>Collapsed view shows the annualised net yield after current charges and policy bonuses.</span>
+              <span id="siiChargesSummaryLine">Collapsed view shows net yield; expand for total fees and year-by-year charges.</span>
             </span>
             <strong class="sii-charges-pill" id="siiChargesCollapsed">Net yield n.m.</strong>
           </summary>
           <div class="sii-charges-body">
+            <div class="sii-charge-totals" id="siiChargeTotals"></div>
             <div class="si-table-scroll">
               <table id="siiChargesTable" class="si-projection-table">
                 <thead>
@@ -4689,6 +4727,8 @@ canvas#rrpBenefitsChart {
                     <th scope="col">Policy Fee</th>
                     <th scope="col">Admin Fee Est.</th>
                     <th scope="col">Policy Value Booster</th>
+                    <th scope="col">Total Fees</th>
+                    <th scope="col">Net Fees After Booster</th>
                     <th scope="col">Surrender / Unvested Drag</th>
                     <th scope="col">Effect of Deductions</th>
                   </tr>
@@ -6237,6 +6277,7 @@ canvas#rrpBenefitsChart {
       settings.siiIncomeStartYear = numberValue(fields.siiIncomeStartYear);
       settings.siiInputMode = fields.siiInputMode.value;
       settings.siiTargetMonthlyIncome = numberValue(fields.siiTargetMonthlyIncome);
+      settings.siiAnnualPlannedPremium = numberValue(fields.siiTotalPlannedPremium);
       settings.siiTotalPlannedPremium = numberValue(fields.siiTotalPlannedPremium);
     }
     return settings;
@@ -6507,6 +6548,11 @@ canvas#rrpBenefitsChart {
     const premiumHint = $("siiPremiumHint");
     const premiumLabel = $("siiPremiumLabel");
     const termLabel = model.siiTermLabel ? model.siiTermLabel(siiCurrentTerm()) : "Premium Term";
+    const termNum = model.siiTermNumber ? model.siiTermNumber(siiCurrentTerm()) : 1;
+    const premiumBounds = model.siiPremiumBounds
+      ? model.siiPremiumBounds(siiCurrentTerm())
+      : { minAnnualPlannedPremium: 100000, maxAnnualPlannedPremium: 166000000 };
+    const premiumInputLabel = termNum === 1 ? "Single Premium" : "Annualised Premium";
 
     fields.siiTargetMonthlyIncome.readOnly = !incomeIsSource;
     fields.siiTotalPlannedPremium.readOnly = incomeIsSource;
@@ -6514,16 +6560,16 @@ canvas#rrpBenefitsChart {
     fields.siiTotalPlannedPremium.setAttribute("aria-readonly", String(incomeIsSource));
     if (targetField) targetField.classList.toggle("rrp-derived-field", !incomeIsSource);
     if (premiumField) premiumField.classList.toggle("rrp-derived-field", incomeIsSource);
-    if (premiumLabel) premiumLabel.textContent = "Total Planned Premium";
+    if (premiumLabel) premiumLabel.textContent = premiumInputLabel;
     if (targetHint) {
       targetHint.textContent = incomeIsSource
-        ? "Used to derive required total planned premium"
-        : "Calculated from total planned premium and source PI ratio";
+        ? "Used to derive required premium"
+        : `Calculated from ${premiumInputLabel.toLowerCase()} and source PI ratio`;
     }
     if (premiumHint) {
       premiumHint.textContent = incomeIsSource
-        ? "Calculated from target monthly income"
-        : `${termLabel}; min US$100,000, max US$166m`;
+        ? `Calculated from target monthly income as ${premiumInputLabel.toLowerCase()}`
+        : `${termLabel}; min US$${Math.round(premiumBounds.minAnnualPlannedPremium).toLocaleString()}, max US$${Math.round(premiumBounds.maxAnnualPlannedPremium).toLocaleString()}`;
     }
   }
 
@@ -6541,7 +6587,7 @@ canvas#rrpBenefitsChart {
       fields.siiTargetMonthlyIncome.value = roundInput(summary.targetMonthlyIncome || 0, 2);
     }
     if (mode === "income" && fields.siiTotalPlannedPremium) {
-      fields.siiTotalPlannedPremium.value = roundInput(summary.totalPlannedPremium || 0);
+      fields.siiTotalPlannedPremium.value = roundInput(summary.inputPremium || 0);
     }
     syncSIIInputModeUi();
   }
@@ -6577,6 +6623,9 @@ canvas#rrpBenefitsChart {
     const bounds = model.siiIncomeBounds
       ? model.siiIncomeBounds(fields.siiIncomeStartYear.value)
       : { minMonthlyIncome: 300, maxMonthlyIncome: 500000, minTotalPlannedPremium: 100000, maxTotalPlannedPremium: 166000000 };
+    const premiumBounds = model.siiPremiumBounds
+      ? model.siiPremiumBounds(term)
+      : { minAnnualPlannedPremium: bounds.minTotalPlannedPremium, maxAnnualPlannedPremium: bounds.maxTotalPlannedPremium };
     fields.siiAge.min = constants.entryAgeMin ?? 0;
     fields.siiAge.max = constants.entryAgeMax ?? 70;
     if (!fields.siiAge.value) fields.siiAge.value = 46;
@@ -6586,8 +6635,8 @@ canvas#rrpBenefitsChart {
       fields.siiTargetMonthlyIncome.step = 10;
     }
     if (fields.siiTotalPlannedPremium) {
-      fields.siiTotalPlannedPremium.min = bounds.minTotalPlannedPremium;
-      fields.siiTotalPlannedPremium.max = bounds.maxTotalPlannedPremium;
+      fields.siiTotalPlannedPremium.min = premiumBounds.minAnnualPlannedPremium;
+      fields.siiTotalPlannedPremium.max = premiumBounds.maxAnnualPlannedPremium;
       fields.siiTotalPlannedPremium.step = 1000;
     }
     const startHint = $("siiIncomeStartHint");
@@ -6599,7 +6648,7 @@ canvas#rrpBenefitsChart {
     if (targetHint && siiInputModeValue() === "income") {
       targetHint.textContent = `Min US$${bounds.minMonthlyIncome.toLocaleString()} / max US$${bounds.maxMonthlyIncome.toLocaleString()}`;
     }
-    if (!fields.siiTotalPlannedPremium.value) fields.siiTotalPlannedPremium.value = 100000;
+    if (!fields.siiTotalPlannedPremium.value) fields.siiTotalPlannedPremium.value = Math.round(premiumBounds.minAnnualPlannedPremium);
     if (!fields.siiTargetMonthlyIncome.value) fields.siiTargetMonthlyIncome.value = 400;
     syncSIIInputModeUi();
   }
@@ -8167,8 +8216,10 @@ canvas#rrpBenefitsChart {
       setText("siiSummaryNetYieldDetail", "Invalid scenario");
       setText("siiSummaryNote", "This SII scenario is blocked by product rules or missing source data.");
       setText("siiChargesCollapsed", "Blocked");
+      setText("siiChargesSummaryLine", "Expand for charge details once a valid illustration is generated.");
       setHtml("siiProjectionBody", `<tr><td colspan="9">No projection generated for invalid SII assumptions.</td></tr>`);
-      setHtml("siiChargesBody", `<tr><td colspan="7">No charges generated for invalid SII assumptions.</td></tr>`);
+      setHtml("siiChargesBody", `<tr><td colspan="9">No charges generated for invalid SII assumptions.</td></tr>`);
+      setHtml("siiChargeTotals", "");
       const warnEl = $("siiWarningsBox");
       if (warnEl) {
         const blockers = summary.blockers || [];
@@ -8204,6 +8255,8 @@ canvas#rrpBenefitsChart {
       Number.isFinite(netYield)
         ? `Net ${percent(netYield, 2)} | spread ${Number.isFinite(spread) ? percent(spread, 2) : "n.m."}`
         : "Net yield n.m.");
+    setText("siiChargesSummaryLine",
+      `Estimated total charges ${fmt(summary.cumulativeChargesEstimate || 0)}; policy booster ${fmt(summary.cumulativeBoosterEstimate || 0)}. Expand for breakdown.`);
     const sourceText = summary.sourceLabels ? `Sources: ${summary.sourceLabels}.` : "Source estimate generated from uploaded PIs.";
     setText("siiSummaryNote",
       `Income starts policy year ${summary.incomeStartYear} at age ${summary.incomeStartAge}. ` +
@@ -8245,6 +8298,21 @@ canvas#rrpBenefitsChart {
       }).join("");
     setHtml("siiProjectionBody", projectionRows || `<tr><td colspan="9">No rows to show.</td></tr>`);
 
+    const chargeTotalCards = [
+      ["Premium charges", summary.totalPremiumChargeEstimate || 0, ""],
+      ["Policy fees", summary.totalPolicyFeeEstimate || 0, ""],
+      ["Admin fees", summary.totalAdminFeeEstimate || 0, ""],
+      ["Total fee estimate", summary.cumulativeChargesEstimate || 0, ""],
+      ["Policy value booster", summary.cumulativeBoosterEstimate || 0, "is-bonus"],
+      ["Fees less booster", summary.cumulativeNetChargesAfterBooster || 0, "is-net"],
+    ].map(([label, value, cls]) => `
+      <div class="sii-charge-total ${cls}">
+        <span>${htmlEscape(label)}</span>
+        <strong>${fmt(value || 0)}</strong>
+      </div>
+    `).join("");
+    setHtml("siiChargeTotals", chargeTotalCards);
+
     const chargeYears = new Set([1,2,3,4,5,6,7,8,9,10,15,20,25,30,40,50,60,70, summary.projectionYears]);
     for (let y = 1; y <= summary.premiumTermNumber; y += 1) chargeYears.add(y);
     const chargeRows = annual
@@ -8256,11 +8324,13 @@ canvas#rrpBenefitsChart {
           <td>${fmt(row.siiPolicyFee || 0)}</td>
           <td>${fmt(row.siiAdminFeeEstimate || 0)}</td>
           <td>${fmt(row.siiPolicyValueBooster || 0)}</td>
+          <td>${fmt(row.siiGrossChargeEstimate || 0)}</td>
+          <td>${fmt(row.siiNetChargeAfterBooster || 0)}</td>
           <td>${fmt(row.siiSurrenderUnvestedDrag || 0)}</td>
           <td>${fmt(row.siiEffectOfDeductions || 0)}</td>
         </tr>
       `).join("");
-    setHtml("siiChargesBody", chargeRows || `<tr><td colspan="7">No charges to show.</td></tr>`);
+    setHtml("siiChargesBody", chargeRows || `<tr><td colspan="9">No charges to show.</td></tr>`);
 
     const warnEl = $("siiWarningsBox");
     if (warnEl) {

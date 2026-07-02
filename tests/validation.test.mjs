@@ -89,3 +89,47 @@ test("SLH_SP par-WL breaks even on premiums within the projection", () => {
     assert.ok(back[i] >= back[i - 1] - 0.5, `par-WL surrender value dipped at back-half row ${i}: ${back[i - 1]} -> ${back[i]}`);
   }
 });
+
+test("SII income starts only from selected policy year and premium input is annualised", () => {
+  const r = m.simulate({
+    variantKey: "SII",
+    currency: "USD",
+    paymentFrequency: "Annual",
+    startAge: 46,
+    siiAge: 46,
+    siiPremiumTerm: 5,
+    siiIncomeStartYear: 9,
+    siiInputMode: "premium",
+    siiAnnualPlannedPremium: 100000,
+    siiTargetMonthlyIncome: 0,
+  }, [], "validate");
+
+  const s = r.siiSummary || {};
+  assert.equal(s.valid, true, `SII case should be valid: ${(s.blockers || []).join("; ")}`);
+  assert.equal(Math.round(s.annualPlannedPremium), 100000);
+  assert.equal(Math.round(s.totalPlannedPremium), 500000);
+  const beforeStart = (r.annual || []).filter((row) => row.year < 9);
+  assert.ok(beforeStart.length > 0, "expected pre-income rows");
+  assert.ok(beforeStart.every((row) => Math.abs(Number(row.siiAnnualIncome || 0)) < 0.005), "income leaked before PY9");
+  const startRow = (r.annual || []).find((row) => row.year === 9);
+  assert.ok(startRow && Number(startRow.siiAnnualIncome) > 0, "PY9 should have income");
+  assert.ok(Math.abs(Number(startRow.siiAnnualIncome) - Number(s.annualizedIncome)) < 1, "PY9 income should align to target annualised income");
+});
+
+test("SII annualised premium minimum tracks premium term", () => {
+  const r = m.simulate({
+    variantKey: "SII",
+    currency: "USD",
+    paymentFrequency: "Annual",
+    startAge: 46,
+    siiAge: 46,
+    siiPremiumTerm: 5,
+    siiIncomeStartYear: 9,
+    siiInputMode: "premium",
+    siiAnnualPlannedPremium: 10000,
+    siiTargetMonthlyIncome: 0,
+  }, [], "validate");
+  const s = r.siiSummary || {};
+  assert.equal(s.valid, false, "annualised premium below term minimum should block");
+  assert.ok((s.blockers || []).some((msg) => msg.includes("Annualised premium") && msg.includes("US$20,000")), (s.blockers || []).join("; "));
+});

@@ -39,6 +39,11 @@ for (const sc of scenarios) {
       assert.ok(Number.isFinite(v), `${k} not finite: ${v}`);
       assert.ok(v > -1 && v < 1, `${k} out of [-100%,+100%]: ${v}`);
     }
+    for (const row of annual) {
+      if (!("siiNetIrr" in row) || row.siiNetIrr === null || row.siiNetIrr === undefined) continue;
+      assert.ok(Number.isFinite(row.siiNetIrr), `siiNetIrr not finite: ${row.siiNetIrr}`);
+      assert.ok(row.siiNetIrr > -1 && row.siiNetIrr < 1, `siiNetIrr out of [-100%,+100%]: ${row.siiNetIrr}`);
+    }
   });
 
   if (sc.kind === "par-wl") {

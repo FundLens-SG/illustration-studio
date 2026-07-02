@@ -75,7 +75,7 @@ export function buildScenarios() {
   const siiBase = {
     variantKey: "SII", currency: "USD", paymentFrequency: "Annual", startAge: 46, siiAge: 46,
     siiPremiumTerm: "single", siiIncomeStartYear: 4, siiInputMode: "premium",
-    siiTotalPlannedPremium: 100000, siiTargetMonthlyIncome: 0, projectionYears: 79,
+    siiAnnualPlannedPremium: 100000, siiTotalPlannedPremium: 100000, siiTargetMonthlyIncome: 0, projectionYears: 79,
     includeWelcome: false, includeAnnualBonus: false, includeLoyalty: false, deductPiFundMgmt: false,
   };
   list.push({ name: "sii:SP-start4-source", kind: "sii", settings: siiBase, strategy: [] });

@@ -52,6 +52,11 @@ Coverage assessment:
 - Index Account basis: S&P 500 Index Sub-account, 6.35% assumed current illustration rate.
 - S&P 500 terms captured from the deck: 0% floor, 9% cap.
 - Total planned premium range: US$100,000 to US$166,000,000.
+- User-facing premium input:
+  - Single Premium for SP.
+  - Annualised Premium for 2-pay to 10-pay.
+  - Total planned premium is derived as annualised premium x premium term.
+  - Annualised minimum is term-specific, based on the US$100,000 minimum total planned premium.
 - Target monthly income:
   - Income start PY2/PY3: US$60 to US$100,000.
   - Income start PY4-PY21: US$300 to US$500,000.
@@ -69,10 +74,12 @@ Coverage assessment:
   - income start year
   - life insured age
 - User can generate from either:
-  - total planned premium, deriving target monthly income, or
-  - target monthly income, deriving total planned premium.
-- Annual projection rows scale PI policy values, surrender values, income, death benefit and deduction rows by total planned premium.
+  - annualised premium, deriving target monthly income, or
+  - target monthly income, deriving annualised premium and total planned premium.
+- Annual projection rows scale PI policy values, surrender values, death benefit and deduction rows by total planned premium.
+- Income is aligned to the selected income start year. For sparse estimates, each source PI's payout curve is shifted so payout year 1 lands on the selected policy year; income before the selected start year is forced to zero.
 - Premium schedule is generated from the selected premium term rather than copied from source rows.
+- Out-of-range early-year SII IRR is displayed as `n.m.` instead of a misleading extreme percentage.
 
 ## Charges And Bonuses
 
@@ -80,9 +87,11 @@ Collapsed UI:
 
 - Shows annualised net illustrated yield after current charges and bonuses.
 - Shows spread versus the 6.35% assumed Index Account illustration rate.
+- Shows headline total estimated charges and policy booster.
 
 Expanded UI:
 
+- Shows total premium charges, policy fees, admin fees, total fees, policy value booster, and fees less booster.
 - Premium charge by policy year:
   - Y1 8.0%, Y2 7.5%, Y3 7.0%, Y4 6.5%, Y5 6.0%, Y6 5.5%, Y7 5.0%, Y8 4.5%, Y9 4.0%, Y10+ 4.0%.
 - Monthly policy fee estimate: US$2.108333 per US$1,000 face amount, annualised, first 25 policy years.

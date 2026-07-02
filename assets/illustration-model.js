@@ -2283,6 +2283,19 @@
     };
   }
 
+  function siiPremiumBounds(term) {
+    const termNum = siiTermNumber(term);
+    const minTotalPlannedPremium = num(SII_CONSTANTS.minTotalPlannedPremium, 100000);
+    const maxTotalPlannedPremium = num(SII_CONSTANTS.maxTotalPlannedPremium, 166000000);
+    const divisor = Math.max(1, termNum);
+    return {
+      minTotalPlannedPremium,
+      maxTotalPlannedPremium,
+      minAnnualPlannedPremium: minTotalPlannedPremium / divisor,
+      maxAnnualPlannedPremium: maxTotalPlannedPremium / divisor,
+    };
+  }
+
   function siiSourceRows() {
     return SII_SCENARIOS.filter((row) =>
       Number.isFinite(Number(row.premium_payment_term_number))
@@ -2433,6 +2446,20 @@
     };
   }
 
+  function siiBlendAmountByTotal(blend, key, totalPremium, fallback = 0) {
+    if (!blend || !blend.sources.length || !(totalPremium > 0)) return fallback;
+    let value = 0;
+    let weight = 0;
+    blend.sources.forEach((item) => {
+      const parsed = Number(item.row[key]);
+      const sourceTotal = num(item.row.initial_total_planned_premium, 0);
+      if (!Number.isFinite(parsed) || !(sourceTotal > 0)) return;
+      value += (parsed / sourceTotal) * totalPremium * item.weight;
+      weight += item.weight;
+    });
+    return weight > 0 ? value / weight : fallback;
+  }
+
   function siiBlendScalar(blend, key, fallback = 0) {
     if (!blend || !blend.sources.length) return fallback;
     let value = 0;
@@ -2498,6 +2525,27 @@
     return out;
   }
 
+  function siiBlendIncomeRaw(blend, year, totalPremium, targetIncomeStartYear) {
+    if (!blend || !blend.sources.length || !(totalPremium > 0) || year < targetIncomeStartYear) return 0;
+    let value = 0;
+    let weight = 0;
+    blend.sources.forEach((item) => {
+      const sourceTotal = num(item.row.initial_total_planned_premium, 0);
+      const sourceStart = Math.round(num(item.row.income_start_year, targetIncomeStartYear));
+      const sourceYear = sourceStart + (year - targetIncomeStartYear);
+      const row = siiRowAt(item.row, "current_rows", sourceYear);
+      const parsed = Number(row?.monthly_income_annualized);
+      if (!(sourceTotal > 0) || !Number.isFinite(parsed)) return;
+      value += (parsed / sourceTotal) * totalPremium * item.weight;
+      weight += item.weight;
+    });
+    return weight > 0 ? value / weight : 0;
+  }
+
+  function siiSaneIrr(value) {
+    return Number.isFinite(value) && value > -1 && value < 1 ? value : null;
+  }
+
   function siiMaxSourcePolicyYear(blend) {
     if (!blend || !blend.sources.length) return 0;
     return blend.sources.reduce((max, item) => {
@@ -2509,6 +2557,7 @@
 
   function siiSolveInputs(settings, blend) {
     const inputMode = settings.siiInputMode === "income" ? "income" : "premium";
+    const termNum = siiTermNumber(settings.siiPremiumTerm);
     const incomeAnnualRate = blend
       ? blend.sources.reduce((sum, item) => {
         const sourceTotal = num(item.row.initial_total_planned_premium, 0);
@@ -2516,20 +2565,22 @@
         return sum + (sourceTotal > 0 ? (annualIncome / sourceTotal) * item.weight : 0);
       }, 0)
       : 0;
-    let totalPlannedPremium = num(settings.siiTotalPlannedPremium, 0);
+    let annualPlannedPremium = num(settings.siiAnnualPlannedPremium ?? settings.siiTotalPlannedPremium, 0);
+    let totalPlannedPremium = termNum > 1 ? annualPlannedPremium * termNum : annualPlannedPremium;
     let targetMonthlyIncome = num(settings.siiTargetMonthlyIncome, 0);
     if (inputMode === "income") {
       totalPlannedPremium = incomeAnnualRate > 0 ? (targetMonthlyIncome * 12) / incomeAnnualRate : 0;
+      annualPlannedPremium = termNum > 1 ? totalPlannedPremium / termNum : totalPlannedPremium;
     } else {
       targetMonthlyIncome = totalPlannedPremium * incomeAnnualRate / 12;
     }
-    const termNum = siiTermNumber(settings.siiPremiumTerm);
     return {
       inputMode,
       incomeAnnualRate,
       totalPlannedPremium,
       targetMonthlyIncome,
-      annualPlannedPremium: termNum > 1 ? totalPlannedPremium / termNum : 0,
+      annualPlannedPremium: termNum > 1 ? annualPlannedPremium : 0,
+      inputPremium: termNum > 1 ? annualPlannedPremium : totalPlannedPremium,
       singlePremium: termNum === 1 ? totalPlannedPremium : 0,
     };
   }
@@ -2549,6 +2600,8 @@
     const entryMax = Math.round(num(SII_CONSTANTS.entryAgeMax, 70));
     const minStart = siiIncomeStartMin(termNum);
     const bounds = siiIncomeBounds(incomeStartYear);
+    const premiumBounds = siiPremiumBounds(termNum);
+    const inputPremiumLabel = termNum === 1 ? "Single premium" : "Annualised premium";
 
     if (!SII_SCENARIOS.length) {
       blockers.push("Signature Indexed Income rate table is not loaded. Check that assets/sii-rates.js is available.");
@@ -2572,10 +2625,10 @@
       blockers.push("No income rate could be derived from the parsed source illustrations.");
     }
     if (!(solved.totalPlannedPremium > 0)) {
-      blockers.push("Total planned premium must be greater than US$0.");
+      blockers.push(`${inputPremiumLabel} must be greater than US$0.`);
     }
-    if (solved.totalPlannedPremium < bounds.minTotalPlannedPremium || solved.totalPlannedPremium > bounds.maxTotalPlannedPremium) {
-      blockers.push(`Total planned premium must be between US$${bounds.minTotalPlannedPremium.toLocaleString()} and US$${bounds.maxTotalPlannedPremium.toLocaleString()}.`);
+    if (solved.inputPremium < premiumBounds.minAnnualPlannedPremium || solved.inputPremium > premiumBounds.maxAnnualPlannedPremium) {
+      blockers.push(`${inputPremiumLabel} must be between US$${premiumBounds.minAnnualPlannedPremium.toLocaleString()} and US$${premiumBounds.maxAnnualPlannedPremium.toLocaleString()} for ${siiTermLabel(termNum)}.`);
     }
     if (solved.targetMonthlyIncome < bounds.minMonthlyIncome || solved.targetMonthlyIncome > bounds.maxMonthlyIncome) {
       blockers.push(`Target monthly income must be between US$${bounds.minMonthlyIncome.toLocaleString()} and US$${bounds.maxMonthlyIncome.toLocaleString()} for income start year ${incomeStartYear}.`);
@@ -2617,6 +2670,7 @@
     const solved = siiSolveInputs({ ...settings, siiPremiumTerm: termNum, siiIncomeStartYear: incomeStartYear }, blend);
     const validation = validateSII({ ...settings, siiPremiumTerm: termNum, siiIncomeStartYear: incomeStartYear }, variant, blend, solved);
     const bounds = siiIncomeBounds(incomeStartYear);
+    const premiumBounds = siiPremiumBounds(termNum);
     const commonSettings = {
       ...settings,
       currency: "USD",
@@ -2628,6 +2682,7 @@
       siiInputMode: solved.inputMode,
       siiTargetMonthlyIncome: solved.targetMonthlyIncome,
       siiTotalPlannedPremium: solved.totalPlannedPremium,
+      siiAnnualPlannedPremium: solved.inputPremium,
     };
 
     const baseSummary = {
@@ -2646,11 +2701,14 @@
       annualizedIncome: solved.targetMonthlyIncome * 12,
       totalPlannedPremium: solved.totalPlannedPremium,
       annualPlannedPremium: solved.annualPlannedPremium,
+      inputPremium: solved.inputPremium,
       singlePremium: solved.singlePremium,
       minMonthlyIncome: bounds.minMonthlyIncome,
       maxMonthlyIncome: bounds.maxMonthlyIncome,
       minTotalPlannedPremium: bounds.minTotalPlannedPremium,
       maxTotalPlannedPremium: bounds.maxTotalPlannedPremium,
+      minAnnualPlannedPremium: premiumBounds.minAnnualPlannedPremium,
+      maxAnnualPlannedPremium: premiumBounds.maxAnnualPlannedPremium,
       incomeAnnualRate: solved.incomeAnnualRate,
       sourceLabels: blend?.sourceLabels || "",
       sourceAges: blend?.sourceAges || [],
@@ -2687,9 +2745,15 @@
     const totalPremium = solved.totalPlannedPremium;
     const annualPremium = termNum > 1 ? totalPremium / termNum : 0;
     const singlePremium = termNum === 1 ? totalPremium : 0;
+    const faceAmount = siiBlendAmountByTotal(blend, "face_amount", totalPremium, totalPremium);
+    const targetAnnualIncome = solved.targetMonthlyIncome * 12;
+    const rawIncomeAtStart = siiBlendIncomeRaw(blend, incomeStartYear, totalPremium, incomeStartYear);
+    const incomeScale = rawIncomeAtStart > 0 ? targetAnnualIncome / rawIncomeAtStart : 1;
     const cashFlows = new Array(projectionYears * 12 + 1).fill(0);
     const annual = [];
     const monthly = [];
+    const skipMonthly = Boolean(settings.siiSkipMonthly);
+    const skipIrr = Boolean(settings.siiSkipIrr);
     let cumulativePremiums = 0;
     let cumulativeIncome = 0;
     let priorPolicyValue = 0;
@@ -2710,7 +2774,9 @@
       if (premiumPaid > 0) cashFlows[premiumMonth] = (cashFlows[premiumMonth] || 0) - premiumPaid;
       cumulativePremiums += premiumPaid;
 
-      const annualIncome = Math.max(0, num(currentRow.monthly_income_annualized, 0));
+      const annualIncome = year >= incomeStartYear
+        ? Math.max(0, siiBlendIncomeRaw(blend, year, totalPremium, incomeStartYear) * incomeScale)
+        : 0;
       const monthlyIncome = annualIncome / 12;
       if (annualIncome > 0) {
         for (let m = 1; m <= 12; m += 1) {
@@ -2728,12 +2794,13 @@
       const premiumChargePct = num(SII_CONSTANTS.premiumChargePctByPolicyYear?.[String(Math.min(year, 10))], 4);
       const premiumCharge = premiumPaid * premiumChargePct / 100;
       const policyFee = year <= num(SII_CONSTANTS.policyFeeToYear, 25)
-        ? (totalPremium / 1000) * num(SII_CONSTANTS.policyFeePer1000FaceAmountMonthly, 2.108333) * 12
+        ? (faceAmount / 1000) * num(SII_CONSTANTS.policyFeePer1000FaceAmountMonthly, 2.108333) * 12
         : 0;
       const adminFee = priorPolicyValue * (num(SII_CONSTANTS.adminFeeMonthlyPctPolicyValue, 0.03) / 100) * 12;
       const policyValueBooster = year >= num(SII_CONSTANTS.policyValueBoosterFromYear, 2) && year <= num(SII_CONSTANTS.policyValueBoosterToYear, 25)
-        ? totalPremium * num(SII_CONSTANTS.policyValueBoosterRatePctPa, 1.46) / 100
+        ? faceAmount * num(SII_CONSTANTS.policyValueBoosterRatePctPa, 1.46) / 100
         : 0;
+      const yearlyChargeEstimate = premiumCharge + policyFee + adminFee;
       const surrenderUnvestedDrag = Math.max(0, policyValue - policyValueLessCharges);
       const effectOfDeductions = Math.max(0, num(deductionRow.current_effect_of_deductions, 0));
       cumulativePremiumCharges += premiumCharge;
@@ -2781,40 +2848,53 @@
         siiPolicyFee: policyFee,
         siiAdminFeeEstimate: adminFee,
         siiPolicyValueBooster: policyValueBooster,
+        siiGrossChargeEstimate: yearlyChargeEstimate,
+        siiNetChargeAfterBooster: yearlyChargeEstimate - policyValueBooster,
         siiSurrenderUnvestedDrag: surrenderUnvestedDrag,
         siiEffectOfDeductions: effectOfDeductions,
+        siiCumulativePremiumCharges: cumulativePremiumCharges,
+        siiCumulativePolicyFees: cumulativePolicyFees,
+        siiCumulativeAdminFees: cumulativeAdminFees,
         siiCumulativeChargesEstimate: cumulativePremiumCharges + cumulativePolicyFees + cumulativeAdminFees,
         siiCumulativeBooster: cumulativeBooster,
+        siiCumulativeNetChargesAfterBooster: cumulativePremiumCharges + cumulativePolicyFees + cumulativeAdminFees - cumulativeBooster,
         siiCumulativeDeductions: cumulativeDeductions,
         siiIncomeYear: year >= incomeStartYear,
       };
       annual.push(row);
-      for (let m = 1; m <= 12; m += 1) {
-        monthly.push({
-          month: (year - 1) * 12 + m,
-          year,
-          age: attainedAge,
-          accountValue: policyValue,
-          surrenderValue,
-          deathBenefit,
-          cashDividends: annualIncome,
-          cashWithdrawals: cumulativeIncome,
-          totalValue: surrenderValue + cumulativeIncome,
-          totalBasicPaid: cumulativePremiums,
-          totalTopUps: 0,
-          lapsed: false,
-        });
+      if (!skipMonthly) {
+        for (let m = 1; m <= 12; m += 1) {
+          monthly.push({
+            month: (year - 1) * 12 + m,
+            year,
+            age: attainedAge,
+            accountValue: policyValue,
+            surrenderValue,
+            deathBenefit,
+            cashDividends: annualIncome,
+            cashWithdrawals: cumulativeIncome,
+            totalValue: surrenderValue + cumulativeIncome,
+            totalBasicPaid: cumulativePremiums,
+            totalTopUps: 0,
+            lapsed: false,
+          });
+        }
       }
       priorPolicyValue = policyValue;
     }
 
-    annual.forEach((row) => {
-      const horizon = row.year * 12;
-      const cf = cashFlows.slice(0, horizon + 1);
-      cf[horizon] = (cf[horizon] || 0) + row.siiSurrenderValue;
-      row.siiNetIrr = irrMonthly(cf);
-      row.siiNetSpreadVsIndex = (num(SII_CONSTANTS.indexAssumedCreditingRateCurrentPct, 6.35) / 100) - row.siiNetIrr;
-    });
+    const skipAnnualIrr = skipIrr || Boolean(settings.siiSkipAnnualIrr);
+    if (!skipAnnualIrr) {
+      annual.forEach((row) => {
+        const horizon = row.year * 12;
+        const cf = cashFlows.slice(0, horizon + 1);
+        cf[horizon] = (cf[horizon] || 0) + row.siiSurrenderValue;
+        row.siiNetIrr = siiSaneIrr(irrMonthly(cf));
+        row.siiNetSpreadVsIndex = Number.isFinite(row.siiNetIrr)
+          ? (num(SII_CONSTANTS.indexAssumedCreditingRateCurrentPct, 6.35) / 100) - row.siiNetIrr
+          : null;
+      });
+    }
 
     const finalCashFlows = cashFlows.slice();
     const finalRow = annual[annual.length - 1] || {};
@@ -2851,7 +2931,7 @@
       referenceTotalBenefits: (referenceRow.siiSurrenderValue || 0) + (referenceRow.siiCumulativeIncome || 0),
       referenceCumulativeIncome: referenceRow.siiCumulativeIncome || 0,
       referenceNetIrr: referenceRow.siiNetIrr,
-      finalNetIrr: irrMonthly(finalCashFlows),
+      finalNetIrr: skipIrr ? null : siiSaneIrr(irrMonthly(finalCashFlows)),
       currentIllustratedYield: Number.isFinite(weightedCurrentYieldPct) ? weightedCurrentYieldPct / 100 : null,
       guaranteedIllustratedYield: Number.isFinite(weightedGuaranteedYieldPct) ? weightedGuaranteedYieldPct / 100 : null,
       totalDistributionCostPct: Number.isFinite(weightedTdcPct) ? weightedTdcPct / 100 : null,
@@ -2862,8 +2942,15 @@
       indexFloorRate: num(SII_CONSTANTS.indexFloorRatePct, 0) / 100,
       sp500CapRate: num(SII_CONSTANTS.sp500CapRatePct, 9) / 100,
       policyValueBoosterRate: num(SII_CONSTANTS.policyValueBoosterRatePctPa, 1.46) / 100,
+      faceAmount,
+      rawIncomeAtStart,
+      incomeScale,
+      totalPremiumChargeEstimate: finalRow.siiCumulativePremiumCharges || 0,
+      totalPolicyFeeEstimate: finalRow.siiCumulativePolicyFees || 0,
+      totalAdminFeeEstimate: finalRow.siiCumulativeAdminFees || 0,
       cumulativeChargesEstimate: finalRow.siiCumulativeChargesEstimate || 0,
       cumulativeBoosterEstimate: finalRow.siiCumulativeBooster || 0,
+      cumulativeNetChargesAfterBooster: finalRow.siiCumulativeNetChargesAfterBooster || 0,
       cumulativeEffectOfDeductions: finalRow.siiCumulativeDeductions || 0,
       chargesBonusNetSpread: Number.isFinite(referenceRow.siiNetSpreadVsIndex) ? referenceRow.siiNetSpreadVsIndex : null,
       chargesRows: annual,
@@ -3448,6 +3535,7 @@
     siiAvailableIncomeStartYears,
     siiIncomeBounds,
     siiIncomeStartMin,
+    siiPremiumBounds,
     siiTermLabel,
     siiTermNumber,
     solvePremiumForTarget,

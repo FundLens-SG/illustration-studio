@@ -1,0 +1,166 @@
+{
+  "generatedAt": "2026-07-02T16:24:06.667Z",
+  "product": "SII / Signature Indexed Income",
+  "source": {
+    "pdfCount": 15,
+    "cachedTextCount": 23,
+    "inputSourceCount": 38,
+    "parsedCount": 38,
+    "uniqueScenarioCount": 36,
+    "errorCount": 0,
+    "cachedTextErrorCount": 0,
+    "sourceAges": [
+      46,
+      56
+    ],
+    "sourcePremiumTerms": [
+      1,
+      2,
+      4,
+      5,
+      8,
+      10
+    ],
+    "sourceIncomeStartYears": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      13,
+      14,
+      15,
+      19,
+      20
+    ]
+  },
+  "productConstants": {
+    "currency": "USD",
+    "entryAgeMin": 0,
+    "entryAgeMax": 70,
+    "premiumTerms": [
+      "single",
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "incomeStartYearMax": 21,
+    "minTotalPlannedPremium": 100000,
+    "maxTotalPlannedPremium": 166000000,
+    "minMonthlyIncomeEarly": 60,
+    "minMonthlyIncomeStandard": 300,
+    "maxMonthlyIncomeEarly": 100000,
+    "maxMonthlyIncomeStandard": 500000,
+    "fixedAccountAllocationPct": 0,
+    "indexAccountAllocationPct": 100,
+    "fixedCreditingRateCurrentPct": 4.2,
+    "fixedCreditingRateGuaranteedPct": 2,
+    "indexAssumedCreditingRateCurrentPct": 6.35,
+    "indexFloorRatePct": 0,
+    "sp500CapRatePct": 9,
+    "policyValueBoosterRatePctPa": 1.46,
+    "policyValueBoosterFromYear": 2,
+    "policyValueBoosterToYear": 25,
+    "policyFeePer1000FaceAmountMonthly": 2.108333,
+    "policyFeeToYear": 25,
+    "adminFeeMonthlyPctPolicyValue": 0.03,
+    "premiumChargePctByPolicyYear": {
+      "1": 8,
+      "2": 7.5,
+      "3": 7,
+      "4": 6.5,
+      "5": 6,
+      "6": 5.5,
+      "7": 5,
+      "8": 4.5,
+      "9": 4,
+      "10": 4
+    },
+    "incomeStartRules": [
+      {
+        "premiumTermMin": 1,
+        "premiumTermMax": 3,
+        "incomeStartYearMin": 2,
+        "incomeStartYearMax": 21
+      },
+      {
+        "premiumTermMin": 4,
+        "premiumTermMax": 6,
+        "incomeStartYearMin": 3,
+        "incomeStartYearMax": 21
+      },
+      {
+        "premiumTermMin": 7,
+        "premiumTermMax": 10,
+        "incomeStartYearMin": 4,
+        "incomeStartYearMax": 21
+      }
+    ]
+  },
+  "exportBasis": {
+    "annualisedPremiumBasisUsd": 100000,
+    "ageRange": "0-70",
+    "premiumTerms": [
+      "Single Premium",
+      "2 Years",
+      "3 Years",
+      "4 Years",
+      "5 Years",
+      "6 Years",
+      "7 Years",
+      "8 Years",
+      "9 Years",
+      "10 Years"
+    ],
+    "incomeStartRules": [
+      {
+        "premiumTermMin": 1,
+        "premiumTermMax": 3,
+        "incomeStartYearMin": 2,
+        "incomeStartYearMax": 21
+      },
+      {
+        "premiumTermMin": 4,
+        "premiumTermMax": 6,
+        "incomeStartYearMin": 3,
+        "incomeStartYearMax": 21
+      },
+      {
+        "premiumTermMin": 7,
+        "premiumTermMax": 10,
+        "incomeStartYearMin": 4,
+        "incomeStartYearMax": 21
+      }
+    ]
+  },
+  "counts": {
+    "sourceScenarioRows": 36,
+    "sourceAnnualRows": 2704,
+    "extrapolationRows": 13419,
+    "estimationMethodCounts": {
+      "age_shifted_source": 1960,
+      "extrapolated_sparse": 9530,
+      "extrapolated_age": 240,
+      "source_exact": 36,
+      "interpolated_sparse": 1617,
+      "interpolated_age": 36
+    }
+  },
+  "files": {
+    "sourceScenarios": "sii_claude_source_pi_scenarios.csv",
+    "sourceAnnualValues": "sii_claude_source_pi_annual_values.csv",
+    "allExtrapolations": "sii_claude_all_extrapolations_annualised_100k.csv",
+    "machineSummary": "sii_claude_export_summary.json",
+    "handoffMarkdown": "SII_CLAUDE_EXPORT.md"
+  }
+}
