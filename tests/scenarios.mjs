@@ -71,6 +71,19 @@ export function buildScenarios() {
   rrp("15-payout20", { variantKey: "RRP_15", rrpAge: 40, rrpRetirementAge: 65, rrpPayoutPeriod: "20", rrpTargetIncome: 1000 });
   rrp("20-lifetime", { variantKey: "RRP_20", rrpAge: 40, rrpRetirementAge: 65, rrpPayoutPeriod: "lifetime", rrpTargetIncome: 1000 });
 
+  // SII - indexed universal life income, 100% S&P 500 Index Sub-account.
+  const siiBase = {
+    variantKey: "SII", currency: "USD", paymentFrequency: "Annual", startAge: 46, siiAge: 46,
+    siiPremiumTerm: "single", siiIncomeStartYear: 4, siiInputMode: "premium",
+    siiTotalPlannedPremium: 100000, siiTargetMonthlyIncome: 0, projectionYears: 79,
+    includeWelcome: false, includeAnnualBonus: false, includeLoyalty: false, deductPiFundMgmt: false,
+  };
+  list.push({ name: "sii:SP-start4-source", kind: "sii", settings: siiBase, strategy: [] });
+  list.push({ name: "sii:3pay-start3-estimated", kind: "sii", settings: {
+    ...siiBase, startAge: 55, siiAge: 55, siiPremiumTerm: 3, siiIncomeStartYear: 3,
+    siiInputMode: "income", siiTargetMonthlyIncome: 500,
+  }, strategy: [] });
+
   return list;
 }
 
@@ -113,6 +126,7 @@ export function fingerprint(result) {
     last: a[a.length - 1] || null,
     final: result.final || null,
     rrpSummary: result.rrpSummary || null,
+    siiSummary: result.siiSummary || result.final?.siiSummary || null,
     siSummary: result.siSummary || result.final?.siSummary || null,
   });
 }

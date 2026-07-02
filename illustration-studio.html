@@ -2803,6 +2803,21 @@ body.is-rrp-main .par-wl-info {
   display: none !important;
 }
 body.is-rrp-main #rrpCalculator[hidden] { display: block !important; }
+
+body.is-sii-main #heroSummary,
+body.is-sii-main #comparisonHero,
+body.is-sii-main #legacyProtectionBanner,
+body.is-sii-main #parWlProtectionBanner,
+body.is-sii-main .chart-grid,
+body.is-sii-main .status-row,
+body.is-sii-main #fundBuilderSection,
+body.is-sii-main #strategySection,
+body.is-sii-main #compareStrategySection,
+body.is-sii-main .detail-section,
+body.is-sii-main .par-wl-info {
+  display: none !important;
+}
+body.is-sii-main #siiCalculator[hidden] { display: block !important; }
 /* Trim the controls panel down for SI3 — fund picker, dividends,
    compare, goal-seek, advisor settings, NAV bulk-apply tools etc.
    are all irrelevant for a single-premium coupon product. We also
@@ -2848,6 +2863,24 @@ body.is-rrp-main #fdSettings,
 body.is-rrp-main #goalSeekSettings,
 body.is-rrp-main #advisorSettings,
 body.is-rrp-main .disclaimers:not(.si-disclaimers) {
+  display: none !important;
+}
+
+body.is-sii-main .ilp-only-controls,
+body.is-sii-main .par-wl-only-controls,
+body.is-sii-main .compare-block,
+body.is-sii-main .goal-seek-block,
+body.is-sii-main .inflation-block,
+body.is-sii-main .bulk-strategy-block,
+body.is-sii-main .historical-tools,
+body.is-sii-main .input-group[aria-label="Client inputs"],
+body.is-sii-main .toggle-groups,
+body.is-sii-main .payment-mode-field,
+body.is-sii-main #compareSettings,
+body.is-sii-main #fdSettings,
+body.is-sii-main #goalSeekSettings,
+body.is-sii-main #advisorSettings,
+body.is-sii-main .disclaimers:not(.si-disclaimers) {
   display: none !important;
 }
 
@@ -3068,11 +3101,107 @@ canvas#rrpBenefitsChart {
   box-shadow: inset 0 -3px #a9987d;
 }
 
+.sii-account-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+.sii-account-item {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf7;
+  padding: 9px 11px;
+}
+.sii-account-item span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sii-account-item strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.25;
+}
+.sii-charges-card summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  cursor: pointer;
+  list-style: none;
+}
+.sii-charges-card summary::-webkit-details-marker {
+  display: none;
+}
+.sii-charges-title span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 3px;
+}
+.sii-charges-pill {
+  flex: 0 0 auto;
+  border: 1px solid rgba(47, 107, 93, 0.28);
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.sii-charges-body {
+  margin-top: 14px;
+}
+#siiProjectionTable th.sii-col-premium,
+#siiProjectionTable td.sii-col-premium {
+  background: #fff8eb;
+}
+#siiProjectionTable th.sii-col-income,
+#siiProjectionTable td.sii-col-income {
+  background: #edf7f1;
+}
+#siiProjectionTable th.sii-col-cumulative,
+#siiProjectionTable td.sii-col-cumulative {
+  background: #f5f3ee;
+  font-weight: 650;
+}
+#siiProjectionTable th.sii-col-value,
+#siiProjectionTable td.sii-col-value {
+  background: #eef4f7;
+}
+#siiProjectionTable th.sii-col-yield,
+#siiProjectionTable td.sii-col-yield {
+  background: #f4f6ed;
+  font-weight: 700;
+}
+#siiProjectionTable thead th.sii-col-premium {
+  box-shadow: inset 0 -3px #d6a87a;
+}
+#siiProjectionTable thead th.sii-col-income {
+  box-shadow: inset 0 -3px #73a987;
+}
+#siiProjectionTable thead th.sii-col-value {
+  box-shadow: inset 0 -3px #78a5bd;
+}
+#siiProjectionTable thead th.sii-col-yield,
+#siiProjectionTable thead th.sii-col-cumulative {
+  box-shadow: inset 0 -3px #a9987d;
+}
+
 @media (max-width: 760px) {
   .rrp-feature-grid {
     grid-template-columns: 1fr;
   }
   .rrp-chart-highlights {
+    grid-template-columns: 1fr;
+  }
+  .sii-account-strip {
     grid-template-columns: 1fr;
   }
 }
@@ -4423,6 +4552,197 @@ canvas#rrpBenefitsChart {
         </div>
       </section>
 
+      <!-- ===== SIGNATURE INDEXED INCOME ILLUSTRATOR SECTION =====
+           Visible only when Signature Indexed Income is selected.
+           Values are estimated from uploaded policy illustrations using
+           100% S&P 500 Index Sub-account at the 6.35% assumed
+           illustration rate and current charges. -->
+      <section id="siiCalculator" class="si-calculator sii-calculator" aria-label="Signature Indexed Income illustrator" hidden>
+        <div class="si-card">
+          <div class="si-card-header">
+            <h2>SII</h2>
+            <p class="si-subtitle">Signature Indexed Income - USD universal life income illustrator estimated from uploaded policy illustrations.</p>
+          </div>
+          <div class="rrp-feature-grid" id="siiFeatureGrid"></div>
+          <div class="sii-account-strip">
+            <div class="sii-account-item">
+              <span>Account</span>
+              <strong>100% S&amp;P 500 Index Sub-account</strong>
+            </div>
+            <div class="sii-account-item">
+              <span>Assumed rate</span>
+              <strong>6.35% current illustrated rate</strong>
+            </div>
+            <div class="sii-account-item">
+              <span>Index terms</span>
+              <strong>0% floor / 9% cap</strong>
+            </div>
+            <div class="sii-account-item">
+              <span>Fixed account</span>
+              <strong>0% allocation in this tool</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="si-card si-inputs-card">
+          <div class="si-card-header">
+            <h2>SII Illustration Inputs</h2>
+            <p class="si-subtitle">Set premium term, income start year, and solve from either target income or total planned premium.</p>
+          </div>
+
+          <div class="si-inputs-grid">
+            <label class="si-field">
+              <span class="si-label">Current Age</span>
+              <input id="siiAge" type="number" min="0" max="70" step="1" />
+              <span class="si-hint">Entry age 0-70</span>
+              <span class="si-field-error" id="siiAgeError" hidden></span>
+            </label>
+
+            <label class="si-field">
+              <span class="si-label">Premium Term</span>
+              <select id="siiPremiumTerm"></select>
+              <span class="si-hint">Single premium or 2-10 years</span>
+            </label>
+
+            <label class="si-field">
+              <span class="si-label">Income Start Year</span>
+              <select id="siiIncomeStartYear"></select>
+              <span class="si-hint" id="siiIncomeStartHint">Availability follows SII product rules</span>
+            </label>
+
+            <label class="si-field">
+              <span class="si-label">Generate From</span>
+              <select id="siiInputMode">
+                <option value="premium">Total Planned Premium</option>
+                <option value="income">Target Monthly Income</option>
+              </select>
+              <span class="si-hint">The other field is calculated and greyed out</span>
+            </label>
+
+            <label class="si-field" id="siiTargetIncomeField">
+              <span class="si-label">Target Monthly Income</span>
+              <div class="si-input-wrap">
+                <span class="si-prefix">US$</span>
+                <input id="siiTargetMonthlyIncome" type="number" min="0" step="10" inputmode="numeric" />
+              </div>
+              <span class="si-hint" id="siiTargetIncomeHint">Policy year 2/3 min US$60; year 4-21 min US$300</span>
+            </label>
+
+            <label class="si-field" id="siiPremiumField">
+              <span class="si-label" id="siiPremiumLabel">Total Planned Premium</span>
+              <div class="si-input-wrap">
+                <span class="si-prefix">US$</span>
+                <input id="siiTotalPlannedPremium" type="number" min="100000" step="1000" inputmode="numeric" />
+              </div>
+              <span class="si-hint" id="siiPremiumHint">Min US$100,000; max US$166m</span>
+            </label>
+          </div>
+          <span class="si-field-error" id="siiInputError" hidden></span>
+        </div>
+
+        <div id="siiSummaryCard" class="si-card si-summary-card">
+          <div class="si-summary-grid rrp-summary-grid">
+            <div class="si-metric">
+              <span class="si-metric-label">Total Planned Premium</span>
+              <strong class="si-metric-value" id="siiSummaryTotalPremium">US$0</strong>
+              <span class="si-metric-detail" id="siiSummaryTotalPremiumDetail">Across premium term</span>
+            </div>
+            <div class="si-metric">
+              <span class="si-metric-label" id="siiSummaryPayableLabel">Single Premium Payable</span>
+              <strong class="si-metric-value" id="siiSummaryPayable">US$0</strong>
+              <span class="si-metric-detail" id="siiSummaryPayableDetail">Due at policy issue</span>
+            </div>
+            <div class="si-metric si-metric-total">
+              <span class="si-metric-label">Target Monthly Income</span>
+              <strong class="si-metric-value" id="siiSummaryMonthlyIncome">US$0</strong>
+              <span class="si-metric-detail" id="siiSummaryMonthlyIncomeDetail">Annualised income shown in table</span>
+            </div>
+            <div class="si-metric">
+              <span class="si-metric-label">Reference Surrender Value</span>
+              <strong class="si-metric-value" id="siiSummaryReferenceValue">US$0</strong>
+              <span class="si-metric-detail" id="siiSummaryReferenceValueDetail">Policy year 40 where available</span>
+            </div>
+            <div class="si-metric si-metric-total">
+              <span class="si-metric-label">Net Illustrated Yield</span>
+              <strong class="si-metric-value" id="siiSummaryNetYield">0.00%</strong>
+              <span class="si-metric-detail" id="siiSummaryNetYieldDetail">After current charges and bonuses</span>
+            </div>
+          </div>
+          <p class="si-summary-note" id="siiSummaryNote"></p>
+        </div>
+
+        <details class="si-card sii-charges-card" id="siiChargesDetails">
+          <summary>
+            <span class="sii-charges-title">
+              <strong>Charges and Bonuses</strong>
+              <span>Collapsed view shows the annualised net yield after current charges and policy bonuses.</span>
+            </span>
+            <strong class="sii-charges-pill" id="siiChargesCollapsed">Net yield n.m.</strong>
+          </summary>
+          <div class="sii-charges-body">
+            <div class="si-table-scroll">
+              <table id="siiChargesTable" class="si-projection-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Year</th>
+                    <th scope="col">Premium Charge</th>
+                    <th scope="col">Policy Fee</th>
+                    <th scope="col">Admin Fee Est.</th>
+                    <th scope="col">Policy Value Booster</th>
+                    <th scope="col">Surrender / Unvested Drag</th>
+                    <th scope="col">Effect of Deductions</th>
+                  </tr>
+                </thead>
+                <tbody id="siiChargesBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+
+        <div class="si-card si-table-card">
+          <div class="si-table-header">
+            <h3>Year-by-year Projection</h3>
+            <div class="si-table-controls">
+              <label class="si-toggle-inline">
+                <input id="siiMilestoneOnly" type="checkbox" checked />
+                Milestone years only
+              </label>
+            </div>
+          </div>
+          <div class="si-table-scroll">
+            <table id="siiProjectionTable" class="si-projection-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="si-col-age">Age</th>
+                  <th scope="col" class="si-col-year">Policy Year</th>
+                  <th scope="col" class="sii-col-premium">Premium</th>
+                  <th scope="col" class="sii-col-income">Annualised Income</th>
+                  <th scope="col" class="sii-col-cumulative">Cumulative Income</th>
+                  <th scope="col" class="sii-col-value">Policy Value</th>
+                  <th scope="col" class="sii-col-value">Surrender Value</th>
+                  <th scope="col" class="sii-col-value">Death Benefit</th>
+                  <th scope="col" class="sii-col-yield">Net Yield</th>
+                </tr>
+              </thead>
+              <tbody id="siiProjectionBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="si-card rrp-disclaimer-card">
+          <div class="si-card-header">
+            <h2>Important Disclaimer</h2>
+          </div>
+          <p class="rrp-important-note">
+            <strong>Important:</strong> Signature Indexed Income figures generated here are extrapolated from uploaded policy illustrations and are approximate only. They are not official Manulife policy illustrations, are not guaranteed to be 100% accurate, and must be validated against an official policy illustration before client use or application.
+          </p>
+          <p class="rrp-important-note">
+            The 6.35% S&amp;P 500 Index Sub-account assumed illustration rate, policy values, monthly income, charges and bonuses are non-guaranteed and are used purely for illustration. Actual policy performance may be lower or higher.
+          </p>
+          <div id="siiWarningsBox" class="si-warnings" hidden></div>
+        </div>
+      </section>
+
       <!-- ===== SI PREMIUM FINANCING SECTION =====
            Visible only when an SI variant is selected (body.is-si3-main).
            Provides: death-benefit umbrella banner, financing inputs
@@ -4982,6 +5302,7 @@ canvas#rrpBenefitsChart {
     </main>
 
     <script src="assets/rrp3-rates.js"></script>
+    <script src="assets/sii-rates.js"></script>
     <script src="assets/illustration-model.js"></script>
     <script src="assets/illustration-view.js"></script>
     <script src="fund-library-afl.js"></script>
@@ -5109,6 +5430,10 @@ canvas#rrpBenefitsChart {
     "rrpAge", "rrpRetirementAge", "rrpPayoutPeriod",
     "rrpInputMode", "rrpTargetIncome", "rrpPremium",
     "rrpGmi", "rrpIirrView", "rrpMilestoneOnly",
+    // Signature Indexed Income illustrator fields
+    "siiAge", "siiPremiumTerm", "siiIncomeStartYear",
+    "siiInputMode", "siiTargetMonthlyIncome", "siiTotalPlannedPremium",
+    "siiMilestoneOnly",
   ];
 
   function $(id) { return document.getElementById(id); }
@@ -5798,7 +6123,7 @@ canvas#rrpBenefitsChart {
     // standard annualisedPremium check doesn't apply. The SI engine
     // surfaces its own minimum-premium warning via validateParIncome().
     const variant = model.VARIANTS[fields.variantKey?.value];
-    if (variant?.kind === "par-income-fin" || variant?.kind === "rrp") return true;
+    if (variant?.kind === "par-income-fin" || variant?.kind === "rrp" || variant?.kind === "sii") return true;
     const minimum = currentMinimumPremium();
     if (!fields.annualizedPremium || minimum === null) return true;
     fields.annualizedPremium.min = minimum;
@@ -5850,16 +6175,21 @@ canvas#rrpBenefitsChart {
     const variant = model.VARIANTS[fields.variantKey.value];
     const isSI3 = variant?.kind === "par-income-fin";
     const isRRP = variant?.kind === "rrp";
+    const isSII = variant?.kind === "sii";
     // When an SI variant is selected, premium and entry age come
     // from the SI-specific inputs rather than the generic ILP/SLH ones.
     // This lets the two control sets coexist without ever overwriting
     // each other's last-entered values during the session.
-    const annualizedPremium = isRRP && fields.rrpInputMode
+    const annualizedPremium = isSII && fields.siiInputMode
+      ? (fields.siiInputMode.value === "premium" ? numberValue(fields.siiTotalPlannedPremium) : numberValue(fields.siiTargetMonthlyIncome))
+      : isRRP && fields.rrpInputMode
       ? (fields.rrpInputMode.value === "premium" ? numberValue(fields.rrpPremium) : numberValue(fields.rrpTargetIncome))
       : isSI3 && fields.siPremium
         ? numberValue(fields.siPremium)
         : numberValue(fields.annualizedPremium);
-    const startAge = isRRP && fields.rrpAge
+    const startAge = isSII && fields.siiAge
+      ? numberValue(fields.siiAge)
+      : isRRP && fields.rrpAge
       ? numberValue(fields.rrpAge)
       : isSI3 && fields.siEntryAge
         ? numberValue(fields.siEntryAge)
@@ -5899,12 +6229,22 @@ canvas#rrpBenefitsChart {
       settings.rrpGmi = fields.rrpGmi ? numberValue(fields.rrpGmi) : 0;
       settings.rrpIirrView = fields.rrpIirrView.value;
     }
+    if (isSII) {
+      settings.currency = "USD";
+      settings.paymentFrequency = "Annual";
+      settings.siiAge = numberValue(fields.siiAge);
+      settings.siiPremiumTerm = fields.siiPremiumTerm.value;
+      settings.siiIncomeStartYear = numberValue(fields.siiIncomeStartYear);
+      settings.siiInputMode = fields.siiInputMode.value;
+      settings.siiTargetMonthlyIncome = numberValue(fields.siiTargetMonthlyIncome);
+      settings.siiTotalPlannedPremium = numberValue(fields.siiTotalPlannedPremium);
+    }
     return settings;
   }
 
   function currentComparisonSettings(settings = currentSettings()) {
     const variant = model.VARIANTS[settings.variantKey];
-    if (variant?.kind === "rrp") {
+    if (variant?.kind === "rrp" || variant?.kind === "sii") {
       return {
         showCustom: false,
         compareVariantKey: fields.compareVariantKey.value,
@@ -6122,6 +6462,148 @@ canvas#rrpBenefitsChart {
     syncRRPInputModeUi();
   }
 
+  function siiInputModeValue() {
+    return fields.siiInputMode?.value === "income" ? "income" : "premium";
+  }
+
+  function siiCurrentTerm() {
+    return fields.siiPremiumTerm?.value || "single";
+  }
+
+  function setSIIAgeError(message = "") {
+    const field = fields.siiAge?.closest(".si-field");
+    const error = $("siiAgeError");
+    if (!fields.siiAge || !field || !error) return;
+    const hasError = !!message;
+    field.classList.toggle("is-error", hasError);
+    fields.siiAge.setAttribute("aria-invalid", String(hasError));
+    error.hidden = !hasError;
+    error.textContent = message;
+  }
+
+  function setSIIInputError(messages = []) {
+    const error = $("siiInputError");
+    const fieldsToMark = [
+      fields.siiPremiumTerm?.closest(".si-field"),
+      fields.siiIncomeStartYear?.closest(".si-field"),
+      fields.siiTargetMonthlyIncome?.closest(".si-field"),
+      fields.siiTotalPlannedPremium?.closest(".si-field"),
+    ].filter(Boolean);
+    const messageList = Array.isArray(messages) ? messages.filter(Boolean) : [messages].filter(Boolean);
+    const hasError = messageList.length > 0;
+    fieldsToMark.forEach((field) => field.classList.toggle("is-error", hasError));
+    if (!error) return;
+    error.hidden = !hasError;
+    error.innerHTML = hasError ? messageList.map(htmlEscape).join("<br>") : "";
+  }
+
+  function syncSIIInputModeUi() {
+    if (!fields.siiInputMode || !fields.siiTargetMonthlyIncome || !fields.siiTotalPlannedPremium) return;
+    const mode = siiInputModeValue();
+    const incomeIsSource = mode === "income";
+    const targetField = $("siiTargetIncomeField");
+    const premiumField = $("siiPremiumField");
+    const targetHint = $("siiTargetIncomeHint");
+    const premiumHint = $("siiPremiumHint");
+    const premiumLabel = $("siiPremiumLabel");
+    const termLabel = model.siiTermLabel ? model.siiTermLabel(siiCurrentTerm()) : "Premium Term";
+
+    fields.siiTargetMonthlyIncome.readOnly = !incomeIsSource;
+    fields.siiTotalPlannedPremium.readOnly = incomeIsSource;
+    fields.siiTargetMonthlyIncome.setAttribute("aria-readonly", String(!incomeIsSource));
+    fields.siiTotalPlannedPremium.setAttribute("aria-readonly", String(incomeIsSource));
+    if (targetField) targetField.classList.toggle("rrp-derived-field", !incomeIsSource);
+    if (premiumField) premiumField.classList.toggle("rrp-derived-field", incomeIsSource);
+    if (premiumLabel) premiumLabel.textContent = "Total Planned Premium";
+    if (targetHint) {
+      targetHint.textContent = incomeIsSource
+        ? "Used to derive required total planned premium"
+        : "Calculated from total planned premium and source PI ratio";
+    }
+    if (premiumHint) {
+      premiumHint.textContent = incomeIsSource
+        ? "Calculated from target monthly income"
+        : `${termLabel}; min US$100,000, max US$166m`;
+    }
+  }
+
+  function setSIIInputMode(mode) {
+    if (!fields.siiInputMode) return;
+    const next = mode === "income" ? "income" : "premium";
+    if (fields.siiInputMode.value !== next) fields.siiInputMode.value = next;
+    syncSIIInputModeUi();
+  }
+
+  function updateSIIDerivedInputs(summary) {
+    if (!summary) return;
+    const mode = summary.inputMode === "income" ? "income" : "premium";
+    if (mode === "premium" && fields.siiTargetMonthlyIncome) {
+      fields.siiTargetMonthlyIncome.value = roundInput(summary.targetMonthlyIncome || 0, 2);
+    }
+    if (mode === "income" && fields.siiTotalPlannedPremium) {
+      fields.siiTotalPlannedPremium.value = roundInput(summary.totalPlannedPremium || 0);
+    }
+    syncSIIInputModeUi();
+  }
+
+  function syncSIIControls() {
+    if (!fields.siiAge || !fields.siiPremiumTerm || !fields.siiIncomeStartYear) return;
+    const constants = model.SII_CONSTANTS || {};
+    const premiumTerms = Array.isArray(constants.premiumTerms) && constants.premiumTerms.length
+      ? constants.premiumTerms
+      : ["single", 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const currentTerm = fields.siiPremiumTerm.value || "single";
+    fields.siiPremiumTerm.innerHTML = premiumTerms
+      .map((term) => {
+        const value = String(term);
+        const label = model.siiTermLabel ? model.siiTermLabel(term) : (value === "single" ? "Single Premium" : `${value} Years`);
+        return `<option value="${htmlEscape(value)}">${htmlEscape(label)}</option>`;
+      })
+      .join("");
+    fields.siiPremiumTerm.value = premiumTerms.map(String).includes(String(currentTerm))
+      ? String(currentTerm)
+      : "single";
+
+    const term = fields.siiPremiumTerm.value;
+    const years = model.siiAvailableIncomeStartYears ? model.siiAvailableIncomeStartYears(term) : [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
+    const currentStart = fields.siiIncomeStartYear.value || String(years[0] || 4);
+    fields.siiIncomeStartYear.innerHTML = years
+      .map((year) => `<option value="${year}">Policy Year ${year}</option>`)
+      .join("");
+    fields.siiIncomeStartYear.value = years.map(String).includes(String(currentStart))
+      ? String(currentStart)
+      : String(years[0] || 4);
+
+    const bounds = model.siiIncomeBounds
+      ? model.siiIncomeBounds(fields.siiIncomeStartYear.value)
+      : { minMonthlyIncome: 300, maxMonthlyIncome: 500000, minTotalPlannedPremium: 100000, maxTotalPlannedPremium: 166000000 };
+    fields.siiAge.min = constants.entryAgeMin ?? 0;
+    fields.siiAge.max = constants.entryAgeMax ?? 70;
+    if (!fields.siiAge.value) fields.siiAge.value = 46;
+    if (fields.siiTargetMonthlyIncome) {
+      fields.siiTargetMonthlyIncome.min = bounds.minMonthlyIncome;
+      fields.siiTargetMonthlyIncome.max = bounds.maxMonthlyIncome;
+      fields.siiTargetMonthlyIncome.step = 10;
+    }
+    if (fields.siiTotalPlannedPremium) {
+      fields.siiTotalPlannedPremium.min = bounds.minTotalPlannedPremium;
+      fields.siiTotalPlannedPremium.max = bounds.maxTotalPlannedPremium;
+      fields.siiTotalPlannedPremium.step = 1000;
+    }
+    const startHint = $("siiIncomeStartHint");
+    if (startHint) {
+      const minStart = model.siiIncomeStartMin ? model.siiIncomeStartMin(term) : years[0];
+      startHint.textContent = `${model.siiTermLabel ? model.siiTermLabel(term) : term} can start from policy year ${minStart} to 21`;
+    }
+    const targetHint = $("siiTargetIncomeHint");
+    if (targetHint && siiInputModeValue() === "income") {
+      targetHint.textContent = `Min US$${bounds.minMonthlyIncome.toLocaleString()} / max US$${bounds.maxMonthlyIncome.toLocaleString()}`;
+    }
+    if (!fields.siiTotalPlannedPremium.value) fields.siiTotalPlannedPremium.value = 100000;
+    if (!fields.siiTargetMonthlyIncome.value) fields.siiTargetMonthlyIncome.value = 400;
+    syncSIIInputModeUi();
+  }
+
   // Body-class state machine for par-WL UI gating:
   //   .is-par-wl-main       — main variant is SLH (hide main strategy table)
   //   .is-par-wl-compare    — compare variant is SLH (hide compare strategy)
@@ -6140,16 +6622,18 @@ canvas#rrpBenefitsChart {
     const compareVariant = compareEnabled && compareKey ? model.VARIANTS[compareKey] : null;
     const mainIsParWl = mainVariant?.kind === "par-wl";
     const compareIsParWl = compareVariant?.kind === "par-wl";
-    const compareIsIlp = compareEnabled && compareVariant && !["par-wl", "par-income-fin", "rrp"].includes(compareVariant.kind);
+    const compareIsIlp = compareEnabled && compareVariant && !["par-wl", "par-income-fin", "rrp", "sii"].includes(compareVariant.kind);
     const mainIsSI3 = mainVariant?.kind === "par-income-fin";
     const mainIsRRP = mainVariant?.kind === "rrp";
+    const mainIsSII = mainVariant?.kind === "sii";
 
     document.body.classList.toggle("is-par-wl", mainIsParWl);                  // backwards-compat alias
     document.body.classList.toggle("is-par-wl-main", mainIsParWl);
     document.body.classList.toggle("is-par-wl-compare", compareIsParWl);
-    document.body.classList.toggle("hide-ilp-controls", (mainIsParWl || mainIsRRP) && !compareIsIlp);
+    document.body.classList.toggle("hide-ilp-controls", (mainIsParWl || mainIsRRP || mainIsSII) && !compareIsIlp);
     document.body.classList.toggle("is-si3-main", mainIsSI3);
     document.body.classList.toggle("is-rrp-main", mainIsRRP);
+    document.body.classList.toggle("is-sii-main", mainIsSII);
 
     // Toggle SI section visibility — kept as a hidden attribute (not just
     // CSS) so the section doesn't briefly flash during initial load
@@ -6159,6 +6643,9 @@ canvas#rrpBenefitsChart {
     const rrpCalc = document.getElementById("rrpCalculator");
     if (rrpCalc) rrpCalc.hidden = !mainIsRRP;
     if (mainIsRRP) syncRRPControls();
+    const siiCalc = document.getElementById("siiCalculator");
+    if (siiCalc) siiCalc.hidden = !mainIsSII;
+    if (mainIsSII) syncSIIControls();
 
     const parWlInfo = document.getElementById("parWlInfo");
     if (parWlInfo) parWlInfo.hidden = !mainIsParWl;
@@ -6696,6 +7183,10 @@ canvas#rrpBenefitsChart {
     }
     if (customVariant?.kind === "rrp") {
       renderRRP(results);
+      return;
+    }
+    if (customVariant?.kind === "sii") {
+      renderSII(results);
       return;
     }
     renderChecks(results.custom);
@@ -7581,6 +8072,197 @@ canvas#rrpBenefitsChart {
     }
 
     const warnEl = $("rrpWarningsBox");
+    if (warnEl) {
+      const warnings = [...(summary.notes || []), ...(result.warnings || []).filter((w) => !(summary.notes || []).includes(w))];
+      warnEl.hidden = !warnings.length;
+      warnEl.innerHTML = warnings.length
+        ? `<strong>Important note</strong><ul>${warnings.map((w) => `<li>${htmlEscape(w)}</li>`).join("")}</ul>`
+        : "";
+    }
+  }
+
+  function renderSIIFeatureCards(summary = {}) {
+    const grid = $("siiFeatureGrid");
+    if (!grid) return;
+    const booster = summary.policyValueBoosterRate ? percent(summary.policyValueBoosterRate, 2) : "1.46%";
+    const cards = [
+      {
+        label: "Flexible Premium Terms",
+        value: "Single premium or 2-10 years",
+        note: "Income start rules depend on premium term",
+      },
+      {
+        label: "Income Start Window",
+        value: "PY2 for SP-3 Pay, PY3 for 4-6 Pay, PY4 for 7-10 Pay",
+        note: "Income start year can run up to policy year 21",
+      },
+      {
+        label: "Index Account",
+        value: "100% S&P 500 Index Sub-account",
+        note: "6.35% assumed current illustration rate, 0% floor, 9% cap",
+      },
+      {
+        label: "Policy Value Booster",
+        value: `${booster} p.a. of face amount from PY2 to PY25`,
+        note: "Subject to vesting and product rules",
+      },
+      {
+        label: "Surrender Value Floor",
+        value: "Floor may support surrender value if policy value is lower",
+        note: "Actual surrender value remains subject to charges and deductions",
+      },
+      {
+        label: "Current Charges",
+        value: "Premium charge, policy fee, admin fee and surrender charge",
+        note: "Collapsed view blends charges and bonuses into net yield",
+      },
+    ];
+    grid.innerHTML = cards.map((cardDef) => `
+      <div class="rrp-feature">
+        <span>${htmlEscape(cardDef.label)}</span>
+        <strong>${htmlEscape(cardDef.value)}</strong>
+        ${cardDef.note ? `<em class="rrp-feature-note">${htmlEscape(cardDef.note)}</em>` : ""}
+      </div>
+    `).join("");
+  }
+
+  function renderSII(results) {
+    const result = results.custom;
+    if (!result) return;
+    const summary = result.siiSummary || result.final?.siiSummary || {};
+    const currency = result.settings?.currency || "USD";
+    const fmt = (v) => money(v, currency, 0);
+    const fmt2 = (v) => money(v, currency, 2);
+    const setText = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+    const setHtml = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+    const methodLabel = {
+      source_exact: "source-exact",
+      age_shifted_source: "age-shifted source",
+      interpolated_age: "age-interpolated estimate",
+      extrapolated_age: "age-extrapolated estimate",
+      interpolated_sparse: "interpolated estimate",
+      extrapolated_sparse: "extrapolated estimate",
+      not_available: "not available",
+    }[summary.method] || "estimated";
+
+    renderSIIFeatureCards(summary);
+    syncSIIInputModeUi();
+    setSIIAgeError(summary.ageBlocker || "");
+    const inputBlockers = (summary.blockers || []).filter((msg) => msg !== summary.ageBlocker);
+    setSIIInputError(inputBlockers);
+
+    const isSingle = summary.premiumTermNumber === 1 || summary.premiumTerm === "single";
+    setText("siiSummaryPayableLabel", isSingle ? "Single Premium Payable" : "Annual Planned Premium");
+
+    if (!summary.valid) {
+      setText("siiSummaryTotalPremium", "Blocked");
+      setText("siiSummaryTotalPremiumDetail", "Review validation notes");
+      setText("siiSummaryPayable", "Blocked");
+      setText("siiSummaryPayableDetail", "No illustration generated");
+      setText("siiSummaryMonthlyIncome", summary.targetMonthlyIncome ? fmt(summary.targetMonthlyIncome) : "Blocked");
+      setText("siiSummaryMonthlyIncomeDetail", "Requested target");
+      setText("siiSummaryReferenceValue", "Blocked");
+      setText("siiSummaryReferenceValueDetail", "Invalid scenario");
+      setText("siiSummaryNetYield", "Blocked");
+      setText("siiSummaryNetYieldDetail", "Invalid scenario");
+      setText("siiSummaryNote", "This SII scenario is blocked by product rules or missing source data.");
+      setText("siiChargesCollapsed", "Blocked");
+      setHtml("siiProjectionBody", `<tr><td colspan="9">No projection generated for invalid SII assumptions.</td></tr>`);
+      setHtml("siiChargesBody", `<tr><td colspan="7">No charges generated for invalid SII assumptions.</td></tr>`);
+      const warnEl = $("siiWarningsBox");
+      if (warnEl) {
+        const blockers = summary.blockers || [];
+        warnEl.hidden = !blockers.length;
+        warnEl.innerHTML = blockers.length
+          ? `<strong>Review inputs</strong><ul>${blockers.map((w) => `<li>${htmlEscape(w)}</li>`).join("")}</ul>`
+          : "";
+      }
+      return;
+    }
+
+    updateSIIDerivedInputs(summary);
+    const netYield = Number.isFinite(summary.currentIllustratedYield)
+      ? summary.currentIllustratedYield
+      : summary.referenceNetIrr;
+    const spread = Number.isFinite(summary.chargesBonusNetSpread) ? summary.chargesBonusNetSpread : null;
+    const payable = isSingle ? summary.singlePremium : summary.annualPlannedPremium;
+    setText("siiSummaryTotalPremium", fmt(summary.totalPlannedPremium || 0));
+    setText("siiSummaryTotalPremiumDetail", isSingle ? "Single premium" : `${summary.premiumTermLabel}; total planned premium`);
+    setText("siiSummaryPayable", fmt(payable || 0));
+    setText("siiSummaryPayableDetail", isSingle ? "Due at policy issue" : `Paid annually for ${summary.premiumTermNumber} years`);
+    setText("siiSummaryMonthlyIncome", fmt(summary.targetMonthlyIncome || 0));
+    setText("siiSummaryMonthlyIncomeDetail", `${fmt(summary.annualizedIncome || 0)} annualised from PY${summary.incomeStartYear}`);
+    setText("siiSummaryReferenceValue", fmt(summary.referenceSurrenderValue || 0));
+    setText("siiSummaryReferenceValueDetail",
+      `PY${summary.referenceYear || 0} / age ${summary.referenceAge || 0}; cumulative income ${fmt(summary.referenceCumulativeIncome || 0)}`);
+    setText("siiSummaryNetYield", Number.isFinite(netYield) ? percent(netYield, 2) : "n.m.");
+    setText("siiSummaryNetYieldDetail",
+      Number.isFinite(spread)
+        ? `${percent(spread, 2)} blended drag vs 6.35% index assumption`
+        : "After current charges and bonuses");
+    setText("siiChargesCollapsed",
+      Number.isFinite(netYield)
+        ? `Net ${percent(netYield, 2)} | spread ${Number.isFinite(spread) ? percent(spread, 2) : "n.m."}`
+        : "Net yield n.m.");
+    const sourceText = summary.sourceLabels ? `Sources: ${summary.sourceLabels}.` : "Source estimate generated from uploaded PIs.";
+    setText("siiSummaryNote",
+      `Income starts policy year ${summary.incomeStartYear} at age ${summary.incomeStartAge}. ` +
+      `Projected income to PY${summary.projectionYears}: ${fmt(summary.totalProjectedIncome || 0)}; final surrender value ${fmt(summary.finalSurrenderValue || 0)}. ` +
+      `${methodLabel}; ${sourceText}`);
+
+    const annual = result.annual || [];
+    const milestoneOnly = !!(fields.siiMilestoneOnly && fields.siiMilestoneOnly.checked);
+    const milestoneYears = new Set([
+      1,
+      summary.premiumTermNumber,
+      Math.max(1, summary.incomeStartYear - 1),
+      summary.incomeStartYear,
+      summary.incomeStartYear + 1,
+      summary.referenceYear,
+      summary.projectionYears,
+    ].filter((year) => Number.isFinite(year) && year > 0));
+    for (let y = 5; y <= (summary.projectionYears || annual.length); y += 5) milestoneYears.add(y);
+
+    const projectionRows = annual
+      .filter((row) => !milestoneOnly || milestoneYears.has(row.year) || row.siiPremiumPaid > 0)
+      .map((row) => {
+        const cls = ["si-projection-row"];
+        if (milestoneYears.has(row.year)) cls.push("si-milestone-row");
+        if (row.year === summary.incomeStartYear) cls.push("si-payout-start");
+        return `
+          <tr class="${cls.join(" ")}">
+            <td class="si-col-age">${row.age}</td>
+            <td class="si-col-year">${row.year}</td>
+            <td class="sii-col-premium">${fmt(row.siiPremiumPaid || 0)}</td>
+            <td class="sii-col-income">${fmt(row.siiAnnualIncome || 0)}</td>
+            <td class="sii-col-cumulative">${fmt(row.siiCumulativeIncome || 0)}</td>
+            <td class="sii-col-value">${fmt(row.siiPolicyValue || 0)}</td>
+            <td class="sii-col-value">${fmt(row.siiSurrenderValue || 0)}</td>
+            <td class="sii-col-value">${fmt(row.siiDeathBenefit || 0)}</td>
+            <td class="sii-col-yield">${Number.isFinite(row.siiNetIrr) ? percent(row.siiNetIrr, 2) : "n.m."}</td>
+          </tr>
+        `;
+      }).join("");
+    setHtml("siiProjectionBody", projectionRows || `<tr><td colspan="9">No rows to show.</td></tr>`);
+
+    const chargeYears = new Set([1,2,3,4,5,6,7,8,9,10,15,20,25,30,40,50,60,70, summary.projectionYears]);
+    for (let y = 1; y <= summary.premiumTermNumber; y += 1) chargeYears.add(y);
+    const chargeRows = annual
+      .filter((row) => chargeYears.has(row.year))
+      .map((row) => `
+        <tr class="si-projection-row">
+          <td>${row.year}</td>
+          <td>${fmt(row.siiPremiumCharge || 0)} <span class="muted">${Number(row.siiPremiumChargePct || 0).toFixed(1)}%</span></td>
+          <td>${fmt(row.siiPolicyFee || 0)}</td>
+          <td>${fmt(row.siiAdminFeeEstimate || 0)}</td>
+          <td>${fmt(row.siiPolicyValueBooster || 0)}</td>
+          <td>${fmt(row.siiSurrenderUnvestedDrag || 0)}</td>
+          <td>${fmt(row.siiEffectOfDeductions || 0)}</td>
+        </tr>
+      `).join("");
+    setHtml("siiChargesBody", chargeRows || `<tr><td colspan="7">No charges to show.</td></tr>`);
+
+    const warnEl = $("siiWarningsBox");
     if (warnEl) {
       const warnings = [...(summary.notes || []), ...(result.warnings || []).filter((w) => !(summary.notes || []).includes(w))];
       warnEl.hidden = !warnings.length;
@@ -8553,6 +9235,10 @@ canvas#rrpBenefitsChart {
     const variant = state.results.custom?.variant;
     if (variant?.kind === "rrp") {
       renderRRP(state.results);
+      return;
+    }
+    if (variant?.kind === "sii") {
+      renderSII(state.results);
       return;
     }
     if (variant?.kind === "par-income-fin") return;
@@ -9542,6 +10228,19 @@ canvas#rrpBenefitsChart {
     syncRRPInputModeUi();
   }
 
+  function initSIIDefaults() {
+    if (fields.siiAge && !fields.siiAge.value) fields.siiAge.value = 46;
+    if (fields.siiPremiumTerm && !fields.siiPremiumTerm.value) fields.siiPremiumTerm.value = "single";
+    if (fields.siiInputMode && !fields.siiInputMode.value) fields.siiInputMode.value = "premium";
+    if (fields.siiTotalPlannedPremium && !fields.siiTotalPlannedPremium.value) fields.siiTotalPlannedPremium.value = 100000;
+    if (fields.siiTargetMonthlyIncome && !fields.siiTargetMonthlyIncome.value) fields.siiTargetMonthlyIncome.value = 400;
+    syncSIIControls();
+    if (fields.siiIncomeStartYear && Array.from(fields.siiIncomeStartYear.options).some((opt) => opt.value === "4")) {
+      fields.siiIncomeStartYear.value = "4";
+    }
+    syncSIIInputModeUi();
+  }
+
   // Mirror the date into the position:fixed print-only header so the
   // printed deck shows the prep date at the top of every page. The
   // client-name field was removed; this header carries only the date.
@@ -9693,6 +10392,52 @@ canvas#rrpBenefitsChart {
       fields.siMilestoneOnly.addEventListener("change", () => {
         // Skip the heavy recompute — just re-render the table.
         if (state.results) renderSI3(state.results);
+      });
+    }
+
+    // ===== Signature Indexed Income input handlers =====
+    if (fields.siiAge) {
+      fields.siiAge.addEventListener("input", recalc);
+    }
+    if (fields.siiPremiumTerm) {
+      fields.siiPremiumTerm.addEventListener("change", () => {
+        syncSIIControls();
+        recalc();
+      });
+    }
+    if (fields.siiIncomeStartYear) {
+      fields.siiIncomeStartYear.addEventListener("change", () => {
+        syncSIIControls();
+        recalc();
+      });
+    }
+    if (fields.siiInputMode) {
+      fields.siiInputMode.addEventListener("change", () => {
+        syncSIIInputModeUi();
+        recalc();
+      });
+    }
+    if (fields.siiTargetMonthlyIncome) {
+      fields.siiTargetMonthlyIncome.addEventListener("pointerdown", () => {
+        if (siiInputModeValue() !== "income") setSIIInputMode("income");
+      });
+      fields.siiTargetMonthlyIncome.addEventListener("input", () => {
+        setSIIInputMode("income");
+        recalc();
+      });
+    }
+    if (fields.siiTotalPlannedPremium) {
+      fields.siiTotalPlannedPremium.addEventListener("pointerdown", () => {
+        if (siiInputModeValue() !== "premium") setSIIInputMode("premium");
+      });
+      fields.siiTotalPlannedPremium.addEventListener("input", () => {
+        setSIIInputMode("premium");
+        recalc();
+      });
+    }
+    if (fields.siiMilestoneOnly) {
+      fields.siiMilestoneOnly.addEventListener("change", () => {
+        if (state.results) renderSII(state.results);
       });
     }
 
@@ -10010,7 +10755,7 @@ canvas#rrpBenefitsChart {
     // tailored for the SI calculator section.
     $("printScenario").addEventListener("click", () => {
       const v = model.VARIANTS[fields.variantKey.value];
-      if (v && (v.kind === "par-income-fin" || v.kind === "rrp")) {
+      if (v && (v.kind === "par-income-fin" || v.kind === "rrp" || v.kind === "sii")) {
         // Chrome injects document.title at the top of every printed
         // page (e.g. "Illustration Studio") and the page URL at the
         // bottom. Both are suppressed by @page { margin: 0 } for the
@@ -10581,6 +11326,7 @@ canvas#rrpBenefitsChart {
     enforcePremiumMinimum(true);
     initSI3Defaults();              // seed SI inputs before binding events
     initRRPDefaults();              // seed RRP inputs before binding events
+    initSIIDefaults();              // seed SII inputs before binding events
     bindEvents();
     bindChartEvents();
     bindScenarioMenus();

@@ -29,7 +29,7 @@ export function loadModel() {
   sandbox.parseFloat = parseFloat;
   sandbox.parseInt = parseInt;
   vm.createContext(sandbox);
-  for (const rel of ["assets/rrp3-rates.js", "assets/illustration-model.js"]) {
+  for (const rel of ["assets/rrp3-rates.js", "assets/sii-rates.js", "assets/illustration-model.js"]) {
     const code = readFileSync(resolve(repoRoot, rel), "utf8");
     vm.runInContext(code, sandbox, { filename: rel });
   }
@@ -122,6 +122,27 @@ export function siSettings(overrides = {}) {
     siFinancingEnabled: true,
     siFinancingPct: 0.72,
     siInterestRate: 0.02,
+    ...overrides,
+  };
+}
+
+export function siiSettings(overrides = {}) {
+  return {
+    variantKey: "SII",
+    currency: "USD",
+    paymentFrequency: "Annual",
+    startAge: 46,
+    siiAge: 46,
+    siiPremiumTerm: "single",
+    siiIncomeStartYear: 4,
+    siiInputMode: "premium",
+    siiTotalPlannedPremium: 100000,
+    siiTargetMonthlyIncome: 0,
+    projectionYears: 79,
+    includeWelcome: false,
+    includeAnnualBonus: false,
+    includeLoyalty: false,
+    deductPiFundMgmt: false,
     ...overrides,
   };
 }
