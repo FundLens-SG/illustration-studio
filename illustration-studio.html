@@ -8446,6 +8446,41 @@ canvas#rrpBenefitsChart {
     return row.totalValue || 0;
   }
 
+  // The currency a result's numbers are actually in. The engine treats
+  // currency as a nominal label (a 300k premium projects identically whether
+  // tagged SGD or USD), and single-currency variants — SLH/SII are USD-only,
+  // IRG/SLR/SI3/RRP are SGD-only — always produce values in their own
+  // currency regardless of the inherited settings.currency.
+  function variantNativeCurrency(result, fallback = "SGD") {
+    const cur = (result && result.settings && result.settings.currency) || fallback;
+    const list = result && result.variant && result.variant.currencies;
+    if (Array.isArray(list) && list.length) return list.includes(cur) ? cur : list[0];
+    return cur;
+  }
+
+  // Convert an amount between USD and SGD using the live rate
+  // (state.fxRate.USD_SGD = SGD per 1 USD; a 1.36 fallback is seeded at boot).
+  // No-op when the currencies match or no rate is available.
+  function fxConvert(amount, from, to) {
+    if (from === to || !Number.isFinite(amount)) return amount;
+    const rate = state.fxRate && state.fxRate.USD_SGD;
+    if (!Number.isFinite(rate) || rate <= 0) return amount;
+    if (from === "USD" && to === "SGD") return amount * rate;
+    if (from === "SGD" && to === "USD") return amount / rate;
+    return amount;
+  }
+
+  // The currency a comparison should display in: when the two sides are in
+  // different native currencies they are shown in SGD by default (a
+  // like-for-like basis for a Singapore client); otherwise their shared
+  // currency. An explicit user choice via the FX toggle (state.cmpDisplayCurrency)
+  // always wins.
+  function comparisonDisplayCurrency(currencyA, currencyB) {
+    const base = currencyA === currencyB ? currencyA : "SGD";
+    const chosen = state.cmpDisplayCurrency;
+    return chosen === "USD" || chosen === "SGD" ? chosen : base;
+  }
+
   function compositionFor(result) {
     const f = result.final;
     const paid = (f.totalBasicPaid || 0) + (f.totalTopUps || 0);
@@ -8627,36 +8662,46 @@ canvas#rrpBenefitsChart {
 
       if (sharedYear) comparisonHorizonYear = sharedYear;
 
+      const primaryCur = variantNativeCurrency(results.custom, settings.currency);
+      const secondaryCur = variantNativeCurrency(results.customCompare, settings.currency);
       primary = {
         label: results.custom.variant.label,
         value: comparisonTotal(mainAtHorizon),
-        detail: `From ${money(mainPaid, settings.currency)} paid${ageNote}${mainIrrText}`,
+        currency: primaryCur,
+        detail: `From ${money(mainPaid, primaryCur)} paid${ageNote}${mainIrrText}`,
       };
       secondary = {
         label: results.customCompare.variant.label,
         value: comparisonTotal(compareAtHorizon),
-        detail: `From ${money(comparePaid, settings.currency)} paid${ageNote}${compareIrrText}`,
+        currency: secondaryCur,
+        detail: `From ${money(comparePaid, secondaryCur)} paid${ageNote}${compareIrrText}`,
       };
     } else if (results.fixedDeposit) {
+      const selCur = variantNativeCurrency(results.custom, settings.currency);
       primary = {
         label: `${results.custom.variant.label} (selected)`,
         value: comparisonTotal(results.custom.final),
-        detail: `From ${money(results.custom.final.totalBasicPaid + results.custom.final.totalTopUps, settings.currency)} paid · ${percent(results.custom.final.irr)} ${glossaryAbbr("IRR")}`,
+        currency: selCur,
+        detail: `From ${money(results.custom.final.totalBasicPaid + results.custom.final.totalTopUps, selCur)} paid · ${percent(results.custom.final.irr)} ${glossaryAbbr("IRR")}`,
       };
       secondary = {
         label: `Fixed deposit (${results.comparison.fdFundingMode === "single" ? "single sum" : "annual"}, ${results.comparison.fdCompound ? "compounded" : "simple"})`,
         value: results.fixedDeposit.final.value,
-        detail: `From ${money(results.fixedDeposit.final.contributions, settings.currency)} placed at ${percent(results.comparison.fdRate)}`,
+        currency: selCur,
+        detail: `From ${money(results.fixedDeposit.final.contributions, selCur)} placed at ${percent(results.comparison.fdRate)}`,
       };
     } else if (results.reinvest) {
+      const selCur = variantNativeCurrency(results.custom, settings.currency);
       primary = {
         label: `${results.custom.variant.label} — your strategy`,
         value: comparisonTotal(results.custom.final),
+        currency: selCur,
         detail: `${percent(results.custom.final.irr)} ${glossaryAbbr("IRR")}`,
       };
       secondary = {
         label: "All dividends reinvested",
         value: comparisonTotal(results.reinvest.final),
+        currency: selCur,
         detail: `${percent(results.reinvest.final.irr)} ${glossaryAbbr("IRR")}`,
       };
     }
@@ -8668,39 +8713,28 @@ canvas#rrpBenefitsChart {
     hero.hidden = false;
 
     const endYear = comparisonHorizonYear;
-    let primaryValue = inflationActive() ? discount(primary.value, endYear) : primary.value;
-    let secondaryValue = inflationActive() ? discount(secondary.value, endYear) : secondary.value;
+    const primaryCurrency = primary.currency || settings.currency;
+    const secondaryCurrency = secondary.currency || settings.currency;
+    // Each side converts from its OWN native currency to a shared display
+    // currency, so cross-currency comparisons (USD SLH/SII vs SGD IRG/SLR/
+    // SI3/RRP) are like-for-like and the "ahead by" delta is meaningful.
+    const displayCurrency = comparisonDisplayCurrency(primaryCurrency, secondaryCurrency);
+    state.cmpDisplayCurrencyShown = displayCurrency;
+    let primaryValue = fxConvert(primary.value, primaryCurrency, displayCurrency);
+    let secondaryValue = fxConvert(secondary.value, secondaryCurrency, displayCurrency);
+    if (inflationActive()) {
+      primaryValue = discount(primaryValue, endYear);
+      secondaryValue = discount(secondaryValue, endYear);
+    }
 
-    // FX display toggle — converts the comparison hero values to the
-    // alternate currency using the live USD/SGD rate, if available. The
-    // toggle button is hidden unless the policy currency is USD or SGD
-    // (the only pair we have a live rate for).
+    // FX toggle — flips the display currency between US$ and S$.
     const fxToggle = $("cmpFxToggle");
     const fxRate = state.fxRate?.USD_SGD;
-    const settingsCurrency = settings.currency;
-    const canConvertFx = (settingsCurrency === "USD" || settingsCurrency === "SGD")
-      && Number.isFinite(fxRate) && fxRate > 0;
-    let displayCurrency = settingsCurrency;
+    const canConvertFx = Number.isFinite(fxRate) && fxRate > 0;
     if (fxToggle) {
-      if (canConvertFx) {
-        fxToggle.hidden = false;
-        const altCurrency = settingsCurrency === "USD" ? "SGD" : "USD";
-        const isAlt = state.cmpDisplayCurrency && state.cmpDisplayCurrency !== settingsCurrency;
-        displayCurrency = isAlt ? altCurrency : settingsCurrency;
-        fxToggle.textContent = isAlt
-          ? `Show in ${settingsCurrency === "USD" ? "US$" : "S$"}`
-          : `Show in ${altCurrency === "USD" ? "US$" : "S$"}`;
-      } else {
-        fxToggle.hidden = true;
-        displayCurrency = settingsCurrency;
-      }
-    }
-    if (displayCurrency !== settingsCurrency && canConvertFx) {
-      const factor = settingsCurrency === "USD" && displayCurrency === "SGD"
-        ? fxRate
-        : 1 / fxRate;
-      primaryValue *= factor;
-      secondaryValue *= factor;
+      fxToggle.hidden = !canConvertFx;
+      const altCurrency = displayCurrency === "USD" ? "SGD" : "USD";
+      fxToggle.textContent = `Show in ${altCurrency === "USD" ? "US$" : "S$"}`;
     }
 
     const delta = primaryValue - secondaryValue;
@@ -8760,16 +8794,28 @@ canvas#rrpBenefitsChart {
     const selectedTotal = annual.map((row) => comparisonTotal(row));
     const accountOnly = annual.map((row) => row.accountValue);
 
-    const apply = (values) => inflationActive()
-      ? values.map((v, i) => discount(v, i + 1))
-      : values.slice();
+    // Convert every series from its product's native currency to a shared
+    // chart currency (SGD by default when the main and compare products are in
+    // different currencies, else the shared one; the FX toggle overrides), so
+    // a USD line and an SGD line sit on one comparable axis. Then apply the
+    // inflation discount.
+    const mainCur = variantNativeCurrency(results.custom, settings.currency);
+    const compareCur = results.customCompare
+      ? variantNativeCurrency(results.customCompare, settings.currency)
+      : mainCur;
+    const chartCurrency = comparisonDisplayCurrency(mainCur, compareCur);
+    const conv = (values, fromCur) => {
+      const converted = values.map((v) => fxConvert(v, fromCur, chartCurrency));
+      return inflationActive() ? converted.map((v, i) => discount(v, i + 1)) : converted;
+    };
 
     const series = {
       labels,
       ages,
-      cumulativePaid: apply(cumulativePaid),
-      selected: { name: `${results.custom.variant.label} total client value`, color: "var(--c-selected)", values: apply(selectedTotal) },
-      account: { name: "Account value (after cash-outs)", color: "#74808f", values: apply(accountOnly), dash: [6, 6] },
+      currency: chartCurrency,
+      cumulativePaid: conv(cumulativePaid, mainCur),
+      selected: { name: `${results.custom.variant.label} total client value`, color: "var(--c-selected)", values: conv(selectedTotal, mainCur) },
+      account: { name: "Account value (after cash-outs)", color: "#74808f", values: conv(accountOnly, mainCur), dash: [6, 6] },
     };
 
     // Cap benchmark series to the focused variant's horizon so the chart's
@@ -8782,7 +8828,7 @@ canvas#rrpBenefitsChart {
       benchmarks.push({
         name: `${results.customCompare.variant.label} total value`,
         color: "var(--c-benchmark)",
-        values: apply(results.customCompare.annual.map((row) => comparisonTotal(row))).slice(0, horizonLen),
+        values: conv(results.customCompare.annual.map((row) => comparisonTotal(row)), compareCur).slice(0, horizonLen),
         kind: "compare",
       });
     }
@@ -8790,7 +8836,7 @@ canvas#rrpBenefitsChart {
       benchmarks.push({
         name: "All dividends reinvested",
         color: "#a7853d",
-        values: apply(results.reinvest.annual.map((row) => comparisonTotal(row))).slice(0, horizonLen),
+        values: conv(results.reinvest.annual.map((row) => comparisonTotal(row)), mainCur).slice(0, horizonLen),
         kind: "reinvest",
       });
     }
@@ -8798,7 +8844,7 @@ canvas#rrpBenefitsChart {
       benchmarks.push({
         name: "Fixed deposit",
         color: "var(--c-dividend)",
-        values: apply(results.fixedDeposit.annual.map((row) => row.value)).slice(0, horizonLen),
+        values: conv(results.fixedDeposit.annual.map((row) => row.value), mainCur).slice(0, horizonLen),
         kind: "fd",
       });
     }
@@ -9100,7 +9146,7 @@ canvas#rrpBenefitsChart {
     for (let i = 0; i <= 4; i += 1) {
       const value = min + ((max - min) * i) / 4;
       const y = yAt(value);
-      ctx.fillText(compactMoney(value, settings.currency), pad.left - 10, y);
+      ctx.fillText(compactMoney(value, series.currency || settings.currency), pad.left - 10, y);
     }
 
     // X axis labels — critical milestone years get a bold callout, regular spaced
@@ -9219,7 +9265,15 @@ canvas#rrpBenefitsChart {
 
     const yearNum = row.year;
     const wrap = (v) => inflationActive() ? discount(v, yearNum) : v;
-    const money2 = (v) => money(wrap(v), settings.currency);
+    // Match the chart's shared display currency, converting each row from its
+    // product's native currency (main-side rows default; the compared line
+    // passes its own).
+    const tipMainCur = variantNativeCurrency(effective.custom, settings.currency);
+    const tipCompareCur = effective.customCompare
+      ? variantNativeCurrency(effective.customCompare, settings.currency)
+      : tipMainCur;
+    const tipChartCur = comparisonDisplayCurrency(tipMainCur, tipCompareCur);
+    const money2 = (v, fromCur = tipMainCur) => money(wrap(fxConvert(v, fromCur, tipChartCur)), tipChartCur);
 
     // Par-WL has no fund dividends — replace the dividend row with the
     // guaranteed / non-guaranteed split that's specific to par-WL maths.
@@ -9248,7 +9302,7 @@ canvas#rrpBenefitsChart {
           ] : []),
           [`<i style="background:${resolveColor("var(--c-bonus)")}"></i> Total wealth`, money2(comparisonTotal(row))],
         ];
-    if (compRow) rows.push([`<i style="background:${resolveColor("var(--c-benchmark)")}"></i> ${effective.customCompare.variant.label}`, money2(comparisonTotal(compRow))]);
+    if (compRow) rows.push([`<i style="background:${resolveColor("var(--c-benchmark)")}"></i> ${effective.customCompare.variant.label}`, money2(comparisonTotal(compRow), tipCompareCur)]);
     if (fdRow) rows.push([`<i style="background:${resolveColor("var(--c-dividend)")}"></i> Fixed deposit`, money2(fdRow.value)]);
     if (reinvestRow) rows.push([`<i style="background:#a7853d"></i> All reinvested`, money2(comparisonTotal(reinvestRow))]);
 
@@ -9267,7 +9321,7 @@ canvas#rrpBenefitsChart {
     const canvas = $("valueChart");
     const canvasRect = canvas.getBoundingClientRect();
     const snapXcanvas = geometry.xAt(idx);                       // canvas-px X
-    const snapYcanvas = geometry.yAt(comparisonTotal(row));       // canvas-px Y
+    const snapYcanvas = geometry.yAt(wrap(fxConvert(comparisonTotal(row), tipMainCur, tipChartCur)));       // canvas-px Y (match the converted, discounted selected line)
     // Convert canvas-px to CSS-px (the canvas is scaled by canvas.width / clientWidth)
     const cssScaleX = canvas.clientWidth / (canvas.width / (window.devicePixelRatio || 1));
     const cssScaleY = canvas.clientHeight / (canvas.height / (window.devicePixelRatio || 1));
@@ -10935,10 +10989,12 @@ canvas#rrpBenefitsChart {
     // SGD using the live rate fetched at boot. Cycles policy currency →
     // alternate → policy currency.
     $("cmpFxToggle").addEventListener("click", () => {
-      const settings = currentSettings();
-      const alt = settings.currency === "USD" ? "SGD" : "USD";
-      state.cmpDisplayCurrency = state.cmpDisplayCurrency === alt ? null : alt;
-      if (state.results) renderComparisonHero(state.results);
+      const shown = state.cmpDisplayCurrencyShown || "SGD";
+      state.cmpDisplayCurrency = shown === "USD" ? "SGD" : "USD";
+      if (state.results) {
+        renderComparisonHero(state.results);
+        renderCharts(state.results);
+      }
     });
 
     // Chart focus toggle — swap which variant is the chart's main series.
