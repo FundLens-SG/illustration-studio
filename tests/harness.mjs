@@ -68,6 +68,28 @@ export function loadView() {
   return view;
 }
 
+let cachedFx = null;
+
+// Load the pure currency/comparison-total helpers (assets/illustration-fx.js)
+// in a vm sandbox. No DOM, no state — the caller injects rate/choice.
+export function loadFx() {
+  if (cachedFx) return cachedFx;
+  const sandbox = { module: { exports: {} }, console };
+  sandbox.window = sandbox;
+  sandbox.globalThis = sandbox;
+  sandbox.Number = Number;
+  sandbox.Array = Array;
+  vm.createContext(sandbox);
+  const code = readFileSync(resolve(repoRoot, "assets/illustration-fx.js"), "utf8");
+  vm.runInContext(code, sandbox, { filename: "assets/illustration-fx.js" });
+  const fx = sandbox.IRFx || sandbox.module.exports;
+  if (!fx || typeof fx.fxConvert !== "function") {
+    throw new Error("fx module failed to load: IRFx.fxConvert missing");
+  }
+  cachedFx = fx;
+  return fx;
+}
+
 // Minimal settings shapes per engine — mirror what the UI's
 // currentSettings() produces for the fields each engine reads. Kept here
 // so tests construct scenarios without the DOM.

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/validation.test.mjs tests/regression.test.mjs tests/invariants.test.mjs tests/sii-invariants.test.mjs tests/sii-windows.test.mjs tests/sii-export-parity.test.mjs tests/sii-runtime-asset.test.mjs tests/view.test.mjs",
+    "test": "node --test tests/validation.test.mjs tests/regression.test.mjs tests/invariants.test.mjs tests/currency.test.mjs tests/engine-coverage.test.mjs tests/sii-invariants.test.mjs tests/sii-windows.test.mjs tests/sii-export-parity.test.mjs tests/sii-runtime-asset.test.mjs tests/view.test.mjs",
     "build:pdf": "node scripts/build-paper-pdf.mjs"
   },
   "devDependencies": {
