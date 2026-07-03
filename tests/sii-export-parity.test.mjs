@@ -63,7 +63,7 @@ function mulberry32(seed) {
 
 test("committed SII export grid rows reproduce through model.simulate", { skip: !existsSync(csvPath) && "SII export CSV not present" }, () => {
   const m = loadModel();
-  const lines = readFileSync(csvPath, "utf8").trim().split("\n");
+  const lines = readFileSync(csvPath, "utf8").trim().split(/\r?\n/);
   const header = parseCsvLine(lines[0]);
   const col = Object.fromEntries(header.map((name, index) => [name, index]));
   const rows = lines.slice(1);

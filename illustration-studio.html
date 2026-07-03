@@ -12,7 +12,7 @@
          ckgtools.com/tools/illustration/, the same-origin localStorage
          carries the hub Supabase session, so the same anon-key client
          picks it up automatically. Anon key is public-safe by design. -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="assets/supabase-js.js"></script>
     <script>
       (function () {
         try {
@@ -4552,7 +4552,7 @@ canvas#rrpBenefitsChart {
           </div>
           <div class="rrp-chart-highlights" id="rrpChartHighlights"></div>
           <div class="rrp-chart-stage">
-            <canvas id="rrpBenefitsChart" width="1100" height="320"></canvas>
+            <canvas id="rrpBenefitsChart" width="1100" height="320" role="img" aria-label="Projected retirement benefits by policy year; full figures are in the annual table below."></canvas>
             <!-- Hover layer — crosshair + tooltip draw here so the
                  chart canvas never re-renders on pointer moves. -->
             <canvas id="rrpBenefitsOverlay" class="rrp-chart-overlay" aria-hidden="true"></canvas>
@@ -5033,15 +5033,15 @@ canvas#rrpBenefitsChart {
             <h2>Projected Client Value And Benchmark</h2>
             <div class="chart-heading-meta">
               <div class="chart-focus-toggle" id="chartFocusToggle" hidden role="group" aria-label="Chart focus">
-                <button type="button" class="chart-focus-btn active" data-focus="main" id="chartFocusMain">Main</button>
-                <button type="button" class="chart-focus-btn" data-focus="compare" id="chartFocusCompare">Compare</button>
+                <button type="button" class="chart-focus-btn active" data-focus="main" id="chartFocusMain" aria-pressed="true">Main</button>
+                <button type="button" class="chart-focus-btn" data-focus="compare" id="chartFocusCompare" aria-pressed="false">Compare</button>
               </div>
               <span id="chartEndLabel"></span>
             </div>
           </div>
           <div id="chartLegend" class="chart-legend"></div>
           <div class="chart-stage">
-            <canvas id="valueChart" width="1100" height="380"></canvas>
+            <canvas id="valueChart" width="1100" height="380" role="img" aria-label="Projected total value by policy year; full figures are in the annual table below." aria-describedby="annualTable"></canvas>
             <div id="chartCrosshairX" class="chart-crosshair chart-crosshair-x" hidden></div>
             <div id="chartCrosshairY" class="chart-crosshair chart-crosshair-y" hidden></div>
             <div id="chartTooltip" class="chart-tooltip" hidden></div>
@@ -7487,7 +7487,7 @@ canvas#rrpBenefitsChart {
         warnEl.innerHTML = "";
       } else {
         warnEl.hidden = false;
-        warnEl.innerHTML = `<strong>Note</strong><ul>${ws.map((w) => `<li>${w}</li>`).join("")}</ul>`;
+        warnEl.innerHTML = `<strong>Note</strong><ul>${ws.map((w) => `<li>${htmlEscape(w)}</li>`).join("")}</ul>`;
       }
     }
   }
@@ -8467,6 +8467,10 @@ canvas#rrpBenefitsChart {
     if (!Number.isFinite(rate) || rate <= 0) return amount;
     if (from === "USD" && to === "SGD") return amount * rate;
     if (from === "SGD" && to === "USD") return amount / rate;
+    // Only USD<->SGD is supported (all variants are SGD/USD-native today). A
+    // new EUR/GBP-native product would land here and silently show an
+    // unconverted figure — fail loud so it is caught, not shipped wrong.
+    console.warn(`fxConvert: unsupported currency pair ${from}->${to}; returning amount unconverted`);
     return amount;
   }
 
@@ -8594,7 +8598,12 @@ canvas#rrpBenefitsChart {
           { key: "paid", label: "Capital paid in", value: paid, color: "var(--c-paid)" },
           { key: "bonuses", label: "Bonuses credited", value: bonuses, color: "var(--c-bonus)" },
           { key: "dividends", label: "Dividends accrued", value: dividends, color: "var(--c-dividend)" },
-          { key: "growth", label: "Investment growth", value: Math.max(0, growth), color: "var(--c-growth)" },
+          // Residual = NAV growth net of fees. When negative (fees exceed
+          // growth) surface it as an explicit deduction so the legend
+          // reconciles to the headline total instead of hiding the drag.
+          growth >= 0
+            ? { key: "growth", label: "Investment growth", value: growth, color: "var(--c-growth)" }
+            : { key: "charges", label: "Fees & charges", value: growth, color: "var(--muted)" },
         ];
     const positiveSum = segs.reduce((acc, s) => acc + Math.max(0, s.value), 0) || 1;
 
@@ -8778,6 +8787,7 @@ canvas#rrpBenefitsChart {
   }
 
   function buildChartSeries(results) {
+    const originalMainCustom = results.custom;
     results = chartResults(results);
     const settings = currentSettings();
     const annual = results.custom.annual;
@@ -8804,6 +8814,10 @@ canvas#rrpBenefitsChart {
       ? variantNativeCurrency(results.customCompare, settings.currency)
       : mainCur;
     const chartCurrency = comparisonDisplayCurrency(mainCur, compareCur);
+    // reinvest & fixed-deposit benchmarks always belong to the ORIGINAL main
+    // (chartResults only swaps custom<->customCompare), so they convert from
+    // the original main's native currency, not the focus-swapped one.
+    const benchmarkMainCur = variantNativeCurrency(originalMainCustom, settings.currency);
     const conv = (values, fromCur) => {
       const converted = values.map((v) => fxConvert(v, fromCur, chartCurrency));
       return inflationActive() ? converted.map((v, i) => discount(v, i + 1)) : converted;
@@ -8836,7 +8850,7 @@ canvas#rrpBenefitsChart {
       benchmarks.push({
         name: "All dividends reinvested",
         color: "#a7853d",
-        values: conv(results.reinvest.annual.map((row) => comparisonTotal(row)), mainCur).slice(0, horizonLen),
+        values: conv(results.reinvest.annual.map((row) => comparisonTotal(row)), benchmarkMainCur).slice(0, horizonLen),
         kind: "reinvest",
       });
     }
@@ -8844,7 +8858,7 @@ canvas#rrpBenefitsChart {
       benchmarks.push({
         name: "Fixed deposit",
         color: "var(--c-dividend)",
-        values: conv(results.fixedDeposit.annual.map((row) => row.value), mainCur).slice(0, horizonLen),
+        values: conv(results.fixedDeposit.annual.map((row) => row.value), benchmarkMainCur).slice(0, horizonLen),
         kind: "fd",
       });
     }
@@ -8912,8 +8926,8 @@ canvas#rrpBenefitsChart {
       }
       const mainBtn = $("chartFocusMain");
       const compareBtn = $("chartFocusCompare");
-      if (mainBtn) mainBtn.classList.toggle("active", state.chartFocus === "main");
-      if (compareBtn) compareBtn.classList.toggle("active", state.chartFocus === "compare");
+      if (mainBtn) { const on = state.chartFocus === "main"; mainBtn.classList.toggle("active", on); mainBtn.setAttribute("aria-pressed", String(on)); }
+      if (compareBtn) { const on = state.chartFocus === "compare"; compareBtn.classList.toggle("active", on); compareBtn.setAttribute("aria-pressed", String(on)); }
       if (mainBtn) mainBtn.textContent = results.custom.variant.label.split(" · ")[0] || "Main";
       if (compareBtn && results.customCompare) {
         compareBtn.textContent = results.customCompare.variant.label.split(" · ")[0] || "Compare";
@@ -9273,6 +9287,9 @@ canvas#rrpBenefitsChart {
       ? variantNativeCurrency(effective.customCompare, settings.currency)
       : tipMainCur;
     const tipChartCur = comparisonDisplayCurrency(tipMainCur, tipCompareCur);
+    // reinvest & fixed-deposit benchmarks belong to the ORIGINAL main (not the
+    // focus-swapped one), so they convert from the original main's currency.
+    const tipBenchmarkCur = variantNativeCurrency(state.results.custom, settings.currency);
     const money2 = (v, fromCur = tipMainCur) => money(wrap(fxConvert(v, fromCur, tipChartCur)), tipChartCur);
 
     // Par-WL has no fund dividends — replace the dividend row with the
@@ -9303,8 +9320,8 @@ canvas#rrpBenefitsChart {
           [`<i style="background:${resolveColor("var(--c-bonus)")}"></i> Total wealth`, money2(comparisonTotal(row))],
         ];
     if (compRow) rows.push([`<i style="background:${resolveColor("var(--c-benchmark)")}"></i> ${effective.customCompare.variant.label}`, money2(comparisonTotal(compRow), tipCompareCur)]);
-    if (fdRow) rows.push([`<i style="background:${resolveColor("var(--c-dividend)")}"></i> Fixed deposit`, money2(fdRow.value)]);
-    if (reinvestRow) rows.push([`<i style="background:#a7853d"></i> All reinvested`, money2(comparisonTotal(reinvestRow))]);
+    if (fdRow) rows.push([`<i style="background:${resolveColor("var(--c-dividend)")}"></i> Fixed deposit`, money2(fdRow.value, tipBenchmarkCur)]);
+    if (reinvestRow) rows.push([`<i style="background:#a7853d"></i> All reinvested`, money2(comparisonTotal(reinvestRow), tipBenchmarkCur)]);
 
     tooltip.innerHTML = `
       <h4>${isParWlRow ? `Policy year ${yearNum}` : `Year ${yearNum} · Age ${row.age}`}</h4>
@@ -9639,12 +9656,15 @@ canvas#rrpBenefitsChart {
     const reinvestAnnual = state.results.reinvest && state.results.reinvest.annual;
     const fdAnnual = state.results.fixedDeposit && state.results.fixedDeposit.annual;
     const compareResult = state.results.customCompare;
-    // The compared product may be in a different native currency; the table is
-    // in the main product's currency (settings.currency), so convert the
-    // compare column into it rather than mislabel a foreign-currency figure.
+    // Each product may have a different native currency. Present the whole
+    // table in the shared display currency (same as the hero + chart: SGD by
+    // default for a cross-currency comparison, else the main's currency; the
+    // FX toggle overrides), converting each column from its own native currency.
+    const mainCurrency = variantNativeCurrency(result, settings.currency);
     const compareCurrency = compareResult
       ? variantNativeCurrency(compareResult, settings.currency)
-      : settings.currency;
+      : mainCurrency;
+    const tableDisplayCurrency = comparisonDisplayCurrency(mainCurrency, compareCurrency);
     const variant = result.variant;
     const totalYears = result.annual.length;
     const access = projectionAccessRows(result, variant);
@@ -9668,9 +9688,10 @@ canvas#rrpBenefitsChart {
       fullBtn.classList.toggle("active", !milestoneOnly);
     }
 
-    const valueWrapper = (v, year, decimals = 0) => {
-      const adjusted = inflationActive() ? discount(v, year) : v;
-      return money(adjusted, settings.currency, decimals);
+    const valueWrapper = (v, year, decimals = 0, fromCur = mainCurrency) => {
+      const converted = fxConvert(v, fromCur, tableDisplayCurrency);
+      const adjusted = inflationActive() ? discount(converted, year) : converted;
+      return money(adjusted, tableDisplayCurrency, decimals);
     };
     renderAnnualAccessLegend(access, valueWrapper, variant);
 
@@ -9816,7 +9837,7 @@ canvas#rrpBenefitsChart {
             ${hasDividendWithdrawals ? `<td class="col-withdrawal">${valueWrapper(row.dividendWithdrawals, row.year)}</td>` : ""}
             ${hasPartialWithdrawals ? `<td class="col-withdrawal">${valueWrapper(row.partialWithdrawals, row.year)}</td>` : ""}
             <td class="col-value">${valueWrapper(row.accountValue, row.year)}</td>
-            ${compareResult ? `<td class="col-total">${valueWrapper(row.totalValue, row.year)}</td><td class="col-compare">${valueWrapper(fxConvert(compareRow.totalValue, compareCurrency, settings.currency), row.year)}</td>` : `<td class="col-total">${valueWrapper(row.totalValue, row.year)}</td>`}
+            ${compareResult ? `<td class="col-total">${valueWrapper(row.totalValue, row.year)}</td><td class="col-compare">${valueWrapper(compareRow.totalValue, row.year, 0, compareCurrency)}</td>` : `<td class="col-total">${valueWrapper(row.totalValue, row.year)}</td>`}
             ${reinvestAnnual ? `<td class="col-value">${valueWrapper(reinvestRow.accountValue, row.year)}</td>` : ""}
             ${fdAnnual ? `<td class="col-benchmark">${valueWrapper(fdRow.value, row.year)}</td>` : ""}
             ${showAdvisor ? `<td class="col-charge">${percent(row.adminRate, 2)}</td><td class="col-charge">${percent(row.partialWithdrawalChargeRate)}</td><td class="col-charge">${valueWrapper(row.bonuses, row.year)}</td>` : ""}
@@ -11000,6 +11021,7 @@ canvas#rrpBenefitsChart {
       if (state.results) {
         renderComparisonHero(state.results);
         renderCharts(state.results);
+        renderAnnualTable();
       }
     });
 

@@ -1196,23 +1196,24 @@
       if (hasExact) {
         // Exact reproduction from workbook factor tables.
         //
-        // Note on the "Current Year Realised Bonus" column: per the
-        // workbook formula, it equals 7% × NG_BR_PRE_drawdown, which
-        // is equivalent to NG_BR_post × 0.07 / 0.93. Computing as
-        // (cum_this_year − cum_prev_year) would give the wrong number
-        // for sparsely-tabulated years (45, 50, 55, ...) where we
-        // interpolate between explicit rows.
+        // The "Current Year Realised Bonus" is the increment of the workbook's
+        // cumulative-realised column (brCumTable), so the per-year values sum
+        // exactly to brCumulativeIncome and the IRR cash flow sees the true
+        // cash received. The earlier NG_post * (7/93) form did NOT reconcile
+        // with the cumulative table (its sum far exceeded final cumulative
+        // realised) and overstated the BR yield by ~1 percentage point.
+        let prevBrCumRealised = 0;
         for (let i = 0; i < annual.length; i += 1) {
           const row = annual[i];
           const basis = basisAtYear(row.year, row.totalBasicPaid);
           const brTotalSV = lookupSlhFactor(brTotalTable, row.year) * basis;
           const brCumRealised = lookupSlhFactor(brCumTable, row.year) * basis;
           const brNG = Math.max(0, brTotalSV - (row.surrenderValue || 0));
-          // Current realised = 7% of NG pre-drawdown = NG_post * (7/93).
           // Zero before the brStartYear since no realisation occurs.
           const currentRealised = row.year >= brStartYear
-            ? brNG * (brRate / (1 - brRate))
+            ? Math.max(0, brCumRealised - prevBrCumRealised)
             : 0;
+          prevBrCumRealised = brCumRealised;
           row.slhNonGuaranteedBonus = brNG;
           row.slhTerminalBonus = brNG;
           row.totalValue = brTotalSV;                  // [A]+[B] policy value

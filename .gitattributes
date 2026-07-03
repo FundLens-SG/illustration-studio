@@ -1,0 +1,10 @@
+# Normalize line endings so checkouts are deterministic across platforms
+# (Windows dev + Linux CI). Data assets/tests parse on exact newlines.
+* text=auto eol=lf
+*.csv text eol=lf
+*.json text eol=lf
+*.mjs text eol=lf
+*.js text eol=lf
+*.html text eol=lf
+*.py text eol=lf
+*.md text eol=lf
