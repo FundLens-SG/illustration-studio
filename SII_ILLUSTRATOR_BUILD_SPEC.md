@@ -5,7 +5,8 @@
 - Product deck: `C:\Users\user\Downloads\Manulife Signature Indexed Income Training Tech Deck Apr2026 (1).pdf`
 - Uploaded PIs: `C:\Users\user\Downloads\PI_20260702*.pdf`
 - Cached PI text library: `source-data/signature-indexed-income/raw-text/PI_20260702*.txt`
-- Parsed browser data: `assets/sii-rates.js`
+- Parsed data (full archive, used by tests): `assets/sii-rates.js`
+- Browser runtime asset (slim; loaded by the page): `assets/sii-rates-runtime.js`
 - Parsed CSVs:
   - `source-data/signature-indexed-income/parsed/sii_scenarios.csv`
   - `source-data/signature-indexed-income/parsed/sii_annual_rows.csv`
@@ -67,12 +68,15 @@ Coverage assessment:
 
 ## Model Method
 
-- Source-exact term/start-year cases use the matching parsed PI row.
-- Same term/start-year cases across age 46 and 56 use linear age interpolation. If the selected age is outside 46-56, the model extrapolates from the nearest age anchors and flags the estimate.
-- Missing term/start-year cases use inverse-distance weighted interpolation/extrapolation across nearest source PIs by:
-  - premium payment term
-  - income start year
-  - life insured age
+- Estimation is two-stage, with entry age fully decoupled from term/start-year estimation:
+  - Stage 1 (term and income start year, per anchor-age cohort): each cohort resolves the selected term/start-year to weights over parsed source rows using monotone piecewise-linear curves of income start year, one curve per premium term. Curves are the node-level union of both cohorts' scenarios for that term (own rows take precedence at duplicate starts), which keeps the income rate age-invariant, matching the parsed data. Terms a cohort lacks are borrowed whole from the other cohort; terms in no cohort are bracketed between the nearest union terms.
+  - Interior start years interpolate linearly between adjacent source start-year nodes. Start years beyond the parsed curve ends use whole-curve secant continuation with the position ratio clamped to +/-0.5 of the curve span, then held flat; clamped estimates are flagged with an explicit note. Estimated income is monotone non-decreasing in income start year by construction.
+  - Stage 2 (age): clamped piecewise-linear combine across the anchor-age cohorts - convex interpolation inside the anchor band (46-56), nearest anchor with weight 1 outside it. Negative age weights cannot occur; out-of-band ages reuse the nearest anchor's estimate verbatim (parsed PIs show identical income rates at both anchors) and are flagged with a clamped-age note.
+- Source-exact term/start-year cases at an anchor age still use the matching parsed PI rows verbatim (`source_exact`).
+- Estimation labels: `source_exact`, `interpolated_age` (age convex-blended between anchors on an exact combo), `age_shifted_source` (exact combo taken from an anchor age other than the selected age, values used verbatim), `interpolated_sparse` (interior start-year interpolation), `extrapolated_sparse` (clamped start-year tail or one-sided term bracket), `not_available`.
+- Projection truncation: projections run to `min(source table length, maturity age 125 - entry age)`. When the source tables end before maturity, the summary carries `projectionTruncated: true` plus `projectionEndAge`, and a note states that the projection stops at the attained age of the final parsed policy year and that total projected income and final values are to the final projected year, not to maturity.
+- Premium mode discloses (as a non-blocking note) when the derived monthly income falls below the electable product minimum for the selected income start year.
+- Per-scenario annual row lookups are served from a per-source `byYear` map cache, so interactive recalculation and batch export share the same fast path.
 - User can generate from either:
   - annualised premium, deriving target monthly income, or
   - target monthly income, deriving annualised premium and total planned premium.
