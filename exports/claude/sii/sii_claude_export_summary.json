@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-02T17:19:16.475Z",
+  "generatedAt": "2026-07-03T08:34:17.363Z",
   "product": "SII / Signature Indexed Income",
   "source": {
     "pdfCount": 15,
@@ -9,6 +9,7 @@
     "uniqueScenarioCount": 36,
     "errorCount": 0,
     "cachedTextErrorCount": 0,
+    "skippedNonSiiCount": 0,
     "sourceAges": [
       46,
       56
@@ -147,14 +148,22 @@
     "sourceScenarioRows": 36,
     "sourceAnnualRows": 2704,
     "extrapolationRows": 13419,
+    "estimationMethodLabels": [
+      "age_shifted_source",
+      "extrapolated_sparse",
+      "interpolated_age",
+      "interpolated_sparse",
+      "source_exact"
+    ],
     "estimationMethodCounts": {
-      "age_shifted_source": 1960,
-      "extrapolated_sparse": 9530,
-      "extrapolated_age": 240,
+      "age_shifted_source": 2200,
+      "interpolated_sparse": 5751,
+      "extrapolated_sparse": 5396,
       "source_exact": 36,
-      "interpolated_sparse": 1617,
       "interpolated_age": 36
-    }
+    },
+    "projectionTruncatedRows": 9194,
+    "projectionToMaturityRows": 4225
   },
   "files": {
     "sourceScenarios": "sii_claude_source_pi_scenarios.csv",
