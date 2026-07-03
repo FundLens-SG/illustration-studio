@@ -5359,6 +5359,7 @@ canvas#rrpBenefitsChart {
     <script src="assets/sii-rates-runtime.js"></script>
     <script src="assets/illustration-model.js"></script>
     <script src="assets/illustration-view.js"></script>
+    <script src="assets/illustration-fx.js"></script>
     <script src="fund-library-afl.js"></script>
     <script src="assets/paper-deck.js"></script>
     <script>
@@ -8439,50 +8440,14 @@ canvas#rrpBenefitsChart {
   // both while totalValue holds only the current cash/policy value. SII and ILP
   // already fold received income into totalValue. Comparing on this keeps an
   // income-paying strategy from looking worse than one that simply accumulates.
-  function comparisonTotal(row) {
-    if (!row) return 0;
-    if (row.brTotalWealth != null) return row.brTotalWealth;
-    if (row.siTotalReceived != null) return row.siTotalReceived;
-    return row.totalValue || 0;
-  }
-
-  // The currency a result's numbers are actually in. The engine treats
-  // currency as a nominal label (a 300k premium projects identically whether
-  // tagged SGD or USD), and single-currency variants — SLH/SII are USD-only,
-  // IRG/SLR/SI3/RRP are SGD-only — always produce values in their own
-  // currency regardless of the inherited settings.currency.
-  function variantNativeCurrency(result, fallback = "SGD") {
-    const cur = (result && result.settings && result.settings.currency) || fallback;
-    const list = result && result.variant && result.variant.currencies;
-    if (Array.isArray(list) && list.length) return list.includes(cur) ? cur : list[0];
-    return cur;
-  }
-
-  // Convert an amount between USD and SGD using the live rate
-  // (state.fxRate.USD_SGD = SGD per 1 USD; a 1.36 fallback is seeded at boot).
-  // No-op when the currencies match or no rate is available.
-  function fxConvert(amount, from, to) {
-    if (from === to || !Number.isFinite(amount)) return amount;
-    const rate = state.fxRate && state.fxRate.USD_SGD;
-    if (!Number.isFinite(rate) || rate <= 0) return amount;
-    if (from === "USD" && to === "SGD") return amount * rate;
-    if (from === "SGD" && to === "USD") return amount / rate;
-    // Only USD<->SGD is supported (all variants are SGD/USD-native today). A
-    // new EUR/GBP-native product would land here and silently show an
-    // unconverted figure — fail loud so it is caught, not shipped wrong.
-    console.warn(`fxConvert: unsupported currency pair ${from}->${to}; returning amount unconverted`);
-    return amount;
-  }
-
-  // The currency a comparison should display in: when the two sides are in
-  // different native currencies they are shown in SGD by default (a
-  // like-for-like basis for a Singapore client); otherwise their shared
-  // currency. An explicit user choice via the FX toggle (state.cmpDisplayCurrency)
-  // always wins.
+  // Currency + comparison-total helpers live in assets/illustration-fx.js
+  // (pure + unit-tested); these thin wrappers inject the live FX rate and the
+  // sticky display choice from `state`.
+  function comparisonTotal(row) { return IRFx.comparisonTotal(row); }
+  function variantNativeCurrency(result, fallback) { return IRFx.variantNativeCurrency(result, fallback); }
+  function fxConvert(amount, from, to) { return IRFx.fxConvert(amount, from, to, state.fxRate && state.fxRate.USD_SGD); }
   function comparisonDisplayCurrency(currencyA, currencyB) {
-    const base = currencyA === currencyB ? currencyA : "SGD";
-    const chosen = state.cmpDisplayCurrency;
-    return chosen === "USD" || chosen === "SGD" ? chosen : base;
+    return IRFx.comparisonDisplayCurrency(currencyA, currencyB, state.cmpDisplayCurrency);
   }
 
   function compositionFor(result) {

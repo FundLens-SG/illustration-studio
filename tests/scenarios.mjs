@@ -47,6 +47,12 @@ export function buildScenarios() {
   list.push({ name: "parwl:SLH_5PAY", kind: "par-wl", settings: {
     variantKey: "SLH_5PAY", currency: "USD", startAge: 36, annualizedPremium: 33400,
     paymentFrequency: "Annual", projectionYears: 40 }, strategy: [] });
+  // Bonus-Realisation income mode — a distinct drawdown math path feeding the
+  // comparison hero's Total Wealth; freeze it so the BR realisation + IRR and
+  // the comparisonTotal->brTotalWealth wiring can't regress silently.
+  list.push({ name: "parwl:SLH_SP-BR-income", kind: "par-wl", settings: {
+    variantKey: "SLH_SP", currency: "USD", startAge: 36, annualizedPremium: 100000,
+    paymentFrequency: "Annual", projectionYears: 40, enableBRIncome: true }, strategy: [] });
 
   // SI / SLR — par-income-fin engine, financed and unfinanced.
   list.push({ name: "si:SI3_SP-financed", kind: "par-income-fin", settings: {
