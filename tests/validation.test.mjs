@@ -58,6 +58,70 @@ test("RRP reproduces all source-exact BI rows to the cent", () => {
   assert.deepEqual(failures.slice(0, 12), [], `${failures.length} source-exact mismatches; first few above`);
 });
 
+// Same oracle idea for SII: every one of the parsed source PI scenarios
+// must be reproduced by simulate() at its own age/term/start/premium —
+// initial income, the income-start-year values, a mid-projection year
+// and the final projected year, all within a cent of the parsed PI.
+test("SII reproduces all parsed source PI scenarios to the cent", () => {
+  const scenarios = m.SII_SCENARIOS || [];
+  assert.ok(scenarios.length >= 36, `expected the full parsed SII scenario set, got ${scenarios.length}`);
+
+  const failures = [];
+  for (const src of scenarios) {
+    const termNum = Math.round(Number(src.premium_payment_term_number));
+    const startYear = Math.round(Number(src.income_start_year));
+    const age = Math.round(Number(src.life_insured_age));
+    const label = `age${age} ${termNum === 1 ? "SP" : `${termNum}-pay`} PY${startYear}`;
+
+    const result = m.simulate({
+      variantKey: "SII",
+      currency: "USD",
+      paymentFrequency: "Annual",
+      siiAge: age,
+      siiPremiumTerm: termNum === 1 ? "single" : termNum,
+      siiIncomeStartYear: startYear,
+      siiInputMode: "premium",
+      siiAnnualPlannedPremium: termNum === 1
+        ? Number(src.initial_total_planned_premium)
+        : Number(src.initial_planned_premium),
+      siiSkipMonthly: true,
+      siiSkipAnnualIrr: true,
+    }, [], "validate");
+
+    const s = result.siiSummary || {};
+    if (!s.valid) { failures.push(`${label}: blocked (${(s.blockers || [])[0] || "?"})`); continue; }
+    if (s.method !== "source_exact") { failures.push(`${label}: method ${s.method} != source_exact`); continue; }
+    if (!near(s.totalPlannedPremium, src.initial_total_planned_premium, 0.01))
+      failures.push(`${label}: total premium ${s.totalPlannedPremium} != ${src.initial_total_planned_premium}`);
+    if (!near(s.targetMonthlyIncome * 12, src.initial_monthly_income_annualized, 0.01))
+      failures.push(`${label}: initial income ${s.targetMonthlyIncome * 12} != ${src.initial_monthly_income_annualized}`);
+    if (!near(s.incomeScale, 1, 1e-9))
+      failures.push(`${label}: income scale ${s.incomeScale} != 1`);
+
+    const byYear = new Map((result.annual || []).map((row) => [row.year, row]));
+    const sourceRows = src.current_rows || [];
+    const checkpoints = [
+      ["start", sourceRows.find((row) => Math.round(Number(row.policy_year)) === startYear)],
+      ["mid", sourceRows[Math.floor(sourceRows.length / 2)]],
+      ["final", sourceRows[sourceRows.length - 1]],
+    ];
+    for (const [tag, sourceRow] of checkpoints) {
+      if (!sourceRow) { failures.push(`${label}: missing ${tag} source row`); continue; }
+      const modelRow = byYear.get(Math.round(Number(sourceRow.policy_year)));
+      if (!modelRow) { failures.push(`${label}: no model row for ${tag} PY${sourceRow.policy_year}`); continue; }
+      for (const [modelKey, sourceKey] of [
+        ["siiPolicyValue", "policy_value"],
+        ["siiSurrenderValue", "surrender_value"],
+        ["siiDeathBenefit", "death_benefit"],
+      ]) {
+        if (!near(modelRow[modelKey], sourceRow[sourceKey], 0.01))
+          failures.push(`${label} ${tag} PY${sourceRow.policy_year}: ${modelKey} ${modelRow[modelKey]} != ${sourceRow[sourceKey]}`);
+      }
+    }
+  }
+  assert.deepEqual(failures.slice(0, 12), [], `${failures.length} SII source-exact mismatches; first few above`);
+});
+
 test("SI death-benefit floor is ~105% of single premium on day 1", () => {
   for (const financed of [true, false]) {
     const r = m.simulate({

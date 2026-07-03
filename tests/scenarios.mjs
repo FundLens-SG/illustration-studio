@@ -78,10 +78,28 @@ export function buildScenarios() {
     siiAnnualPlannedPremium: 100000, siiTotalPlannedPremium: 100000, siiTargetMonthlyIncome: 0, projectionYears: 79,
     includeWelcome: false, includeAnnualBonus: false, includeLoyalty: false, deductPiFundMgmt: false,
   };
+  // One scenario per estimation-method label the two-stage blend emits,
+  // so every estimator code path is frozen in the golden master.
   list.push({ name: "sii:SP-start4-source", kind: "sii", settings: siiBase, strategy: [] });
   list.push({ name: "sii:3pay-start3-estimated", kind: "sii", settings: {
     ...siiBase, startAge: 55, siiAge: 55, siiPremiumTerm: 3, siiIncomeStartYear: 3,
     siiInputMode: "income", siiTargetMonthlyIncome: 500,
+  }, strategy: [] });
+  list.push({ name: "sii:SP-start4-age51-interpolated-age", kind: "sii", settings: {
+    ...siiBase, startAge: 51, siiAge: 51,
+  }, strategy: [] });
+  list.push({ name: "sii:SP-start4-age70-age-clamped-high", kind: "sii", settings: {
+    ...siiBase, startAge: 70, siiAge: 70,
+  }, strategy: [] });
+  list.push({ name: "sii:4pay-start9-age30-age-clamped-low", kind: "sii", settings: {
+    ...siiBase, startAge: 30, siiAge: 30, siiPremiumTerm: 4, siiIncomeStartYear: 9,
+    siiTotalPlannedPremium: 400000,
+  }, strategy: [] });
+  list.push({ name: "sii:10pay-start7-interpolated-sparse", kind: "sii", settings: {
+    ...siiBase, siiPremiumTerm: 10, siiIncomeStartYear: 7, siiTotalPlannedPremium: 1000000,
+  }, strategy: [] });
+  list.push({ name: "sii:2pay-start21-extrapolated-sparse", kind: "sii", settings: {
+    ...siiBase, siiPremiumTerm: 2, siiIncomeStartYear: 21, siiTotalPlannedPremium: 200000,
   }, strategy: [] });
 
   return list;
