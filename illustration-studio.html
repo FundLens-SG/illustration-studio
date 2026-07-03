@@ -5360,6 +5360,7 @@ canvas#rrpBenefitsChart {
     <script src="assets/illustration-model.js"></script>
     <script src="assets/illustration-view.js"></script>
     <script src="assets/illustration-fx.js"></script>
+    <script src="assets/illustration-integrity.js"></script>
     <script src="fund-library-afl.js"></script>
     <script src="assets/paper-deck.js"></script>
     <script>
@@ -10049,45 +10050,10 @@ canvas#rrpBenefitsChart {
   // (the upgrade path). It still catches the realistic cases: a number
   // edited in a text editor, an emailed file altered in transit, bit rot.
 
-  // Deterministic serialization with recursively sorted keys, so the same
-  // logical payload always hashes the same regardless of key order.
-  function _stableStringify(value) {
-    if (value === null || typeof value !== "object") return JSON.stringify(value);
-    if (Array.isArray(value)) return "[" + value.map(_stableStringify).join(",") + "]";
-    const keys = Object.keys(value).filter((k) => value[k] !== undefined).sort();
-    return "{" + keys.map((k) => JSON.stringify(k) + ":" + _stableStringify(value[k])).join(",") + "}";
-  }
-
-  function _subtleCrypto() {
-    return (typeof crypto !== "undefined" && crypto.subtle) ? crypto.subtle : null;
-  }
-
-  async function _sha256Hex(text) {
-    const subtle = _subtleCrypto();
-    if (!subtle) return null;
-    const buf = await subtle.digest("SHA-256", new TextEncoder().encode(text));
-    return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
-  }
-
-  // Hash everything except the integrity block itself.
-  async function _scenarioHash(payload) {
-    const { integrity, ...rest } = payload;
-    return _sha256Hex(_stableStringify(rest));
-  }
-
-  async function attachIntegrity(payload) {
-    const hash = await _scenarioHash(payload);
-    if (hash) payload.integrity = { algo: "SHA-256", hash, signedAt: new Date().toISOString() };
-    return payload;
-  }
-
-  // -> "ok" | "modified" | "unsigned" | "unverifiable"
-  async function verifyScenarioIntegrity(payload) {
-    if (!payload || !payload.integrity || !payload.integrity.hash) return "unsigned";
-    if (!_subtleCrypto()) return "unverifiable";
-    const hash = await _scenarioHash(payload);
-    return hash === payload.integrity.hash ? "ok" : "modified";
-  }
+  // Tamper-evidence logic lives in assets/illustration-integrity.js (pure +
+  // unit-tested); these thin wrappers keep the existing call sites.
+  function attachIntegrity(payload) { return IRIntegrity.attachIntegrity(payload); }
+  function verifyScenarioIntegrity(payload) { return IRIntegrity.verifyScenarioIntegrity(payload); }
 
   async function downloadJsonScenario() {
     const payload = currentScenarioPayload();
