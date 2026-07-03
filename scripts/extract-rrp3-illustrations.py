@@ -803,12 +803,19 @@ def main():
         "coverage": summary["coverage"],
     }
     app_data_path.parent.mkdir(parents=True, exist_ok=True)
-    app_data_path.write_text(
+    app_body = (
         "window.RRP3_RATES = "
         + json.dumps(app_payload, indent=2, ensure_ascii=False)
-        + ";\n",
-        encoding="utf-8",
+        + ";\n"
     )
+    # Write atomically (temp + replace) so a crash mid-write cannot leave a
+    # truncated, syntactically-broken rrp3-rates.js committed and shipped.
+    tmp_path = app_data_path.parent / (app_data_path.name + ".tmp")
+    tmp_path.write_text(app_body, encoding="utf-8")
+    tmp_path.replace(app_data_path)
+    verify = app_data_path.read_text(encoding="utf-8")
+    if not verify.startswith("window.RRP3_RATES = ") or not verify.rstrip().endswith(";"):
+        raise SystemExit(f"{app_data_path} did not write correctly")
 
     print(json.dumps(summary, indent=2, ensure_ascii=False))
 
