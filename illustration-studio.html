@@ -8431,6 +8431,21 @@ canvas#rrpBenefitsChart {
   }
 
   // ===== HERO =====
+  // Total client value for comparison surfaces: policy/account value PLUS all
+  // income, payouts and cash dividends received to date. Income-drawing
+  // products carry the received cash separately from policy value: par-WL in
+  // Bonus Realisation mode uses brTotalWealth, and SI3 / SLR expose
+  // siTotalReceived (cash value net of financing + cumulative coupon payouts),
+  // both while totalValue holds only the current cash/policy value. SII and ILP
+  // already fold received income into totalValue. Comparing on this keeps an
+  // income-paying strategy from looking worse than one that simply accumulates.
+  function comparisonTotal(row) {
+    if (!row) return 0;
+    if (row.brTotalWealth != null) return row.brTotalWealth;
+    if (row.siTotalReceived != null) return row.siTotalReceived;
+    return row.totalValue || 0;
+  }
+
   function compositionFor(result) {
     const f = result.final;
     const paid = (f.totalBasicPaid || 0) + (f.totalTopUps || 0);
@@ -8614,18 +8629,18 @@ canvas#rrpBenefitsChart {
 
       primary = {
         label: results.custom.variant.label,
-        value: mainAtHorizon.totalValue,
+        value: comparisonTotal(mainAtHorizon),
         detail: `From ${money(mainPaid, settings.currency)} paid${ageNote}${mainIrrText}`,
       };
       secondary = {
         label: results.customCompare.variant.label,
-        value: compareAtHorizon.totalValue,
+        value: comparisonTotal(compareAtHorizon),
         detail: `From ${money(comparePaid, settings.currency)} paid${ageNote}${compareIrrText}`,
       };
     } else if (results.fixedDeposit) {
       primary = {
         label: `${results.custom.variant.label} (selected)`,
-        value: results.custom.final.totalValue,
+        value: comparisonTotal(results.custom.final),
         detail: `From ${money(results.custom.final.totalBasicPaid + results.custom.final.totalTopUps, settings.currency)} paid · ${percent(results.custom.final.irr)} ${glossaryAbbr("IRR")}`,
       };
       secondary = {
@@ -8636,12 +8651,12 @@ canvas#rrpBenefitsChart {
     } else if (results.reinvest) {
       primary = {
         label: `${results.custom.variant.label} — your strategy`,
-        value: results.custom.final.totalValue,
+        value: comparisonTotal(results.custom.final),
         detail: `${percent(results.custom.final.irr)} ${glossaryAbbr("IRR")}`,
       };
       secondary = {
         label: "All dividends reinvested",
-        value: results.reinvest.final.totalValue,
+        value: comparisonTotal(results.reinvest.final),
         detail: `${percent(results.reinvest.final.irr)} ${glossaryAbbr("IRR")}`,
       };
     }
@@ -8742,7 +8757,7 @@ canvas#rrpBenefitsChart {
       cumulativePaid.push(running);
     });
 
-    const selectedTotal = annual.map((row) => row.totalValue);
+    const selectedTotal = annual.map((row) => comparisonTotal(row));
     const accountOnly = annual.map((row) => row.accountValue);
 
     const apply = (values) => inflationActive()
@@ -8767,7 +8782,7 @@ canvas#rrpBenefitsChart {
       benchmarks.push({
         name: `${results.customCompare.variant.label} total value`,
         color: "var(--c-benchmark)",
-        values: apply(results.customCompare.annual.map((row) => row.totalValue)).slice(0, horizonLen),
+        values: apply(results.customCompare.annual.map((row) => comparisonTotal(row))).slice(0, horizonLen),
         kind: "compare",
       });
     }
@@ -8775,7 +8790,7 @@ canvas#rrpBenefitsChart {
       benchmarks.push({
         name: "All dividends reinvested",
         color: "#a7853d",
-        values: apply(results.reinvest.annual.map((row) => row.totalValue)).slice(0, horizonLen),
+        values: apply(results.reinvest.annual.map((row) => comparisonTotal(row))).slice(0, horizonLen),
         kind: "reinvest",
       });
     }
@@ -9209,22 +9224,33 @@ canvas#rrpBenefitsChart {
     // Par-WL has no fund dividends — replace the dividend row with the
     // guaranteed / non-guaranteed split that's specific to par-WL maths.
     const isParWlRow = result.variant && result.variant.kind === "par-wl";
+    // Cash income/payouts already drawn out this year (RRP retirement income,
+    // par-WL Bonus Realisation). For SII/ILP it is already inside totalValue,
+    // so this gap is zero and no extra line shows.
+    const incomeReceived = comparisonTotal(row) - (row.totalValue || 0);
     const rows = isParWlRow
       ? [
           [`<i style="background:${resolveColor("var(--c-paid)")}"></i> Capital paid in`, money2(cumulativePaid)],
           [`<i style="background:${resolveColor("var(--c-growth)")}"></i> Guaranteed SV [A]`, money2(row.surrenderValue || 0)],
           [`<i style="background:${resolveColor("var(--c-bonus)")}"></i> Non-guaranteed bonus [B]`, money2(row.slhNonGuaranteedBonus || Math.max(0, (row.totalValue || 0) - (row.surrenderValue || 0)))],
           [`<i style="background:${resolveColor("var(--c-selected)")}"></i> Total SV [A]+[B]`, money2(row.totalValue)],
+          ...(incomeReceived > 0.5 ? [
+            [`<i style="background:${resolveColor("var(--c-dividend)")}"></i> Realised income [C]`, money2(incomeReceived)],
+            [`<i style="background:${resolveColor("var(--c-bonus)")}"></i> Total wealth [A]+[B]+[C]`, money2(comparisonTotal(row))],
+          ] : []),
         ]
       : [
           [`<i style="background:${resolveColor("var(--c-paid)")}"></i> Capital paid in`, money2(cumulativePaid)],
           [`<i style="background:${resolveColor("var(--c-dividend)")}"></i> Dividends accrued`, money2((row.totalReinvestedDividends || 0) + (row.cashDividends || 0))],
           [`<i style="background:${resolveColor("var(--c-selected)")}"></i> Account value`, money2(row.accountValue)],
-          [`<i style="background:${resolveColor("var(--c-bonus)")}"></i> Total wealth`, money2(row.totalValue)],
+          ...(incomeReceived > 0.5 ? [
+            [`<i style="background:${resolveColor("var(--c-dividend)")}"></i> Income received`, money2(incomeReceived)],
+          ] : []),
+          [`<i style="background:${resolveColor("var(--c-bonus)")}"></i> Total wealth`, money2(comparisonTotal(row))],
         ];
-    if (compRow) rows.push([`<i style="background:${resolveColor("var(--c-benchmark)")}"></i> ${effective.customCompare.variant.label}`, money2(compRow.totalValue)]);
+    if (compRow) rows.push([`<i style="background:${resolveColor("var(--c-benchmark)")}"></i> ${effective.customCompare.variant.label}`, money2(comparisonTotal(compRow))]);
     if (fdRow) rows.push([`<i style="background:${resolveColor("var(--c-dividend)")}"></i> Fixed deposit`, money2(fdRow.value)]);
-    if (reinvestRow) rows.push([`<i style="background:#a7853d"></i> All reinvested`, money2(reinvestRow.totalValue)]);
+    if (reinvestRow) rows.push([`<i style="background:#a7853d"></i> All reinvested`, money2(comparisonTotal(reinvestRow))]);
 
     tooltip.innerHTML = `
       <h4>${isParWlRow ? `Policy year ${yearNum}` : `Year ${yearNum} · Age ${row.age}`}</h4>
@@ -9241,7 +9267,7 @@ canvas#rrpBenefitsChart {
     const canvas = $("valueChart");
     const canvasRect = canvas.getBoundingClientRect();
     const snapXcanvas = geometry.xAt(idx);                       // canvas-px X
-    const snapYcanvas = geometry.yAt(row.totalValue);            // canvas-px Y
+    const snapYcanvas = geometry.yAt(comparisonTotal(row));       // canvas-px Y
     // Convert canvas-px to CSS-px (the canvas is scaled by canvas.width / clientWidth)
     const cssScaleX = canvas.clientWidth / (canvas.width / (window.devicePixelRatio || 1));
     const cssScaleY = canvas.clientHeight / (canvas.height / (window.devicePixelRatio || 1));
