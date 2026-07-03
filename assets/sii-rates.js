@@ -1,5 +1,5 @@
 window.SII_RATES = {
-  "generatedAt": "2026-07-02T14:05:39.905433+00:00",
+  "scenariosSha256": "7b782236729b1f0887e4055abb251764cd4ac1bd670679c8d702782632427bcc",
   "source": {
     "pdfCount": 15,
     "cachedTextCount": 23,
@@ -8,6 +8,7 @@ window.SII_RATES = {
     "uniqueScenarioCount": 36,
     "errorCount": 0,
     "cachedTextErrorCount": 0,
+    "skippedNonSiiCount": 0,
     "sourceAges": [
       46,
       56
@@ -109,6 +110,7 @@ window.SII_RATES = {
   "scenarios": [
     {
       "source_pdf": "PI_20260702205133741.pdf;PI_20260702211711162.pdf",
+      "scenario_key": "a46-t1-s02-p100000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -129,6 +131,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.26,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -2226,44 +2235,45 @@ window.SII_RATES = {
         },
         {
           "policy_year": 2,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702205419811.pdf",
+      "scenario_key": "a46-t1-s04-p100000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -2284,6 +2294,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.26,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -4381,44 +4398,45 @@ window.SII_RATES = {
         },
         {
           "policy_year": 2,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702215817873.pdf",
+      "scenario_key": "a56-t1-s04-p100000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -4439,6 +4457,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.26,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -6316,44 +6341,45 @@ window.SII_RATES = {
         },
         {
           "policy_year": 2,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702210350249.pdf",
+      "scenario_key": "a46-t1-s05-p100000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -6374,6 +6400,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.26,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -8471,44 +8504,45 @@ window.SII_RATES = {
         },
         {
           "policy_year": 2,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702210953719.pdf",
+      "scenario_key": "a46-t1-s06-p100000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -8529,6 +8563,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.26,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -10626,44 +10667,45 @@ window.SII_RATES = {
         },
         {
           "policy_year": 2,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211008104.pdf",
+      "scenario_key": "a46-t1-s07-p100000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -10684,6 +10726,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.26,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -12781,44 +12830,45 @@ window.SII_RATES = {
         },
         {
           "policy_year": 2,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211043196.pdf",
+      "scenario_key": "a46-t1-s08-p100000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -12839,6 +12889,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.26,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -14936,44 +14993,45 @@ window.SII_RATES = {
         },
         {
           "policy_year": 2,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211128980.pdf",
+      "scenario_key": "a46-t1-s09-p100000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -14994,6 +15052,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.26,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -17091,44 +17156,45 @@ window.SII_RATES = {
         },
         {
           "policy_year": 2,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702215830730.pdf",
+      "scenario_key": "a56-t1-s09-p100000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -17149,6 +17215,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.26,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -19026,44 +19099,45 @@ window.SII_RATES = {
         },
         {
           "policy_year": 2,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702215858010.pdf",
+      "scenario_key": "a56-t1-s14-p100000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -19084,6 +19158,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.26,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -20961,44 +21042,45 @@ window.SII_RATES = {
         },
         {
           "policy_year": 2,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211357295.pdf",
+      "scenario_key": "a46-t2-s04-p200000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -21019,6 +21101,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.28,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -23120,40 +23209,41 @@ window.SII_RATES = {
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211345146.pdf",
+      "scenario_key": "a46-t2-s05-p200000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -23174,6 +23264,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.28,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -25275,40 +25372,41 @@ window.SII_RATES = {
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211332056.pdf",
+      "scenario_key": "a46-t2-s06-p200000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -25329,6 +25427,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.28,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -27430,40 +27535,41 @@ window.SII_RATES = {
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211319565.pdf",
+      "scenario_key": "a46-t2-s07-p200000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -27484,6 +27590,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.28,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -29585,40 +29698,41 @@ window.SII_RATES = {
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211307674.pdf",
+      "scenario_key": "a46-t2-s08-p200000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -29639,6 +29753,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.28,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -31740,40 +31861,41 @@ window.SII_RATES = {
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211232475.pdf",
+      "scenario_key": "a46-t2-s09-p200000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -31794,6 +31916,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.28,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -33895,40 +34024,41 @@ window.SII_RATES = {
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211156695.pdf",
+      "scenario_key": "a46-t2-s10-p200000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -33949,6 +34079,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.28,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -36050,40 +36187,41 @@ window.SII_RATES = {
         },
         {
           "policy_year": 3,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 4,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702215937032.pdf",
+      "scenario_key": "a56-t4-s03-p400000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -36104,6 +36242,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.31,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -37993,32 +38138,33 @@ window.SII_RATES = {
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702215923683.pdf",
+      "scenario_key": "a56-t4-s09-p400000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -38039,6 +38185,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.31,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -39928,32 +40081,33 @@ window.SII_RATES = {
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702215911276.pdf",
+      "scenario_key": "a56-t4-s14-p400000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -39974,6 +40128,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.31,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -41863,32 +42024,33 @@ window.SII_RATES = {
         },
         {
           "policy_year": 5,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211520740.pdf",
+      "scenario_key": "a46-t5-s03-p500000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -41909,6 +42071,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.33,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -44022,28 +44191,29 @@ window.SII_RATES = {
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211421720.pdf",
+      "scenario_key": "a46-t5-s04-p500000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -44064,6 +44234,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.33,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -46177,28 +46354,29 @@ window.SII_RATES = {
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211507059.pdf",
+      "scenario_key": "a46-t5-s06-p500000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -46219,6 +46397,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.33,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -48332,28 +48517,29 @@ window.SII_RATES = {
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211534464.pdf",
+      "scenario_key": "a46-t5-s13-p500000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -48374,6 +48560,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.33,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -50487,28 +50680,29 @@ window.SII_RATES = {
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211545993.pdf",
+      "scenario_key": "a46-t5-s19-p500000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -50529,6 +50723,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.33,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -52642,28 +52843,29 @@ window.SII_RATES = {
         },
         {
           "policy_year": 6,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 7,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 8,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702215951877.pdf",
+      "scenario_key": "a56-t8-s06-p800000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -52684,6 +52886,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.39,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -54589,16 +54798,17 @@ window.SII_RATES = {
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702220004030.pdf",
+      "scenario_key": "a56-t8-s10-p800000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -54619,6 +54829,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.39,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -56524,16 +56741,17 @@ window.SII_RATES = {
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702220017139.pdf",
+      "scenario_key": "a56-t8-s15-p800000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -56554,6 +56772,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.39,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -58459,16 +58684,17 @@ window.SII_RATES = {
         },
         {
           "policy_year": 9,
-          "planned_premium": 0.0
+          "planned_premium": null
         },
         {
           "policy_year": 10,
-          "planned_premium": 0.0
+          "planned_premium": null
         }
       ]
     },
     {
       "source_pdf": "PI_20260702211600092.pdf",
+      "scenario_key": "a46-t10-s04-p1000000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -58489,6 +58715,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.43,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -60624,6 +60857,7 @@ window.SII_RATES = {
     },
     {
       "source_pdf": "PI_20260702215722511.pdf;PI_20260702220032726.pdf",
+      "scenario_key": "a56-t10-s04-p1000000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -60644,6 +60878,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.43,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -62559,6 +62800,7 @@ window.SII_RATES = {
     },
     {
       "source_pdf": "PI_20260702211612275.pdf",
+      "scenario_key": "a46-t10-s09-p1000000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -62579,6 +62821,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.43,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -64714,6 +64963,7 @@ window.SII_RATES = {
     },
     {
       "source_pdf": "PI_20260702215741508.pdf",
+      "scenario_key": "a56-t10-s09-p1000000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -64734,6 +64984,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.43,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -66649,6 +66906,7 @@ window.SII_RATES = {
     },
     {
       "source_pdf": "PI_20260702220044924.pdf",
+      "scenario_key": "a56-t10-s10-p1000000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -66669,6 +66927,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.43,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -68584,6 +68849,7 @@ window.SII_RATES = {
     },
     {
       "source_pdf": "PI_20260702215800724.pdf",
+      "scenario_key": "a56-t10-s14-p1000000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -68604,6 +68870,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.43,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -70519,6 +70792,7 @@ window.SII_RATES = {
     },
     {
       "source_pdf": "PI_20260702211645472.pdf",
+      "scenario_key": "a46-t10-s15-p1000000",
       "life_insured_age": 46,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -70539,6 +70813,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 86,
       "guaranteed_illustrated_yield_pct_pa": -1.43,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -72674,6 +72955,7 @@ window.SII_RATES = {
     },
     {
       "source_pdf": "PI_20260702220101861.pdf",
+      "scenario_key": "a56-t10-s20-p1000000",
       "life_insured_age": 56,
       "gender": "Male",
       "smoker_status": "Non-Smoker",
@@ -72694,6 +72976,13 @@ window.SII_RATES = {
       "guaranteed_illustrated_yield_age": 96,
       "guaranteed_illustrated_yield_pct_pa": -1.43,
       "policy_value_booster_rate_pct_pa": 1.46,
+      "table_income_options": {
+        "income_rows": "Paid Out",
+        "deduction_rows": "Accumulated",
+        "guaranteed_rows": "Paid Out",
+        "current_rows": "Paid Out",
+        "premium_schedule_rows": "Paid Out"
+      },
       "income_rows": [
         {
           "policy_year": 1,
@@ -74609,17 +74898,26 @@ window.SII_RATES = {
     }
   ],
   "audit": {
-    "generated_at": "2026-07-02T14:05:39.905433+00:00",
     "input_folder": "C:\\Users\\user\\Downloads",
     "pdf_glob": "PI_20260702*.pdf",
+    "cache_dir": "C:\\CKG Creations\\Illustration Studio\\source-data\\signature-indexed-income\\raw-text",
+    "cache_glob": "PI_*.txt",
+    "pdf_matched_count": 15,
     "pdf_count": 15,
+    "skipped_non_sii": [],
     "cached_text_count": 23,
     "input_source_count": 38,
     "parsed_count": 38,
     "unique_scenario_count": 36,
     "error_count": 0,
+    "page_extract_error_count": 0,
     "errors": [],
     "cached_text_errors": [],
+    "row_width_mismatches": {
+      "under": 0,
+      "over": 0,
+      "samples": []
+    },
     "duplicate_groups": [
       {
         "key": [
@@ -74627,7 +74925,9 @@ window.SII_RATES = {
           10,
           4,
           1000000.0,
-          3823.0
+          3823.0,
+          1000000.0,
+          100000.0
         ],
         "source_pdfs": [
           "PI_20260702215722511.pdf",
@@ -74640,7 +74940,9 @@ window.SII_RATES = {
           1,
           2,
           100000.0,
-          869.0
+          869.0,
+          100000.0,
+          100000.0
         ],
         "source_pdfs": [
           "PI_20260702205133741.pdf",
@@ -74648,6 +74950,10 @@ window.SII_RATES = {
         ]
       }
     ],
+    "dedup_conflicts": [],
+    "dedup_skipped_null_key": [],
+    "validation_errors": [],
+    "scenarios_sha256": "7b782236729b1f0887e4055abb251764cd4ac1bd670679c8d702782632427bcc",
     "source_distribution": {
       "ages": {
         "46": 22,
@@ -74685,8 +74991,18 @@ window.SII_RATES = {
       "pages": 139,
       "chars": 118995,
       "error": null,
+      "source_kind": "pdf",
+      "page_error_count": 0,
+      "parsed": false,
+      "skipped_reason": null,
+      "scenario_id": null,
       "found": true
     },
+    "schema_notes": [
+      "deduction_rows (and the annual CSV columns current_effect_of_deductions, current_value_of_premiums, deduction_current_surrender_value) are sourced from the Table of Deductions page, which is illustrated under the Accumulated monthly income option; its surrender values include accumulated monthly income and sit beside Paid-Out values in the same row.",
+      "premium_schedule_rows planned_premium is null for '-' placeholder years (no premium due).",
+      "scenario_key is a stable content-derived id (age/term/income-start-year/total premium); scenario_id remains positional for display compatibility."
+    ],
     "notes": [
       "Source age anchors available: 46, 56. Ages outside the source-age range are extrapolated estimates.",
       "Cached raw text is included so prior uploaded PIs remain part of the estimator even if the PDFs are no longer in Downloads."

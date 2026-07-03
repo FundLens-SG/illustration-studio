@@ -19,6 +19,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.26,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -2116,44 +2123,45 @@
       },
       {
         "policy_year": 2,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 869.0,
     "initial_monthly_income_per_100k_total_premium": 72.41666666666667,
-    "scenario_id": "SII-001"
+    "scenario_id": "SII-001",
+    "scenario_key": "a46-t1-s02-p100000"
   },
   {
     "source_pdf": "PI_20260702205419811.pdf",
@@ -2175,6 +2183,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.26,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -4272,44 +4287,45 @@
       },
       {
         "policy_year": 2,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 4785.0,
     "initial_monthly_income_per_100k_total_premium": 398.75,
-    "scenario_id": "SII-002"
+    "scenario_id": "SII-002",
+    "scenario_key": "a46-t1-s04-p100000"
   },
   {
     "source_pdf": "PI_20260702215817873.pdf",
@@ -4331,6 +4347,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.26,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -6208,44 +6231,45 @@
       },
       {
         "policy_year": 2,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 4785.0,
     "initial_monthly_income_per_100k_total_premium": 398.75,
-    "scenario_id": "SII-003"
+    "scenario_id": "SII-003",
+    "scenario_key": "a56-t1-s04-p100000"
   },
   {
     "source_pdf": "PI_20260702210350249.pdf",
@@ -6267,6 +6291,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.26,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -8364,44 +8395,45 @@
       },
       {
         "policy_year": 2,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 5071.0,
     "initial_monthly_income_per_100k_total_premium": 422.5833333333333,
-    "scenario_id": "SII-004"
+    "scenario_id": "SII-004",
+    "scenario_key": "a46-t1-s05-p100000"
   },
   {
     "source_pdf": "PI_20260702210953719.pdf",
@@ -8423,6 +8455,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.26,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -10520,44 +10559,45 @@
       },
       {
         "policy_year": 2,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 5375.0,
     "initial_monthly_income_per_100k_total_premium": 447.9166666666667,
-    "scenario_id": "SII-005"
+    "scenario_id": "SII-005",
+    "scenario_key": "a46-t1-s06-p100000"
   },
   {
     "source_pdf": "PI_20260702211008104.pdf",
@@ -10579,6 +10619,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.26,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -12676,44 +12723,45 @@
       },
       {
         "policy_year": 2,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 5697.0,
     "initial_monthly_income_per_100k_total_premium": 474.75,
-    "scenario_id": "SII-006"
+    "scenario_id": "SII-006",
+    "scenario_key": "a46-t1-s07-p100000"
   },
   {
     "source_pdf": "PI_20260702211043196.pdf",
@@ -12735,6 +12783,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.26,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -14832,44 +14887,45 @@
       },
       {
         "policy_year": 2,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 6038.0,
     "initial_monthly_income_per_100k_total_premium": 503.1666666666667,
-    "scenario_id": "SII-007"
+    "scenario_id": "SII-007",
+    "scenario_key": "a46-t1-s08-p100000"
   },
   {
     "source_pdf": "PI_20260702211128980.pdf",
@@ -14891,6 +14947,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.26,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -16988,44 +17051,45 @@
       },
       {
         "policy_year": 2,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 6399.000000000001,
     "initial_monthly_income_per_100k_total_premium": 533.25,
-    "scenario_id": "SII-008"
+    "scenario_id": "SII-008",
+    "scenario_key": "a46-t1-s09-p100000"
   },
   {
     "source_pdf": "PI_20260702215830730.pdf",
@@ -17047,6 +17111,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.26,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -18924,44 +18995,45 @@
       },
       {
         "policy_year": 2,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 6399.000000000001,
     "initial_monthly_income_per_100k_total_premium": 533.25,
-    "scenario_id": "SII-009"
+    "scenario_id": "SII-009",
+    "scenario_key": "a56-t1-s09-p100000"
   },
   {
     "source_pdf": "PI_20260702215858010.pdf",
@@ -18983,6 +19055,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.26,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -20860,44 +20939,45 @@
       },
       {
         "policy_year": 2,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 8557.0,
     "initial_monthly_income_per_100k_total_premium": 713.0833333333334,
-    "scenario_id": "SII-010"
+    "scenario_id": "SII-010",
+    "scenario_key": "a56-t1-s14-p100000"
   },
   {
     "source_pdf": "PI_20260702211357295.pdf",
@@ -20919,6 +20999,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.28,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -23020,40 +23107,41 @@
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 4627.0,
     "initial_monthly_income_per_100k_total_premium": 385.5833333333333,
-    "scenario_id": "SII-011"
+    "scenario_id": "SII-011",
+    "scenario_key": "a46-t2-s04-p200000"
   },
   {
     "source_pdf": "PI_20260702211345146.pdf",
@@ -23075,6 +23163,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.28,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -25176,40 +25271,41 @@
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 4904.0,
     "initial_monthly_income_per_100k_total_premium": 408.66666666666674,
-    "scenario_id": "SII-012"
+    "scenario_id": "SII-012",
+    "scenario_key": "a46-t2-s05-p200000"
   },
   {
     "source_pdf": "PI_20260702211332056.pdf",
@@ -25231,6 +25327,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.28,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -27332,40 +27435,41 @@
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 5197.5,
     "initial_monthly_income_per_100k_total_premium": 433.125,
-    "scenario_id": "SII-013"
+    "scenario_id": "SII-013",
+    "scenario_key": "a46-t2-s06-p200000"
   },
   {
     "source_pdf": "PI_20260702211319565.pdf",
@@ -27387,6 +27491,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.28,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -29488,40 +29599,41 @@
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 5509.0,
     "initial_monthly_income_per_100k_total_premium": 459.0833333333333,
-    "scenario_id": "SII-014"
+    "scenario_id": "SII-014",
+    "scenario_key": "a46-t2-s07-p200000"
   },
   {
     "source_pdf": "PI_20260702211307674.pdf",
@@ -29543,6 +29655,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.28,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -31644,40 +31763,41 @@
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 5838.5,
     "initial_monthly_income_per_100k_total_premium": 486.54166666666674,
-    "scenario_id": "SII-015"
+    "scenario_id": "SII-015",
+    "scenario_key": "a46-t2-s08-p200000"
   },
   {
     "source_pdf": "PI_20260702211232475.pdf",
@@ -31699,6 +31819,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.28,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -33800,40 +33927,41 @@
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 6188.0,
     "initial_monthly_income_per_100k_total_premium": 515.6666666666666,
-    "scenario_id": "SII-016"
+    "scenario_id": "SII-016",
+    "scenario_key": "a46-t2-s09-p200000"
   },
   {
     "source_pdf": "PI_20260702211156695.pdf",
@@ -33855,6 +33983,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.28,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -35956,40 +36091,41 @@
       },
       {
         "policy_year": 3,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 4,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 6558.0,
     "initial_monthly_income_per_100k_total_premium": 546.5,
-    "scenario_id": "SII-017"
+    "scenario_id": "SII-017",
+    "scenario_key": "a46-t2-s10-p200000"
   },
   {
     "source_pdf": "PI_20260702215937032.pdf",
@@ -36011,6 +36147,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.31,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -37900,32 +38043,33 @@
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 307.25,
     "initial_monthly_income_per_100k_total_premium": 25.604166666666668,
-    "scenario_id": "SII-018"
+    "scenario_id": "SII-018",
+    "scenario_key": "a56-t4-s03-p400000"
   },
   {
     "source_pdf": "PI_20260702215923683.pdf",
@@ -37947,6 +38091,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.31,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -39836,32 +39987,33 @@
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 5786.75,
     "initial_monthly_income_per_100k_total_premium": 482.22916666666663,
-    "scenario_id": "SII-019"
+    "scenario_id": "SII-019",
+    "scenario_key": "a56-t4-s09-p400000"
   },
   {
     "source_pdf": "PI_20260702215911276.pdf",
@@ -39883,6 +40035,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.31,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -41772,32 +41931,33 @@
       },
       {
         "policy_year": 5,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 7738.250000000001,
     "initial_monthly_income_per_100k_total_premium": 644.8541666666666,
-    "scenario_id": "SII-020"
+    "scenario_id": "SII-020",
+    "scenario_key": "a56-t4-s14-p400000"
   },
   {
     "source_pdf": "PI_20260702211520740.pdf",
@@ -41819,6 +41979,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.33,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -43932,28 +44099,29 @@
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 194.0,
     "initial_monthly_income_per_100k_total_premium": 16.166666666666664,
-    "scenario_id": "SII-021"
+    "scenario_id": "SII-021",
+    "scenario_key": "a46-t5-s03-p500000"
   },
   {
     "source_pdf": "PI_20260702211421720.pdf",
@@ -43975,6 +44143,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.33,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -46088,28 +46263,29 @@
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 2136.2,
     "initial_monthly_income_per_100k_total_premium": 178.01666666666668,
-    "scenario_id": "SII-022"
+    "scenario_id": "SII-022",
+    "scenario_key": "a46-t5-s04-p500000"
   },
   {
     "source_pdf": "PI_20260702211507059.pdf",
@@ -46131,6 +46307,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.33,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -48244,28 +48427,29 @@
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 4700.8,
     "initial_monthly_income_per_100k_total_premium": 391.73333333333335,
-    "scenario_id": "SII-023"
+    "scenario_id": "SII-023",
+    "scenario_key": "a46-t5-s06-p500000"
   },
   {
     "source_pdf": "PI_20260702211534464.pdf",
@@ -48287,6 +48471,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.33,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -50400,28 +50591,29 @@
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 7061.000000000001,
     "initial_monthly_income_per_100k_total_premium": 588.4166666666667,
-    "scenario_id": "SII-024"
+    "scenario_id": "SII-024",
+    "scenario_key": "a46-t5-s13-p500000"
   },
   {
     "source_pdf": "PI_20260702211545993.pdf",
@@ -50443,6 +50635,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.33,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -52556,28 +52755,29 @@
       },
       {
         "policy_year": 6,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 7,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 8,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 10006.6,
     "initial_monthly_income_per_100k_total_premium": 833.8833333333333,
-    "scenario_id": "SII-025"
+    "scenario_id": "SII-025",
+    "scenario_key": "a46-t5-s19-p500000"
   },
   {
     "source_pdf": "PI_20260702215951877.pdf",
@@ -52599,6 +52799,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.39,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -54504,16 +54711,17 @@
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 2360.5,
     "initial_monthly_income_per_100k_total_premium": 196.70833333333331,
-    "scenario_id": "SII-026"
+    "scenario_id": "SII-026",
+    "scenario_key": "a56-t8-s06-p800000"
   },
   {
     "source_pdf": "PI_20260702220004030.pdf",
@@ -54535,6 +54743,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.39,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -56440,16 +56655,17 @@
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 5365.125,
     "initial_monthly_income_per_100k_total_premium": 447.09375,
-    "scenario_id": "SII-027"
+    "scenario_id": "SII-027",
+    "scenario_key": "a56-t8-s10-p800000"
   },
   {
     "source_pdf": "PI_20260702220017139.pdf",
@@ -56471,6 +56687,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.39,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -58376,16 +58599,17 @@
       },
       {
         "policy_year": 9,
-        "planned_premium": 0.0
+        "planned_premium": null
       },
       {
         "policy_year": 10,
-        "planned_premium": 0.0
+        "planned_premium": null
       }
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 7174.5,
     "initial_monthly_income_per_100k_total_premium": 597.875,
-    "scenario_id": "SII-028"
+    "scenario_id": "SII-028",
+    "scenario_key": "a56-t8-s15-p800000"
   },
   {
     "source_pdf": "PI_20260702211600092.pdf",
@@ -58407,6 +58631,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.43,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -60541,7 +60772,8 @@
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 382.3,
     "initial_monthly_income_per_100k_total_premium": 31.85833333333333,
-    "scenario_id": "SII-029"
+    "scenario_id": "SII-029",
+    "scenario_key": "a46-t10-s04-p1000000"
   },
   {
     "source_pdf": "PI_20260702215722511.pdf;PI_20260702220032726.pdf",
@@ -60563,6 +60795,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.43,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -62477,7 +62716,8 @@
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 382.3,
     "initial_monthly_income_per_100k_total_premium": 31.85833333333333,
-    "scenario_id": "SII-030"
+    "scenario_id": "SII-030",
+    "scenario_key": "a56-t10-s04-p1000000"
   },
   {
     "source_pdf": "PI_20260702211612275.pdf",
@@ -62499,6 +62739,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.43,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -64633,7 +64880,8 @@
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 3683.2999999999997,
     "initial_monthly_income_per_100k_total_premium": 306.94166666666666,
-    "scenario_id": "SII-031"
+    "scenario_id": "SII-031",
+    "scenario_key": "a46-t10-s09-p1000000"
   },
   {
     "source_pdf": "PI_20260702215741508.pdf",
@@ -64655,6 +64903,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.43,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -66569,7 +66824,8 @@
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 3683.2999999999997,
     "initial_monthly_income_per_100k_total_premium": 306.94166666666666,
-    "scenario_id": "SII-032"
+    "scenario_id": "SII-032",
+    "scenario_key": "a56-t10-s09-p1000000"
   },
   {
     "source_pdf": "PI_20260702220044924.pdf",
@@ -66591,6 +66847,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.43,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -68505,7 +68768,8 @@
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 4475.8,
     "initial_monthly_income_per_100k_total_premium": 372.98333333333335,
-    "scenario_id": "SII-033"
+    "scenario_id": "SII-033",
+    "scenario_key": "a56-t10-s10-p1000000"
   },
   {
     "source_pdf": "PI_20260702215800724.pdf",
@@ -68527,6 +68791,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.43,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -70441,7 +70712,8 @@
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 6328.3,
     "initial_monthly_income_per_100k_total_premium": 527.3583333333333,
-    "scenario_id": "SII-034"
+    "scenario_id": "SII-034",
+    "scenario_key": "a56-t10-s14-p1000000"
   },
   {
     "source_pdf": "PI_20260702211645472.pdf",
@@ -70463,6 +70735,13 @@
     "guaranteed_illustrated_yield_age": 86,
     "guaranteed_illustrated_yield_pct_pa": -1.43,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -72597,7 +72876,8 @@
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 6707.000000000001,
     "initial_monthly_income_per_100k_total_premium": 558.9166666666666,
-    "scenario_id": "SII-035"
+    "scenario_id": "SII-035",
+    "scenario_key": "a46-t10-s15-p1000000"
   },
   {
     "source_pdf": "PI_20260702220101861.pdf",
@@ -72619,6 +72899,13 @@
     "guaranteed_illustrated_yield_age": 96,
     "guaranteed_illustrated_yield_pct_pa": -1.43,
     "policy_value_booster_rate_pct_pa": 1.46,
+    "table_income_options": {
+      "income_rows": "Paid Out",
+      "deduction_rows": "Accumulated",
+      "guaranteed_rows": "Paid Out",
+      "current_rows": "Paid Out",
+      "premium_schedule_rows": "Paid Out"
+    },
     "income_rows": [
       {
         "policy_year": 1,
@@ -74533,6 +74820,7 @@
     ],
     "initial_monthly_income_annualized_per_100k_total_premium": 8968.5,
     "initial_monthly_income_per_100k_total_premium": 747.375,
-    "scenario_id": "SII-036"
+    "scenario_id": "SII-036",
+    "scenario_key": "a56-t10-s20-p1000000"
   }
 ]

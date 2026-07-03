@@ -1,16 +1,39 @@
-file,name,encrypted,pages,chars,error
-C:\Users\user\Downloads\PI_20260702215722511.pdf,PI_20260702215722511.pdf,True,37,116342,
-C:\Users\user\Downloads\PI_20260702215741508.pdf,PI_20260702215741508.pdf,True,37,116699,
-C:\Users\user\Downloads\PI_20260702215800724.pdf,PI_20260702215800724.pdf,True,37,116691,
-C:\Users\user\Downloads\PI_20260702215817873.pdf,PI_20260702215817873.pdf,True,37,115175,
-C:\Users\user\Downloads\PI_20260702215830730.pdf,PI_20260702215830730.pdf,True,37,115155,
-C:\Users\user\Downloads\PI_20260702215858010.pdf,PI_20260702215858010.pdf,True,37,115083,
-C:\Users\user\Downloads\PI_20260702215911276.pdf,PI_20260702215911276.pdf,True,37,115719,
-C:\Users\user\Downloads\PI_20260702215923683.pdf,PI_20260702215923683.pdf,True,37,115805,
-C:\Users\user\Downloads\PI_20260702215937032.pdf,PI_20260702215937032.pdf,True,37,115905,
-C:\Users\user\Downloads\PI_20260702215951877.pdf,PI_20260702215951877.pdf,True,37,115958,
-C:\Users\user\Downloads\PI_20260702220004030.pdf,PI_20260702220004030.pdf,True,37,115886,
-C:\Users\user\Downloads\PI_20260702220017139.pdf,PI_20260702220017139.pdf,True,37,116298,
-C:\Users\user\Downloads\PI_20260702220032726.pdf,PI_20260702220032726.pdf,True,37,116342,
-C:\Users\user\Downloads\PI_20260702220044924.pdf,PI_20260702220044924.pdf,True,37,116687,
-C:\Users\user\Downloads\PI_20260702220101861.pdf,PI_20260702220101861.pdf,True,37,116630,
+file,name,encrypted,pages,chars,error,source_kind,page_error_count,parsed,skipped_reason,scenario_id
+C:\Users\user\Downloads\PI_20260702215722511.pdf,PI_20260702215722511.pdf,True,37,116342,,pdf,0,True,,SII-030
+C:\Users\user\Downloads\PI_20260702215741508.pdf,PI_20260702215741508.pdf,True,37,116699,,pdf,0,True,,SII-032
+C:\Users\user\Downloads\PI_20260702215800724.pdf,PI_20260702215800724.pdf,True,37,116691,,pdf,0,True,,SII-034
+C:\Users\user\Downloads\PI_20260702215817873.pdf,PI_20260702215817873.pdf,True,37,115175,,pdf,0,True,,SII-003
+C:\Users\user\Downloads\PI_20260702215830730.pdf,PI_20260702215830730.pdf,True,37,115155,,pdf,0,True,,SII-009
+C:\Users\user\Downloads\PI_20260702215858010.pdf,PI_20260702215858010.pdf,True,37,115083,,pdf,0,True,,SII-010
+C:\Users\user\Downloads\PI_20260702215911276.pdf,PI_20260702215911276.pdf,True,37,115719,,pdf,0,True,,SII-020
+C:\Users\user\Downloads\PI_20260702215923683.pdf,PI_20260702215923683.pdf,True,37,115805,,pdf,0,True,,SII-019
+C:\Users\user\Downloads\PI_20260702215937032.pdf,PI_20260702215937032.pdf,True,37,115905,,pdf,0,True,,SII-018
+C:\Users\user\Downloads\PI_20260702215951877.pdf,PI_20260702215951877.pdf,True,37,115958,,pdf,0,True,,SII-026
+C:\Users\user\Downloads\PI_20260702220004030.pdf,PI_20260702220004030.pdf,True,37,115886,,pdf,0,True,,SII-027
+C:\Users\user\Downloads\PI_20260702220017139.pdf,PI_20260702220017139.pdf,True,37,116298,,pdf,0,True,,SII-028
+C:\Users\user\Downloads\PI_20260702220032726.pdf,PI_20260702220032726.pdf,True,37,116342,,pdf,0,True,,SII-030
+C:\Users\user\Downloads\PI_20260702220044924.pdf,PI_20260702220044924.pdf,True,37,116687,,pdf,0,True,,SII-033
+C:\Users\user\Downloads\PI_20260702220101861.pdf,PI_20260702220101861.pdf,True,37,116630,,pdf,0,True,,SII-036
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702205133741.txt,PI_20260702205133741.txt,,,116914,,cached-text,0,True,,SII-001
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702205419811.txt,PI_20260702205419811.txt,,,116903,,cached-text,0,True,,SII-002
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702210350249.txt,PI_20260702210350249.txt,,,116901,,cached-text,0,True,,SII-004
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702210953719.txt,PI_20260702210953719.txt,,,116921,,cached-text,0,True,,SII-005
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211008104.txt,PI_20260702211008104.txt,,,116914,,cached-text,0,True,,SII-006
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211043196.txt,PI_20260702211043196.txt,,,116907,,cached-text,0,True,,SII-007
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211128980.txt,PI_20260702211128980.txt,,,116893,,cached-text,0,True,,SII-008
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211156695.txt,PI_20260702211156695.txt,,,117446,,cached-text,0,True,,SII-017
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211232475.txt,PI_20260702211232475.txt,,,117469,,cached-text,0,True,,SII-016
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211307674.txt,PI_20260702211307674.txt,,,117485,,cached-text,0,True,,SII-015
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211319565.txt,PI_20260702211319565.txt,,,117498,,cached-text,0,True,,SII-014
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211332056.txt,PI_20260702211332056.txt,,,117515,,cached-text,0,True,,SII-013
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211345146.txt,PI_20260702211345146.txt,,,117527,,cached-text,0,True,,SII-012
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211357295.txt,PI_20260702211357295.txt,,,117500,,cached-text,0,True,,SII-011
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211421720.txt,PI_20260702211421720.txt,,,117705,,cached-text,0,True,,SII-022
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211507059.txt,PI_20260702211507059.txt,,,117677,,cached-text,0,True,,SII-023
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211520740.txt,PI_20260702211520740.txt,,,117705,,cached-text,0,True,,SII-021
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211534464.txt,PI_20260702211534464.txt,,,117554,,cached-text,0,True,,SII-024
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211545993.txt,PI_20260702211545993.txt,,,117450,,cached-text,0,True,,SII-025
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211600092.txt,PI_20260702211600092.txt,,,118164,,cached-text,0,True,,SII-029
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211612275.txt,PI_20260702211612275.txt,,,118609,,cached-text,0,True,,SII-031
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211645472.txt,PI_20260702211645472.txt,,,118576,,cached-text,0,True,,SII-035
+C:\CKG Creations\Illustration Studio\source-data\signature-indexed-income\raw-text\PI_20260702211711162.txt,PI_20260702211711162.txt,,,116914,,cached-text,0,True,,SII-001

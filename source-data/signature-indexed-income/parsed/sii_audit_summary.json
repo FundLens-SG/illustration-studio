@@ -1,15 +1,25 @@
 {
-  "generated_at": "2026-07-02T14:05:39.905433+00:00",
+  "generated_at": "2026-07-03T01:00:34.498876+00:00",
   "input_folder": "C:\\Users\\user\\Downloads",
   "pdf_glob": "PI_20260702*.pdf",
+  "cache_dir": "C:\\CKG Creations\\Illustration Studio\\source-data\\signature-indexed-income\\raw-text",
+  "cache_glob": "PI_*.txt",
+  "pdf_matched_count": 15,
   "pdf_count": 15,
+  "skipped_non_sii": [],
   "cached_text_count": 23,
   "input_source_count": 38,
   "parsed_count": 38,
   "unique_scenario_count": 36,
   "error_count": 0,
+  "page_extract_error_count": 0,
   "errors": [],
   "cached_text_errors": [],
+  "row_width_mismatches": {
+    "under": 0,
+    "over": 0,
+    "samples": []
+  },
   "duplicate_groups": [
     {
       "key": [
@@ -17,7 +27,9 @@
         10,
         4,
         1000000.0,
-        3823.0
+        3823.0,
+        1000000.0,
+        100000.0
       ],
       "source_pdfs": [
         "PI_20260702215722511.pdf",
@@ -30,7 +42,9 @@
         1,
         2,
         100000.0,
-        869.0
+        869.0,
+        100000.0,
+        100000.0
       ],
       "source_pdfs": [
         "PI_20260702205133741.pdf",
@@ -38,6 +52,10 @@
       ]
     }
   ],
+  "dedup_conflicts": [],
+  "dedup_skipped_null_key": [],
+  "validation_errors": [],
+  "scenarios_sha256": "7b782236729b1f0887e4055abb251764cd4ac1bd670679c8d702782632427bcc",
   "source_distribution": {
     "ages": {
       "46": 22,
@@ -75,8 +93,18 @@
     "pages": 139,
     "chars": 118995,
     "error": null,
+    "source_kind": "pdf",
+    "page_error_count": 0,
+    "parsed": false,
+    "skipped_reason": null,
+    "scenario_id": null,
     "found": true
   },
+  "schema_notes": [
+    "deduction_rows (and the annual CSV columns current_effect_of_deductions, current_value_of_premiums, deduction_current_surrender_value) are sourced from the Table of Deductions page, which is illustrated under the Accumulated monthly income option; its surrender values include accumulated monthly income and sit beside Paid-Out values in the same row.",
+    "premium_schedule_rows planned_premium is null for '-' placeholder years (no premium due).",
+    "scenario_key is a stable content-derived id (age/term/income-start-year/total premium); scenario_id remains positional for display compatibility."
+  ],
   "notes": [
     "Source age anchors available: 46, 56. Ages outside the source-age range are extrapolated estimates.",
     "Cached raw text is included so prior uploaded PIs remain part of the estimator even if the PDFs are no longer in Downloads."
