@@ -8433,13 +8433,17 @@ canvas#rrpBenefitsChart {
   // ===== HERO =====
   // Total client value for comparison surfaces: policy/account value PLUS all
   // income, payouts and cash dividends received to date. Income-drawing
-  // products (RRP, and par-WL in Bonus Realisation mode) carry the received
-  // cash in brTotalWealth while totalValue holds policy value only; SII and ILP
-  // already fold it into totalValue. Comparing on this keeps an income-paying
-  // strategy from looking worse than one that simply accumulates.
+  // products carry the received cash separately from policy value: par-WL in
+  // Bonus Realisation mode uses brTotalWealth, and SI3 / SLR expose
+  // siTotalReceived (cash value net of financing + cumulative coupon payouts),
+  // both while totalValue holds only the current cash/policy value. SII and ILP
+  // already fold received income into totalValue. Comparing on this keeps an
+  // income-paying strategy from looking worse than one that simply accumulates.
   function comparisonTotal(row) {
     if (!row) return 0;
-    return row.brTotalWealth != null ? row.brTotalWealth : (row.totalValue || 0);
+    if (row.brTotalWealth != null) return row.brTotalWealth;
+    if (row.siTotalReceived != null) return row.siTotalReceived;
+    return row.totalValue || 0;
   }
 
   function compositionFor(result) {
