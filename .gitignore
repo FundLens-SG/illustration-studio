@@ -3,5 +3,7 @@ package-lock.json
 .claude/
 .DS_Store
 Thumbs.db
+__pycache__/
+backups/
 *.pdf
 !Illustration Studio - Paper Printout.pdf

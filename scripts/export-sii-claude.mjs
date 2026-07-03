@@ -16,11 +16,6 @@ function n(value, decimals = 2) {
   return Number(parsed.toFixed(decimals));
 }
 
-function toNum(value, fallback = 0) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
 function pct(value, decimals = 6) {
   if (value === null || value === undefined || value === "") return "";
   const parsed = Number(value);
@@ -46,10 +41,6 @@ function writeCsv(path, rows, fields) {
 
 function termKey(term) {
   return model.siiTermNumber(term) === 1 ? "SP" : `${model.siiTermNumber(term)}PAY`;
-}
-
-function rowAt(rows, year) {
-  return (rows || []).find((row) => Math.round(Number(row.year || row.policy_year || 0)) === year) || null;
 }
 
 function sourceRowAt(source, key, year) {
@@ -188,496 +179,6 @@ writeCsv(resolve(outDir, "sii_claude_source_pi_annual_values.csv"), sourceAnnual
   "deduction_current_surrender_value",
 ]);
 
-const exportSourceRows = sourceScenarios.filter((row) =>
-  Number.isFinite(Number(row.premium_payment_term_number))
-  && Number.isFinite(Number(row.income_start_year))
-  && Number(row.initial_total_planned_premium) > 0
-  && Number(row.initial_monthly_income_annualized) > 0
-);
-
-function prepareSourceRowCache(source) {
-  const make = (rows = []) => {
-    const sorted = [...rows]
-      .filter((row) => Number.isFinite(Number(row.policy_year)))
-      .sort((a, b) => Number(a.policy_year) - Number(b.policy_year));
-    return {
-      sorted,
-      byYear: new Map(sorted.map((row) => [Math.round(Number(row.policy_year)), row])),
-    };
-  };
-  source.__exportCache = {
-    current_rows: make(source.current_rows),
-    deduction_rows: make(source.deduction_rows),
-  };
-}
-
-exportSourceRows.forEach(prepareSourceRowCache);
-
-const sourceTerms = exportSourceRows.map((row) => toNum(row.premium_payment_term_number, 1));
-const sourceStarts = exportSourceRows.map((row) => toNum(row.income_start_year, 4));
-const sourceAges = exportSourceRows.map((row) => Math.round(toNum(row.life_insured_age, 46)));
-const sourceRange = {
-  minTerm: Math.min(...sourceTerms),
-  maxTerm: Math.max(...sourceTerms),
-  minStart: Math.min(...sourceStarts),
-  maxStart: Math.max(...sourceStarts),
-  minAge: Math.min(...sourceAges),
-  maxAge: Math.max(...sourceAges),
-};
-
-function sourceDistance(row, termNum, startYear, age) {
-  const termDistance = Math.abs(toNum(row.premium_payment_term_number, 1) - termNum);
-  const startDistance = Math.abs(toNum(row.income_start_year, 4) - startYear) / 3;
-  const ageDistance = Math.abs(Math.round(toNum(row.life_insured_age, age)) - age) / 10;
-  return Math.sqrt(termDistance * termDistance + startDistance * startDistance + ageDistance * ageDistance);
-}
-
-function ageGroupedSources(rows) {
-  const groups = new Map();
-  rows.forEach((row) => {
-    const age = Math.round(toNum(row.life_insured_age, 46));
-    if (!groups.has(age)) groups.set(age, []);
-    groups.get(age).push(row);
-  });
-  return Array.from(groups.entries())
-    .map(([age, ageRows]) => ({ age, rows: ageRows }))
-    .sort((a, b) => a.age - b.age);
-}
-
-function pickByAge(rows, age) {
-  const groups = ageGroupedSources(rows);
-  if (!groups.length) return { picked: [], method: "not_available", ageMode: "none" };
-  const exact = groups.find((group) => group.age === age);
-  if (exact) {
-    return {
-      picked: exact.rows.map((row) => ({ row, distance: 0, weight: 1 / exact.rows.length })),
-      method: "source_exact",
-      ageMode: "exact",
-    };
-  }
-  if (groups.length === 1) {
-    const [only] = groups;
-    return {
-      picked: only.rows.map((row) => ({ row, distance: Math.abs(only.age - age), weight: 1 / only.rows.length })),
-      method: "age_shifted_source",
-      ageMode: "single_age_shift",
-    };
-  }
-
-  let left = null;
-  let right = null;
-  if (age < groups[0].age) {
-    left = groups[0];
-    right = groups[1];
-  } else if (age > groups[groups.length - 1].age) {
-    left = groups[groups.length - 2];
-    right = groups[groups.length - 1];
-  } else {
-    groups.forEach((group) => {
-      if (group.age < age && (!left || group.age > left.age)) left = group;
-      if (group.age > age && (!right || group.age < right.age)) right = group;
-    });
-  }
-  if (!left || !right || left.age === right.age) {
-    const nearest = groups
-      .map((group) => ({ group, distance: Math.abs(group.age - age) }))
-      .sort((a, b) => a.distance - b.distance)[0].group;
-    return {
-      picked: nearest.rows.map((row) => ({ row, distance: Math.abs(nearest.age - age), weight: 1 / nearest.rows.length })),
-      method: "age_shifted_source",
-      ageMode: "nearest_age_shift",
-    };
-  }
-
-  const ratio = (age - left.age) / (right.age - left.age);
-  const leftWeight = 1 - ratio;
-  const rightWeight = ratio;
-  const picked = [
-    ...left.rows.map((row) => ({ row, distance: Math.abs(left.age - age), weight: leftWeight / left.rows.length })),
-    ...right.rows.map((row) => ({ row, distance: Math.abs(right.age - age), weight: rightWeight / right.rows.length })),
-  ];
-  return {
-    picked,
-    method: age >= groups[0].age && age <= groups[groups.length - 1].age ? "interpolated_age" : "extrapolated_age",
-    ageMode: age >= groups[0].age && age <= groups[groups.length - 1].age ? "interpolated" : "extrapolated",
-  };
-}
-
-function blendSourcesFast(term, incomeStartYear, age) {
-  const termNum = model.siiTermNumber(term);
-  const startYear = Math.round(toNum(incomeStartYear, 4));
-  const ageNum = Math.round(toNum(age, 46));
-  if (!exportSourceRows.length) return null;
-
-  const exactRows = exportSourceRows.filter((row) =>
-    Math.round(toNum(row.premium_payment_term_number, 0)) === termNum
-    && Math.round(toNum(row.income_start_year, 0)) === startYear
-  );
-  const agePick = exactRows.length ? pickByAge(exactRows, ageNum) : null;
-  const picked = exactRows.length
-    ? agePick.picked
-    : exportSourceRows
-      .map((row) => ({ row, distance: sourceDistance(row, termNum, startYear, ageNum) }))
-      .sort((a, b) => a.distance - b.distance)
-      .slice(0, 8);
-
-  if (!picked.length) return null;
-  if (!exactRows.length) {
-    const weightSum = picked.reduce((sum, item) => sum + (1 / Math.pow(item.distance + 0.001, 2)), 0);
-    picked.forEach((item) => {
-      item.weight = (1 / Math.pow(item.distance + 0.001, 2)) / (weightSum || 1);
-    });
-  }
-
-  const inSourceBox = termNum >= sourceRange.minTerm
-    && termNum <= sourceRange.maxTerm
-    && startYear >= sourceRange.minStart
-    && startYear <= sourceRange.maxStart
-    && ageNum >= sourceRange.minAge
-    && ageNum <= sourceRange.maxAge;
-  const method = exactRows.length ? agePick.method : (inSourceBox ? "interpolated_sparse" : "extrapolated_sparse");
-  const pickedAges = Array.from(new Set(picked.map((item) => Math.round(toNum(item.row.life_insured_age, ageNum))))).sort((a, b) => a - b);
-  return {
-    method,
-    termNum,
-    incomeStartYear: startYear,
-    targetAge: ageNum,
-    sources: picked,
-    sourceCount: picked.length,
-    sourcePdfs: picked.map((item) => item.row.source_pdf).filter(Boolean).join(";"),
-    sourceLabels: picked
-      .map((item) => `A${Math.round(toNum(item.row.life_insured_age, ageNum))} ${model.siiTermLabel(item.row.premium_payment_term_number)} / PY${item.row.income_start_year}`)
-      .join("; "),
-    sourceAges: pickedAges,
-    sourceAgeMin: sourceRange.minAge,
-    sourceAgeMax: sourceRange.maxAge,
-    sourceExactForAge: pickedAges.includes(ageNum),
-  };
-}
-
-function sourceRowFast(source, rowKey, year) {
-  const cache = source.__exportCache?.[rowKey];
-  if (!cache?.sorted?.length) return null;
-  const exact = cache.byYear.get(year);
-  if (exact) return exact;
-  let left = null;
-  let right = null;
-  for (const row of cache.sorted) {
-    const rowYear = Math.round(toNum(row.policy_year, 0));
-    if (rowYear < year) left = row;
-    if (rowYear > year) {
-      right = row;
-      break;
-    }
-  }
-  if (!left) return right;
-  if (!right) return left;
-  const leftYear = toNum(left.policy_year, year);
-  const rightYear = toNum(right.policy_year, year);
-  const ratio = rightYear === leftYear ? 0 : (year - leftYear) / (rightYear - leftYear);
-  const out = { policy_year: year };
-  const keys = new Set([...Object.keys(left), ...Object.keys(right)]);
-  keys.forEach((key) => {
-    const l = Number(left[key]);
-    const r = Number(right[key]);
-    if (Number.isFinite(l) && Number.isFinite(r)) out[key] = l + (r - l) * ratio;
-  });
-  return out;
-}
-
-function blendAmountByTotalFast(blend, key, totalPremium, fallback = 0) {
-  if (!blend?.sources?.length || !(totalPremium > 0)) return fallback;
-  let value = 0;
-  let weight = 0;
-  blend.sources.forEach((item) => {
-    const parsed = Number(item.row[key]);
-    const sourceTotal = toNum(item.row.initial_total_planned_premium, 0);
-    if (!Number.isFinite(parsed) || !(sourceTotal > 0)) return;
-    value += (parsed / sourceTotal) * totalPremium * item.weight;
-    weight += item.weight;
-  });
-  return weight > 0 ? value / weight : fallback;
-}
-
-function blendScalarFast(blend, key, fallback = 0) {
-  if (!blend?.sources?.length) return fallback;
-  let value = 0;
-  let weight = 0;
-  blend.sources.forEach((item) => {
-    const parsed = Number(item.row[key]);
-    if (!Number.isFinite(parsed)) return;
-    value += parsed * item.weight;
-    weight += item.weight;
-  });
-  return weight > 0 ? value / weight : fallback;
-}
-
-const currentValueKeys = [
-  "policy_value",
-  "policy_value_less_surrender_charge_and_unvested_booster",
-  "surrender_value_floor",
-  "surrender_value",
-  "death_benefit",
-];
-
-function blendCurrentFast(blend, year, totalPremium) {
-  const out = {};
-  for (const key of currentValueKeys) {
-    let value = 0;
-    let weight = 0;
-    blend.sources.forEach((item) => {
-      const row = sourceRowFast(item.row, "current_rows", year);
-      const sourceTotal = toNum(item.row.initial_total_planned_premium, 0);
-      const parsed = Number(row?.[key]);
-      if (!(sourceTotal > 0) || !Number.isFinite(parsed)) return;
-      value += (parsed / sourceTotal) * totalPremium * item.weight;
-      weight += item.weight;
-    });
-    out[key] = weight > 0 ? value / weight : 0;
-  }
-  return out;
-}
-
-function blendDeductionFast(blend, year, totalPremium) {
-  let value = 0;
-  let weight = 0;
-  blend.sources.forEach((item) => {
-    const row = sourceRowFast(item.row, "deduction_rows", year);
-    const sourceTotal = toNum(item.row.initial_total_planned_premium, 0);
-    const parsed = Number(row?.current_effect_of_deductions);
-    if (!(sourceTotal > 0) || !Number.isFinite(parsed)) return;
-    value += (parsed / sourceTotal) * totalPremium * item.weight;
-    weight += item.weight;
-  });
-  return weight > 0 ? value / weight : 0;
-}
-
-function blendIncomeRawFast(blend, year, totalPremium, targetIncomeStartYear) {
-  if (!blend?.sources?.length || !(totalPremium > 0) || year < targetIncomeStartYear) return 0;
-  let value = 0;
-  let weight = 0;
-  blend.sources.forEach((item) => {
-    const sourceTotal = toNum(item.row.initial_total_planned_premium, 0);
-    const sourceStart = Math.round(toNum(item.row.income_start_year, targetIncomeStartYear));
-    const sourceYear = sourceStart + (year - targetIncomeStartYear);
-    const row = sourceRowFast(item.row, "current_rows", sourceYear);
-    const parsed = Number(row?.monthly_income_annualized);
-    if (!(sourceTotal > 0) || !Number.isFinite(parsed)) return;
-    value += (parsed / sourceTotal) * totalPremium * item.weight;
-    weight += item.weight;
-  });
-  return weight > 0 ? value / weight : 0;
-}
-
-function maxSourcePolicyYearFast(blend) {
-  return blend.sources.reduce((max, item) => {
-    const rows = item.row.__exportCache?.current_rows?.sorted || [];
-    const last = rows[rows.length - 1];
-    return Math.max(max, Math.round(toNum(last?.policy_year, 0)));
-  }, 0);
-}
-
-function incomeBoundsFast(incomeStartYear) {
-  const early = Math.round(toNum(incomeStartYear, 4)) <= 3;
-  return {
-    minMonthlyIncome: early ? toNum(model.SII_CONSTANTS.minMonthlyIncomeEarly, 60) : toNum(model.SII_CONSTANTS.minMonthlyIncomeStandard, 300),
-    maxMonthlyIncome: early ? toNum(model.SII_CONSTANTS.maxMonthlyIncomeEarly, 100000) : toNum(model.SII_CONSTANTS.maxMonthlyIncomeStandard, 500000),
-  };
-}
-
-function simulateSiiExportFast({ age, term, incomeStartYear, annualisedPremium }) {
-  const constants = model.SII_CONSTANTS || {};
-  const termNum = model.siiTermNumber(term);
-  const blend = blendSourcesFast(termNum, incomeStartYear, age);
-  const premiumBounds = model.siiPremiumBounds(termNum);
-  const bounds = incomeBoundsFast(incomeStartYear);
-  const blockers = [];
-  const notes = [];
-
-  const incomeAnnualRate = blend
-    ? blend.sources.reduce((sum, item) => {
-      const sourceTotal = toNum(item.row.initial_total_planned_premium, 0);
-      const annualIncome = toNum(item.row.initial_monthly_income_annualized, 0);
-      return sum + (sourceTotal > 0 ? (annualIncome / sourceTotal) * item.weight : 0);
-    }, 0)
-    : 0;
-  const totalPlannedPremium = termNum > 1 ? annualisedPremium * termNum : annualisedPremium;
-  const targetMonthlyIncome = totalPlannedPremium * incomeAnnualRate / 12;
-
-  if (!blend) blockers.push("No parsed SII source illustrations are available for estimation.");
-  if (!(incomeAnnualRate > 0)) blockers.push("No income rate could be derived from the parsed source illustrations.");
-  if (annualisedPremium < premiumBounds.minAnnualPlannedPremium || annualisedPremium > premiumBounds.maxAnnualPlannedPremium) {
-    blockers.push(`Annualised premium must be between US$${premiumBounds.minAnnualPlannedPremium.toLocaleString()} and US$${premiumBounds.maxAnnualPlannedPremium.toLocaleString()} for ${model.siiTermLabel(termNum)}.`);
-  }
-  if (targetMonthlyIncome > bounds.maxMonthlyIncome) {
-    blockers.push(`Target monthly income must be between US$${bounds.minMonthlyIncome.toLocaleString()} and US$${bounds.maxMonthlyIncome.toLocaleString()} for income start year ${incomeStartYear}.`);
-  }
-  if (blend?.method === "age_shifted_source") {
-    notes.push(`Selected age is estimated from source age ${blend.sourceAges.join(", ")} for this term/start-year combination; validate against an official PI.`);
-  } else if (blend?.method === "interpolated_age") {
-    notes.push(`Age projection is interpolated between source-age anchors ${blend.sourceAges.join(" and ")}; validate against an official PI for the selected age.`);
-  } else if (blend?.method === "extrapolated_age" || age < sourceRange.minAge || age > sourceRange.maxAge) {
-    notes.push(`Age projection is extrapolated from source-age anchors ${Array.from(new Set(sourceAges)).sort((a, b) => a - b).join(", ")}; values further from these ages are less reliable.`);
-  }
-  if (blend && ["interpolated_sparse", "extrapolated_sparse"].includes(blend.method)) {
-    notes.push("Premium term and income start values are interpolated or extrapolated from uploaded source PIs and are approximate.");
-  }
-  if (model.SII_DATA?.source?.errorCount) {
-    notes.push(`${model.SII_DATA.source.errorCount} uploaded SII PDF did not parse and is excluded from this estimate.`);
-  }
-
-  const baseSummary = {
-    valid: blockers.length === 0,
-    blockers,
-    notes,
-    method: blend?.method || "not_available",
-    premiumTermNumber: termNum,
-    premiumTermLabel: model.siiTermLabel(termNum),
-    incomeStartYear,
-    incomeStartAge: age + incomeStartYear,
-    targetMonthlyIncome,
-    annualizedIncome: targetMonthlyIncome * 12,
-    totalPlannedPremium,
-    annualPlannedPremium: termNum > 1 ? annualisedPremium : 0,
-    inputPremium: annualisedPremium,
-    singlePremium: termNum === 1 ? totalPlannedPremium : 0,
-    minAnnualPlannedPremium: premiumBounds.minAnnualPlannedPremium,
-    maxAnnualPlannedPremium: premiumBounds.maxAnnualPlannedPremium,
-    incomeAnnualRate,
-    sourceLabels: blend?.sourceLabels || "",
-    sourceAges: blend?.sourceAges || [],
-    sourcePdfs: blend?.sourcePdfs || "",
-    sourcePdfCount: blend?.sourceCount || 0,
-  };
-
-  if (blockers.length || !blend) {
-    return { summary: baseSummary, milestones: {} };
-  }
-
-  const maxSourceYear = maxSourcePolicyYearFast(blend) || 79;
-  const maturityAge = Math.round(toNum(constants.maturityAge, 125));
-  const projectionYears = Math.max(1, Math.min(maxSourceYear, maturityAge - age));
-  const annualPremium = termNum > 1 ? totalPlannedPremium / termNum : 0;
-  const singlePremium = termNum === 1 ? totalPlannedPremium : 0;
-  const faceAmount = blendAmountByTotalFast(blend, "face_amount", totalPlannedPremium, totalPlannedPremium);
-  const targetAnnualIncome = targetMonthlyIncome * 12;
-  const rawIncomeAtStart = blendIncomeRawFast(blend, incomeStartYear, totalPlannedPremium, incomeStartYear);
-  const incomeScale = rawIncomeAtStart > 0 ? targetAnnualIncome / rawIncomeAtStart : 1;
-
-  let cumulativePremiums = 0;
-  let cumulativeIncome = 0;
-  let priorPolicyValue = 0;
-  let cumulativePremiumCharges = 0;
-  let cumulativePolicyFees = 0;
-  let cumulativeAdminFees = 0;
-  let cumulativeBooster = 0;
-  let cumulativeDeductions = 0;
-  const milestones = {};
-  let referenceRow = null;
-  let finalRow = null;
-
-  for (let year = 1; year <= projectionYears; year += 1) {
-    const currentRow = blendCurrentFast(blend, year, totalPlannedPremium);
-    const effectOfDeductions = Math.max(0, blendDeductionFast(blend, year, totalPlannedPremium));
-    const premiumPaid = termNum === 1
-      ? (year === 1 ? singlePremium : 0)
-      : (year <= termNum ? annualPremium : 0);
-    cumulativePremiums += premiumPaid;
-
-    const annualIncome = year >= incomeStartYear
-      ? Math.max(0, blendIncomeRawFast(blend, year, totalPlannedPremium, incomeStartYear) * incomeScale)
-      : 0;
-    cumulativeIncome += annualIncome;
-
-    const policyValue = Math.max(0, toNum(currentRow.policy_value, 0));
-    const policyValueLessCharges = Math.max(0, toNum(currentRow.policy_value_less_surrender_charge_and_unvested_booster, 0));
-    const surrenderValue = Math.max(0, toNum(currentRow.surrender_value, 0));
-    const deathBenefit = Math.max(0, toNum(currentRow.death_benefit, 0));
-    const premiumChargePct = toNum(constants.premiumChargePctByPolicyYear?.[String(Math.min(year, 10))], 4);
-    const premiumCharge = premiumPaid * premiumChargePct / 100;
-    const policyFee = year <= toNum(constants.policyFeeToYear, 25)
-      ? (faceAmount / 1000) * toNum(constants.policyFeePer1000FaceAmountMonthly, 2.108333) * 12
-      : 0;
-    const adminFee = priorPolicyValue * (toNum(constants.adminFeeMonthlyPctPolicyValue, 0.03) / 100) * 12;
-    const policyValueBooster = year >= toNum(constants.policyValueBoosterFromYear, 2) && year <= toNum(constants.policyValueBoosterToYear, 25)
-      ? faceAmount * toNum(constants.policyValueBoosterRatePctPa, 1.46) / 100
-      : 0;
-    cumulativePremiumCharges += premiumCharge;
-    cumulativePolicyFees += policyFee;
-    cumulativeAdminFees += adminFee;
-    cumulativeBooster += policyValueBooster;
-    cumulativeDeductions = Math.max(cumulativeDeductions, effectOfDeductions);
-
-    const row = {
-      year,
-      age: age + year,
-      siiPolicyValue: policyValue,
-      siiPolicyValueLessCharges: policyValueLessCharges,
-      siiSurrenderValue: surrenderValue,
-      siiDeathBenefit: deathBenefit,
-      siiAnnualIncome: annualIncome,
-      siiCumulativeIncome: cumulativeIncome,
-      siiPremiumPaid: premiumPaid,
-      siiCumulativePremiums: cumulativePremiums,
-      siiCumulativePremiumCharges: cumulativePremiumCharges,
-      siiCumulativePolicyFees: cumulativePolicyFees,
-      siiCumulativeAdminFees: cumulativeAdminFees,
-      siiCumulativeChargesEstimate: cumulativePremiumCharges + cumulativePolicyFees + cumulativeAdminFees,
-      siiCumulativeBooster: cumulativeBooster,
-      siiCumulativeNetChargesAfterBooster: cumulativePremiumCharges + cumulativePolicyFees + cumulativeAdminFees - cumulativeBooster,
-      siiCumulativeDeductions: cumulativeDeductions,
-    };
-    if (year === 1) milestones.y1 = row;
-    if (year === incomeStartYear) milestones.start = row;
-    if (year === 10) milestones.y10 = row;
-    if (year === 20) milestones.y20 = row;
-    if (year === 40) milestones.y40 = row;
-    if (year === 40) referenceRow = row;
-    finalRow = row;
-    priorPolicyValue = policyValue;
-  }
-
-  referenceRow ||= finalRow || {};
-  milestones.final = finalRow || {};
-  const weightedCurrentYieldPct = blendScalarFast(blend, "current_illustrated_yield_pct_pa", null);
-  const weightedGuaranteedYieldPct = blendScalarFast(blend, "guaranteed_illustrated_yield_pct_pa", null);
-  const weightedTdcPct = blendScalarFast(blend, "total_distribution_cost_pct", null);
-
-  return {
-    summary: {
-      ...baseSummary,
-      valid: true,
-      projectionYears,
-      maturityAge,
-      totalProjectedIncome: cumulativeIncome,
-      totalBenefitsAtProjection: (finalRow?.siiSurrenderValue || 0) + cumulativeIncome,
-      finalSurrenderValue: finalRow?.siiSurrenderValue || 0,
-      finalDeathBenefit: finalRow?.siiDeathBenefit || 0,
-      referenceYear: referenceRow.year || projectionYears,
-      referenceAge: referenceRow.age || age + projectionYears,
-      referenceSurrenderValue: referenceRow.siiSurrenderValue || 0,
-      referencePolicyValue: referenceRow.siiPolicyValue || 0,
-      referenceTotalBenefits: (referenceRow.siiSurrenderValue || 0) + (referenceRow.siiCumulativeIncome || 0),
-      referenceCumulativeIncome: referenceRow.siiCumulativeIncome || 0,
-      finalNetIrr: null,
-      currentIllustratedYield: Number.isFinite(weightedCurrentYieldPct) ? weightedCurrentYieldPct / 100 : null,
-      guaranteedIllustratedYield: Number.isFinite(weightedGuaranteedYieldPct) ? weightedGuaranteedYieldPct / 100 : null,
-      totalDistributionCostPct: Number.isFinite(weightedTdcPct) ? weightedTdcPct / 100 : null,
-      faceAmount,
-      rawIncomeAtStart,
-      incomeScale,
-      totalPremiumChargeEstimate: finalRow?.siiCumulativePremiumCharges || 0,
-      totalPolicyFeeEstimate: finalRow?.siiCumulativePolicyFees || 0,
-      totalAdminFeeEstimate: finalRow?.siiCumulativeAdminFees || 0,
-      cumulativeChargesEstimate: finalRow?.siiCumulativeChargesEstimate || 0,
-      cumulativeBoosterEstimate: finalRow?.siiCumulativeBooster || 0,
-      cumulativeNetChargesAfterBooster: finalRow?.siiCumulativeNetChargesAfterBooster || 0,
-      cumulativeEffectOfDeductions: finalRow?.siiCumulativeDeductions || 0,
-    },
-    milestones,
-  };
-}
-
 const constants = model.SII_CONSTANTS || {};
 const terms = ["single", 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const extrapolationRows = [];
@@ -690,14 +191,27 @@ for (let age = constants.entryAgeMin ?? 0; age <= (constants.entryAgeMax ?? 70);
     const annualisedPremium = ANNUALISED_PREMIUM_BASIS;
     const starts = model.siiAvailableIncomeStartYears(term);
     for (const startYear of starts) {
-      const result = simulateSiiExportFast({ age, term, incomeStartYear: startYear, annualisedPremium });
-      const summary = result.summary || {};
-      const y1 = result.milestones?.y1 || {};
-      const start = result.milestones?.start || {};
-      const y10 = result.milestones?.y10 || {};
-      const y20 = result.milestones?.y20 || {};
-      const y40 = result.milestones?.y40 || {};
-      const final = result.milestones?.final || {};
+      const result = model.simulate({
+        variantKey: "SII",
+        currency: "USD",
+        paymentFrequency: "Annual",
+        siiAge: age,
+        siiPremiumTerm: term,
+        siiIncomeStartYear: startYear,
+        siiInputMode: "premium",
+        siiAnnualPlannedPremium: annualisedPremium,
+        siiSkipMonthly: true,
+        siiSkipAnnualIrr: true,
+      });
+      const summary = result.siiSummary || {};
+      const annual = result.annual || [];
+      const byYear = new Map(annual.map((row) => [row.year, row]));
+      const y1 = byYear.get(1) || {};
+      const start = byYear.get(startYear) || {};
+      const y10 = byYear.get(10) || {};
+      const y20 = byYear.get(20) || {};
+      const y40 = byYear.get(40) || {};
+      const final = annual[annual.length - 1] || {};
       extrapolationRows.push({
         scenario_key: `AGE${age}_${termKey(term)}_PY${startYear}`,
         age,
@@ -723,6 +237,8 @@ for (let age = constants.entryAgeMin ?? 0; age <= (constants.entryAgeMax ?? 70);
         annual_income_rate_per_total_premium_pct: pct(summary.incomeAnnualRate, 6),
         projection_years: summary.projectionYears,
         maturity_age: summary.maturityAge,
+        projection_truncated: summary.projectionTruncated ?? "",
+        projection_end_age: summary.projectionEndAge ?? "",
         current_illustrated_yield_pct_pa: pct(summary.currentIllustratedYield, 6),
         guaranteed_illustrated_yield_pct_pa: pct(summary.guaranteedIllustratedYield, 6),
         total_distribution_cost_pct: pct(summary.totalDistributionCostPct, 6),
@@ -740,7 +256,7 @@ for (let age = constants.entryAgeMin ?? 0; age <= (constants.entryAgeMax ?? 70);
         net_illustrated_yield_pct_pa: pct(summary.currentIllustratedYield, 6),
         index_account_assumption_pct_pa: n(constants.indexAssumedCreditingRateCurrentPct, 2),
         blended_drag_vs_index_assumption_pct: pct(Number.isFinite(summary.currentIllustratedYield)
-          ? (toNum(constants.indexAssumedCreditingRateCurrentPct, 6.35) / 100) - summary.currentIllustratedYield
+          ? (Number(constants.indexAssumedCreditingRateCurrentPct ?? 6.35) / 100) - summary.currentIllustratedYield
           : null, 6),
         face_amount_estimate: n(summary.faceAmount, 2),
         total_premium_charge_estimate: n(summary.totalPremiumChargeEstimate, 2),
@@ -797,6 +313,8 @@ writeCsv(resolve(outDir, "sii_claude_all_extrapolations_annualised_100k.csv"), e
   "annual_income_rate_per_total_premium_pct",
   "projection_years",
   "maturity_age",
+  "projection_truncated",
+  "projection_end_age",
   "current_illustrated_yield_pct_pa",
   "guaranteed_illustrated_yield_pct_pa",
   "total_distribution_cost_pct",
@@ -846,6 +364,8 @@ const methodCounts = extrapolationRows.reduce((acc, row) => {
   return acc;
 }, {});
 
+const truncatedRowCount = extrapolationRows.filter((row) => row.projection_truncated === true).length;
+
 const summary = {
   generatedAt: now,
   product: "SII / Signature Indexed Income",
@@ -861,7 +381,10 @@ const summary = {
     sourceScenarioRows: sourceScenarioRows.length,
     sourceAnnualRows: sourceAnnualRows.length,
     extrapolationRows: extrapolationRows.length,
+    estimationMethodLabels: Object.keys(methodCounts).sort(),
     estimationMethodCounts: methodCounts,
+    projectionTruncatedRows: truncatedRowCount,
+    projectionToMaturityRows: extrapolationRows.length - truncatedRowCount,
   },
   files: {
     sourceScenarios: "sii_claude_source_pi_scenarios.csv",
@@ -913,17 +436,32 @@ These SII figures are derived from uploaded policy illustrations and extrapolate
 
 - Extrapolation rows exported: ${extrapolationRows.length}.
 - Method counts: ${Object.entries(methodCounts).map(([key, value]) => `${key}=${value}`).join(", ")}.
+- Rows with \`projection_truncated=true\`: ${truncatedRowCount} of ${extrapolationRows.length}.
+
+## Estimation Methods
+
+- \`source_exact\` - a parsed PI exists for this exact age/term/start-year combination.
+- \`age_shifted_source\` - the exact term/start-year PI from the nearest source-age anchor is used directly (parsed PIs show identical income rates per 100k premium at both anchor ages).
+- \`interpolated_age\` - the exact term/start-year PI exists at both anchor ages and the value is interpolated across age.
+- \`interpolated_sparse\` - no exact term/start-year PI; the value is interpolated along the per-term income-start curve within each anchor-age cohort (age is excluded from the term/start blend), then combined across anchor ages.
+- \`extrapolated_sparse\` - as above, but the requested income start year falls outside the illustrated start-year range for the term; the tail extrapolation is linear and clamped, so far-out start years may be understated.
+
+## Projection Horizon
+
+- Every grid row projects annual values from policy year 1 to \`final_policy_year\` (attained age \`final_age\`).
+- \`total_projected_income\`, \`final_surrender_value\`, \`final_death_benefit\`, and \`total_benefits_at_projection\` are measured to \`final_policy_year\`, NOT to maturity age ${model.SII_CONSTANTS.maturityAge ?? 125}.
+- \`projection_truncated\` is \`true\` and \`projection_end_age\` (= the attained age the projection stops at) is below maturity age ${model.SII_CONSTANTS.maturityAge ?? 125} where the parsed source tables end before maturity (younger entry ages). When \`projection_truncated\` is \`false\`, \`projection_end_age\` equals maturity age. Do not compare \`total_*\` columns across ages with different \`projection_end_age\` values without accounting for the horizon difference.
 
 ## Model Notes For Claude
 
 - Source-exact term/start/age cases use the matching parsed PI row.
-- Matching term/start cases across age anchors use age interpolation or extrapolation.
-- Sparse term/start cases use inverse-distance weighting across premium term, income start year, and age.
+- Estimation is two-stage: term/start-year values are blended within each source-age cohort with age excluded from the blend, then interpolated across the source-age anchors. Entry ages outside the anchor range use the nearest anchor (parsed PIs show the income rate per 100k premium is age-invariant across the anchors).
 - Income is aligned to the selected income start year. Source payout curves are shifted so payout year 1 lands on the selected policy year; income before the selected start year is forced to zero.
 - User-facing premium input is annualised premium for 2-pay to 10-pay and single premium for SP.
-- The full extrapolation grid uses \`net_illustrated_yield_pct_pa\` as the collapsed annualised representation of charges blended with bonuses, and \`blended_drag_vs_index_assumption_pct\` as the spread against the 6.35% Index Account illustration assumption.
+- The full extrapolation grid uses \`net_illustrated_yield_pct_pa\` as the collapsed annualised representation of charges blended with bonuses, and \`blended_drag_vs_index_assumption_pct\` as the spread against the ${model.SII_CONSTANTS.indexAssumedCreditingRateCurrentPct}% Index Account illustration assumption.
 - Charges and bonuses include premium charge, policy fee, admin fee estimate, policy value booster, net fees after booster, surrender/unvested drag, and parsed effect of deductions.
-- Early-year SII IRR values outside sane bounds are displayed as \`n.m.\` in the UI and exported as blank/null where applicable.
+- \`final_net_irr_pct\` is the net monthly-cash-flow IRR (premiums out, income in, final surrender value at \`final_policy_year\`), annualised. SII IRR values outside sane bounds are displayed as \`n.m.\` in the UI and exported as blank here.
+- Rows whose derived monthly income at the US$${ANNUALISED_PREMIUM_BASIS.toLocaleString()} basis falls below the product minimum carry a below-minimum note in \`notes\`; that income level may not be electable on an official PI.
 `;
 
 writeFileSync(resolve(outDir, "SII_CLAUDE_EXPORT.md"), md, "utf8");

@@ -5356,7 +5356,7 @@ canvas#rrpBenefitsChart {
     </main>
 
     <script src="assets/rrp3-rates.js"></script>
-    <script src="assets/sii-rates.js"></script>
+    <script src="assets/sii-rates-runtime.js"></script>
     <script src="assets/illustration-model.js"></script>
     <script src="assets/illustration-view.js"></script>
     <script src="fund-library-afl.js"></script>
@@ -8200,9 +8200,8 @@ canvas#rrpBenefitsChart {
     const setHtml = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
     const methodLabel = {
       source_exact: "source-exact",
-      age_shifted_source: "age-shifted source",
+      age_shifted_source: "anchor-age source",
       interpolated_age: "age-interpolated estimate",
-      extrapolated_age: "age-extrapolated estimate",
       interpolated_sparse: "interpolated estimate",
       extrapolated_sparse: "extrapolated estimate",
       not_available: "not available",
@@ -10480,8 +10479,27 @@ canvas#rrpBenefitsChart {
     }
 
     // ===== Signature Indexed Income input handlers =====
+    // SII typing inputs debounce the full re-simulation (~150ms) so a
+    // 6-digit premium doesn't fire 6 recalcs; change (blur / Enter)
+    // flushes any pending recalc immediately so tabbing out never
+    // leaves stale numbers on screen.
+    let siiRecalcTimer = null;
+    const siiRecalcDebounced = () => {
+      if (siiRecalcTimer !== null) clearTimeout(siiRecalcTimer);
+      siiRecalcTimer = setTimeout(() => {
+        siiRecalcTimer = null;
+        recalc();
+      }, 150);
+    };
+    const siiRecalcFlush = () => {
+      if (siiRecalcTimer === null) return;
+      clearTimeout(siiRecalcTimer);
+      siiRecalcTimer = null;
+      recalc();
+    };
     if (fields.siiAge) {
-      fields.siiAge.addEventListener("input", recalc);
+      fields.siiAge.addEventListener("input", siiRecalcDebounced);
+      fields.siiAge.addEventListener("change", siiRecalcFlush);
     }
     if (fields.siiPremiumTerm) {
       fields.siiPremiumTerm.addEventListener("change", () => {
@@ -10507,8 +10525,9 @@ canvas#rrpBenefitsChart {
       });
       fields.siiTargetMonthlyIncome.addEventListener("input", () => {
         setSIIInputMode("income");
-        recalc();
+        siiRecalcDebounced();
       });
+      fields.siiTargetMonthlyIncome.addEventListener("change", siiRecalcFlush);
     }
     if (fields.siiTotalPlannedPremium) {
       fields.siiTotalPlannedPremium.addEventListener("pointerdown", () => {
@@ -10516,8 +10535,9 @@ canvas#rrpBenefitsChart {
       });
       fields.siiTotalPlannedPremium.addEventListener("input", () => {
         setSIIInputMode("premium");
-        recalc();
+        siiRecalcDebounced();
       });
+      fields.siiTotalPlannedPremium.addEventListener("change", siiRecalcFlush);
     }
     if (fields.siiMilestoneOnly) {
       fields.siiMilestoneOnly.addEventListener("change", () => {

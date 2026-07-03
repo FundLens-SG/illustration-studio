@@ -2305,12 +2305,7 @@
     );
   }
 
-  function siiSourceDistance(row, termNum, startYear, age) {
-    const termDistance = Math.abs(num(row.premium_payment_term_number, 1) - termNum);
-    const startDistance = Math.abs(num(row.income_start_year, 4) - startYear) / 3;
-    const ageDistance = Math.abs(Math.round(num(row.life_insured_age, age)) - age) / 10;
-    return Math.sqrt(termDistance * termDistance + startDistance * startDistance + ageDistance * ageDistance);
-  }
+  const SII_START_TAIL_CLAMP = 0.5;
 
   function siiAgeGroupedSources(rows) {
     const groups = new Map();
@@ -2324,63 +2319,137 @@
       .sort((a, b) => a.age - b.age);
   }
 
-  function siiPickByAge(rows, age) {
-    const groups = siiAgeGroupedSources(rows);
-    if (!groups.length) return { picked: [], method: "not_available", ageMode: "none" };
-    const exact = groups.find((group) => group.age === age);
-    if (exact) {
-      return {
-        picked: exact.rows.map((row) => ({ row, distance: 0, weight: 1 / exact.rows.length })),
-        method: "source_exact",
-        ageMode: "exact",
-      };
-    }
-    if (groups.length === 1) {
-      const [only] = groups;
-      return {
-        picked: only.rows.map((row) => ({ row, distance: Math.abs(only.age - age), weight: 1 / only.rows.length })),
-        method: "age_shifted_source",
-        ageMode: "single_age_shift",
-      };
-    }
-
-    let left = null;
-    let right = null;
-    if (age < groups[0].age) {
-      left = groups[0];
-      right = groups[1];
-    } else if (age > groups[groups.length - 1].age) {
-      left = groups[groups.length - 2];
-      right = groups[groups.length - 1];
-    } else {
-      groups.forEach((group) => {
-        if (group.age < age && (!left || group.age > left.age)) left = group;
-        if (group.age > age && (!right || group.age < right.age)) right = group;
+  let siiCurvesCache = null;
+  function siiCohortCurves() {
+    if (siiCurvesCache) return siiCurvesCache;
+    const rows = siiSourceRows();
+    const cohorts = siiAgeGroupedSources(rows);
+    cohorts.forEach((cohort) => {
+      const ownByTerm = new Map();
+      cohort.rows.forEach((row) => {
+        const t = Math.round(num(row.premium_payment_term_number, 1));
+        const s = Math.round(num(row.income_start_year, 4));
+        if (!ownByTerm.has(t)) ownByTerm.set(t, new Map());
+        const byStart = ownByTerm.get(t);
+        if (!byStart.has(s)) byStart.set(s, []);
+        byStart.get(s).push(row);
       });
-    }
-    if (!left || !right || left.age === right.age) {
-      const nearest = groups
-        .map((group) => ({ group, distance: Math.abs(group.age - age) }))
-        .sort((a, b) => a.distance - b.distance)[0].group;
-      return {
-        picked: nearest.rows.map((row) => ({ row, distance: Math.abs(nearest.age - age), weight: 1 / nearest.rows.length })),
-        method: "age_shifted_source",
-        ageMode: "nearest_age_shift",
-      };
-    }
+      cohort.ownByTerm = ownByTerm;
+      cohort.terms = Array.from(ownByTerm.keys()).sort((a, b) => a - b);
+    });
+    cohorts.forEach((cohort) => {
+      const termCurves = new Map();
+      cohort.ownByTerm.forEach((byStart, t) => {
+        const nodeMap = new Map();
+        byStart.forEach((nodeRows, s) => nodeMap.set(s, { start: s, rows: nodeRows, own: true }));
+        cohorts.forEach((other) => {
+          if (other === cohort) return;
+          const otherByStart = other.ownByTerm.get(t);
+          if (!otherByStart) return;
+          otherByStart.forEach((nodeRows, s) => {
+            if (!nodeMap.has(s)) nodeMap.set(s, { start: s, rows: nodeRows, own: false });
+          });
+        });
+        termCurves.set(t, Array.from(nodeMap.values()).sort((a, b) => a.start - b.start));
+      });
+      cohort.termCurves = termCurves;
+    });
+    const unionTerms = Array.from(new Set(cohorts.flatMap((c) => c.terms))).sort((a, b) => a - b);
+    siiCurvesCache = { cohorts, unionTerms };
+    return siiCurvesCache;
+  }
 
-    const ratio = (age - left.age) / (right.age - left.age);
-    const leftWeight = 1 - ratio;
-    const rightWeight = ratio;
-    const picked = [
-      ...left.rows.map((row) => ({ row, distance: Math.abs(left.age - age), weight: leftWeight / left.rows.length })),
-      ...right.rows.map((row) => ({ row, distance: Math.abs(right.age - age), weight: rightWeight / right.rows.length })),
+  function siiStartCurveWeights(nodes, startYear) {
+    const spread = (node, w) => node.rows.map((row) => ({ row, weight: w / node.rows.length }));
+    if (nodes.length === 1) {
+      const hit = startYear === nodes[0].start;
+      return { items: spread(nodes[0], 1), exactNode: hit, hitNode: hit ? nodes[0] : null, tail: !hit, tailClamped: false };
+    }
+    const first = nodes[0];
+    const last = nodes[nodes.length - 1];
+    const span = last.start - first.start;
+    const hit = nodes.find((node) => node.start === startYear);
+    if (hit) return { items: spread(hit, 1), exactNode: true, hitNode: hit, tail: false, tailClamped: false };
+    if (startYear < first.start) {
+      const raw = (first.start - startYear) / span;
+      const e = Math.min(raw, SII_START_TAIL_CLAMP);
+      return { items: [...spread(first, 1 + e), ...spread(last, -e)], exactNode: false, hitNode: null, tail: true, tailClamped: raw > SII_START_TAIL_CLAMP };
+    }
+    if (startYear > last.start) {
+      const raw = (startYear - last.start) / span;
+      const e = Math.min(raw, SII_START_TAIL_CLAMP);
+      return { items: [...spread(first, -e), ...spread(last, 1 + e)], exactNode: false, hitNode: null, tail: true, tailClamped: raw > SII_START_TAIL_CLAMP };
+    }
+    for (let i = 0; i < nodes.length - 1; i += 1) {
+      const a = nodes[i];
+      const b = nodes[i + 1];
+      if (startYear > a.start && startYear < b.start) {
+        const t = (startYear - a.start) / (b.start - a.start);
+        return { items: [...spread(a, 1 - t), ...spread(b, t)], exactNode: false, hitNode: null, tail: false, tailClamped: false, interp: true };
+      }
+    }
+    return { items: spread(last, 1), exactNode: false, hitNode: null, tail: true, tailClamped: false };
+  }
+
+  function siiResolveTermParts(curves, cohort, termNum) {
+    if (cohort.termCurves.has(termNum)) {
+      return [{ nodes: cohort.termCurves.get(termNum), weight: 1, borrowed: false }];
+    }
+    const donor = curves.cohorts.find((c) => c !== cohort && c.termCurves.has(termNum));
+    if (donor) return [{ nodes: donor.termCurves.get(termNum), weight: 1, borrowed: true }];
+    let low = null;
+    let high = null;
+    curves.unionTerms.forEach((t) => {
+      if (t < termNum && (low === null || t > low)) low = t;
+      if (t > termNum && (high === null || t < high)) high = t;
+    });
+    const curveFor = (t) => (cohort.termCurves.get(t)
+      || curves.cohorts.find((c) => c.termCurves.has(t)).termCurves.get(t));
+    if (low === null || high === null) {
+      const only = low !== null ? low : high;
+      return [{ nodes: curveFor(only), weight: 1, borrowed: !cohort.termCurves.has(only), bracketTail: true }];
+    }
+    const u = (termNum - low) / (high - low);
+    return [
+      { nodes: curveFor(low), weight: 1 - u, borrowed: !cohort.termCurves.has(low), bracketed: true },
+      { nodes: curveFor(high), weight: u, borrowed: !cohort.termCurves.has(high), bracketed: true },
     ];
-    return {
-      picked,
-      method: age >= groups[0].age && age <= groups[groups.length - 1].age ? "interpolated_age" : "extrapolated_age",
-      ageMode: age >= groups[0].age && age <= groups[groups.length - 1].age ? "interpolated" : "extrapolated",
-    };
+  }
+
+  function siiCohortPick(curves, cohort, termNum, startYear) {
+    const parts = siiResolveTermParts(curves, cohort, termNum);
+    const items = [];
+    let exactOwnNode = false;
+    let exactAnyNode = false;
+    let anyTail = false;
+    let anyTailClamped = false;
+    parts.forEach((part) => {
+      const pick = siiStartCurveWeights(part.nodes, startYear);
+      pick.items.forEach((item) => items.push({ row: item.row, weight: item.weight * part.weight }));
+      if (pick.tail || part.bracketTail) anyTail = true;
+      if (pick.tailClamped) anyTailClamped = true;
+      if (parts.length === 1 && pick.exactNode) {
+        exactAnyNode = true;
+        if (!part.borrowed && pick.hitNode.own) exactOwnNode = true;
+      }
+    });
+    return { items, exactOwnNode, exactAnyNode, tail: anyTail, tailClamped: anyTailClamped };
+  }
+
+  function siiCohortAgeWeights(cohorts, age) {
+    if (!cohorts.length) return [];
+    if (cohorts.length === 1 || age <= cohorts[0].age) return [{ cohort: cohorts[0], weight: 1 }];
+    const lastCohort = cohorts[cohorts.length - 1];
+    if (age >= lastCohort.age) return [{ cohort: lastCohort, weight: 1 }];
+    let left = cohorts[0];
+    let right = lastCohort;
+    cohorts.forEach((cohort) => {
+      if (cohort.age <= age && cohort.age >= left.age) left = cohort;
+      if (cohort.age > age && cohort.age < right.age) right = cohort;
+    });
+    if (left.age === age) return [{ cohort: left, weight: 1 }];
+    const ratio = (age - left.age) / (right.age - left.age);
+    return [{ cohort: left, weight: 1 - ratio }, { cohort: right, weight: ratio }];
   }
 
   function siiBlendSources(term, incomeStartYear, age) {
@@ -2389,43 +2458,49 @@
     const ageNum = Math.round(num(age, 46));
     const rows = siiSourceRows();
     if (!rows.length) return null;
+    const curves = siiCohortCurves();
+    const ageWeights = siiCohortAgeWeights(curves.cohorts, ageNum);
+    if (!ageWeights.length) return null;
 
-    const exactRows = rows.filter((row) =>
-      Math.round(num(row.premium_payment_term_number, 0)) === termNum
-      && Math.round(num(row.income_start_year, 0)) === startYear
-    );
-    const agePick = exactRows.length ? siiPickByAge(exactRows, ageNum) : null;
-    const picked = exactRows.length
-      ? agePick.picked
-      : rows
-        .map((row) => ({ row, distance: siiSourceDistance(row, termNum, startYear, ageNum) }))
-        .sort((a, b) => a.distance - b.distance)
-        .slice(0, 8);
-
-    if (!picked.length) return null;
-    if (!exactRows.length) {
-      const weightSum = picked.reduce((sum, item) => sum + (1 / Math.pow(item.distance + 0.001, 2)), 0);
-      picked.forEach((item) => {
-        item.weight = (1 / Math.pow(item.distance + 0.001, 2)) / (weightSum || 1);
+    const merged = new Map();
+    const perCohort = [];
+    ageWeights.forEach((entry) => {
+      if (!(entry.weight > 0)) return;
+      const pick = siiCohortPick(curves, entry.cohort, termNum, startYear);
+      perCohort.push({ cohortAge: entry.cohort.age, ...pick });
+      pick.items.forEach((item) => {
+        const weight = item.weight * entry.weight;
+        merged.set(item.row, (merged.get(item.row) || 0) + weight);
       });
-    }
+    });
+    const picked = [];
+    merged.forEach((weight, row) => {
+      if (Math.abs(weight) > 1e-12) picked.push({ row, weight });
+    });
+    if (!picked.length) return null;
 
-    const terms = rows.map((row) => num(row.premium_payment_term_number, 1));
-    const starts = rows.map((row) => num(row.income_start_year, 4));
+    const allOwnNode = perCohort.every((pick) => pick.exactOwnNode);
+    const allNode = perCohort.every((pick) => pick.exactOwnNode || pick.exactAnyNode);
+    const anyTail = perCohort.some((pick) => pick.tail);
+    const anyTailClamped = perCohort.some((pick) => pick.tailClamped);
+    let method;
+    if (allOwnNode) {
+      if (perCohort.length === 1) method = perCohort[0].cohortAge === ageNum ? "source_exact" : "age_shifted_source";
+      else method = "interpolated_age";
+    } else if (allNode) {
+      method = "age_shifted_source";
+    } else {
+      method = anyTail ? "extrapolated_sparse" : "interpolated_sparse";
+    }
+    const ageMode = perCohort.length === 2
+      ? "interpolated"
+      : (perCohort[0].cohortAge === ageNum
+        ? "anchor"
+        : (ageNum < perCohort[0].cohortAge ? "clamped_low" : "clamped_high"));
+
     const ages = rows.map((row) => Math.round(num(row.life_insured_age, ageNum)));
-    const sourceMinTerm = Math.min(...terms);
-    const sourceMaxTerm = Math.max(...terms);
-    const sourceMinStart = Math.min(...starts);
-    const sourceMaxStart = Math.max(...starts);
     const sourceMinAge = Math.min(...ages);
     const sourceMaxAge = Math.max(...ages);
-    const inSourceBox = termNum >= sourceMinTerm
-      && termNum <= sourceMaxTerm
-      && startYear >= sourceMinStart
-      && startYear <= sourceMaxStart
-      && ageNum >= sourceMinAge
-      && ageNum <= sourceMaxAge;
-    const method = exactRows.length ? agePick.method : (inSourceBox ? "interpolated_sparse" : "extrapolated_sparse");
     const sourceAges = Array.from(new Set(picked.map((item) => Math.round(num(item.row.life_insured_age, ageNum))))).sort((a, b) => a - b);
     return {
       method,
@@ -2442,7 +2517,9 @@
       sourceAgeMin: sourceMinAge,
       sourceAgeMax: sourceMaxAge,
       sourceExactForAge: sourceAges.includes(ageNum),
-      ageMode: agePick?.ageMode || (ageNum >= sourceMinAge && ageNum <= sourceMaxAge ? "sparse_interpolated" : "sparse_extrapolated"),
+      ageMode,
+      startTail: anyTail,
+      startTailClamped: anyTailClamped,
     };
   }
 
@@ -2473,18 +2550,36 @@
     return weight > 0 ? value / weight : fallback;
   }
 
+  const siiRowCaches = new WeakMap();
+  function siiRowCache(source, rowKey) {
+    if (!source || typeof source !== "object") return { sorted: [], byYear: new Map() };
+    let caches = siiRowCaches.get(source);
+    if (!caches) {
+      caches = {};
+      siiRowCaches.set(source, caches);
+    }
+    if (!caches[rowKey]) {
+      const rows = Array.isArray(source[rowKey]) ? source[rowKey] : [];
+      const sorted = rows
+        .filter((row) => Number.isFinite(Number(row.policy_year)))
+        .sort((a, b) => num(a.policy_year, 0) - num(b.policy_year, 0));
+      caches[rowKey] = { sorted, byYear: new Map(sorted.map((row) => [Math.round(num(row.policy_year, 0)), row])) };
+    }
+    return caches[rowKey];
+  }
+
   function siiRowAt(source, rowKey, year) {
-    const rows = Array.isArray(source?.[rowKey]) ? source[rowKey] : [];
-    if (!rows.length) return null;
-    const exact = rows.find((row) => Math.round(num(row.policy_year, 0)) === year);
+    const cache = siiRowCache(source, rowKey);
+    if (!cache.sorted.length) return null;
+    const exact = cache.byYear.get(year);
     if (exact) return exact;
     let left = null;
     let right = null;
-    rows.forEach((row) => {
+    for (const row of cache.sorted) {
       const y = Math.round(num(row.policy_year, 0));
-      if (y < year && (!left || y > num(left.policy_year, 0))) left = row;
-      if (y > year && (!right || y < num(right.policy_year, 0))) right = row;
-    });
+      if (y < year) left = row;
+      if (y > year) { right = row; break; }
+    }
     if (!left) return right;
     if (!right) return left;
     const leftYear = num(left.policy_year, year);
@@ -2604,7 +2699,7 @@
     const inputPremiumLabel = termNum === 1 ? "Single premium" : "Annualised premium";
 
     if (!SII_SCENARIOS.length) {
-      blockers.push("Signature Indexed Income rate table is not loaded. Check that assets/sii-rates.js is available.");
+      blockers.push("Signature Indexed Income rate table is not loaded. Check that assets/sii-rates-runtime.js is available.");
     }
     if (!variant?.currencies?.includes(settings.currency)) {
       blockers.push(`${variant?.label || "Signature Indexed Income"} is only available in USD in this tool.`);
@@ -2641,17 +2736,27 @@
     const sourceMinAge = allSourceAges.length ? Math.min(...allSourceAges) : null;
     const sourceMaxAge = allSourceAges.length ? Math.max(...allSourceAges) : null;
     if (blend?.method === "age_shifted_source") {
-      notes.push(`Selected age is estimated from source age ${blend.sourceAges.join(", ")} for this term/start-year combination; validate against an official PI.`);
+      notes.push(`Selected age is estimated from source age ${blend.sourceAges.join(", ")} for this term/start-year combination; parsed source PIs show identical income rates at both anchor ages; validate against an official PI.`);
     } else if (blend?.method === "interpolated_age") {
       notes.push(`Age projection is interpolated between source-age anchors ${blend.sourceAges.join(" and ")}; validate against an official PI for the selected age.`);
-    } else if (blend?.method === "extrapolated_age" || (sourceMinAge !== null && (age < sourceMinAge || age > sourceMaxAge))) {
-      notes.push(`Age projection is extrapolated from source-age anchors ${allSourceAges.join(", ")}; values further from these ages are less reliable.`);
+    }
+    if (blend && (blend.ageMode === "clamped_low" || blend.ageMode === "clamped_high")) {
+      notes.push(`Entry age ${age} is outside the source-age anchors (${sourceMinAge}-${sourceMaxAge}); the nearest anchor's estimate is used (parsed PIs show identical income rates at both anchor ages); validate against an official PI.`);
     }
     if (blend && ["interpolated_sparse", "extrapolated_sparse"].includes(blend.method)) {
       notes.push("Premium term and income start values are interpolated or extrapolated from uploaded source PIs and are approximate.");
     }
+    if (blend?.startTailClamped) {
+      notes.push(`Income start year ${incomeStartYear} is beyond the illustrated start years in the parsed source PIs for this premium term; the estimate is held at the clamped extrapolation bound and may understate the deferral benefit.`);
+    }
+    if (solved.inputMode === "premium" && incomeBelowMin && solved.targetMonthlyIncome > 0) {
+      notes.push(`Derived monthly income US$${solved.targetMonthlyIncome.toLocaleString(undefined, { maximumFractionDigits: 2 })} is below the US$${bounds.minMonthlyIncome.toLocaleString()} product minimum for income start year ${incomeStartYear}; this income level may not be electable on an official PI.`);
+    }
     if (SII_DATA?.source?.errorCount) {
       notes.push(`${SII_DATA.source.errorCount} uploaded SII PDF did not parse and is excluded from this estimate.`);
+    }
+    if (SII_DATA?.source?.pageExtractErrorCount) {
+      notes.push(`${SII_DATA.source.pageExtractErrorCount} page(s) in the source PIs could not be extracted; affected scenarios may have incomplete rows.`);
     }
 
     return {
@@ -2913,6 +3018,7 @@
       notes: [
         ...validation.notes,
         projectionYears < maxSourceYear ? `Projection is capped at policy year ${projectionYears} to keep attained age within ${maturityAge}.` : "",
+        projectionYears < (maturityAge - age) ? `Source illustrations end at policy year ${projectionYears}; the projection stops at attained age ${age + projectionYears}, before maturity age ${maturityAge}. Total projected income and final values are to the final projected year, not to maturity.` : "",
       ].filter(Boolean),
       method: blend.method,
       sourceExactForAge,
@@ -2922,6 +3028,8 @@
       sourceAges: blend.sourceAges,
       projectionYears,
       maturityAge,
+      projectionEndAge: age + projectionYears,
+      projectionTruncated: projectionYears < (maturityAge - age),
       totalProjectedIncome: cumulativeIncome,
       totalBenefitsAtProjection: finalRow.siiSurrenderValue + cumulativeIncome,
       finalSurrenderValue: finalRow.siiSurrenderValue || 0,
@@ -3535,6 +3643,7 @@
     rrpIsSinglePremium,
     rrpVariantTerm,
     siiAvailableIncomeStartYears,
+    siiBlendSources,
     siiIncomeBounds,
     siiIncomeStartMin,
     siiPremiumBounds,
