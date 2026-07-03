@@ -9639,6 +9639,12 @@ canvas#rrpBenefitsChart {
     const reinvestAnnual = state.results.reinvest && state.results.reinvest.annual;
     const fdAnnual = state.results.fixedDeposit && state.results.fixedDeposit.annual;
     const compareResult = state.results.customCompare;
+    // The compared product may be in a different native currency; the table is
+    // in the main product's currency (settings.currency), so convert the
+    // compare column into it rather than mislabel a foreign-currency figure.
+    const compareCurrency = compareResult
+      ? variantNativeCurrency(compareResult, settings.currency)
+      : settings.currency;
     const variant = result.variant;
     const totalYears = result.annual.length;
     const access = projectionAccessRows(result, variant);
@@ -9810,7 +9816,7 @@ canvas#rrpBenefitsChart {
             ${hasDividendWithdrawals ? `<td class="col-withdrawal">${valueWrapper(row.dividendWithdrawals, row.year)}</td>` : ""}
             ${hasPartialWithdrawals ? `<td class="col-withdrawal">${valueWrapper(row.partialWithdrawals, row.year)}</td>` : ""}
             <td class="col-value">${valueWrapper(row.accountValue, row.year)}</td>
-            ${compareResult ? `<td class="col-total">${valueWrapper(row.totalValue, row.year)}</td><td class="col-compare">${valueWrapper(compareRow.totalValue, row.year)}</td>` : `<td class="col-total">${valueWrapper(row.totalValue, row.year)}</td>`}
+            ${compareResult ? `<td class="col-total">${valueWrapper(row.totalValue, row.year)}</td><td class="col-compare">${valueWrapper(fxConvert(compareRow.totalValue, compareCurrency, settings.currency), row.year)}</td>` : `<td class="col-total">${valueWrapper(row.totalValue, row.year)}</td>`}
             ${reinvestAnnual ? `<td class="col-value">${valueWrapper(reinvestRow.accountValue, row.year)}</td>` : ""}
             ${fdAnnual ? `<td class="col-benchmark">${valueWrapper(fdRow.value, row.year)}</td>` : ""}
             ${showAdvisor ? `<td class="col-charge">${percent(row.adminRate, 2)}</td><td class="col-charge">${percent(row.partialWithdrawalChargeRate)}</td><td class="col-charge">${valueWrapper(row.bonuses, row.year)}</td>` : ""}
