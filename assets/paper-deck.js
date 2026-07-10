@@ -576,7 +576,7 @@
 
     .paper-deck button, .paper-deck input, .paper-deck select,
     .paper-deck textarea, .paper-deck nav,
-    .paper-deck .ckg-suite-strip, .paper-deck .topbar,
+    .paper-deck .topbar,
     .paper-deck .scenario-actions, .paper-deck .restore-banner,
     .paper-deck .controls, .paper-deck .toggle-groups,
     .paper-deck .action-row { display: none !important; }
