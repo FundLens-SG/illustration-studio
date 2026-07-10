@@ -90,6 +90,33 @@ export function loadFx() {
   return fx;
 }
 
+let cachedIntegrity = null;
+
+// Load the saved-scenario tamper-evidence helpers
+// (assets/illustration-integrity.js) in a vm sandbox with Web Crypto.
+export function loadIntegrity() {
+  if (cachedIntegrity) return cachedIntegrity;
+  const sandbox = { module: { exports: {} }, console };
+  sandbox.window = sandbox;
+  sandbox.globalThis = sandbox;
+  sandbox.crypto = globalThis.crypto;
+  sandbox.TextEncoder = TextEncoder;
+  sandbox.Uint8Array = Uint8Array;
+  sandbox.Array = Array;
+  sandbox.Object = Object;
+  sandbox.JSON = JSON;
+  sandbox.Date = Date;
+  vm.createContext(sandbox);
+  const code = readFileSync(resolve(repoRoot, "assets/illustration-integrity.js"), "utf8");
+  vm.runInContext(code, sandbox, { filename: "assets/illustration-integrity.js" });
+  const ig = sandbox.IRIntegrity || sandbox.module.exports;
+  if (!ig || typeof ig.verifyScenarioIntegrity !== "function") {
+    throw new Error("integrity module failed to load: IRIntegrity.verifyScenarioIntegrity missing");
+  }
+  cachedIntegrity = ig;
+  return ig;
+}
+
 // Minimal settings shapes per engine — mirror what the UI's
 // currentSettings() produces for the fields each engine reads. Kept here
 // so tests construct scenarios without the DOM.
