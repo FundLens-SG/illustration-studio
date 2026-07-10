@@ -122,9 +122,15 @@ textarea {
   display: none !important;
 }
 
+/* gutter for the fixed CKG suite nav bar (36px, injected by ckgtools
+   middleware) — without it the bar covers the topbar's title/actions */
+body {
+  padding-top: 36px;
+}
+
 .topbar {
   position: sticky;
-  top: 0;
+  top: 36px;
   z-index: 50;
   display: flex;
   align-items: center;
